@@ -34,7 +34,7 @@ fun MessageListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(chat.userId) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,21 +43,21 @@ fun MatchesRow(
         Text(
             text = "Matches",
             style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+
+        Row() {
             if (matches.isEmpty()) {
-                item {
-                    Text(
-                        text = "No tienes chats",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
+                Text(
+                    text = "No tienes chats",
+                    style = MaterialTheme.typography.bodySmall,
+                )
             } else {
-                items(matches) { user ->
-                    MatchCard(user = user, onClick = { onNavigateToChat(user.id) })
+                matches.forEach { user ->
+                    MatchCard(
+                        user = user,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        onClick = { onNavigateToChat(user.id) })
                 }
             }
         }
@@ -66,11 +67,12 @@ fun MatchesRow(
 @Composable
 fun MatchCard(
     user: MatchUserViewEntity,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .width(72.dp)
             .debounceClickable { onClick() }
     ) {

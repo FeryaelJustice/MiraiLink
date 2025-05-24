@@ -8,6 +8,8 @@ import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
+import com.feryaeljustice.mirailink.domain.util.isValidUrl
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
@@ -87,11 +89,11 @@ class MessagesViewModel @Inject constructor(
             when (val result = getMatchesUseCase()) {
                 is MiraiLinkResult.Success -> {
                     val matchesResult = result.data.map {
+                        val url = it.photos.firstOrNull()?.url
                         MatchUserViewEntity(
                             id = it.id,
                             username = it.username,
-                            avatarUrl = it.photos.firstOrNull()?.url
-                                ?: TEMPORAL_PLACEHOLDER_PICTURE_URL,
+                            avatarUrl = url.getFormattedUrl(),
                             isBoosted = false,
                         )
                     }
@@ -117,7 +119,7 @@ class MessagesViewModel @Inject constructor(
                         ChatPreviewViewEntity(
                             userId = chat.destinatary?.id ?: Date().toString(),
                             username = chat.destinatary?.name ?: "Unknown",
-                            avatarUrl = if (avatar.isNullOrEmpty()) TEMPORAL_PLACEHOLDER_PICTURE_URL else avatar,
+                            avatarUrl = avatar.getFormattedUrl(),
                             lastMessage = chat.lastMessageText,
                             isBoosted = false,
                             hasReadsPending = chat.unreadCount == 0
