@@ -9,5 +9,6 @@ interface UserRepository {
     suspend fun logout(): MiraiLinkResult<Boolean>
     suspend fun register(username: String, email: String, password: String): MiraiLinkResult<String>
     suspend fun getCurrentUser(): MiraiLinkResult<User>
+    suspend fun getUserById(userId: String): MiraiLinkResult<User>
     suspend fun updateBio(bio: String): MiraiLinkResult<Unit>
 }

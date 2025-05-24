@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
 import com.feryaeljustice.mirailink.domain.model.User
-import com.feryaeljustice.mirailink.domain.usecase.DislikeUserUseCase
-import com.feryaeljustice.mirailink.domain.usecase.GetCurrentUserUseCase
-import com.feryaeljustice.mirailink.domain.usecase.GetFeedUseCase
-import com.feryaeljustice.mirailink.domain.usecase.LikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

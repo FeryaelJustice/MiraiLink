@@ -48,5 +48,19 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getUserById(userId: String): MiraiLinkResult<User> {
+        return when (val result = remote.getUserById(userId)) {
+            is MiraiLinkResult.Success -> {
+                val (userDto, photos) = result.data
+                val domainUserPhotos = photos.map { it.toDomain() }
+                val orderedPhotos = resolvePhotoUrls(baseUrl, domainUserPhotos)
+                val user = userDto.toDomain().copy(photos = orderedPhotos)
+                MiraiLinkResult.Success(user)
+            }
+
+            is MiraiLinkResult.Error -> result
+        }
+    }
+
     override suspend fun updateBio(bio: String): MiraiLinkResult<Unit> = remote.updateBio(bio)
 }

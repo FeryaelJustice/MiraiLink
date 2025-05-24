@@ -1,10 +1,15 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
+import com.feryaeljustice.mirailink.domain.model.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -16,6 +21,19 @@ class ChatRepositoryImpl @Inject constructor(
     override fun connectSocket() = socketService.connect()
 
     override fun disconnectSocket() = socketService.disconnect()
+
+    override suspend fun getChatsFromUser(): MiraiLinkResult<List<ChatSummary>> {
+        return when (val result = remote.getChatsFromUser()) {
+            is MiraiLinkResult.Success -> {
+                val chatSummaries = result.data.map { chatSummary ->
+                    chatSummary.toDomain()
+                }
+                MiraiLinkResult.Success(chatSummaries)
+            }
+
+            is MiraiLinkResult.Error -> result
+        }
+    }
 
     override suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> {
         return remote.createPrivateChat(otherUserId)

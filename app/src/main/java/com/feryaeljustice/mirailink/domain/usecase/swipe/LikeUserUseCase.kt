@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.domain.usecase
+package com.feryaeljustice.mirailink.domain.usecase.swipe
 
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult

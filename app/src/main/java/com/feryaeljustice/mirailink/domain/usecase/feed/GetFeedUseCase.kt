@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.domain.usecase
+package com.feryaeljustice.mirailink.domain.usecase.feed
 
 import android.util.Log
 import com.feryaeljustice.mirailink.domain.model.User

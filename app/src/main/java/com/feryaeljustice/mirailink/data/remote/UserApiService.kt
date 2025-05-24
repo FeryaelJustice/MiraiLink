@@ -2,12 +2,13 @@ package com.feryaeljustice.mirailink.data.remote
 
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
+import com.feryaeljustice.mirailink.data.model.request.ByIdRequest
 import com.feryaeljustice.mirailink.data.model.request.LoginRequest
 import com.feryaeljustice.mirailink.data.model.request.RegisterRequest
 import com.feryaeljustice.mirailink.data.model.response.BasicResponse
-import com.feryaeljustice.mirailink.data.model.response.LoginResponse
-import com.feryaeljustice.mirailink.data.model.response.LogoutResponse
-import com.feryaeljustice.mirailink.data.model.response.RegisterResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.RegisterResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -32,6 +33,9 @@ interface UserApiService {
 
     @GET("user/photos")
     suspend fun getUserPhotos(@Query("userId") userId: String): List<UserPhotoDto>
+
+    @POST("user/byId")
+    suspend fun getUserById(@Body request: ByIdRequest): UserDto
 
     @PUT("user")
     suspend fun updateBio(@Body bio: Map<String, String>)

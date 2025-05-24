@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.di
 import com.feryaeljustice.mirailink.core.SessionManager
 import com.feryaeljustice.mirailink.data.local.TokenManager
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
+import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
@@ -105,4 +106,9 @@ object NetworkModule {
     @Singleton
     fun provideChatApiService(retrofit: Retrofit): ChatApiService =
         retrofit.create(ChatApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMatchApiService(retrofit: Retrofit): MatchApiService =
+        retrofit.create(MatchApiService::class.java)
 }

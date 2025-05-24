@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.data.datasource
 import android.util.Log
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
+import com.feryaeljustice.mirailink.data.model.request.ByIdRequest
 import com.feryaeljustice.mirailink.data.model.request.LoginRequest
 import com.feryaeljustice.mirailink.data.model.request.RegisterRequest
 import com.feryaeljustice.mirailink.data.remote.UserApiService
@@ -93,6 +94,23 @@ class UserRemoteDataSource @Inject constructor(
             MiraiLinkResult.error("No se pudo obtener el usuario actual: ", e)
         }
     }
+
+    suspend fun getUserById(userId: String): MiraiLinkResult<Pair<UserDto, List<UserPhotoDto>>> {
+        return try {
+            val user = api.getUserById(ByIdRequest(userId))
+            val photos = api.getUserPhotos(userId = user.id)
+            MiraiLinkResult.success(user to photos)
+        } catch (e: Throwable) {
+            if (e is HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                Log.e("UserRemoteDataSource", "getUserById - Error HTTP Body: $errorBody")
+            } else {
+                Log.w("UserRemoteDataSource", "getUserById", e)
+            }
+            MiraiLinkResult.error("No se pudo obtener el usuario by id: ", e)
+        }
+    }
+
 
     suspend fun updateBio(bio: String): MiraiLinkResult<Unit> {
         return try {

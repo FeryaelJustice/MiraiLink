@@ -9,17 +9,16 @@ plugins {
     alias(libs.plugins.kotlinx.parcelize)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hiltAndroid)
-    alias(libs.plugins.screenshot)
 }
 
 android {
     namespace = "com.feryaeljustice.mirailink"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.feryaeljustice.mirailink"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -77,13 +76,6 @@ android {
     buildFeatures {
         compose = true
     }
-    testOptions {
-        screenshotTests {
-            imageDifferenceThreshold = 0.0001f
-        }
-    }
-
-    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
 
 dependencies {
@@ -146,7 +138,4 @@ dependencies {
     // Socket IO
     implementation(libs.io.socket.client)
     implementation(libs.io.socket.engine.client)
-
-    // New experimental compose ui tooling for screenshots
-    screenshotTestImplementation(libs.androidx.compose.ui.tooling)
 }

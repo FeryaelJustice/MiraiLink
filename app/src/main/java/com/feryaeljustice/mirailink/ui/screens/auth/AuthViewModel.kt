@@ -3,8 +3,8 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.local.TokenManager
-import com.feryaeljustice.mirailink.domain.usecase.LoginUseCase
-import com.feryaeljustice.mirailink.domain.usecase.RegisterUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.usecase.TestAuthUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel

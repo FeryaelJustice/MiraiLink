@@ -1,52 +1,138 @@
 package com.feryaeljustice.mirailink.ui.screens.messages
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
+import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
+import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
+import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class MessagesViewModel @Inject constructor() : ViewModel() {
-    private val _matches: MutableStateFlow<List<MatchUserViewEntity>> =
-        MutableStateFlow(
-            listOf(
-                MatchUserViewEntity(
-                    "1",
-                    "Fer",
-                    "http://192.168.1.132:3000/assets/img/profiles/Goku.jpeg",
-                    false
-                ),
-                MatchUserViewEntity(
-                    "2",
-                    "Maria",
-                    "https://loremflickr.com/320/240/dog",
-                    true
-                )
-            )
-        )
-    val matches = _matches.asStateFlow()
+class MessagesViewModel @Inject constructor(
+    private val getMatchesUseCase: GetMatchesUseCase,
+    private val chatUseCases: ChatUseCases,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
+) :
+    ViewModel() {
 
-    private val _openChats: MutableStateFlow<List<ChatPreviewViewEntity>> =
-        MutableStateFlow(
-            listOf(
-                ChatPreviewViewEntity(
-                    "1",
-                    "Fer",
-                    "http://192.168.1.132:3000/assets/img/profiles/Goku.jpeg",
-                    "Hola, ¿cómo estás?",
-                    false
-                ),
-                ChatPreviewViewEntity(
-                    "2",
-                    "Maria",
-                    "https://loremflickr.com/320/240/dog",
-                    "¿Qué me dijiste?",
-                    true
-                )
+    sealed class MessagesUiState {
+        object Idle : MessagesUiState()
+        object Loading : MessagesUiState()
+        data class Success(
+            val matches: List<MatchUserViewEntity>,
+            val openChats: List<ChatPreviewViewEntity>
+        ) : MessagesUiState()
+
+        data class Error(val message: String, val exception: Throwable? = null) : MessagesUiState()
+    }
+
+    private val _state = MutableStateFlow<MessagesUiState>(MessagesUiState.Idle)
+    val state = _state.asStateFlow()
+
+    private var _matches: MutableList<MatchUserViewEntity> =
+        mutableListOf(
+            MatchUserViewEntity(
+                "1",
+                "Fer",
+                TEMPORAL_PLACEHOLDER_PICTURE_URL,
+                false
+            ),
+            MatchUserViewEntity(
+                "2",
+                "Maria",
+                "https://loremflickr.com/320/240/dog",
+                true
             )
         )
-    val openChats = _openChats.asStateFlow()
+
+    private var _openChats: MutableList<ChatPreviewViewEntity> =
+        mutableListOf(
+            ChatPreviewViewEntity(
+                "1",
+                "Fer",
+                TEMPORAL_PLACEHOLDER_PICTURE_URL,
+                "Hola, ¿cómo estás?",
+                false
+            ),
+            ChatPreviewViewEntity(
+                "2",
+                "Maria",
+                "https://loremflickr.com/320/240/dog",
+                "¿Qué me dijiste?",
+                true
+            )
+        )
+
+    init {
+        loadMatches()
+        loadChats()
+    }
+
+    fun loadMatches() {
+        _state.value = MessagesUiState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = getMatchesUseCase()) {
+                is MiraiLinkResult.Success -> {
+                    val matchesResult = result.data.map {
+                        MatchUserViewEntity(
+                            id = it.id,
+                            username = it.username,
+                            avatarUrl = it.photos.firstOrNull()?.url
+                                ?: TEMPORAL_PLACEHOLDER_PICTURE_URL,
+                            isBoosted = false,
+                        )
+                    }
+                    _matches = matchesResult.toMutableList()
+                    _state.value =
+                        MessagesUiState.Success(matches = matchesResult, openChats = _openChats)
+                }
+
+                is MiraiLinkResult.Error -> {
+                    _state.value = MessagesUiState.Error(result.message, result.exception)
+                }
+            }
+        }
+    }
+
+    fun loadChats() {
+        _state.value = MessagesUiState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = chatUseCases.getChatsFromUser()) {
+                is MiraiLinkResult.Success -> {
+                    val chatsResult = result.data.map { chat ->
+                        val avatar = chat.destinatary?.avatarUrl
+                        ChatPreviewViewEntity(
+                            userId = chat.destinatary?.id ?: Date().toString(),
+                            username = chat.destinatary?.name ?: "Unknown",
+                            avatarUrl = if (avatar.isNullOrEmpty()) TEMPORAL_PLACEHOLDER_PICTURE_URL else avatar,
+                            lastMessage = chat.lastMessageText,
+                            isBoosted = false,
+                            hasReadsPending = chat.unreadCount == 0
+                        )
+                    }
+
+                    _openChats = chatsResult.toMutableList()
+                    _state.value =
+                        MessagesUiState.Success(matches = _matches, openChats = chatsResult)
+                }
+
+                is MiraiLinkResult.Error -> {
+                    _state.value = MessagesUiState.Error(result.message, result.exception)
+                }
+            }
+        }
+    }
 }

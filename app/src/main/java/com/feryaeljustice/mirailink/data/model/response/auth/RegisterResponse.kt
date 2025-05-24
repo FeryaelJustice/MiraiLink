@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.data.model.response
+package com.feryaeljustice.mirailink.data.model.response.auth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

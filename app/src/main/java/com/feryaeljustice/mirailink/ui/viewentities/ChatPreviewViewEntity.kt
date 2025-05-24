@@ -5,5 +5,6 @@ data class ChatPreviewViewEntity(
     val username: String,
     val avatarUrl: String,
     val lastMessage: String,
-    val isBoosted: Boolean = false
+    val isBoosted: Boolean = false,
+    val hasReadsPending: Boolean = false,
 )

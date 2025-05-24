@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.domain.usecase
+package com.feryaeljustice.mirailink.domain.usecase.auth
 
 import com.feryaeljustice.mirailink.data.local.TokenManager
 import com.feryaeljustice.mirailink.domain.repository.UserRepository

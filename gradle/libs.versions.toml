@@ -18,7 +18,6 @@ lifecycleRuntimeKtx = "2.9.0"
 navigationCompose = "2.9.0"
 okhttp = "4.12.0"
 retrofit = "3.0.0"
-screenshot = "0.0.1-alpha09"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
 uiTextGoogleFonts = "1.8.2"
@@ -81,9 +80,6 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 io-socket-client = { module = "io.socket:socket.io-client", version.ref = "socketVersion" }
 io-socket-engine-client = { module = "io.socket:engine.io-client", version.ref = "socketEngineVersion" }
 
-# New experimental compose ui tooling for screenshots
-androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling"}
-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -92,4 +88,3 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot"}

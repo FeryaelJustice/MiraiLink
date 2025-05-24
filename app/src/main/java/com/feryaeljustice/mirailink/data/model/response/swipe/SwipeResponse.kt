@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.data.model.response
+package com.feryaeljustice.mirailink.data.model.response.swipe
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
