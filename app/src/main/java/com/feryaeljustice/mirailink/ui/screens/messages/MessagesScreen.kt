@@ -51,7 +51,7 @@ fun MessagesScreen(
     PullToRefreshBox(
         isRefreshing = state is MessagesViewModel.MessagesUiState.Loading,
         onRefresh = {
-            viewModel.loadMatches()
+            viewModel.loadData()
         },
         modifier = Modifier.fillMaxSize()
     ) {

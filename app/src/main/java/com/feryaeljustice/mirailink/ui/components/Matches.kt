@@ -46,10 +46,10 @@ fun MatchesRow(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Row() {
+        Row {
             if (matches.isEmpty()) {
                 Text(
-                    text = "No tienes chats",
+                    text = "No tienes matches",
                     style = MaterialTheme.typography.bodySmall,
                 )
             } else {

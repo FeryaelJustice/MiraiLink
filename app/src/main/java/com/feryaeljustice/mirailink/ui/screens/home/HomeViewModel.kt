@@ -40,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val _userQueue = mutableListOf<User>()
     private val swipeHistory = mutableListOf<User>()
     private var lastUndoTime: Long = 0L
+    // TODO: Meter guardado en bdd local o en bdd remota para persistencia de calculo undo feature
 
     init {
         loadCurrentUser()

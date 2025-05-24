@@ -79,6 +79,10 @@ class MessagesViewModel @Inject constructor(
         )
 
     init {
+        loadData()
+    }
+
+    fun loadData(){
         loadMatches()
         loadChats()
     }
@@ -122,7 +126,7 @@ class MessagesViewModel @Inject constructor(
                             avatarUrl = avatar.getFormattedUrl(),
                             lastMessage = chat.lastMessageText,
                             isBoosted = false,
-                            hasReadsPending = chat.unreadCount == 0
+                            readsPending = chat.unreadCount
                         )
                     }
 

@@ -48,9 +48,9 @@ import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
 
 @Composable
 fun UserCard(
+    modifier: Modifier = Modifier,
     user: User,
     canUndo: Boolean = false,
-    modifier: Modifier = Modifier,
     isPreviewMode: Boolean = false,
     onLike: (() -> Unit)? = null,
     onGoBackToLast: (() -> Unit)? = null,
