@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Excluir el archivo DataStore (con token JWT) -->
+        <exclude domain="file" path="datastore/user_prefs.preferences_pb" />
+    </cloud-backup>
+    <device-transfer>
+        <!-- También excluir archivo DataStorede de la restauración entre dispositivos -->
+        <exclude domain="file" path="datastore/user_prefs.preferences_pb" />
+    </device-transfer>
+</data-extraction-rules>
