@@ -36,21 +36,28 @@ import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 fun MatchesRow(
     modifier: Modifier = Modifier,
     matches: List<MatchUserViewEntity>,
-    onUserClick: (MatchUserViewEntity) -> Unit
+    onNavigateToChat: (String) -> Unit
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {
         Text(
-            text = "New Matches",
+            text = "Matches",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
         )
-
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(matches) { user ->
-                MatchCard(user = user, onClick = { onUserClick(user) })
+            if (matches.isEmpty()) {
+                item {
+                    Text(
+                        text = "No tienes chats",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            } else {
+                items(matches) { user ->
+                    MatchCard(user = user, onClick = { onNavigateToChat(user.id) })
+                }
             }
         }
     }

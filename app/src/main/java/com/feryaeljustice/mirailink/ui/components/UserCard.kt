@@ -94,14 +94,11 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    if (!user.bio.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            user.bio,
-                            fontStyle = FontStyle.Italic,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                    Text(
+                        if (!user.bio.isNullOrBlank()) user.bio else "Aquí para triunfar",
+                        fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -111,7 +108,9 @@ fun UserCard(
                         Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
 
                         TagsSection(
-                            modifier = Modifier.fillMaxWidth().padding(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp),
                             tags = animes.map { it.title })
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -121,7 +120,9 @@ fun UserCard(
                         Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
 
                         TagsSection(
-                            modifier = Modifier.fillMaxWidth().padding(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp),
                             tags = games.map { it.title })
 
                         Spacer(modifier = Modifier.height(8.dp))

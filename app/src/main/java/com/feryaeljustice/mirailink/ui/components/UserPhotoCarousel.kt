@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
+import com.feryaeljustice.mirailink.domain.util.isValidUrl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -78,10 +80,15 @@ fun UserPhotoCarousel(photoUrls: List<String>) {
             modifier = Modifier
                 .fillMaxSize()
         ) { page ->
+            var url = images[page]
+            if (url.isBlank() || !url.isValidUrl()) {
+                url = TEMPORAL_PLACEHOLDER_PICTURE_URL
+            }
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(images[page])
+                    .data(url)
                     .crossfade(true)
+                    .placeholder(drawableResId = R.drawable.logomirailink)
                     .build(),
                 contentDescription = "Foto ${page + 1}",
                 contentScale = ContentScale.Crop,

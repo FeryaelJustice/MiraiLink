@@ -75,21 +75,19 @@ fun MessagesScreen(
                         .fillMaxSize()
                 ) {
                     MatchesRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                PaddingValues(
-                                    horizontal = 2.dp,
-                                    vertical = 8.dp
-                                )
-                            ), matches = filteredMatches
-                    ) {
-                        onNavigateToChat(it.id)
-                    }
+                        modifier = Modifier.fillMaxWidth(),
+                        matches = filteredMatches,
+                        onNavigateToChat = onNavigateToChat
+                    )
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                    ChatList(chats = filteredOpenChats, onNavigateToChat = onNavigateToChat)
+                    ChatList(
+                        modifier = Modifier.fillMaxWidth(),
+                        chats = filteredOpenChats,
+                        onNavigateToChat = onNavigateToChat
+                    )
                 }
             }
+
             is MessagesViewModel.MessagesUiState.Error -> {
                 val error = state as MessagesViewModel.MessagesUiState.Error
                 Text(
@@ -98,6 +96,7 @@ fun MessagesScreen(
                     modifier = Modifier.padding(16.dp)
                 )
             }
+
             MessagesViewModel.MessagesUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
