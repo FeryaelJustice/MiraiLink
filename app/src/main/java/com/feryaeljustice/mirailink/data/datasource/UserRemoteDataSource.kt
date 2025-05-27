@@ -4,8 +4,12 @@ import android.util.Log
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.feryaeljustice.mirailink.data.model.request.ByIdRequest
+import com.feryaeljustice.mirailink.data.model.request.EmailRequest
 import com.feryaeljustice.mirailink.data.model.request.LoginRequest
+import com.feryaeljustice.mirailink.data.model.request.PasswordResetConfirmRequest
 import com.feryaeljustice.mirailink.data.model.request.RegisterRequest
+import com.feryaeljustice.mirailink.data.model.request.VerificationConfirmRequest
+import com.feryaeljustice.mirailink.data.model.request.VerificationRequest
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import retrofit2.HttpException
@@ -30,9 +34,9 @@ class UserRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun login(usernameOrEmail: String, password: String): MiraiLinkResult<String> {
+    suspend fun login(email: String, username: String, password: String): MiraiLinkResult<String> {
         return try {
-            val response = api.login(LoginRequest(usernameOrEmail, password))
+            val response = api.login(LoginRequest(email, username, password))
             MiraiLinkResult.success(response.token)
         } catch (e: Throwable) {
             if (e is HttpException) {
@@ -79,6 +83,44 @@ class UserRemoteDataSource @Inject constructor(
         }
     }
 
+    suspend fun requestPasswordReset(email: String): MiraiLinkResult<String> = try {
+        val response = api.requestPasswordReset(EmailRequest(email))
+        MiraiLinkResult.Success(response.message)
+    } catch (e: Exception) {
+        MiraiLinkResult.Error("Error solicitando recuperación", e)
+    }
+
+    suspend fun confirmPasswordReset(
+        email: String,
+        token: String,
+        newPassword: String
+    ): MiraiLinkResult<String> = try {
+        val response =
+            api.confirmPasswordReset(PasswordResetConfirmRequest(email, token, newPassword))
+        MiraiLinkResult.Success(response.message)
+    } catch (e: Exception) {
+        MiraiLinkResult.Error("Error confirmando nueva contraseña", e)
+    }
+
+    suspend fun requestVerificationCode(userId: String, type: String): MiraiLinkResult<String> =
+        try {
+            val response = api.requestVerificationCode(VerificationRequest(userId, type))
+            MiraiLinkResult.Success(response.message)
+        } catch (e: Exception) {
+            MiraiLinkResult.Error("Error solicitando código de verificación", e)
+        }
+
+    suspend fun confirmVerificationCode(
+        userId: String,
+        token: String,
+        type: String
+    ): MiraiLinkResult<String> = try {
+        val response = api.confirmVerificationCode(VerificationConfirmRequest(userId, token, type))
+        MiraiLinkResult.Success(response.message)
+    } catch (e: Exception) {
+        MiraiLinkResult.Error("Código incorrecto", e)
+    }
+
     suspend fun getCurrentUser(): MiraiLinkResult<Pair<UserDto, List<UserPhotoDto>>> {
         return try {
             val user = api.getCurrentUser()
@@ -110,7 +152,6 @@ class UserRemoteDataSource @Inject constructor(
             MiraiLinkResult.error("No se pudo obtener el usuario by id: ", e)
         }
     }
-
 
     suspend fun updateBio(bio: String): MiraiLinkResult<Unit> {
         return try {

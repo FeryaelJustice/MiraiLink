@@ -17,6 +17,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
@@ -44,21 +45,29 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSessionManager(): SessionManager = SessionManager()
+    fun provideSessionManager(
+        tokenManager: TokenManager,
+//        userIdLocalManager: UserIdLocalManager
+    ): SessionManager = SessionManager(
+        tokenManager,
+//        userIdLocalManager
+    )
 
     @Provides
     @Singleton
     fun provideAuthInterceptor(
-        tokenManager: TokenManager,
         sessionManager: SessionManager
     ): AuthInterceptor {
-        return AuthInterceptor(tokenManager = tokenManager, sessionManager = sessionManager)
+        return AuthInterceptor(sessionManager = sessionManager)
     }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient =
         OkHttpClient.Builder()
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
             .addInterceptor(authInterceptor)
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)

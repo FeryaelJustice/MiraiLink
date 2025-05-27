@@ -15,7 +15,7 @@ class LogoutUseCase @Inject constructor(
             tokenManager.clearToken()
             MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
-            MiraiLinkResult.Error("logoutusecase error: ", e)
+            MiraiLinkResult.Error("LogoutUseCase error: ", e)
         }
     }
 }

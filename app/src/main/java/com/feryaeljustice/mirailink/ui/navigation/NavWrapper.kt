@@ -27,6 +27,8 @@ import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
+import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
+import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
@@ -42,40 +44,56 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
 fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
+    // Nav
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    // Session
     val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
-    val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
-    val initialized = rememberInitializedStateFlow(sessionViewModel.isInitialized)
+    val sessionInitialized =
+        rememberInitializedStateFlow(sessionViewModel.isGlobalSessionInitialized)
 
+    // Session events
+    val onLogout = sessionViewModel.onLogout
+    val needsToBeVerified = sessionViewModel.needsToBeVerified
+
+    // Session states
+    val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
 
-    // 🔁 Detectar logout y redirigir
+    // Detectar logout y redirigir (para cuando hay una llamada que falla)
     LaunchedEffect(Unit) {
-        sessionViewModel.onLogout.collect {
+        onLogout.collect {
             navController.navigate(AppScreen.AuthScreen) {
                 popUpTo(0) {
                     inclusive = false
                     saveState = false
                 }
                 restoreState = false
-                // 🔁 Limpia backstack
+                // Limpia backstack
                 launchSingleTop = true
             }
         }
     }
 
+    // Detectar si el usuario necesita ser verificado
+    LaunchedEffect(Unit) {
+        needsToBeVerified.collect { userId ->
+            sessionViewModel.logout()
+            navController.navigate(AppScreen.VerificationScreen(userId))
+        }
+    }
+
     Scaffold(
         topBar = {
-            if (initialized && topBarConfig.showTopBar) {
+            if (sessionInitialized && topBarConfig.showTopBar) {
                 MiraiLinkTopBar(
                     darkTheme = darkTheme,
                     isAuthenticated = isAuthenticated,
                     onThemeChange = onThemeChange,
                     onNavigateHome = {
-                        navController.navigate(AppScreen.HomeScreen){
+                        navController.navigate(AppScreen.HomeScreen) {
                             restoreState = true
                         }
                     },
@@ -88,14 +106,14 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
             }
         },
         bottomBar = {
-            if (initialized && isAuthenticated) {
+            if (sessionInitialized && isAuthenticated) {
                 MiraiLinkBottomBar(
                     navController = navController,
                     currentDestination = currentDestination
                 )
             }
         }) { innerPadding ->
-        if (!initialized) {
+        if (!sessionInitialized) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -148,11 +166,27 @@ fun AppNavHost(
         }
         authGraph(
             navController = navController,
-            sessionViewModel = sessionViewModel
+            sessionViewModel = sessionViewModel,
+            onLogin = {
+                navController.navigate(ScreensSubgraphs.Main) {
+                    launchSingleTop = true
+                    popUpTo(AppScreen.AuthScreen) {
+                        inclusive = true
+                    }
+                }
+            },
+            onRegister = {
+                navController.navigate(ScreensSubgraphs.Main) {
+                    launchSingleTop = true
+                    popUpTo(AppScreen.AuthScreen) {
+                        inclusive = true
+                    }
+                }
+            }
         )
         appGraph(
             navController = navController,
-            sessionViewModel = sessionViewModel
+            sessionViewModel = sessionViewModel,
         )
     }
 }
@@ -160,31 +194,32 @@ fun AppNavHost(
 private fun NavGraphBuilder.authGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    onLogin: () -> Unit,
+    onRegister: () -> Unit,
 ) {
     navigation<ScreensSubgraphs.Auth>(startDestination = AppScreen.AuthScreen) {
         composable<AppScreen.AuthScreen> {
             val authViewModel: AuthViewModel = hiltViewModel()
-            AuthScreen(viewModel = authViewModel, sessionViewModel = sessionViewModel, onLogin = {
-                navController.navigate(ScreensSubgraphs.Main) {
-                    launchSingleTop = true
-                    popUpTo(AppScreen.AuthScreen) {
-                        inclusive = true
-                    }
-                }
-            }, onRegister = {
-                navController.navigate(ScreensSubgraphs.Main) {
-                    launchSingleTop = true
-                    popUpTo(AppScreen.AuthScreen) {
-                        inclusive = true
-                    }
-                }
-            })
+            AuthScreen(
+                viewModel = authViewModel, sessionViewModel = sessionViewModel,
+                onLogin = {
+                    onLogin()
+                }, onRegister = {
+                    onRegister()
+                }, onRequestPasswordReset = { email ->
+                    navController.navigate(AppScreen.RecoverPasswordScreen(email = email))
+                })
         }
-        composable<AppScreen.RecoverPasswordScreen> {
+        composable<AppScreen.RecoverPasswordScreen> { backStackEntry ->
+            val recoverPasswordScreen: AppScreen.RecoverPasswordScreen = backStackEntry.toRoute()
             val recoverPasswordViewModel: RecoverPasswordViewModel = hiltViewModel()
             RecoverPasswordScreen(
                 viewModel = recoverPasswordViewModel,
-                sessionViewModel = sessionViewModel
+                sessionViewModel = sessionViewModel,
+                email = recoverPasswordScreen.email,
+                onConfirmedRecoverPassword = {
+                    navController.popBackStack()
+                }
             )
         }
     }
@@ -192,7 +227,7 @@ private fun NavGraphBuilder.authGraph(
 
 private fun NavGraphBuilder.appGraph(
     navController: NavHostController,
-    sessionViewModel: GlobalSessionViewModel
+    sessionViewModel: GlobalSessionViewModel,
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.HomeScreen> {
@@ -226,6 +261,18 @@ private fun NavGraphBuilder.appGraph(
         composable<AppScreen.ProfileScreen> {
             val profileViewModel: ProfileViewModel = hiltViewModel()
             ProfileScreen(viewModel = profileViewModel, sessionViewModel = sessionViewModel)
+        }
+
+        composable<AppScreen.VerificationScreen> { backStackEntry ->
+            val verificationScreen: AppScreen.VerificationScreen = backStackEntry.toRoute()
+            val verificationViewModel: VerificationViewModel = hiltViewModel()
+            VerificationScreen(
+                viewModel = verificationViewModel,
+                userId = verificationScreen.userId,
+                onFinish = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable<AppScreen.SettingsScreen> {

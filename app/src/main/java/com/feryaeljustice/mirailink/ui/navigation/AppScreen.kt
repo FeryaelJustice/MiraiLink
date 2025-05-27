@@ -2,11 +2,14 @@ package com.feryaeljustice.mirailink.ui.navigation
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 sealed class ScreensSubgraphs {
     @Serializable
     data object Auth : ScreensSubgraphs()
+
     @Serializable
     data object Main : ScreensSubgraphs()
 }
@@ -17,7 +20,10 @@ sealed class AppScreen {
     data object AuthScreen : AppScreen()
 
     @Serializable
-    data object RecoverPasswordScreen : AppScreen()
+    data class RecoverPasswordScreen(val email: String = "") : AppScreen()
+
+    @Serializable
+    data class VerificationScreen(val userId: String = "") : AppScreen()
 
     @Serializable
     data object HomeScreen : AppScreen()
@@ -38,5 +44,13 @@ sealed class AppScreen {
     object SplashScreen
 }
 
+/*
 val AppScreen.route: String
     get() = Json.encodeToString(AppScreen.serializer(), this)
+
+val String.decodedRoute: String
+    get() {
+        val jsonElement = Json.parseToJsonElement(this)
+        return jsonElement.jsonObject["type"]?.jsonPrimitive?.content
+            ?: error("Missing 'type' field in encoded AppScreen")
+    }*/

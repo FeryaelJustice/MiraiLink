@@ -49,11 +49,13 @@ fun AuthScreen(
     viewModel: AuthViewModel,
     sessionViewModel: GlobalSessionViewModel,
     onLogin: () -> Unit,
-    onRegister: () -> Unit
+    onRegister: () -> Unit,
+    onRequestPasswordReset: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
     var isLogin by remember { mutableStateOf(true) }
+    var loginByUsername by remember { mutableStateOf(true) }
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -95,27 +97,42 @@ fun AuthScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = {
-                isLogin = !isLogin
-                usernameError = null
-                passwordError = null
-                confirmPasswordError = null
-            }) {
+            TextButton(
+                onClick = {
+                    isLogin = !isLogin
+                    usernameError = null
+                    passwordError = null
+                    confirmPasswordError = null
+                }, modifier = Modifier
+                    .focusRequester(focusRequester)
+            ) {
                 Text(if (isLogin) "Registrarse" else "Iniciar sesión")
             }
         }
 
         OutlinedTextField(
-            value = username,
+            value = if (loginByUsername && isLogin) username else email,
             onValueChange = {
-                username = it
-                usernameError = null
+                if (loginByUsername && isLogin) {
+                    username = it
+                    usernameError = null
+                } else {
+                    email = it
+                    emailError = null
+                }
             },
             singleLine = true,
             maxLines = 1,
-            label = { Text(text = if (isLogin) "Usuario o Email" else "Usuario") },
-            isError = usernameError != null,
-            supportingText = usernameError?.let {
+            label = { Text(if (loginByUsername && isLogin) "Usuario" else "Email") },
+            isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
+            supportingText = if (loginByUsername && isLogin) usernameError?.let {
+                {
+                    Text(
+                        it,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else emailError?.let {
                 {
                     Text(
                         it,
@@ -123,8 +140,22 @@ fun AuthScreen(
                     )
                 }
             },
+            trailingIcon = {
+                if (isLogin) {
+                    val icon =
+                        if (loginByUsername) R.drawable.ic_user else R.drawable.ic_email
+                    IconButton(onClick = { loginByUsername = !loginByUsername }) {
+                        Icon(painter = painterResource(id = icon), contentDescription = null)
+                    }
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_email),
+                        contentDescription = null
+                    )
+                }
+            },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
+                keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             ),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
@@ -137,16 +168,16 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = email,
+                value = username,
                 onValueChange = {
-                    email = it
-                    emailError = null
+                    username = it
+                    usernameError = null
                 },
                 singleLine = true,
                 maxLines = 1,
-                label = { Text("Email") },
-                isError = emailError != null,
-                supportingText = emailError?.let {
+                label = { Text(text = "Usuario") },
+                isError = usernameError != null,
+                supportingText = usernameError?.let {
                     {
                         Text(
                             it,
@@ -154,12 +185,20 @@ fun AuthScreen(
                         )
                     }
                 },
+                trailingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_user),
+                        contentDescription = null
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
             )
         }
 
@@ -199,9 +238,11 @@ fun AuthScreen(
                 onNext = { focusManager.moveFocus(FocusDirection.Next) },
                 onDone = {
                     focusManager.clearFocus()
-                    viewModel.login(username, password)
+                    viewModel.login(email, username, password)
                 }),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
         )
 
         if (!isLogin) {
@@ -244,8 +285,26 @@ fun AuthScreen(
                         password
                     )
                 }),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
             )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = {
+                    onRequestPasswordReset(email)
+                }, modifier = Modifier
+                    .focusRequester(focusRequester)
+            ) {
+                Text("¿Has olvidado tu contraseña?")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -253,31 +312,34 @@ fun AuthScreen(
         Button(
             onClick = {
                 var valid = true
-                if (username.length < 4) {
-                    usernameError = "Debe tener al menos 4 caracteres"
-                    valid = false
-                }
-                if (password.length < 4) {
-                    passwordError = "Debe tener al menos 4 caracteres"
-                    valid = false
-                }
-                if (!isLogin) {
-                    if (email.length < 5 || !email.contains("@")) {
+                if (isLogin) {
+                    if (loginByUsername && username.length < 4) {
+                        usernameError = "Debe tener al menos 4 caracteres"
+                        valid = false
+                    }
+                    if (!loginByUsername && (email.length < 5 || !email.contains("@"))) {
                         emailError = "Debe tener al menos 5 caracteres y contener @"
                         valid = false
                     }
+                } else {
                     if (confirmPassword != password) {
                         confirmPasswordError = "Las contraseñas no coinciden"
                         valid = false
                     }
                 }
+                if (password.length < 4) {
+                    passwordError = "Debe tener al menos 4 caracteres"
+                    valid = false
+                }
 
                 if (!valid) return@Button
 
-                if (isLogin) viewModel.login(username, password)
+                if (isLogin) viewModel.login(email, username, password)
                 else viewModel.register(username, email, password)
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
         ) {
             Text(if (isLogin) "Iniciar sesión" else "Registrarse")
         }

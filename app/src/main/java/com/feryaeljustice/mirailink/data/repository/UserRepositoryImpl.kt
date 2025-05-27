@@ -2,14 +2,12 @@ package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.mappers.toDomain
-import com.feryaeljustice.mirailink.domain.constants.HTTP_REGEX
 import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.text.toRegex
 
 class UserRepositoryImpl @Inject constructor(
     private val remote: UserRemoteDataSource,
@@ -18,8 +16,8 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun testAuth(): MiraiLinkResult<Unit> = remote.testAuth()
 
-    override suspend fun login(usernameOrEmail: String, password: String): MiraiLinkResult<String> {
-        return remote.login(usernameOrEmail, password)
+    override suspend fun login(email: String, username: String, password: String): MiraiLinkResult<String> {
+        return remote.login(email, username, password)
     }
 
     override suspend fun logout(): MiraiLinkResult<Boolean> {
@@ -33,6 +31,16 @@ class UserRepositoryImpl @Inject constructor(
     ): MiraiLinkResult<String> {
         return remote.register(username, email, password)
     }
+
+    override suspend fun requestPasswordReset(email: String) = remote.requestPasswordReset(email)
+    override suspend fun confirmPasswordReset(email: String, token: String, newPassword: String) =
+        remote.confirmPasswordReset(email, token, newPassword)
+
+    override suspend fun requestVerificationCode(userId: String, type: String) =
+        remote.requestVerificationCode(userId, type)
+
+    override suspend fun confirmVerificationCode(userId: String, token: String, type: String) =
+        remote.confirmVerificationCode(userId, token, type)
 
     override suspend fun getCurrentUser(): MiraiLinkResult<User> {
         return when (val result = remote.getCurrentUser()) {

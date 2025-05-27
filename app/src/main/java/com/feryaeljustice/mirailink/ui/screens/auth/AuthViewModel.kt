@@ -48,10 +48,10 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun login(username: String, password: String) {
+    fun login(email: String, username: String, password: String) {
         _state.value = AuthUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = loginUseCase(username, password)) {
+            when (val result = loginUseCase(email, username, password)) {
                 is MiraiLinkResult.Success -> {
                     tokenManager.saveToken(result.data)
                     withContext(Dispatchers.Main) {

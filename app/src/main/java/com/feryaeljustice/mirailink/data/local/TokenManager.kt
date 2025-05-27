@@ -21,12 +21,12 @@ class TokenManager @Inject constructor(
         private val JWT_TOKEN_KEY = stringPreferencesKey("jwt_token")
     }
 
-    private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+    private val _isTokenManagerInitialized = MutableStateFlow(false)
+    val isTokenManagerInitialized: StateFlow<Boolean> = _isTokenManagerInitialized.asStateFlow()
 
     val isAuthenticated: Flow<Boolean> = dataStore.data.map {
         !it[JWT_TOKEN_KEY].isNullOrEmpty()
-    }.catch { emit(false) }.onEach { _isInitialized.value = true }
+    }.catch { emit(false) }.onEach { _isTokenManagerInitialized.value = true }
 
     suspend fun saveToken(token: String) {
         dataStore.edit { it[JWT_TOKEN_KEY] = token }
