@@ -39,6 +39,8 @@ fun RecoverPasswordScreen(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
                     label = { Text("Correo electrónico") },
+                    singleLine = true,
+                    maxLines = 1,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -53,6 +55,8 @@ fun RecoverPasswordScreen(
                     value = uiState.token,
                     onValueChange = viewModel::onTokenChanged,
                     label = { Text("Código de verificación") },
+                    singleLine = true,
+                    maxLines = 1,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -60,6 +64,8 @@ fun RecoverPasswordScreen(
                     value = uiState.newPassword,
                     onValueChange = viewModel::onPasswordChanged,
                     label = { Text("Nueva contraseña") },
+                    singleLine = true,
+                    maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation()
                 )

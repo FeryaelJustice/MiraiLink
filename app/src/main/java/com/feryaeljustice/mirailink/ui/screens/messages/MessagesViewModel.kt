@@ -3,21 +3,16 @@ package com.feryaeljustice.mirailink.ui.screens.messages
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
-import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
-import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
-import com.feryaeljustice.mirailink.domain.util.isValidUrl
-import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -26,7 +21,6 @@ import javax.inject.Inject
 class MessagesViewModel @Inject constructor(
     private val getMatchesUseCase: GetMatchesUseCase,
     private val chatUseCases: ChatUseCases,
-    private val getUserByIdUseCase: GetUserByIdUseCase,
 ) :
     ViewModel() {
 
@@ -82,7 +76,7 @@ class MessagesViewModel @Inject constructor(
         loadData()
     }
 
-    fun loadData(){
+    fun loadData() {
         loadMatches()
         loadChats()
     }
@@ -119,10 +113,10 @@ class MessagesViewModel @Inject constructor(
             when (val result = chatUseCases.getChatsFromUser()) {
                 is MiraiLinkResult.Success -> {
                     val chatsResult = result.data.map { chat ->
-                        val avatar = chat.destinatary?.avatarUrl
+                        val avatar = chat.destinatary.avatarUrl
                         ChatPreviewViewEntity(
-                            userId = chat.destinatary?.id ?: Date().toString(),
-                            username = chat.destinatary?.name ?: "Unknown",
+                            userId = chat.destinatary.id ?: Date().toString(),
+                            username = chat.destinatary.name ?: "Unknown",
                             avatarUrl = avatar.getFormattedUrl(),
                             lastMessage = chat.lastMessageText,
                             isBoosted = false,

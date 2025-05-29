@@ -1,7 +1,9 @@
 package com.feryaeljustice.mirailink.data.datasource
 
 import android.util.Log
+import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.UserDto
+import com.feryaeljustice.mirailink.data.model.request.chat.ChatRequest
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -37,6 +39,24 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         } catch (e: Exception) {
             Log.e("ChatRemoteDataSource", "createGroupChat error", e)
             MiraiLinkResult.Error("Error al crear el grupo", e)
+        }
+    }
+
+    suspend fun sendMessage(toUserId: String, content: String): MiraiLinkResult<Unit> {
+        return try {
+            api.sendMessage(ChatRequest(toUserId, content))
+            MiraiLinkResult.Success(Unit)
+        } catch (e: Exception) {
+            MiraiLinkResult.Error("Error enviar mensaje al chat", e)
+        }
+    }
+
+    suspend fun getChatHistory(withUserId: String): MiraiLinkResult<List<ChatMessageResponse>> {
+        return try {
+            val response = api.getChatHistory(withUserId)
+            MiraiLinkResult.Success(response)
+        } catch (e: Exception) {
+            MiraiLinkResult.Error("Error al obtener el historial del chat", e)
         }
     }
 }

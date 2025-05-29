@@ -1,16 +1,13 @@
 package com.feryaeljustice.mirailink.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
 import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
+import com.feryaeljustice.mirailink.domain.model.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
-import org.json.JSONObject
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -39,15 +36,34 @@ class ChatRepositoryImpl @Inject constructor(
         return remote.createPrivateChat(otherUserId)
     }
 
-    override suspend fun createGroupChat(name: String, userIds: List<UserDto>): MiraiLinkResult<String> {
+    override suspend fun createGroupChat(
+        name: String,
+        userIds: List<UserDto>
+    ): MiraiLinkResult<String> {
         return remote.createGroupChat(name, userIds)
     }
 
-    override fun sendMessage(message: String) {
-        val json = JSONObject().apply {
-            put("message", message)
+    override suspend fun sendMessageTo(userId: String, content: String): MiraiLinkResult<Unit> {
+        return when (val result = remote.sendMessage(userId, content)) {
+            is MiraiLinkResult.Success -> {
+                MiraiLinkResult.Success(Unit)
+            }
+
+            is MiraiLinkResult.Error -> result
         }
-        socketService.emit("send_message", json)
+    }
+
+    override suspend fun getMessagesWith(userId: String): MiraiLinkResult<List<ChatMessage>> {
+        return when (val result = remote.getChatHistory(userId)) {
+            is MiraiLinkResult.Success -> {
+                val messages = result.data.map { message ->
+                    message.toDomain()
+                }
+                MiraiLinkResult.Success(messages)
+            }
+
+            is MiraiLinkResult.Error -> result
+        }
     }
 
     override fun listenForMessages(callback: (String) -> Unit) {

@@ -1,11 +1,11 @@
 package com.feryaeljustice.mirailink.data.mappers
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo
+import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.domain.enums.ChatRole
 import com.feryaeljustice.mirailink.domain.enums.ChatType
+import com.feryaeljustice.mirailink.domain.model.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.ChatSummary
 import com.feryaeljustice.mirailink.domain.util.parseDate
 
@@ -19,13 +19,22 @@ fun ChatSummaryResponse.toDomain() = ChatSummary(
     lastMessageId = lastMessageId,
     lastMessageText = lastMessageText,
     lastMessageSenderId = lastMessageSenderId,
-    lastMessageSentAt = parseDate(lastMessageSentAt),
+    lastMessageSentAt = lastMessageSentAt?.let { parseDate(lastMessageSentAt) } ?: parseDate(
+        createdAt
+    ),
     unreadCount = unreadCount.toIntOrNull() ?: 0,
-    destinatary = destinatary?.let {
+    destinatary =
         MinimalUserInfo(
-            id = it.id ?: "",
-            name = it.name ?: "Desconocido",
-            avatarUrl = it.avatarUrl.orEmpty()
+            id = destinatary?.id ?: "",
+            name = destinatary?.name ?: "Desconocido",
+            avatarUrl = destinatary?.avatarUrl.orEmpty()
         )
-    }
+)
+
+fun ChatMessageResponse.toDomain(): ChatMessage = ChatMessage(
+    id = id,
+    sender = sender.toMinimalUserInfoDomain(),
+    receiver = receiver.toMinimalUserInfoDomain(),
+    content = content,
+    timestamp = timestamp
 )

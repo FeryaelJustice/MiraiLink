@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
+import com.feryaeljustice.mirailink.domain.model.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.model.Anime
 import com.feryaeljustice.mirailink.domain.model.Game
 import com.feryaeljustice.mirailink.domain.model.User
@@ -49,4 +50,28 @@ fun UserPhoto.toModel(): UserPhotoDto = UserPhotoDto(
     userId = userId,
     url = url,
     position = position
+)
+
+fun UserDto.toMinimalUserInfoDomain(): MinimalUserInfo = MinimalUserInfo(
+    id = id,
+    username = username,
+    email = email,
+    gender = gender,
+    birthdate = birthdate,
+    profilePhoto = photos.firstOrNull()?.toDomain(),
+)
+
+fun UserDto.toMinimalUserInfo(): com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo = com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo(
+    id = id,
+    name = username,
+    avatarUrl = photos.firstOrNull()?.toDomain()?.url,
+)
+
+fun User.toMinimalUserInfo(): MinimalUserInfo = MinimalUserInfo(
+    id = id,
+    username = username,
+    email = email,
+    gender = gender,
+    birthdate = birthdate,
+    profilePhoto = photos.firstOrNull(),
 )

@@ -45,6 +45,8 @@ fun VerificationScreen(
                     value = uiState.token,
                     onValueChange = viewModel::onTokenChanged,
                     label = { Text("Código") },
+                    singleLine = true,
+                    maxLines = 1,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))

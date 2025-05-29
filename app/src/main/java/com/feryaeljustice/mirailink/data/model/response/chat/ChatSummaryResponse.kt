@@ -12,10 +12,10 @@ data class ChatSummaryResponse(
     @SerialName("created_at") val createdAt: String,
     @SerialName("joined_at") val joinedAt: String,
     @SerialName("role") val role: String,
-    @SerialName("last_message_id") val lastMessageId: String,
-    @SerialName("last_message_text") val lastMessageText: String,
-    @SerialName("last_message_sender_id") val lastMessageSenderId: String,
-    @SerialName("last_message_sent_at") val lastMessageSentAt: String,
+    @SerialName("last_message_id") val lastMessageId: String? = null,
+    @SerialName("last_message_text") val lastMessageText: String? = null,
+    @SerialName("last_message_sender_id") val lastMessageSenderId: String? = null,
+    @SerialName("last_message_sent_at") val lastMessageSentAt: String? = null,
     @SerialName("unread_count") val unreadCount: String,
     @SerialName("destinatary") val destinatary: MinimalUserInfo? = null
 )

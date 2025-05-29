@@ -4,7 +4,7 @@ data class ChatPreviewViewEntity(
     val userId: String,
     val username: String,
     val avatarUrl: String,
-    val lastMessage: String,
+    val lastMessage: String? = null,
     val isBoosted: Boolean = false,
     val readsPending: Int = 0,
 )

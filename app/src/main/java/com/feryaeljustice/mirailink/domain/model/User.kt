@@ -12,3 +12,12 @@ data class User(
     val games: List<Game>,
     val animes: List<Anime>,
 )
+
+data class MinimalUserInfo(
+    val id: String,
+    val username: String,
+    val email: String?,
+    val gender: String?,
+    val birthdate: String?,
+    val profilePhoto: UserPhoto? = null,
+)
