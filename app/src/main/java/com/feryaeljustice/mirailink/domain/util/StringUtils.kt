@@ -10,3 +10,7 @@ fun String.isValidUrl(): Boolean {
 fun String?.getFormattedUrl(): String {
     return if (this == null || !this.isValidUrl()) TEMPORAL_PLACEHOLDER_PICTURE_URL else this
 }
+
+fun String.superCapitalize(): String {
+    return this.replaceFirstChar { firstChar -> firstChar.uppercase()}
+}

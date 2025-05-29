@@ -24,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.util.superCapitalize
+import com.feryaeljustice.mirailink.ui.components.ChatTopBar
 import com.feryaeljustice.mirailink.ui.components.MessageItem
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
@@ -47,12 +49,12 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
+        ChatTopBar(user = receiver, modifier = Modifier)
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
-                .padding(vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             reverseLayout = true,
             state = scrollState,
         ) {
@@ -63,12 +65,13 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             TextField(
                 value = input.value,
                 onValueChange = { input.value = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("${sender?.username?.replaceFirstChar { firstChar -> firstChar.uppercase() }}, escribe un mensaje...") }
+                placeholder = { Text("${sender?.username?.superCapitalize()}, escribe un mensaje...") }
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
