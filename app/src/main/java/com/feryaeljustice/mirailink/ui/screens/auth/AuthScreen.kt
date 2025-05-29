@@ -81,9 +81,7 @@ fun AuthScreen(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = true)
-        sessionViewModel.updateTopBar(newTopBarConfig)
+        sessionViewModel.showTopBarSettingsIcon()
     }
 
     Column(

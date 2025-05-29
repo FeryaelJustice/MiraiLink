@@ -54,23 +54,21 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val sessionInitialized =
         rememberInitializedStateFlow(sessionViewModel.isGlobalSessionInitialized)
 
-    // Session events
-    val onLogout = sessionViewModel.onLogout
-    val needsToBeVerified = sessionViewModel.needsToBeVerified
-
     // Session states
     val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
+
+    // Session events
+    val onLogout = sessionViewModel.onLogout
+    val needsToBeVerified = sessionViewModel.needsToBeVerified
 
     // Detectar logout y redirigir (para cuando hay una llamada que falla)
     LaunchedEffect(Unit) {
         onLogout.collect {
             navController.navigate(AppScreen.AuthScreen) {
                 popUpTo(0) {
-                    inclusive = false
-                    saveState = false
+                    inclusive = true
                 }
-                restoreState = false
                 // Limpia backstack
                 launchSingleTop = true
             }
@@ -80,8 +78,10 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     // Detectar si el usuario necesita ser verificado
     LaunchedEffect(Unit) {
         needsToBeVerified.collect { userId ->
-            sessionViewModel.logout()
-            navController.navigate(AppScreen.VerificationScreen(userId))
+            navController.navigate(AppScreen.VerificationScreen(userId)) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 
@@ -106,7 +106,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
             }
         },
         bottomBar = {
-            if (sessionInitialized && isAuthenticated) {
+            if (sessionInitialized && isAuthenticated && topBarConfig.showBottomBar) {
                 MiraiLinkBottomBar(
                     navController = navController,
                     currentDestination = currentDestination
@@ -268,9 +268,16 @@ private fun NavGraphBuilder.appGraph(
             val verificationViewModel: VerificationViewModel = hiltViewModel()
             VerificationScreen(
                 viewModel = verificationViewModel,
+                sessionViewModel = sessionViewModel,
                 userId = verificationScreen.userId,
                 onFinish = {
-                    navController.popBackStack()
+                    sessionViewModel.showBars()
+                    navController.navigate(AppScreen.HomeScreen){
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -282,10 +289,10 @@ private fun NavGraphBuilder.appGraph(
                 sessionViewModel = sessionViewModel,
                 onLogout = {
                     navController.navigate(ScreensSubgraphs.Auth) {
-                        launchSingleTop = true
                         popUpTo(navController.graph.id) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 })
         }

@@ -54,6 +54,8 @@ fun MiraiLinkTopBar(
 
 data class TopBarConfig(
     val showTopBar: Boolean = true,
+    val showBottomBar: Boolean = true,
     val showSettingsIcon: Boolean = true,
+    val enableAppLogoClick: Boolean = true,
     val title: String? = null
 )

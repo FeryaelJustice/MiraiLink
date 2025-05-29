@@ -11,19 +11,26 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
 fun VerificationScreen(
     viewModel: VerificationViewModel,
+    sessionViewModel: GlobalSessionViewModel,
     userId: String,
     onFinish: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        sessionViewModel.hideBars()
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         when (uiState.step) {

@@ -3,12 +3,8 @@ package com.feryaeljustice.mirailink.ui.screens.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -30,8 +26,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
     val canUndo = viewModel.canUndo()
 
     LaunchedEffect(Unit) {
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = true)
-        sessionViewModel.updateTopBar(newTopBarConfig)
+        sessionViewModel.showTopBarSettingsIcon()
     }
 
     PullToRefreshBox(isRefreshing = state is HomeUiState.Loading, onRefresh = {

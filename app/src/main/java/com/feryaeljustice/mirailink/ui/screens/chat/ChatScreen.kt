@@ -12,8 +12,7 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 @Composable
 fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewModel, userId: String) {
     LaunchedEffect(Unit) {
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = true)
-        sessionViewModel.updateTopBar(newTopBarConfig)
+        sessionViewModel.showTopBarSettingsIcon()
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

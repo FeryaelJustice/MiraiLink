@@ -1,5 +1,5 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 activityCompose = "1.10.1"
 appcompat = "1.7.0"
 composeBom = "2025.05.01"
@@ -7,6 +7,7 @@ coreKtx = "1.16.0"
 coil = "2.7.0"
 datastorePreferences = "1.1.7"
 espressoCore = "3.6.1"
+foundationCompose = "1.9.0-alpha03"
 hilt = "2.56.2"
 hiltNavigation = "1.2.0"
 junit = "4.13.2"
@@ -44,6 +45,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-foundation-compose = { module = "androidx.compose.foundation:foundation", version.ref = "foundationCompose"}
 
 # Tooling
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }

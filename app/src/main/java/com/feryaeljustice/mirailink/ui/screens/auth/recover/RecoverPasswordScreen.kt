@@ -26,9 +26,7 @@ fun RecoverPasswordScreen(
     onConfirmedRecoverPassword: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = true)
-        sessionViewModel.updateTopBar(newTopBarConfig)
-
+        sessionViewModel.showTopBarSettingsIcon()
         viewModel.initEmail(email)
     }
 

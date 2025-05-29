@@ -1,8 +1,10 @@
 package com.feryaeljustice.mirailink.core
 
 import com.feryaeljustice.mirailink.data.local.TokenManager
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 // Clase para manejar el logout y redirigir a la pantalla de inicio de sesión de la app
@@ -18,15 +20,15 @@ class SessionManager @Inject constructor(
     private val _onLogout = MutableSharedFlow<Unit>(replay = 0)
     val onLogout = _onLogout.asSharedFlow()
 
-    private val _needsToBeVerified = MutableSharedFlow<String>(replay = 0)
-    val needsToBeVerified = _needsToBeVerified.asSharedFlow()
-
     suspend fun notifyLogout() {
         _onLogout.emit(Unit)
     }
 
+    private val _needsToBeVerified = Channel<String>(Channel.UNLIMITED)
+    val needsToBeVerified = _needsToBeVerified.receiveAsFlow()
+
     suspend fun notifyNeedsToBeVerified(userId: String) {
-        _needsToBeVerified.emit(userId)
+        _needsToBeVerified.send(userId)
     }
 
 //    suspend fun getUserId() = userIdLocalManager.getUserId()

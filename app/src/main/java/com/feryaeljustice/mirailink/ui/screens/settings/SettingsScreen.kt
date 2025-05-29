@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -23,9 +22,7 @@ fun SettingsScreen(
     val logoutState = rememberUpdatedState(onLogout)
 
     LaunchedEffect(Unit) {
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = false)
-        sessionViewModel.updateTopBar(newTopBarConfig)
-
+        sessionViewModel.hideTopBarSettingsIcon()
         viewModel.logoutSuccess.collect { success ->
             if (success) logoutState.value()
         }

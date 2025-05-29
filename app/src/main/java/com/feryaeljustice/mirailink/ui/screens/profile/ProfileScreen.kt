@@ -25,8 +25,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        val newTopBarConfig = sessionViewModel.topBarConfig.value.copy(showSettingsIcon = true)
-        sessionViewModel.updateTopBar(newTopBarConfig)
+        sessionViewModel.showTopBarSettingsIcon()
     }
 
     PullToRefreshBox(isRefreshing = state is ProfileUiState.Loading, onRefresh = {

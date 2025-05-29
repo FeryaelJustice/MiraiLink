@@ -6,9 +6,7 @@ import com.feryaeljustice.mirailink.core.SessionManager
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.ui.components.TopBarConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,9 +20,7 @@ class GlobalSessionViewModel @Inject constructor(
     val isGlobalSessionInitialized = sessionManager.isSessionManagerInitialized
     val isAuthenticated = sessionManager.isAuthenticated
     val needsToBeVerified = sessionManager.needsToBeVerified
-
-    private val _onLogout = MutableSharedFlow<Unit>(replay = 0)
-    val onLogout = _onLogout.asSharedFlow()
+    val onLogout = sessionManager.onLogout
 
     private val _topBarConfig = MutableStateFlow(TopBarConfig())
     val topBarConfig = _topBarConfig.asStateFlow()
@@ -32,18 +28,35 @@ class GlobalSessionViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             sessionManager.onLogout.collect {
-                logout()
+                logoutUseCase()
             }
         }
     }
 
-    suspend fun logout() {
-        logoutUseCase() // llama a logout
-        _onLogout.emit(Unit) // notifica a NavWrapper
+    fun hideBars() {
+        _topBarConfig.value = TopBarConfig(
+            showTopBar = false,
+            showBottomBar = false
+        )
     }
 
-    fun updateTopBar(config: TopBarConfig) {
-        _topBarConfig.value = config
+    fun showBars() {
+        _topBarConfig.value = TopBarConfig(
+            showTopBar = true,
+            showBottomBar = true
+        )
+    }
+
+    fun hideTopBarSettingsIcon() {
+        _topBarConfig.value = TopBarConfig(
+            showSettingsIcon = false,
+        )
+    }
+
+    fun showTopBarSettingsIcon() {
+        _topBarConfig.value = TopBarConfig(
+            showSettingsIcon = true,
+        )
     }
 
 //    suspend fun getUserId() = sessionManager.getUserId()
