@@ -42,7 +42,7 @@ fun MiraiLinkTopBar(
             Text(text = title ?: "Mirai Link")
         }
     }, actions = {
-        if (isAuthenticated && enabled) {
+        if (enabled) {
             ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
             if (showSettingsIcon) {
                 IconButton(onClick = onNavigateToSettings) {

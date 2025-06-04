@@ -26,7 +26,11 @@ fun RecoverPasswordScreen(
     onConfirmedRecoverPassword: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
-        sessionViewModel.showTopBarSettingsIcon()
+        sessionViewModel.showHideTopBar(true)
+        sessionViewModel.showHideBottomBar(false)
+        sessionViewModel.enableDisableTopBar(false)
+        sessionViewModel.enableDisableBottomBar(false)
+        sessionViewModel.hideTopBarSettingsIcon()
         viewModel.initEmail(email)
     }
 

@@ -80,8 +80,12 @@ fun AuthScreen(
     }
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showHideTopBar(true)
+        sessionViewModel.showHideBottomBar(false)
+        sessionViewModel.enableDisableTopBar(false)
+        sessionViewModel.enableDisableBottomBar(false)
+        sessionViewModel.hideTopBarSettingsIcon()
         focusRequester.requestFocus()
-        sessionViewModel.showTopBarSettingsIcon()
     }
 
     Column(

@@ -38,6 +38,8 @@ fun MessagesScreen(
     val searchQuery by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showBars()
+        sessionViewModel.enableBars()
         sessionViewModel.showTopBarSettingsIcon()
     }
 

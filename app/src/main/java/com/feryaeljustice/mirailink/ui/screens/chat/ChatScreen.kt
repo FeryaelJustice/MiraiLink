@@ -40,6 +40,8 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
     val scrollState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showBars()
+        sessionViewModel.enableBars()
         sessionViewModel.showTopBarSettingsIcon()
     }
 

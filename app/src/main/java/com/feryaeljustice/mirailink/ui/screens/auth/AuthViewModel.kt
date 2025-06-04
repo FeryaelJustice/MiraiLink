@@ -3,7 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.core.JwtUtils.extractUserId
-import com.feryaeljustice.mirailink.data.local.TokenManager
+import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
@@ -21,7 +21,7 @@ class AuthViewModel @Inject constructor(
     private val autologinUseCase: AutologinUseCase,
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
-    private val tokenManager: TokenManager
+    private val sessionManager: SessionManager,
 ) : ViewModel() {
 
     sealed class AuthUiState {
@@ -43,7 +43,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    tokenManager.clearToken()
+                    sessionManager.clearSession()
                 }
             }
         }
@@ -54,9 +54,12 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = loginUseCase(email, username, password)) {
                 is MiraiLinkResult.Success -> {
-                    tokenManager.saveToken(result.data)
-                    withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Success(extractUserId(result.data))
+                    val userId = extractUserId(result.data)
+                    userId?.let {
+                        sessionManager.saveSession(result.data, it)
+                        withContext(Dispatchers.Main) {
+                            _state.value = AuthUiState.Success(it)
+                        }
                     }
                 }
 
@@ -74,9 +77,12 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = registerUseCase(username, email, password)) {
                 is MiraiLinkResult.Success -> {
-                    tokenManager.saveToken(result.data)
-                    withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Success(extractUserId(result.data))
+                    val userId = extractUserId(result.data)
+                    userId?.let {
+                        sessionManager.saveSession(result.data, it)
+                        withContext(Dispatchers.Main) {
+                            _state.value = AuthUiState.Success(it)
+                        }
                     }
                 }
 

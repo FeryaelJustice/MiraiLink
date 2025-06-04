@@ -1,9 +1,6 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -13,7 +10,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
@@ -24,7 +20,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.feryaeljustice.mirailink.core.rememberInitializedStateFlow
 import com.feryaeljustice.mirailink.ui.components.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
@@ -61,20 +56,19 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
 
     // Session
     val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
-    val sessionInitialized =
-        rememberInitializedStateFlow(sessionViewModel.isGlobalSessionInitialized)
 
     // Session states
     // Solo representa si hay jwt local, no por una llamada exitosa con el jwt
     val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
-    val needsToUploadProfilePic by sessionViewModel.needsToUploadProfilePic.collectAsState()
+    val currentUserId by sessionViewModel.currentUserId.collectAsState()
+    val hasProfilePicture by sessionViewModel.hasProfilePicture.collectAsState()
 
     // Session events
     val onLogout = sessionViewModel.onLogout
-    val needsToBeVerified = sessionViewModel.needsToBeVerified
+    val isVerified = sessionViewModel.isVerified
 
-    // Detectar logout y redirigir (para cuando hay una llamada que falla)
+    // 1. Logout detectado desde interceptor
     LaunchedEffect(Unit) {
         onLogout.collect {
             navController.navigate(AppScreen.AuthScreen) {
@@ -87,19 +81,23 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         }
     }
 
-    // Detectar si el usuario necesita ser verificado
+    // 2. Requiere verificación
     LaunchedEffect(Unit) {
-        needsToBeVerified.collect { userId ->
-            navController.navigate(AppScreen.VerificationScreen(userId)) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
+        currentUserId?.let {
+            isVerified.collect { isVerified ->
+                if (!isVerified) {
+                    navController.navigate(AppScreen.VerificationScreen(it)) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             }
         }
     }
 
-    LaunchedEffect(needsToUploadProfilePic) {
-        if (needsToUploadProfilePic) {
-            sessionViewModel.disableBars()
+    // 3. Chequeo de foto de perfil
+    LaunchedEffect(isAuthenticated, hasProfilePicture) {
+        if (isAuthenticated && hasProfilePicture == false) {
             navController.navigate(AppScreen.ProfilePictureScreen) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
@@ -107,9 +105,13 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         }
     }
 
+    LaunchedEffect(currentUserId) {
+        sessionViewModel.setUserId(currentUserId)
+    }
+
     Scaffold(
         topBar = {
-            if (sessionInitialized && topBarConfig.showTopBar) {
+            if (topBarConfig.showTopBar) {
                 MiraiLinkTopBar(
                     darkTheme = darkTheme,
                     enabled = !topBarConfig.disableTopBar,
@@ -129,7 +131,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
             }
         },
         bottomBar = {
-            if (sessionInitialized && isAuthenticated && topBarConfig.showBottomBar) {
+            if (topBarConfig.showBottomBar) {
                 MiraiLinkBottomBar(
                     navController = navController,
                     currentDestination = currentDestination,
@@ -149,21 +151,11 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
             SnackbarHost(hostState = snackbarHostState)
         },
     ) { innerPadding ->
-        if (!sessionInitialized) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding), contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            AppNavHost(
-                navController = navController,
-                sessionViewModel = sessionViewModel,
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
+        AppNavHost(
+            navController = navController,
+            sessionViewModel = sessionViewModel,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 
@@ -182,6 +174,7 @@ fun AppNavHost(
             val splashScreenViewModel: SplashScreenViewModel = hiltViewModel()
             SplashScreen(
                 viewModel = splashScreenViewModel,
+                sessionViewModel = sessionViewModel,
                 onNavigateToHome = {
                     navController.navigate(ScreensSubgraphs.Main) {
                         popUpTo(0) {
@@ -201,13 +194,7 @@ fun AppNavHost(
                         }
                     }
                 },
-                onNavigateToProfilePicture = {
-                    sessionViewModel.disableBars()
-                    navController.navigate(AppScreen.ProfilePictureScreen) {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                })
+            )
         }
         authGraph(
             navController = navController,
@@ -263,7 +250,12 @@ private fun NavGraphBuilder.authGraph(
                 sessionViewModel = sessionViewModel,
                 email = recoverPasswordScreen.email,
                 onConfirmedRecoverPassword = {
-                    navController.popBackStack()
+                    navController.navigate(AppScreen.AuthScreen) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -279,8 +271,8 @@ private fun NavGraphBuilder.appGraph(
             val profilePictureViewModel: ProfilePictureViewModel = hiltViewModel()
             ProfilePictureScreen(
                 viewModel = profilePictureViewModel,
+                sessionViewModel = sessionViewModel,
                 onProfileUploaded = {
-                    sessionViewModel.showBars()
                     navController.navigate(AppScreen.HomeScreen) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
@@ -329,7 +321,6 @@ private fun NavGraphBuilder.appGraph(
                 sessionViewModel = sessionViewModel,
                 userId = verificationScreen.userId,
                 onFinish = {
-                    sessionViewModel.showBars()
                     navController.navigate(AppScreen.HomeScreen) {
                         popUpTo(navController.graph.id) {
                             inclusive = true

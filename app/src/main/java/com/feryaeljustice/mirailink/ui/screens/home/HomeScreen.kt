@@ -26,6 +26,8 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
     val canUndo = viewModel.canUndo()
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showBars()
+        sessionViewModel.enableBars()
         sessionViewModel.showTopBarSettingsIcon()
     }
 

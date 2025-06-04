@@ -1,8 +1,7 @@
 package com.feryaeljustice.mirailink.data.remote.interceptor
 
 import android.util.Log
-import com.feryaeljustice.mirailink.core.JwtUtils
-import com.feryaeljustice.mirailink.core.SessionManager
+import com.feryaeljustice.mirailink.data.local.SessionManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -12,35 +11,29 @@ class AuthInterceptor @Inject constructor(
     private val sessionManager: SessionManager
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking { sessionManager.getToken() }
+        val token = runBlocking { sessionManager.getCurrentToken() }
         Log.d("AuthInterceptor", "Token: $token")
-        var userId: String? = null
 
         val request = chain.request().newBuilder().apply {
             if (!token.isNullOrEmpty()) {
                 addHeader("Authorization", "Bearer $token")
-                userId = JwtUtils.extractUserId(token)
             }
         }.build()
 
         val response = chain.proceed(request)
 
-        // Mirar si tiene 0 fotos y necesita setear 1 profile pic
-        runBlocking { sessionManager.notifyNeedsToCheckProfilePicture() }
-
         when (response.code) {
             403 -> {
-                userId?.let {
-                    runBlocking {
-                        sessionManager.notifyNeedsToBeVerified(it)
-                    }
+                runBlocking {
+                    sessionManager.saveIsVerified(false)
                 }
             }
 
             401, 404 -> {
-                if (!token.isNullOrEmpty()) {
+                // Token inválido o usuario no encontrado → Logout total
+                if (!token.isNullOrBlank()) {
                     runBlocking {
-                        sessionManager.notifyLogout()
+                        sessionManager.clearSession()
                     }
                 }
             }

@@ -2,18 +2,9 @@ package com.feryaeljustice.mirailink.core
 
 import android.util.Base64
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 
-@Composable
+/*@Composable
 fun rememberInitializedStateFlow(
     isInitializedFlow: StateFlow<Boolean>,
     timeoutMillis: Long = 5000L
@@ -31,7 +22,7 @@ fun rememberInitializedStateFlow(
     }
 
     return show
-}
+}*/
 
 object JwtUtils {
     fun extractUserId(token: String): String? {

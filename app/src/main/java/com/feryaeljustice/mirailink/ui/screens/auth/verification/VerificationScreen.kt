@@ -30,6 +30,7 @@ fun VerificationScreen(
 
     LaunchedEffect(Unit) {
         sessionViewModel.hideBars()
+        sessionViewModel.disableBars()
     }
 
     Column(modifier = Modifier.padding(16.dp)) {

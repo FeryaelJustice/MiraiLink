@@ -25,6 +25,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showBars()
+        sessionViewModel.enableBars()
         sessionViewModel.showTopBarSettingsIcon()
     }
 

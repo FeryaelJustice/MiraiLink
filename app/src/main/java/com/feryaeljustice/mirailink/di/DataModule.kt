@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
+import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
@@ -21,6 +22,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+    @Provides
+    @Singleton
+    fun provideSessionManager(
+        @ApplicationContext context: Context,
+    ): SessionManager = SessionManager(
+        context,
+    )
+
     @Provides
     @Singleton
     fun provideUserRemoteDataSource(

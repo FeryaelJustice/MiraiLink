@@ -22,6 +22,8 @@ fun SettingsScreen(
     val logoutState = rememberUpdatedState(onLogout)
 
     LaunchedEffect(Unit) {
+        sessionViewModel.showBars()
+        sessionViewModel.enableBars()
         sessionViewModel.hideTopBarSettingsIcon()
         viewModel.logoutSuccess.collect { success ->
             if (success) logoutState.value()
