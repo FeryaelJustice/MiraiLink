@@ -3,7 +3,6 @@ package com.feryaeljustice.mirailink.ui.state
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.local.SessionManager
-import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.TopBarConfig
@@ -23,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class GlobalSessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,
-    private val logoutUseCase: LogoutUseCase,
     private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
 ) : ViewModel() {
     val isAuthenticated: Flow<Boolean> = sessionManager.isAuthenticated
@@ -40,6 +38,8 @@ class GlobalSessionViewModel @Inject constructor(
     private val _topBarConfig = MutableStateFlow(TopBarConfig())
     val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
 
+    suspend fun clearSession() = sessionManager.clearSession()
+
     init {
         viewModelScope.launch {
             val curUserId = currentLocalUserId.firstOrNull()
@@ -50,12 +50,6 @@ class GlobalSessionViewModel @Inject constructor(
                 startObservingHasProfilePicture(curUserId)
             } else {
                 stopObservingHasProfilePicture()
-            }
-        }
-
-        viewModelScope.launch {
-            onLogout.collect {
-                logoutUseCase()
             }
         }
     }
@@ -128,7 +122,7 @@ class GlobalSessionViewModel @Inject constructor(
                     is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
                     is MiraiLinkResult.Error -> _hasProfilePicture.value = false
                 }
-                delay(5000)
+                delay(10000) // Cada 10s
             }
         }
     }

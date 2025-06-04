@@ -20,7 +20,7 @@ class SettingsViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            when (val result = logoutUseCase()) {
+            when (logoutUseCase()) {
                 is MiraiLinkResult.Success<*> -> _logoutSuccess.emit(true)
                 is MiraiLinkResult.Error -> {
                     _logoutSuccess.emit(false)

@@ -43,6 +43,7 @@ import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -153,6 +154,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         AppNavHost(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            scope = scope,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -162,6 +164,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
 fun AppNavHost(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    scope: CoroutineScope,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -198,6 +201,7 @@ fun AppNavHost(
         authGraph(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            scope = scope,
             onLogin = {
                 navController.navigate(ScreensSubgraphs.Main) {
                     launchSingleTop = true
@@ -218,6 +222,7 @@ fun AppNavHost(
         appGraph(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            scope = scope,
         )
     }
 }
@@ -225,6 +230,7 @@ fun AppNavHost(
 private fun NavGraphBuilder.authGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    scope: CoroutineScope,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
 ) {
@@ -264,6 +270,7 @@ private fun NavGraphBuilder.authGraph(
 private fun NavGraphBuilder.appGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    scope: CoroutineScope,
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.ProfilePictureScreen> {
@@ -336,11 +343,8 @@ private fun NavGraphBuilder.appGraph(
                 viewModel = settingsViewModel,
                 sessionViewModel = sessionViewModel,
                 onLogout = {
-                    navController.navigate(ScreensSubgraphs.Auth) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
+                    scope.launch {
+                        sessionViewModel.clearSession()
                     }
                 })
         }

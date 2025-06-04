@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.data.local.SessionManager
-import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -18,7 +17,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val autologinUseCase: AutologinUseCase,
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val sessionManager: SessionManager,
@@ -34,20 +32,6 @@ class AuthViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            when (val res = autologinUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    _state.value = AuthUiState.IsAuthenticated(res.data)
-                }
-
-                is MiraiLinkResult.Error -> {
-                    sessionManager.clearSession()
-                }
-            }
-        }
-    }
 
     fun login(email: String, username: String, password: String) {
         _state.value = AuthUiState.Loading

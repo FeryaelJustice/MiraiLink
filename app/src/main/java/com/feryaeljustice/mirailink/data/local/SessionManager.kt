@@ -5,9 +5,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,8 +27,6 @@ class SessionManager @Inject constructor(
         val KEY_VERIFIED = booleanPreferencesKey("verified")
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     // Token & userId flows
     val tokenFlow: Flow<String?> = context.dataStore.data.map { it[KEY_TOKEN] }
     val userIdFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_ID] }
@@ -44,7 +39,7 @@ class SessionManager @Inject constructor(
         }
 
     // Logout notifier
-    private val _onLogout = MutableSharedFlow<Unit>()
+    private val _onLogout = MutableSharedFlow<Unit>(replay = 1)
     val onLogout: SharedFlow<Unit> = _onLogout.asSharedFlow()
 
     suspend fun saveSession(token: String, userId: String) {
