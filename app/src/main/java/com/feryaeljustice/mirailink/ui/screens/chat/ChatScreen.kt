@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewModel, userId: String) {
+    val chatId by viewModel.chatId.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
     val receiver by viewModel.receiver.collectAsState()
@@ -39,11 +41,21 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
 
     LaunchedEffect(Unit) {
         sessionViewModel.showTopBarSettingsIcon()
-        viewModel.setReceiver(userId)
+    }
+
+    LaunchedEffect(userId) {
+        viewModel.resetChatState()
+        viewModel.initChat(receiverId = userId, type = ChatViewModel.Companion.CHATTYPE.PRIVATE)
     }
 
     LaunchedEffect(messages.size) {
         scrollState.animateScrollToItem(0)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stopMessagePolling()
+        }
     }
 
     Column(

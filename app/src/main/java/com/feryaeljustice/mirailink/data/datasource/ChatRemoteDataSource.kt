@@ -1,12 +1,13 @@
 package com.feryaeljustice.mirailink.data.datasource
 
 import android.util.Log
-import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
-import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.request.chat.ChatRequest
+import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import org.json.JSONObject
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) {
@@ -20,25 +21,63 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         }
     }
 
-    suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> {
+    suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit> {
         return try {
-            val response = api.createPrivateChat(mapOf("userId" to otherUserId))
-            MiraiLinkResult.Success(response.chatId)
+            api.markChatAsRead(chatId)
+            MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
-            Log.e("ChatRemoteDataSource", "createPrivateChat error", e)
-            MiraiLinkResult.Error("Error al crear el chat privado", e)
+            Log.e("ChatRemoteDataSource", "markChatAsRead error", e)
+            MiraiLinkResult.Error("Error al marcar el chat como leído", e)
         }
     }
 
-    suspend fun createGroupChat(name: String, userIds: List<UserDto>): MiraiLinkResult<String> {
+    suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> {
         return try {
-            val ids = userIds.map { it.id }
+            val response = api.createPrivateChat(mapOf("otherUserId" to otherUserId))
+            MiraiLinkResult.Success(response.chatId)
+        } catch (e: HttpException) {
+            try {
+                val errorBody = e.response()?.errorBody()?.string()
+                val json = JSONObject(errorBody ?: "{}")
+
+                val chatId = json.optString("chatId")
+                val message = json.optString("message", "Error desconocido")
+
+                if (!chatId.isNullOrBlank()) {
+                    // Devuélvelo como Success porque realmente no es un fallo grave
+                    return MiraiLinkResult.Success(chatId)
+                }
+
+                return MiraiLinkResult.Error(message, e)
+            } catch (parseError: Exception) {
+                return MiraiLinkResult.Error("Error al interpretar respuesta de error", parseError)
+            }
+        }
+    }
+
+    suspend fun createGroupChat(name: String, userIds: List<String>): MiraiLinkResult<String> {
+        return try {
+            val ids = userIds
             val body = mapOf("name" to name, "userIds" to ids)
             val response = api.createGroupChat(body)
             MiraiLinkResult.Success(response.chatId)
-        } catch (e: Exception) {
-            Log.e("ChatRemoteDataSource", "createGroupChat error", e)
-            MiraiLinkResult.Error("Error al crear el grupo", e)
+        } catch (e: HttpException) {
+            try {
+                val errorBody = e.response()?.errorBody()?.string()
+                val json = JSONObject(errorBody ?: "{}")
+
+                val chatId = json.optString("chatId")
+                val message = json.optString("message", "Error desconocido")
+
+                if (!chatId.isNullOrBlank()) {
+                    // Devuélvelo como Success porque realmente no es un fallo grave
+                    return MiraiLinkResult.Success(chatId)
+                }
+
+                return MiraiLinkResult.Error(message, e)
+            } catch (parseError: Exception) {
+                return MiraiLinkResult.Error("Error al interpretar respuesta de error", parseError)
+            }
         }
     }
 

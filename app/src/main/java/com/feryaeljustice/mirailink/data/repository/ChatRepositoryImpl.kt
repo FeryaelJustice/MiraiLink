@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
 import com.feryaeljustice.mirailink.data.mappers.toDomain
-import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
 import com.feryaeljustice.mirailink.domain.model.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.ChatSummary
@@ -32,13 +31,17 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit>{
+        return remote.markChatAsRead(chatId)
+    }
+
     override suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> {
         return remote.createPrivateChat(otherUserId)
     }
 
     override suspend fun createGroupChat(
         name: String,
-        userIds: List<UserDto>
+        userIds: List<String>
     ): MiraiLinkResult<String> {
         return remote.createGroupChat(name, userIds)
     }
@@ -56,7 +59,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getMessagesWith(userId: String): MiraiLinkResult<List<ChatMessage>> {
         return when (val result = remote.getChatHistory(userId)) {
             is MiraiLinkResult.Success -> {
-                val messages = result.data.map { message ->
+                val messages = result.data.distinctBy { it.id }.map { message ->
                     message.toDomain()
                 }
                 MiraiLinkResult.Success(messages)

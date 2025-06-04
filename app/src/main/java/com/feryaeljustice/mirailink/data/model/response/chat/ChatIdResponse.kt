@@ -1,3 +1,7 @@
 package com.feryaeljustice.mirailink.data.model.response.chat
 
-data class ChatIdResponse(val chatId: String)
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ChatIdResponse(@SerialName("chatId") val chatId: String)
