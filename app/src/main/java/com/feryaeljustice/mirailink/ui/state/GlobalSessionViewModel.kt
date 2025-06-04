@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
-import com.feryaeljustice.mirailink.domain.usecase.users.CheckProfilePictureUseCase
+import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.TopBarConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,17 +42,14 @@ class GlobalSessionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _currentUserId.value = currentLocalUserId.firstOrNull()
+            val curUserId = currentLocalUserId.firstOrNull()
+            _currentUserId.value = curUserId
 
-            currentLocalUserId.collect { userId ->
-                userId?.let {
-                    sessionManager.saveUserId(it)
-                }
-                if (!userId.isNullOrBlank()) {
-                    startObservingHasProfilePicture(userId)
-                } else {
-                    stopObservingHasProfilePicture()
-                }
+            if (!curUserId.isNullOrBlank()) {
+                sessionManager.saveUserId(curUserId)
+                startObservingHasProfilePicture(curUserId)
+            } else {
+                stopObservingHasProfilePicture()
             }
         }
 

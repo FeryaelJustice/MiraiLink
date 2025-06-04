@@ -58,7 +58,6 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
 
     // Session states
-    // Solo representa si hay jwt local, no por una llamada exitosa con el jwt
     val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
     val currentUserId by sessionViewModel.currentUserId.collectAsState()
@@ -96,8 +95,8 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     }
 
     // 3. Chequeo de foto de perfil
-    LaunchedEffect(isAuthenticated, hasProfilePicture) {
-        if (isAuthenticated && hasProfilePicture == false) {
+    LaunchedEffect(hasProfilePicture) {
+        if (hasProfilePicture == false) {
             navController.navigate(AppScreen.ProfilePictureScreen) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
