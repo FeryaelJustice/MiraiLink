@@ -4,27 +4,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
 fun SplashScreen(
-    isAuthenticated: Boolean = false,
+    viewModel: SplashScreenViewModel,
     onNavigateToAuth: () -> Unit,
-    onNavigateToHome: () -> Unit
+    onNavigateToHome: () -> Unit,
+    onNavigateToProfilePicture: () -> Unit,
 ) {
-    val authenticated by rememberUpdatedState(isAuthenticated)
-    LaunchedEffect(authenticated) {
-        when (authenticated) {
-            true -> onNavigateToHome()
-            false -> onNavigateToAuth()
-        }
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+    when (uiState) {
+        SplashScreenViewModel.SplashUiState.NavigateToAuth -> onNavigateToAuth()
+        SplashScreenViewModel.SplashUiState.NavigateToHome -> onNavigateToHome()
+        SplashScreenViewModel.SplashUiState.NavigateToProfilePicture -> onNavigateToProfilePicture()
+        SplashScreenViewModel.SplashUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {}
     }
 }

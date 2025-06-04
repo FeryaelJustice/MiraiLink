@@ -1,10 +1,11 @@
 package com.feryaeljustice.mirailink.domain.repository
 
+import android.net.Uri
 import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
 interface UserRepository {
-    suspend fun testAuth(): MiraiLinkResult<Unit>
+    suspend fun autologin(): MiraiLinkResult<String>
     suspend fun login(email: String, username: String, password: String): MiraiLinkResult<String>
     suspend fun logout(): MiraiLinkResult<Boolean>
     suspend fun register(username: String, email: String, password: String): MiraiLinkResult<String>
@@ -25,4 +26,6 @@ interface UserRepository {
     suspend fun getCurrentUser(): MiraiLinkResult<User>
     suspend fun getUserById(userId: String): MiraiLinkResult<User>
     suspend fun updateBio(bio: String): MiraiLinkResult<Unit>
+    suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean>
+    suspend fun uploadUserPhoto(photo: Uri): MiraiLinkResult<String>
 }

@@ -25,6 +25,9 @@ class AuthInterceptor @Inject constructor(
 
         val response = chain.proceed(request)
 
+        // Mirar si tiene 0 fotos y necesita setear 1 profile pic
+        runBlocking { sessionManager.notifyNeedsToCheckProfilePicture() }
+
         when (response.code) {
             403 -> {
                 userId?.let {

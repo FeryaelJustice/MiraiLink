@@ -31,6 +31,12 @@ class SessionManager @Inject constructor(
         _needsToBeVerified.send(userId)
     }
 
+    private val _needsToCheckProfilePicture = Channel<Unit>(Channel.UNLIMITED)
+    val needsToCheckProfilePicture = _needsToCheckProfilePicture.receiveAsFlow()
+    suspend fun notifyNeedsToCheckProfilePicture() {
+        _needsToCheckProfilePicture.send(Unit)
+    }
+
 //    suspend fun getUserId() = userIdLocalManager.getUserId()
 //
 //    suspend fun clearUserId() = userIdLocalManager.clearUserId()

@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import android.net.Uri
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.User
@@ -14,9 +15,13 @@ class UserRepositoryImpl @Inject constructor(
     @Named("BaseUrl") private val baseUrl: String,
 ) : UserRepository {
 
-    override suspend fun testAuth(): MiraiLinkResult<Unit> = remote.testAuth()
+    override suspend fun autologin(): MiraiLinkResult<String> = remote.autologin()
 
-    override suspend fun login(email: String, username: String, password: String): MiraiLinkResult<String> {
+    override suspend fun login(
+        email: String,
+        username: String,
+        password: String
+    ): MiraiLinkResult<String> {
         return remote.login(email, username, password)
     }
 
@@ -71,4 +76,11 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateBio(bio: String): MiraiLinkResult<Unit> = remote.updateBio(bio)
+
+
+    override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> =
+        remote.hasProfilePicture(userId)
+
+    override suspend fun uploadUserPhoto(photo: Uri): MiraiLinkResult<String> =
+        remote.uploadUserPhoto(photo)
 }

@@ -2,10 +2,11 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.data.local.TokenManager
+import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
-import com.feryaeljustice.mirailink.domain.usecase.TestAuthUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val testAuthUseCase: TestAuthUseCase,
+    private val autologinUseCase: AutologinUseCase,
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val tokenManager: TokenManager
@@ -26,8 +27,8 @@ class AuthViewModel @Inject constructor(
     sealed class AuthUiState {
         object Idle : AuthUiState()
         object Loading : AuthUiState()
-        object Success : AuthUiState()
-        object IsAuthenticated : AuthUiState()
+        data class Success(val userId: String?) : AuthUiState()
+        data class IsAuthenticated(val userId: String?) : AuthUiState()
         data class Error(val message: String, val exception: Throwable? = null) : AuthUiState()
     }
 
@@ -36,9 +37,9 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            when (testAuthUseCase()) {
+            when (val res = autologinUseCase()) {
                 is MiraiLinkResult.Success -> {
-                    _state.value = AuthUiState.IsAuthenticated
+                    _state.value = AuthUiState.IsAuthenticated(res.data)
                 }
 
                 is MiraiLinkResult.Error -> {
@@ -55,7 +56,7 @@ class AuthViewModel @Inject constructor(
                 is MiraiLinkResult.Success -> {
                     tokenManager.saveToken(result.data)
                     withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Success
+                        _state.value = AuthUiState.Success(extractUserId(result.data))
                     }
                 }
 
@@ -75,7 +76,7 @@ class AuthViewModel @Inject constructor(
                 is MiraiLinkResult.Success -> {
                     tokenManager.saveToken(result.data)
                     withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Success
+                        _state.value = AuthUiState.Success(extractUserId(result.data))
                     }
                 }
 

@@ -20,18 +20,19 @@ import com.feryaeljustice.mirailink.R
 @Composable
 fun MiraiLinkTopBar(
     darkTheme: Boolean = false,
+    enabled: Boolean = true,
     isAuthenticated: Boolean,
+    showSettingsIcon: Boolean = true,
+    title: String? = null,
     onThemeChange: () -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    showSettingsIcon: Boolean = true,
-    title: String? = null
 ) {
     TopAppBar(title = {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (isAuthenticated) Modifier.clickable(onClickLabel = "Navigate Home") { onNavigateHome() } else Modifier),
+                .then(if (isAuthenticated && enabled) Modifier.clickable(onClickLabel = "Navigate Home") { if (enabled) onNavigateHome() } else Modifier),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -41,7 +42,7 @@ fun MiraiLinkTopBar(
             Text(text = title ?: "Mirai Link")
         }
     }, actions = {
-        if (isAuthenticated) {
+        if (isAuthenticated && enabled) {
             ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
             if (showSettingsIcon) {
                 IconButton(onClick = onNavigateToSettings) {
@@ -56,6 +57,8 @@ data class TopBarConfig(
     val showTopBar: Boolean = true,
     val showBottomBar: Boolean = true,
     val showSettingsIcon: Boolean = true,
+    val disableTopBar: Boolean = false,
+    val disableBottomBar: Boolean = false,
     val enableAppLogoClick: Boolean = true,
     val title: String? = null
 )

@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.data.datasource
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
@@ -12,25 +14,30 @@ import com.feryaeljustice.mirailink.data.model.request.VerificationConfirmReques
 import com.feryaeljustice.mirailink.data.model.request.VerificationRequest
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import javax.inject.Inject
 
 // For only current user operations (auth and authenticated for own user logged)
 class UserRemoteDataSource @Inject constructor(
-    private val api: UserApiService
+    private val api: UserApiService,
+    private val context: Context
 ) {
-    suspend fun testAuth(): MiraiLinkResult<Unit> {
+    suspend fun autologin(): MiraiLinkResult<String> {
         return try {
-            api.testAuth()
-            MiraiLinkResult.success(Unit)
+            val res = api.autologin()
+            MiraiLinkResult.success(res.userId)
         } catch (e: Throwable) {
             if (e is HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "testAuth - Error HTTP Body: $errorBody")
+                Log.e("UserRemoteDataSource", "autologin - Error HTTP Body: $errorBody")
             } else {
-                Log.w("UserRemoteDataSource", "testAuth", e)
+                Log.w("UserRemoteDataSource", "autologin", e)
             }
-            MiraiLinkResult.error("Login error: ", e)
+            MiraiLinkResult.error("autologin error: ", e)
         }
     }
 
@@ -165,6 +172,36 @@ class UserRemoteDataSource @Inject constructor(
                 Log.w("UserRemoteDataSource", "updateBio", e)
             }
             MiraiLinkResult.error("No se pudo actualizar la biografía: ", e)
+        }
+    }
+
+    suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> {
+        return try {
+            val userPhotos = api.getUserPhotos(userId)
+            MiraiLinkResult.success(userPhotos.any { it.position == 1 })
+        } catch (e: Exception) {
+            MiraiLinkResult.error("hasProfilePicture: ", e)
+        }
+    }
+
+    suspend fun uploadUserPhoto(uri: Uri): MiraiLinkResult<String> {
+        return try {
+            val contentResolver = context.contentResolver
+            val inputStream = contentResolver.openInputStream(uri)
+                ?: return MiraiLinkResult.Error("No se pudo abrir la imagen")
+
+            val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+            val fileName = "photo_${System.currentTimeMillis()}.jpg"
+
+            val requestBody = inputStream.readBytes().toRequestBody(mimeType.toMediaTypeOrNull())
+            val multipart = MultipartBody.Part.createFormData("photo", fileName, requestBody)
+
+            val position = "1".toRequestBody("text/plain".toMediaType())
+            val response = api.uploadUserPhoto(multipart, position)
+
+            MiraiLinkResult.Success(response.url)
+        } catch (e: Exception) {
+            MiraiLinkResult.error("uploadUserPhoto: ", e)
         }
     }
 }

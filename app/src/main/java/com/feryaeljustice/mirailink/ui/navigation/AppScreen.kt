@@ -1,9 +1,6 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 sealed class ScreensSubgraphs {
@@ -24,6 +21,9 @@ sealed class AppScreen {
 
     @Serializable
     data class VerificationScreen(val userId: String = "") : AppScreen()
+
+    @Serializable
+    data object ProfilePictureScreen : AppScreen()
 
     @Serializable
     data object HomeScreen : AppScreen()

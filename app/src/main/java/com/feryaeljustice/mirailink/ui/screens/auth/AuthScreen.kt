@@ -48,8 +48,8 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 fun AuthScreen(
     viewModel: AuthViewModel,
     sessionViewModel: GlobalSessionViewModel,
-    onLogin: () -> Unit,
-    onRegister: () -> Unit,
+    onLogin: (String?) -> Unit,
+    onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
@@ -343,10 +343,11 @@ fun AuthScreen(
         }
 
         when (state) {
-            AuthUiState.Success -> {
+            is AuthUiState.Success -> {
+                val userId = (state as AuthUiState.Success).userId
                 clearForm()
                 Text("Éxito")
-                if (isLogin) onLogin() else onRegister()
+                if (isLogin) onLogin(userId) else onRegister(userId)
             }
 
             is AuthUiState.Error -> {
@@ -356,7 +357,8 @@ fun AuthScreen(
             }
 
             is AuthUiState.IsAuthenticated -> {
-                onLogin()
+                val userId = (state as AuthUiState.IsAuthenticated).userId
+                onLogin(userId)
             }
 
             AuthUiState.Loading -> {
