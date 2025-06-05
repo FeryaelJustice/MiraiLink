@@ -37,7 +37,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "autologin", e)
             }
-            MiraiLinkResult.error("autologin error: ", e)
+            MiraiLinkResult.error("autologin error: ${e.message}", e)
         }
     }
 
@@ -52,7 +52,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "Login", e)
             }
-            MiraiLinkResult.error("Login error: ", e)
+            MiraiLinkResult.error("Login error: ${e.message}", e)
         }
     }
 
@@ -67,7 +67,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "Logout", e)
             }
-            MiraiLinkResult.error("Logout error: ", e)
+            MiraiLinkResult.error("Logout error: ${e.message}", e)
         }
     }
 
@@ -86,7 +86,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "Login", e)
             }
-            MiraiLinkResult.error("Login error: ", e)
+            MiraiLinkResult.error("Login error: ${e.message}", e)
         }
     }
 
@@ -94,7 +94,7 @@ class UserRemoteDataSource @Inject constructor(
         val response = api.requestPasswordReset(EmailRequest(email))
         MiraiLinkResult.Success(response.message)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error solicitando recuperación", e)
+        MiraiLinkResult.Error("Error solicitando recuperación de contraseña: ${e.message}", e)
     }
 
     suspend fun confirmPasswordReset(
@@ -106,7 +106,7 @@ class UserRemoteDataSource @Inject constructor(
             api.confirmPasswordReset(PasswordResetConfirmRequest(email, token, newPassword))
         MiraiLinkResult.Success(response.message)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error confirmando nueva contraseña", e)
+        MiraiLinkResult.Error("Error confirmando nueva contraseña: ${e.message}", e)
     }
 
     suspend fun requestVerificationCode(userId: String, type: String): MiraiLinkResult<String> =
@@ -114,7 +114,7 @@ class UserRemoteDataSource @Inject constructor(
             val response = api.requestVerificationCode(VerificationRequest(userId, type))
             MiraiLinkResult.Success(response.message)
         } catch (e: Exception) {
-            MiraiLinkResult.Error("Error solicitando código de verificación", e)
+            MiraiLinkResult.Error("Error solicitando código de verificación: ${e.message}", e)
         }
 
     suspend fun confirmVerificationCode(
@@ -140,7 +140,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "getCurrentUser", e)
             }
-            MiraiLinkResult.error("No se pudo obtener el usuario actual: ", e)
+            MiraiLinkResult.error("No se pudo obtener el usuario actual: ${e.message}", e)
         }
     }
 
@@ -156,7 +156,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "getUserById", e)
             }
-            MiraiLinkResult.error("No se pudo obtener el usuario by id: ", e)
+            MiraiLinkResult.error("No se pudo obtener el usuario by id: ${e.message}", e)
         }
     }
 
@@ -171,7 +171,7 @@ class UserRemoteDataSource @Inject constructor(
             } else {
                 Log.w("UserRemoteDataSource", "updateBio", e)
             }
-            MiraiLinkResult.error("No se pudo actualizar la biografía: ", e)
+            MiraiLinkResult.error("No se pudo actualizar la biografía: ${e.message}", e)
         }
     }
 
@@ -180,7 +180,7 @@ class UserRemoteDataSource @Inject constructor(
             val userPhotos = api.getUserPhotos(userId)
             MiraiLinkResult.success(userPhotos.any { it.position == 1 })
         } catch (e: Exception) {
-            MiraiLinkResult.error("hasProfilePicture: ", e)
+            MiraiLinkResult.error("hasProfilePicture: ${e.message}", e)
         }
     }
 
@@ -201,7 +201,7 @@ class UserRemoteDataSource @Inject constructor(
 
             MiraiLinkResult.Success(response.url)
         } catch (e: Exception) {
-            MiraiLinkResult.error("uploadUserPhoto: ", e)
+            MiraiLinkResult.error("uploadUserPhoto: ${e.message}", e)
         }
     }
 }

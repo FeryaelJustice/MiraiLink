@@ -89,7 +89,7 @@ fun MessagesScreen(
             is MessagesViewModel.MessagesUiState.Error -> {
                 val error = state as MessagesViewModel.MessagesUiState.Error
                 Text(
-                    text = "Error: ${error.message} ${error.exception?.message}",
+                    text = error.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )

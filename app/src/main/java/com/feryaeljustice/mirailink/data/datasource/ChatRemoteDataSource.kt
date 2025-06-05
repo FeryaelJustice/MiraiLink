@@ -17,7 +17,7 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
             MiraiLinkResult.Success(response)
         } catch (e: Exception) {
             Log.e("ChatRemoteDataSource", "getChatsFromUser error", e)
-            MiraiLinkResult.Error("Error al obtener los chats", e)
+            MiraiLinkResult.Error("Error al obtener los chats: ${e.message}", e)
         }
     }
 
@@ -27,7 +27,7 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
             MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
             Log.e("ChatRemoteDataSource", "markChatAsRead error", e)
-            MiraiLinkResult.Error("Error al marcar el chat como leído", e)
+            MiraiLinkResult.Error("Error al marcar el chat como leído: ${e.message}", e)
         }
     }
 
@@ -50,7 +50,10 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
 
                 return MiraiLinkResult.Error(message, e)
             } catch (parseError: Exception) {
-                return MiraiLinkResult.Error("Error al interpretar respuesta de error", parseError)
+                return MiraiLinkResult.Error(
+                    "Error al interpretar respuesta de error: ${e.message}",
+                    parseError
+                )
             }
         }
     }
@@ -76,7 +79,10 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
 
                 return MiraiLinkResult.Error(message, e)
             } catch (parseError: Exception) {
-                return MiraiLinkResult.Error("Error al interpretar respuesta de error", parseError)
+                return MiraiLinkResult.Error(
+                    "Error al interpretar respuesta de error: ${e.message}",
+                    parseError
+                )
             }
         }
     }
@@ -86,7 +92,7 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
             api.sendMessage(ChatRequest(toUserId, content))
             MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
-            MiraiLinkResult.Error("Error enviar mensaje al chat", e)
+            MiraiLinkResult.Error("Error enviar mensaje al chat: ${e.message}", e)
         }
     }
 
@@ -95,7 +101,7 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
             val response = api.getChatHistory(withUserId)
             MiraiLinkResult.Success(response)
         } catch (e: Exception) {
-            MiraiLinkResult.Error("Error al obtener el historial del chat", e)
+            MiraiLinkResult.Error("Error al obtener el historial del chat: ${e.message}", e)
         }
     }
 }

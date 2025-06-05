@@ -12,7 +12,7 @@ class SwipeRemoteDataSource @Inject constructor(private val api: SwipeApiService
         val result = api.getFeed()
         MiraiLinkResult.Success(result)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error obteniendo el feed", e)
+        MiraiLinkResult.Error("Error obteniendo el feed: ${e.message}", e)
     }
 
     suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> = try {
@@ -20,13 +20,13 @@ class SwipeRemoteDataSource @Inject constructor(private val api: SwipeApiService
         Log.d("SwipeRemoteDataSource", "likeUser: $result")
         MiraiLinkResult.Success(result.match)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error al dar like", e)
+        MiraiLinkResult.Error("Error al dar like: ${e.message}", e)
     }
 
     suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> = try {
         api.dislikeUser(SwipeRequest(toUserId))
         MiraiLinkResult.Success(Unit)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error al ignorar usuario", e)
+        MiraiLinkResult.Error("Error al ignorar usuario: ${e.message}", e)
     }
 }

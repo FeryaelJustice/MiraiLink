@@ -12,7 +12,7 @@ class UsersRemoteDataSource @Inject constructor(
         return try {
             MiraiLinkResult.success(api.getUsers())
         } catch (e: Exception) {
-            MiraiLinkResult.error("Error al cargar usuarios", e)
+            MiraiLinkResult.error("Error al cargar usuarios: ${e.message}", e)
         }
     }
 }

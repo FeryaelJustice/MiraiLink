@@ -1,6 +1,5 @@
 package com.feryaeljustice.mirailink.data.datasource
 
-import android.util.Log
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.request.MarkMatchAsSeenRequest
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
@@ -12,20 +11,20 @@ class MatchRemoteDataSource @Inject constructor(private val api: MatchApiService
         val result = api.getMatches()
         MiraiLinkResult.Success(result)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error obteniendo el feed de matches", e)
+        MiraiLinkResult.Error("Error obteniendo el feed de matches: ${e.message}", e)
     }
 
     suspend fun getUnseenMatches(): MiraiLinkResult<List<UserDto>> = try {
         val result = api.getUnseenMatches()
         MiraiLinkResult.Success(result)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error obteniendo el feed de matches no vistos", e)
+        MiraiLinkResult.Error("Error obteniendo el feed de matches no vistos: ${e.message}", e)
     }
 
     suspend fun markMatchAsSeen(matchIds: List<String>): MiraiLinkResult<Unit> = try {
         val result = api.markMatchAsSeen(MarkMatchAsSeenRequest(matchIds))
         MiraiLinkResult.Success(Unit)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error marcando un match como visto", e)
+        MiraiLinkResult.Error("Error marcando un match como visto: ${e.message}", e)
     }
 }

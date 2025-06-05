@@ -60,7 +60,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
             is HomeUiState.Error -> {
                 val error = state as HomeUiState.Error
                 Text(
-                    text = "Error: ${error.message} ${error.exception?.message}",
+                    text = error.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )

@@ -51,7 +51,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
             is ProfileUiState.Error -> {
                 val error = state as ProfileUiState.Error
                 Text(
-                    text = "Error: ${error.message} ${error.exception?.message}",
+                    text = error.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )

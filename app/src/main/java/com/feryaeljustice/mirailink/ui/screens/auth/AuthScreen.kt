@@ -356,8 +356,8 @@ fun AuthScreen(
 
             is AuthUiState.Error -> {
                 val error = state as AuthUiState.Error
-                Log.d("AuthScreen", "Error: ${error.message}")
-                Text("Error: ${error.message}", color = MaterialTheme.colorScheme.error)
+                Log.e("AuthScreen", error.message)
+                Text(error.message, color = MaterialTheme.colorScheme.error)
             }
 
             is AuthUiState.IsAuthenticated -> {
