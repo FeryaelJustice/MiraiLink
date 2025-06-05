@@ -26,7 +26,7 @@ fun ChatSummaryResponse.toDomain() = ChatSummary(
     destinatary =
         MinimalUserInfo(
             id = destinatary?.id ?: "",
-            name = destinatary?.name ?: "Desconocido",
+            username = destinatary?.username ?: "Desconocido",
             avatarUrl = destinatary?.avatarUrl.orEmpty()
         )
 )

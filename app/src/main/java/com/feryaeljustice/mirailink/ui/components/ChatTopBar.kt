@@ -25,12 +25,13 @@ import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.model.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
+import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 
 @Composable
 fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier) {
     val url = user?.profilePhoto?.url.getFormattedUrl()
-    val name = user?.username
+    val name = user?.nicknameElseUsername()
     Row(
         modifier = modifier
             .fillMaxWidth()

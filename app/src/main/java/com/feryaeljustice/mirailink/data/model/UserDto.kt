@@ -9,9 +9,11 @@ data class UserDto(
     val id: String,
     @SerialName("username")
     val username: String,
+    @SerialName("nickname")
+    val nickname: String,
     @SerialName("email")
     val email: String? = null,
-    @SerialName("phoneNumber")
+    @SerialName("phone_number")
     val phoneNumber: String? = null,
     @SerialName("bio")
     val bio: String? = null,

@@ -109,7 +109,7 @@ fun MatchCard(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = user.username,
+            text = user.nickname.ifBlank { user.username },
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

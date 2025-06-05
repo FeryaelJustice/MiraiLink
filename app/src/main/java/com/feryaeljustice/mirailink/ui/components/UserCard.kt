@@ -35,11 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.domain.model.Anime
 import com.feryaeljustice.mirailink.domain.model.Game
 import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
 
 @Composable
@@ -81,11 +83,11 @@ fun UserCard(
 
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = user.username.uppercase(),
+                        text = user.nicknameElseUsername(),
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmall.copy(textDecoration = TextDecoration.Underline),
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -209,6 +211,7 @@ fun UserCardPreview() {
         user = User(
             id = "1",
             username = "FeryaelJustice",
+            nickname = "Feryael Justice",
             bio = "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
             phoneNumber = "604892842",
             animes = listOf(

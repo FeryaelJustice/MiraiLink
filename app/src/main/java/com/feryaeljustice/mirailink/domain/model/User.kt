@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.domain.model
 data class User(
     val id: String,
     val username: String,
+    val nickname: String,
     val email: String?,
     val phoneNumber: String?,
     val bio: String?,
@@ -16,6 +17,7 @@ data class User(
 data class MinimalUserInfo(
     val id: String,
     val username: String,
+    val nickname: String,
     val email: String?,
     val gender: String?,
     val birthdate: String?,

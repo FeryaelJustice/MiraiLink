@@ -9,6 +9,7 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
+import com.feryaeljustice.mirailink.ui.viewentities.toMatchUserViewEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,12 +44,14 @@ class MessagesViewModel @Inject constructor(
             MatchUserViewEntity(
                 "1",
                 "Fer",
+                "Ferr",
                 TEMPORAL_PLACEHOLDER_PICTURE_URL,
                 false
             ),
             MatchUserViewEntity(
                 "2",
                 "Maria",
+                "Mariaa",
                 "https://loremflickr.com/320/240/dog",
                 true
             )
@@ -59,6 +62,7 @@ class MessagesViewModel @Inject constructor(
             ChatPreviewViewEntity(
                 "1",
                 "Fer",
+                "Ferr",
                 TEMPORAL_PLACEHOLDER_PICTURE_URL,
                 "Hola, ¿cómo estás?",
                 false
@@ -66,6 +70,7 @@ class MessagesViewModel @Inject constructor(
             ChatPreviewViewEntity(
                 "2",
                 "Maria",
+                "Mariaa",
                 "https://loremflickr.com/320/240/dog",
                 "¿Qué me dijiste?",
                 true
@@ -86,14 +91,10 @@ class MessagesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = getMatchesUseCase()) {
                 is MiraiLinkResult.Success -> {
-                    val matchesResult = result.data.map {
-                        val url = it.photos.firstOrNull()?.url
-                        MatchUserViewEntity(
-                            id = it.id,
-                            username = it.username,
-                            avatarUrl = url.getFormattedUrl(),
-                            isBoosted = false,
-                        )
+                    val matchesResult = result.data.map { user ->
+                        val url = user.photos.firstOrNull()?.url
+                        val us = user.toMatchUserViewEntity()
+                        us.copy(avatarUrl = url.getFormattedUrl())
                     }
                     _matches = matchesResult.toMutableList()
                     _state.value =
@@ -116,7 +117,8 @@ class MessagesViewModel @Inject constructor(
                         val avatar = chat.destinatary.avatarUrl
                         ChatPreviewViewEntity(
                             userId = chat.destinatary.id ?: Date().toString(),
-                            username = chat.destinatary.name ?: "Unknown",
+                            username = chat.destinatary.username ?: "Unknown",
+                            nickname = chat.destinatary.nickname ?: "Unknown",
                             avatarUrl = avatar.getFormattedUrl(),
                             lastMessage = chat.lastMessageText,
                             isBoosted = false,

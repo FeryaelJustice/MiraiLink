@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.ChatTopBar
 import com.feryaeljustice.mirailink.ui.components.MessageItem
@@ -85,7 +86,13 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                 value = input.value,
                 onValueChange = { input.value = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("${sender?.username?.superCapitalize()}, escribe un mensaje...") }
+                placeholder = {
+                    Text(
+                        "${
+                            sender?.nicknameElseUsername()?.superCapitalize()
+                        }, escribe un mensaje..."
+                    )
+                }
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
