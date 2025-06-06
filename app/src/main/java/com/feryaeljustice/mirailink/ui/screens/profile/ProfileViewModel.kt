@@ -41,10 +41,9 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
     private val _editState = MutableStateFlow(EditProfileUiState())
     val editState = _editState.asStateFlow()
 
+    // Para comunicar eventos de edición al UI
     private val _editProfUiEvent = MutableSharedFlow<EditProfileUiEvent>(replay = 0)
     val editProfUiEvent = _editProfUiEvent.asSharedFlow()
-
-    private var isSaving = false
 
     init {
         getCurrentUser()
@@ -69,6 +68,7 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
         _editState.value = _editState.value.copy(isEditing = isEdit)
     }
 
+    // Intent es para eventos de la ui al viewmodel, el uiEvent es para lo contrario
     fun onIntent(intent: EditProfileIntent) {
         _editState.update { state ->
             when (intent) {
@@ -98,24 +98,19 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
                 }
 
                 EditProfileIntent.Save -> {
-                    if (isSaving) return@update state // Evita múltiples saves
-
-                    isSaving = true
-
                     Log.d(
                         "ProfileViewModel",
                         "Save: ${state.nickname} ${state.bio} ${state.selectedAnimes} ${state.selectedGames}"
                     )
 
+                    // Comunicar a la ui
                     viewModelScope.launch {
                         _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
-                        isSaving = false
+
                     }
 
                     // Cerrar
-                    _editState.value = _editState.value.copy(isEditing = false)
-
-                    state
+                    state.copy(isEditing = false)
                 }
 
                 is EditProfileIntent.UpdateTextField -> when (intent.field) {

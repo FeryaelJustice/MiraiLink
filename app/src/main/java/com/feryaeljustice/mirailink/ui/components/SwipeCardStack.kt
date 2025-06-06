@@ -4,18 +4,13 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -39,8 +34,8 @@ fun SwipeCardStack(
     val topUser = users.first()
     val nextUser = users.getOrNull(1)
 
-    var offsetX = remember { Animatable(0f) }
-    var offsetY = remember { Animatable(0f) }
+    val offsetX = remember { Animatable(0f) }
+    val offsetY = remember { Animatable(0f) }
     val rotation = (offsetX.value / 60).coerceIn(-40f, 40f)
     val alphaAnim by animateFloatAsState(targetValue = 1 - (abs(offsetX.value) / 1000f))
 
@@ -52,7 +47,8 @@ fun SwipeCardStack(
                 user = it,
                 modifier = Modifier
                     .padding(2.dp)
-                    .alpha(0.5f)
+                    .alpha(0.5f),
+                onSave = {}
             )
         }
 
@@ -60,6 +56,7 @@ fun SwipeCardStack(
         UserCard(
             user = topUser,
             canUndo = canUndo,
+            onSave = {},
             modifier = Modifier
                 .padding(2.dp)
                 .graphicsLayer(
@@ -80,6 +77,7 @@ fun SwipeCardStack(
                                         offsetY.snapTo(0f)
                                     }
                                 }
+
                                 offsetX.value < -300f -> {
                                     scope.launch {
                                         offsetX.animateTo(-1000f)
@@ -88,6 +86,7 @@ fun SwipeCardStack(
                                         offsetY.snapTo(0f)
                                     }
                                 }
+
                                 else -> {
                                     scope.launch {
                                         offsetX.animateTo(0f)

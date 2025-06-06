@@ -33,10 +33,6 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -67,13 +63,12 @@ fun UserCard(
     onTagSelected: ((type: TagType, newValue: List<String>) -> Unit)? = null,
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
-    onSave: (() -> Unit)? = null,
+    onSave: (() -> Unit),
     onLike: (() -> Unit)? = null,
     onGoBackToLast: (() -> Unit)? = null,
     onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null
 ) {
-    var isSaveButtonEnabled by rememberSaveable { mutableStateOf(true) }
 
     Card(
         modifier = modifier
@@ -234,12 +229,7 @@ fun UserCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (editUiState != null && editUiState.isEditing) {
-                    Button(onClick = {
-                        if (isSaveButtonEnabled) {
-                            isSaveButtonEnabled = false
-                            onSave?.invoke()
-                        }
-                    }, enabled = isSaveButtonEnabled, modifier = Modifier.fillMaxWidth()) {
+                    Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Edit, contentDescription = "Guardar")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Guardar cambios")
@@ -361,6 +351,7 @@ fun UserCardPreview() {
         isPreviewMode = true,
         onLike = {},
         onDislike = {},
-        onEdit = {}
+        onEdit = {},
+        onSave = {}
     )
 }

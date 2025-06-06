@@ -17,7 +17,7 @@ data class EditProfileUiState(
     val photos: List<PhotoSlotViewEntity> = List(4) { PhotoSlotViewEntity() }, // index = position
     val selectedSlotForDialog: Int? = null, // el slot que ha sido clicado
     val showActionDialog: Boolean = false,
-    val showPhotoSourceDialog: Boolean = false
+    val showPhotoSourceDialog: Boolean = false,
 )
 
 sealed class EditProfileIntent {
