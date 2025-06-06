@@ -3,7 +3,7 @@ package com.feryaeljustice.mirailink.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -58,12 +58,13 @@ fun MultiSelectDropdown(
 
         // Chips debajo (más usabilidad)
         if (selected.isNotEmpty()) {
-            Row(
+            FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
                     .wrapContentHeight(),
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 selected.forEach { tag ->
                     AssistChip(

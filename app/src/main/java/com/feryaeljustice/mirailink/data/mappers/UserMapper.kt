@@ -24,7 +24,7 @@ fun UserDto.toDomain(): User = User(
     ),
     animes = listOf(
         Anime(title = "Death Note", description = "OO"),
-        Anime(title = "Demon Slayer (KNY)", description = "Kimetsu No Yaiba yeaa")
+        Anime(title = "Kimetsu No Yaiba", description = "Kimetsu No Yaiba yeaa")
     ),
 )
 
