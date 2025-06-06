@@ -33,6 +33,7 @@ import com.feryaeljustice.mirailink.data.util.createImageUri
 import com.feryaeljustice.mirailink.ui.components.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +41,6 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionViewModel) {
     val state by viewModel.state.collectAsState()
     val editState by viewModel.editState.collectAsState()
-    var isInEditMode by rememberSaveable { mutableStateOf(false) }
 
     // Galería
     val galleryLauncher =
@@ -85,10 +85,23 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
         sessionViewModel.showBars()
         sessionViewModel.enableBars()
         sessionViewModel.showTopBarSettingsIcon()
+
+        viewModel.editProfUiEvent.collect { event ->
+            when (event) {
+                EditProfileUiEvent.ProfileSavedSuccessfully -> {
+                    Toast.makeText(context, "Perfil guardado correctamente", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                is EditProfileUiEvent.ShowError -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
-    LaunchedEffect(isInEditMode) {
-        if (!isInEditMode) {
+    LaunchedEffect(editState.isEditing) {
+        if (!editState.isEditing) {
             viewModel.cleanupTempPhotos()
         }
     }
@@ -103,10 +116,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                         UserCard(
                             user = user,
                             isPreviewMode = true,
-                            isEditMode = isInEditMode,
                             editUiState = editState,
                             onEdit = { isEdit ->
-                                isInEditMode = isEdit
+                                viewModel.setIsInEditMode(isEdit)
 
                                 // Initialize edit state if going to edit user
                                 if (isEdit) {
@@ -114,6 +126,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                         viewModel.onIntent(EditProfileIntent.Initialize(stateUser))
                                     }
                                 }
+                            },
+                            onSave = {
+                                viewModel.onIntent(EditProfileIntent.Save)
                             },
                             onValueChange = { field, value ->
                                 Log.d("ProfileScreen", "onValueChange: $field $value")

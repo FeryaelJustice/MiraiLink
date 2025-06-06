@@ -23,6 +23,7 @@ data class EditProfileUiState(
 sealed class EditProfileIntent {
     // Cada field representa SOLO 1 campo en concreto
     data class Initialize(val user: User) : EditProfileIntent()
+    object Save : EditProfileIntent()
     data class UpdateTextField(val field: TextFieldType, val value: String) : EditProfileIntent()
     data class UpdateTags(val field: TagType, val selected: List<String>) : EditProfileIntent()
     data class ReorderPhoto(val from: Int, val to: Int) : EditProfileIntent()
@@ -31,4 +32,9 @@ sealed class EditProfileIntent {
     data class OpenPhotoActionDialog(val position: Int) : EditProfileIntent()
     object ClosePhotoDialogs : EditProfileIntent()
     object ShowPhotoSourceDialog : EditProfileIntent()
+}
+
+sealed class EditProfileUiEvent {
+    object ProfileSavedSuccessfully : EditProfileUiEvent()
+    data class ShowError(val message: String) : EditProfileUiEvent()
 }

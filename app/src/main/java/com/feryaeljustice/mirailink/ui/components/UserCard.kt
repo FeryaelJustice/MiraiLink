@@ -33,6 +33,10 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,7 +62,6 @@ fun UserCard(
     user: User,
     canUndo: Boolean = false,
     isPreviewMode: Boolean = false,
-    isEditMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
     onTagSelected: ((type: TagType, newValue: List<String>) -> Unit)? = null,
@@ -70,6 +73,8 @@ fun UserCard(
     onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null
 ) {
+    var isSaveButtonEnabled by rememberSaveable { mutableStateOf(true) }
+
     Card(
         modifier = modifier
             .fillMaxSize()
@@ -90,7 +95,7 @@ fun UserCard(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            if (isEditMode) {
+            if (editUiState?.isEditing == true) {
                 OutlinedIconButton(
                     colors = IconButtonDefaults.outlinedIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -112,10 +117,10 @@ fun UserCard(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .then(
-                        if (isEditMode && editUiState != null) Modifier.padding(16.dp) else Modifier
+                        if (editUiState != null && editUiState.isEditing) Modifier.padding(16.dp) else Modifier
                     )
             ) {
-                if (isEditMode && editUiState != null) {
+                if (editUiState != null && editUiState.isEditing) {
                     // Cuadrícula de imágenes
                     EditablePhotoGrid(
                         photos = editUiState.photos,
@@ -228,8 +233,13 @@ fun UserCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isEditMode) {
-                    Button(onClick = { onSave?.invoke() }, modifier = Modifier.fillMaxWidth()) {
+                if (editUiState != null && editUiState.isEditing) {
+                    Button(onClick = {
+                        if (isSaveButtonEnabled) {
+                            isSaveButtonEnabled = false
+                            onSave?.invoke()
+                        }
+                    }, enabled = isSaveButtonEnabled, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Edit, contentDescription = "Guardar")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Guardar cambios")

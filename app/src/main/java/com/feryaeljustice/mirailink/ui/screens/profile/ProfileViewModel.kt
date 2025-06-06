@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
@@ -10,11 +11,14 @@ import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,6 +41,11 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
     private val _editState = MutableStateFlow(EditProfileUiState())
     val editState = _editState.asStateFlow()
 
+    private val _editProfUiEvent = MutableSharedFlow<EditProfileUiEvent>(replay = 0)
+    val editProfUiEvent = _editProfUiEvent.asSharedFlow()
+
+    private var isSaving = false
+
     init {
         getCurrentUser()
     }
@@ -54,6 +63,10 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
                 }
             }
         }
+    }
+
+    fun setIsInEditMode(isEdit: Boolean) {
+        _editState.value = _editState.value.copy(isEditing = isEdit)
     }
 
     fun onIntent(intent: EditProfileIntent) {
@@ -82,6 +95,27 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
                         selectedGames = user.games.map { it.title },
                         photos = photos
                     )
+                }
+
+                EditProfileIntent.Save -> {
+                    if (isSaving) return@update state // Evita múltiples saves
+
+                    isSaving = true
+
+                    Log.d(
+                        "ProfileViewModel",
+                        "Save: ${state.nickname} ${state.bio} ${state.selectedAnimes} ${state.selectedGames}"
+                    )
+
+                    viewModelScope.launch {
+                        _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
+                        isSaving = false
+                    }
+
+                    // Cerrar
+                    _editState.value = _editState.value.copy(isEditing = false)
+
+                    state
                 }
 
                 is EditProfileIntent.UpdateTextField -> when (intent.field) {
@@ -138,14 +172,14 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
                     }
                 }
 
-                is EditProfileIntent.ShowPhotoSourceDialog -> {
+                EditProfileIntent.ShowPhotoSourceDialog -> {
                     state.copy(
                         showActionDialog = false,
                         showPhotoSourceDialog = true
                     )
                 }
 
-                is EditProfileIntent.ClosePhotoDialogs -> {
+                EditProfileIntent.ClosePhotoDialogs -> {
                     state.copy(
                         selectedSlotForDialog = null,
                         showActionDialog = false,
