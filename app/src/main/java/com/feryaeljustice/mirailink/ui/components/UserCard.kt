@@ -26,22 +26,30 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import com.feryaeljustice.mirailink.domain.enums.TagType
+import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.Anime
 import com.feryaeljustice.mirailink.domain.model.Game
 import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
 
 @Composable
@@ -50,10 +58,17 @@ fun UserCard(
     user: User,
     canUndo: Boolean = false,
     isPreviewMode: Boolean = false,
+    isEditMode: Boolean = false,
+    editUiState: EditProfileUiState? = null,
+    onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
+    onTagSelected: ((type: TagType, newValue: List<String>) -> Unit)? = null,
+    onPhotoSlotClick: ((Int) -> Unit)? = null,
+    onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
+    onSave: (() -> Unit)? = null,
     onLike: (() -> Unit)? = null,
     onGoBackToLast: (() -> Unit)? = null,
     onDislike: (() -> Unit)? = null,
-    onEdit: (() -> Unit)? = null
+    onEdit: ((Boolean) -> Unit)? = null
 ) {
     Card(
         modifier = modifier
@@ -74,60 +89,135 @@ fun UserCard(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+
+            if (isEditMode) {
+                OutlinedIconButton(
+                    colors = IconButtonDefaults.outlinedIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    ),
+                    onClick = { onEdit?.invoke(false) },
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .align(Alignment.TopEnd)
+                        .alpha(0.8f)
+                        .zIndex(10f) // Lo eleva sobre el grid
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Cerrar modo de edición")
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .then(
+                        if (isEditMode && editUiState != null) Modifier.padding(16.dp) else Modifier
+                    )
             ) {
-                UserPhotoCarousel(photoUrls = user.photos.map { it.url })
-
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = user.nicknameElseUsername(),
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineSmall.copy(textDecoration = TextDecoration.Underline),
+                if (isEditMode && editUiState != null) {
+                    // Cuadrícula de imágenes
+                    EditablePhotoGrid(
+                        photos = editUiState.photos,
+                        onSlotClick = onPhotoSlotClick,
+                        onPhotoReorder = onPhotoReorder
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        if (!user.bio.isNullOrBlank()) user.bio else "Aquí para triunfar",
-                        fontStyle = FontStyle.Italic,
-                        style = MaterialTheme.typography.bodyMedium
+                    // TextField para nombre
+                    OutlinedTextField(
+                        value = editUiState.nickname,
+                        onValueChange = { onValueChange?.invoke(TextFieldType.NICKNAME, it) },
+                        label = { Text("Nickname") },
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Secciones: anime y videojuegos
-                    user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
+                    // TextField para bio
+                    OutlinedTextField(
+                        value = editUiState.bio,
+                        onValueChange = { onValueChange?.invoke(TextFieldType.BIO, it) },
+                        label = { Text("Biografía") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                        TagsSection(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            tags = animes.map { it.title })
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
+                    Text("Animes favoritos:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MultiSelectDropdown(
+                        label = "Animes favoritos",
+                        options = editUiState.availableAnimes,
+                        selected = editUiState.selectedAnimes,
+                        onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Text("Videojuegos favoritos:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MultiSelectDropdown(
+                        label = "Videojuegos favoritos",
+                        options = editUiState.availableGames,
+                        selected = editUiState.selectedGames,
+                        onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(64.dp))
+                } else {
+                    UserPhotoCarousel(photoUrls = user.photos.map { it.url })
+
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = user.nicknameElseUsername(),
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            fontStyle = FontStyle.Normal,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineSmall.copy(textDecoration = TextDecoration.Underline),
+                        )
 
                         Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            if (!user.bio.isNullOrBlank()) user.bio else "Aquí para triunfar",
+                            fontStyle = FontStyle.Italic,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Secciones: anime y videojuegos
+                        user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
+
+                            TagsSection(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp),
+                                tags = animes.map { it.title })
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        user.games.takeIf { it.isNotEmpty() }?.let { games ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
+
+                            TagsSection(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(4.dp),
+                                tags = games.map { it.title })
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
-                    user.games.takeIf { it.isNotEmpty() }?.let { games ->
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
 
-                        TagsSection(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            tags = games.map { it.title })
-
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+                    Spacer(modifier = Modifier.height(240.dp))
                 }
-
-                Spacer(modifier = Modifier.height(240.dp))
             }
 
             Row(
@@ -138,9 +228,15 @@ fun UserCard(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isPreviewMode) {
+                if (isEditMode) {
+                    Button(onClick = { onSave?.invoke() }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.Edit, contentDescription = "Guardar")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Guardar cambios")
+                    }
+                } else if (isPreviewMode) {
                     Button(
-                        onClick = { onEdit?.invoke() },
+                        onClick = { onEdit?.invoke(true) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
