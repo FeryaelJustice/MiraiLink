@@ -59,6 +59,31 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
     fun onIntent(intent: EditProfileIntent) {
         _editState.update { state ->
             when (intent) {
+                is EditProfileIntent.Initialize -> {
+                    val user = intent.user
+                    val photos = MutableList(4) { PhotoSlotViewEntity() }
+
+                    user.photos.forEach {
+                        // Importante aqui este sync con la bdd si empieza las position en 0 o 1
+                        // Hacemos -1 porque la posicion empiezan en 1 y no en 0 en bdd,
+                        // pero aqui empiezan en 0
+                        if (it.position in 0..3) {
+                            photos[it.position - 1] =
+                                PhotoSlotViewEntity(url = it.url, position = it.position)
+                        }
+                        // RECORDAR!! : Al subir las imagenes sumar +1 a la posicion para la bdd
+                    }
+
+                    state.copy(
+                        isEditing = true,
+                        nickname = user.nickname,
+                        bio = user.bio ?: "",
+                        selectedAnimes = user.animes.map { it.title },
+                        selectedGames = user.games.map { it.title },
+                        photos = photos
+                    )
+                }
+
                 is EditProfileIntent.UpdateTextField -> when (intent.field) {
                     TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
                     TextFieldType.BIO -> state.copy(bio = intent.value)

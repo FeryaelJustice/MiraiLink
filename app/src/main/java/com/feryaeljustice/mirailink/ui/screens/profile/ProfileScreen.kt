@@ -105,7 +105,16 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                             isPreviewMode = true,
                             isEditMode = isInEditMode,
                             editUiState = editState,
-                            onEdit = { isEdit -> isInEditMode = isEdit },
+                            onEdit = { isEdit ->
+                                isInEditMode = isEdit
+
+                                // Initialize edit state if going to edit user
+                                if (isEdit) {
+                                    (state as? ProfileUiState.Success)?.user?.let { stateUser ->
+                                        viewModel.onIntent(EditProfileIntent.Initialize(stateUser))
+                                    }
+                                }
+                            },
                             onValueChange = { field, value ->
                                 Log.d("ProfileScreen", "onValueChange: $field $value")
                                 viewModel.onIntent(

@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.profile.edit
 import android.net.Uri
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
+import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
 
 data class EditProfileUiState(
@@ -21,6 +22,7 @@ data class EditProfileUiState(
 
 sealed class EditProfileIntent {
     // Cada field representa SOLO 1 campo en concreto
+    data class Initialize(val user: User) : EditProfileIntent()
     data class UpdateTextField(val field: TextFieldType, val value: String) : EditProfileIntent()
     data class UpdateTags(val field: TagType, val selected: List<String>) : EditProfileIntent()
     data class ReorderPhoto(val from: Int, val to: Int) : EditProfileIntent()
