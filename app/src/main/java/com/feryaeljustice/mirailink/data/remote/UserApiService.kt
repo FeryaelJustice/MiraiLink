@@ -17,6 +17,7 @@ import com.feryaeljustice.mirailink.data.model.response.auth.RegisterResponse
 import com.feryaeljustice.mirailink.data.model.response.photo.UploadPhotoResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -66,6 +67,17 @@ interface UserApiService {
     @POST("user/byId")
     suspend fun getUserById(@Body request: ByIdRequest): UserDto
 
+    @Multipart
     @PUT("user")
-    suspend fun updateBio(@Body bio: Map<String, String>)
+    suspend fun updateProfile(
+        @Part("nickname") nickname: RequestBody,
+        @Part("bio") bio: RequestBody,
+        @Part("animes") animes: RequestBody,
+        @Part("games") games: RequestBody,
+        @Part("photos") photos: RequestBody, // JSON con { position, url }
+        @Part photo_0: MultipartBody.Part?, // Solo si existe nuevo archivo
+        @Part photo_1: MultipartBody.Part?,
+        @Part photo_2: MultipartBody.Part?,
+        @Part photo_3: MultipartBody.Part?
+    ): Response<Unit>
 }

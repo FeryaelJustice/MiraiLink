@@ -25,7 +25,14 @@ interface UserRepository {
 
     suspend fun getCurrentUser(): MiraiLinkResult<User>
     suspend fun getUserById(userId: String): MiraiLinkResult<User>
-    suspend fun updateBio(bio: String): MiraiLinkResult<Unit>
+    suspend fun updateProfile(
+        nickname: String,
+        bio: String,
+        animesJson: String,
+        gamesJson: String,
+        photosJson: String,
+        photoUris: List<Uri?>
+    ): MiraiLinkResult<Unit>
     suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean>
     suspend fun uploadUserPhoto(photo: Uri): MiraiLinkResult<String>
 }

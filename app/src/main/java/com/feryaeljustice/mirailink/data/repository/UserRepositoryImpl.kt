@@ -75,8 +75,23 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateBio(bio: String): MiraiLinkResult<Unit> = remote.updateBio(bio)
-
+    override suspend fun updateProfile(
+        nickname: String,
+        bio: String,
+        animesJson: String,
+        gamesJson: String,
+        photosJson: String,
+        photoUris: List<Uri?>
+    ): MiraiLinkResult<Unit> {
+        return remote.updateProfile(
+            nickname = nickname,
+            bio = bio,
+            animesJson = animesJson,
+            gamesJson = gamesJson,
+            photosJson = photosJson,
+            photoUris = photoUris
+        )
+    }
 
     override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> =
         remote.hasProfilePicture(userId)

@@ -160,18 +160,52 @@ class UserRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateBio(bio: String): MiraiLinkResult<Unit> {
+    suspend fun updateProfile(
+        nickname: String,
+        bio: String,
+        animesJson: String,
+        gamesJson: String,
+        photosJson: String,
+        photoUris: List<Uri?>
+    ): MiraiLinkResult<Unit> {
         return try {
-            api.updateBio(mapOf("bio" to bio))
-            MiraiLinkResult.success(Unit)
+            val contentResolver = context.contentResolver
+
+            // Convertir URIs a MultipartBody.Part?, si existen
+            val photoParts = photoUris.mapIndexed { index, uri ->
+                uri?.let {
+                    val inputStream = contentResolver.openInputStream(it)
+                        ?: return MiraiLinkResult.Error("No se pudo abrir la imagen en slot $index")
+                    val mimeType = contentResolver.getType(it) ?: "image/jpeg"
+                    val fileName = "photo_${System.currentTimeMillis()}_$index.jpg"
+                    val requestBody = inputStream.readBytes()
+                        .toRequestBody(mimeType.toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("photo_$index", fileName, requestBody)
+                }
+            }
+
+            // Llamar a la API
+            api.updateProfile(
+                nickname = nickname.toRequestBody(),
+                bio = bio.toRequestBody(),
+                animes = animesJson.toRequestBody(),
+                games = gamesJson.toRequestBody(),
+                photos = photosJson.toRequestBody(),
+                photo_0 = photoParts.getOrNull(0),
+                photo_1 = photoParts.getOrNull(1),
+                photo_2 = photoParts.getOrNull(2),
+                photo_3 = photoParts.getOrNull(3)
+            )
+
+            MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
             if (e is HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "updateBio - Error HTTP Body: $errorBody")
+                Log.e("UserRemoteDataSource", "updateProfile - Error HTTP Body: $errorBody")
             } else {
-                Log.w("UserRemoteDataSource", "updateBio", e)
+                Log.w("UserRemoteDataSource", "updateProfile", e)
             }
-            MiraiLinkResult.error("No se pudo actualizar la biografía: ${e.message}", e)
+            MiraiLinkResult.error("No se pudo actualizar el perfil: ${e.message}", e)
         }
     }
 

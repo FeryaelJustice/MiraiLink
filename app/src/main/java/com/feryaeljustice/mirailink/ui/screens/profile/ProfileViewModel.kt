@@ -1,15 +1,19 @@
 package com.feryaeljustice.mirailink.ui.screens.profile
 
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.data.model.request.UploadPhotoDto
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.mapNotNullIndexed
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
@@ -22,10 +26,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: GetCurrentUserUseCase) :
+class ProfileViewModel @Inject constructor(
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase
+) :
     ViewModel() {
 
     sealed class ProfileUiState {
@@ -103,24 +111,57 @@ class ProfileViewModel @Inject constructor(private val getCurrentUserUseCase: Ge
                         "Save: ${state.nickname} ${state.bio} ${state.selectedAnimes} ${state.selectedGames}"
                     )
 
-                    // Comunicar a la ui
-                    viewModelScope.launch {
-                        _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
+                    val nickname = state.nickname
+                    val bio = state.bio
+                    val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
+                    val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
 
+                    val photosJson = Json.encodeToString(
+                        state.photos.mapNotNullIndexed { index, slot ->
+                            slot.url?.let { UploadPhotoDto(position = index + 1, url = it) }
+                        }
+                    )
+
+                    val photoUris = state.photos.map { slot ->
+                        slot.url?.takeIf {
+                            it.startsWith("content://") || it.startsWith("file://")
+                        }?.toUri()
                     }
 
-                    // Cerrar
-                    state.copy(isEditing = false)
+                    viewModelScope.launch {
+                        val result = updateUserProfileUseCase(
+                            nickname = nickname,
+                            bio = bio,
+                            animesJson = animesJson,
+                            gamesJson = gamesJson,
+                            photosJson = photosJson,
+                            photoUris = photoUris
+                        )
+
+                        if (result is MiraiLinkResult.Success) {
+                            _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
+                            getCurrentUser()
+                            _editState.update { it.copy(isEditing = false) } // aquí cierras modo edición
+                        } else if (result is MiraiLinkResult.Error) {
+                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
+                        }
+                    }
+
+                    return@update state // Devuelve sin modificar el estado todavía
                 }
 
-                is EditProfileIntent.UpdateTextField -> when (intent.field) {
-                    TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
-                    TextFieldType.BIO -> state.copy(bio = intent.value)
+                is EditProfileIntent.UpdateTextField -> {
+                    when (intent.field) {
+                        TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
+                        TextFieldType.BIO -> state.copy(bio = intent.value)
+                    }
                 }
 
-                is EditProfileIntent.UpdateTags -> when (intent.field) {
-                    TagType.ANIME -> state.copy(selectedAnimes = intent.selected)
-                    TagType.GAME -> state.copy(selectedGames = intent.selected)
+                is EditProfileIntent.UpdateTags -> {
+                    when (intent.field) {
+                        TagType.ANIME -> state.copy(selectedAnimes = intent.selected)
+                        TagType.GAME -> state.copy(selectedGames = intent.selected)
+                    }
                 }
 
                 is EditProfileIntent.ReorderPhoto -> {
