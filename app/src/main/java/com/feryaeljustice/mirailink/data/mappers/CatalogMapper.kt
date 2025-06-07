@@ -7,3 +7,6 @@ import com.feryaeljustice.mirailink.domain.model.Game
 
 fun AnimeDto.toDomain() = Anime(id, name, imageUrl)
 fun GameDto.toDomain() = Game(id, name, imageUrl)
+
+fun Anime.toModel() = AnimeDto(id, name, imageUrl)
+fun Game.toModel() = GameDto(id, name, imageUrl)

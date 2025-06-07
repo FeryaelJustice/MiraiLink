@@ -21,6 +21,10 @@ data class UserDto(
     val gender: String? = null,
     @SerialName("birthdate")
     val birthdate: String? = null,
+    @SerialName("animes")
+    val animes: List<AnimeDto> = emptyList(),
+    @SerialName("games")
+    val games: List<GameDto> = emptyList(),
     @SerialName("photos")
-    val photos: List<UserPhotoDto> = emptyList()
+    val photos: List<UserPhotoDto> = emptyList(),
 )

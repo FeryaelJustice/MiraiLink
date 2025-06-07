@@ -16,8 +16,8 @@ fun UserDto.toDomain(): User = User(
     gender = gender,
     birthdate = birthdate,
     photos = photos.map { it.toDomain() },
-    games = emptyList(),
-    animes = emptyList(),
+    games = games.map { it.toDomain() },
+    animes = animes.map { it.toDomain() },
 )
 
 fun User.toModel(): UserDto = UserDto(
@@ -29,6 +29,8 @@ fun User.toModel(): UserDto = UserDto(
     bio = bio,
     gender = gender,
     birthdate = birthdate,
+    animes = animes.map { it.toModel() },
+    games = games.map { it.toModel() },
     photos = photos.map { it.toModel() }
 )
 
