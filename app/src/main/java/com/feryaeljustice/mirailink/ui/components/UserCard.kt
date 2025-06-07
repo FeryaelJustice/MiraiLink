@@ -150,8 +150,8 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     MultiSelectDropdown(
                         label = "Animes favoritos",
-                        options = editUiState.availableAnimes,
-                        selected = editUiState.selectedAnimes,
+                        options = editUiState.animeCatalog.map { it.name },
+                        selected = editUiState.selectedAnimes.map { it.name },
                         onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) }
                     )
 
@@ -161,8 +161,8 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     MultiSelectDropdown(
                         label = "Videojuegos favoritos",
-                        options = editUiState.availableGames,
-                        selected = editUiState.selectedGames,
+                        options = editUiState.gameCatalog.map { it.name },
+                        selected = editUiState.selectedGames.map { it.name },
                         onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) }
                     )
 
@@ -190,30 +190,35 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         // Secciones: anime y videojuegos
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
                         user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
-
                             TagsSection(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp),
-                                tags = animes.map { it.title })
+                                tags = animes.map { it.name })
+                        } ?: Text(
+                            text = "No hay animes favoritos",
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
                         user.games.takeIf { it.isNotEmpty() }?.let { games ->
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
-
                             TagsSection(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp),
-                                tags = games.map { it.title })
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                                tags = games.map { it.name })
+                        } ?: Text(
+                            text = "No hay videojuegos favoritos",
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     Spacer(modifier = Modifier.height(240.dp))
@@ -312,36 +317,36 @@ fun UserCardPreview() {
             phoneNumber = "604892842",
             animes = listOf(
                 Anime(
-                    title = "Naruto",
+                    id = "1",
+                    name = "Naruto",
                     imageUrl = null,
-                    description = "Naruto es un personaje fantástico y el protagonista del mundo de Naruto"
                 ),
                 Anime(
-                    title = "One Punch Man",
+                    id = "2",
+                    name = "One Punch Man",
                     imageUrl = null,
-                    description = "One Punch Man, el protagonista del mundo de One Punch Man"
                 ),
                 Anime(
-                    title = "Dragon Ball Z",
+                    id = "3",
+                    name = "Dragon Ball Z",
                     imageUrl = null,
-                    description = "Dragon Ball Z, el anime por excelencia que ha liderado."
                 )
             ),
             games = listOf(
                 Game(
-                    title = "Final Fantasy VII",
+                    id = "1",
+                    name = "Final Fantasy VII",
                     imageUrl = null,
-                    description = "Una aventura en el mundo de Final Fantasy"
                 ),
                 Game(
-                    title = "Soul Calibur V",
+                    id = "2",
+                    name = "Soul Calibur V",
                     imageUrl = null,
-                    description = "Soul Calibur V, el videojuego de acción y aventura"
                 ),
                 Game(
-                    title = "The Legend of Zelda: Breath of the Wild",
+                    id = "3",
+                    name = "The Legend of Zelda: Breath of the Wild",
                     imageUrl = null,
-                    description = "Un juego de aventuras en el mundo de The Legend of Zelda"
                 )
             ),
             email = "adj@jormail.com",

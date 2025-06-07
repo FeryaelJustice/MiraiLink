@@ -1,12 +1,14 @@
 package com.feryaeljustice.mirailink.di
 
 import android.content.Context
+import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
 import com.feryaeljustice.mirailink.data.local.SessionManager
+import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
@@ -57,4 +59,9 @@ object DataModule {
     @Singleton
     fun provideMatchRemoteDatasource(matchApi: MatchApiService): MatchRemoteDataSource =
         MatchRemoteDataSource(matchApi)
+
+    @Provides
+    @Singleton
+    fun provideCatalogRemoteDatasource(catalogApi: CatalogApiService): CatalogRemoteDataSource =
+        CatalogRemoteDataSource(catalogApi)
 }

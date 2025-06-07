@@ -1,10 +1,12 @@
 package com.feryaeljustice.mirailink.di
 
+import com.feryaeljustice.mirailink.data.repository.CatalogRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ChatRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.MatchRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
+import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.repository.MatchRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
@@ -38,4 +40,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMatchRepository(impl: MatchRepositoryImpl): MatchRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCatalogRepository(impl: CatalogRepositoryImpl): CatalogRepository
 }

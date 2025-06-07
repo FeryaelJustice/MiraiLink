@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.di
 
 import com.feryaeljustice.mirailink.data.local.SessionManager
+import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
@@ -109,4 +110,9 @@ object NetworkModule {
     @Singleton
     fun provideMatchApiService(retrofit: Retrofit): MatchApiService =
         retrofit.create(MatchApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCatalogApiService(retrofit: Retrofit): CatalogApiService =
+        retrofit.create(CatalogApiService::class.java)
 }

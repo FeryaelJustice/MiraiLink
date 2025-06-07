@@ -1,3 +1,6 @@
 package com.feryaeljustice.mirailink.domain.model
 
-data class Anime(val title: String, val imageUrl: String? = "", val description: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Anime(val id: String, val name: String, val imageUrl: String?)

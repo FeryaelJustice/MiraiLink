@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
     val id: String,
     val username: String,
@@ -14,6 +17,7 @@ data class User(
     val animes: List<Anime>,
 )
 
+@Serializable
 data class MinimalUserInfo(
     val id: String,
     val username: String,

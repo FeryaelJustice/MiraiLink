@@ -10,6 +10,8 @@ import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -32,7 +34,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val updateUserProfileUseCase: UpdateUserProfileUseCase
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
+    private val getAnimesUseCase: GetAnimesUseCase,
+    private val getGamesUseCase: GetGamesUseCase,
 ) :
     ViewModel() {
 
@@ -95,12 +99,15 @@ class ProfileViewModel @Inject constructor(
                         // RECORDAR!! : Al subir las imagenes sumar +1 a la posicion para la bdd
                     }
 
+                    // Cargar catalogo
+                    loadCatalogIfNeeded()
+
                     state.copy(
                         isEditing = true,
                         nickname = user.nickname,
                         bio = user.bio ?: "",
-                        selectedAnimes = user.animes.map { it.title },
-                        selectedGames = user.games.map { it.title },
+                        selectedAnimes = user.animes,
+                        selectedGames = user.games,
                         photos = photos
                     )
                 }
@@ -159,8 +166,19 @@ class ProfileViewModel @Inject constructor(
 
                 is EditProfileIntent.UpdateTags -> {
                     when (intent.field) {
-                        TagType.ANIME -> state.copy(selectedAnimes = intent.selected)
-                        TagType.GAME -> state.copy(selectedGames = intent.selected)
+                        TagType.ANIME -> {
+                            val mappedAnimes = intent.selected.mapNotNull { animeName ->
+                                state.animeCatalog.find { it.name == animeName }
+                            }
+                            state.copy(selectedAnimes = mappedAnimes)
+                        }
+
+                        TagType.GAME -> {
+                            val mappedGames = intent.selected.mapNotNull { gameName ->
+                                state.gameCatalog.find { it.name == gameName }
+                            }
+                            state.copy(selectedGames = mappedGames)
+                        }
                     }
                 }
 
@@ -233,6 +251,23 @@ class ProfileViewModel @Inject constructor(
                     deleteTempFile(it)
                 }
             }
+        }
+    }
+
+    fun loadCatalogIfNeeded() {
+        val state = _editState.value
+        if (state.animeCatalog.isNotEmpty() && state.gameCatalog.isNotEmpty()) return
+
+        viewModelScope.launch {
+            val animes = getAnimesUseCase().let {
+                if (it is MiraiLinkResult.Success) it.data else emptyList()
+            }
+
+            val games = getGamesUseCase().let {
+                if (it is MiraiLinkResult.Success) it.data else emptyList()
+            }
+
+            _editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }
         }
     }
 

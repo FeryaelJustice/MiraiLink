@@ -2,8 +2,6 @@ package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
-import com.feryaeljustice.mirailink.domain.model.Anime
-import com.feryaeljustice.mirailink.domain.model.Game
 import com.feryaeljustice.mirailink.domain.model.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.model.User
 import com.feryaeljustice.mirailink.domain.model.UserPhoto
@@ -18,14 +16,8 @@ fun UserDto.toDomain(): User = User(
     gender = gender,
     birthdate = birthdate,
     photos = photos.map { it.toDomain() },
-    games = listOf(
-        Game(title = "League Of Legends", description = "Lolaso"),
-        Game(title = "Minecraft", description = "Maincra")
-    ),
-    animes = listOf(
-        Anime(title = "Death Note", description = "OO"),
-        Anime(title = "Kimetsu No Yaiba", description = "Kimetsu No Yaiba yeaa")
-    ),
+    games = emptyList(),
+    animes = emptyList(),
 )
 
 fun User.toModel(): UserDto = UserDto(
@@ -64,12 +56,13 @@ fun UserDto.toMinimalUserInfoDomain(): MinimalUserInfo = MinimalUserInfo(
     profilePhoto = photos.firstOrNull()?.toDomain(),
 )
 
-fun UserDto.toMinimalUserInfo(): com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo = com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo(
-    id = id,
-    username = username,
-    nickname = nickname,
-    avatarUrl = photos.firstOrNull()?.toDomain()?.url,
-)
+fun UserDto.toMinimalUserInfo(): com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo =
+    com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo(
+        id = id,
+        username = username,
+        nickname = nickname,
+        avatarUrl = photos.firstOrNull()?.toDomain()?.url,
+    )
 
 fun User.toMinimalUserInfo(): MinimalUserInfo = MinimalUserInfo(
     id = id,
