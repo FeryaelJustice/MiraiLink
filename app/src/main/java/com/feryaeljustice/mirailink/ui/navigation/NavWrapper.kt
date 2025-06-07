@@ -282,6 +282,11 @@ private fun NavGraphBuilder.appGraph(
                     navController.navigate(AppScreen.HomeScreen) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
+                },
+                onLogout = {
+                    scope.launch {
+                        sessionViewModel.clearSession()
+                    }
                 }
             )
         }

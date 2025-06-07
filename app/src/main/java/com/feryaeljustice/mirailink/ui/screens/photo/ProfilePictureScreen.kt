@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -35,7 +37,8 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 fun ProfilePictureScreen(
     viewModel: ProfilePictureViewModel,
     sessionViewModel: GlobalSessionViewModel,
-    onProfileUploaded: () -> Unit
+    onProfileUploaded: () -> Unit,
+    onLogout: () -> Unit,
 ) {
     val userId = sessionViewModel.currentUserId.collectAsState().value
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -79,6 +82,15 @@ fun ProfilePictureScreen(
         Button(onClick = { launcher.launch("image/*") }) {
             Text("Seleccionar imagen")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Cerrar Sesión",
+            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+            fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
+            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
