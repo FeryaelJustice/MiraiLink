@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.viewentities
 
+import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.model.User
 
 data class MatchUserViewEntity(
@@ -14,6 +15,6 @@ fun User.toMatchUserViewEntity() = MatchUserViewEntity(
     id = id,
     username = username,
     nickname = nickname,
-    avatarUrl = photos.first().url,
+    avatarUrl = photos.firstOrNull()?.url ?: TEMPORAL_PLACEHOLDER_PICTURE_URL,
     isBoosted = false
 )

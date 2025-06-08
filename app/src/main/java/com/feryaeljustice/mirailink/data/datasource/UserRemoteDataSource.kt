@@ -106,7 +106,7 @@ class UserRemoteDataSource @Inject constructor(
             api.confirmPasswordReset(PasswordResetConfirmRequest(email, token, newPassword))
         MiraiLinkResult.Success(response.message)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("Error confirmando nueva contraseña: ${e.message}", e)
+        MiraiLinkResult.Error("Código incorrecto", e)
     }
 
     suspend fun requestVerificationCode(userId: String, type: String): MiraiLinkResult<String> =

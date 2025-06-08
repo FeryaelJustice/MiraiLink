@@ -43,7 +43,7 @@ class GlobalSessionViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val curUserId = currentLocalUserId.firstOrNull()
-            _currentUserId.value = curUserId
+            setUserId(curUserId)
 
             if (!curUserId.isNullOrBlank()) {
                 sessionManager.saveUserId(curUserId)
@@ -107,7 +107,7 @@ class GlobalSessionViewModel @Inject constructor(
         _topBarConfig.value = _topBarConfig.value.copy(showSettingsIcon = true)
     }
 
-    suspend fun setUserId(userId: String?) {
+    private suspend fun setUserId(userId: String?) {
         userId?.let {
             sessionManager.saveUserId(it)
             _currentUserId.value = it

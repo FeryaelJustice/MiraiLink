@@ -63,10 +63,10 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
     val currentUserId by sessionViewModel.currentUserId.collectAsState()
     val hasProfilePicture by sessionViewModel.hasProfilePicture.collectAsState()
+    val isVerified by sessionViewModel.isVerified.collectAsState(initial = false)
 
     // Session events
     val onLogout = sessionViewModel.onLogout
-    val isVerified = sessionViewModel.isVerified
 
     // 1. Logout detectado desde interceptor
     LaunchedEffect(Unit) {
@@ -81,32 +81,23 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         }
     }
 
-    // 2. Requiere verificación
-    LaunchedEffect(Unit) {
-        currentUserId?.let {
-            isVerified.collect { isVerified ->
+    // 2. Requiere verificación o chequeo de foto de perfil
+    LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture) {
+        if (isAuthenticated) {
+            currentUserId?.let { userId ->
                 if (!isVerified) {
-                    navController.navigate(AppScreen.VerificationScreen(it)) {
+                    navController.navigate(AppScreen.VerificationScreen(userId)) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                } else if (hasProfilePicture == false) {
+                    navController.navigate(AppScreen.ProfilePictureScreen) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
             }
         }
-    }
-
-    // 3. Chequeo de foto de perfil
-    LaunchedEffect(hasProfilePicture) {
-        if (hasProfilePicture == false) {
-            navController.navigate(AppScreen.ProfilePictureScreen) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
-
-    LaunchedEffect(currentUserId) {
-        sessionViewModel.setUserId(currentUserId)
     }
 
     Scaffold(

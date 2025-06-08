@@ -34,8 +34,8 @@ class SessionManager @Inject constructor(
 
     // True si tiene token y userId válidos
     val isAuthenticated: Flow<Boolean> =
-        combine(tokenFlow, userIdFlow, isVerifiedFlow) { token, userId, isVerified ->
-            !token.isNullOrBlank() && !userId.isNullOrBlank() && isVerified
+        combine(tokenFlow, userIdFlow) { token, userId ->
+            !token.isNullOrBlank() && !userId.isNullOrBlank()
         }
 
     // Logout notifier
