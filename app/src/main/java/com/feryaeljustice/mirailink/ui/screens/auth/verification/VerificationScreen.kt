@@ -31,6 +31,8 @@ fun VerificationScreen(
     LaunchedEffect(Unit) {
         sessionViewModel.hideBars()
         sessionViewModel.disableBars()
+
+        viewModel.checkUserIsVerified(onFinish)
     }
 
     Column(modifier = Modifier.padding(16.dp)) {

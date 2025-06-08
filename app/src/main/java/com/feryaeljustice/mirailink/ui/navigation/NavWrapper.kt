@@ -63,7 +63,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
     val currentUserId by sessionViewModel.currentUserId.collectAsState()
     val hasProfilePicture by sessionViewModel.hasProfilePicture.collectAsState()
-    val isVerified by sessionViewModel.isVerified.collectAsState(initial = false)
+    val isVerified by sessionViewModel.isVerified.collectAsState(initial = true)
 
     // Session events
     val onLogout = sessionViewModel.onLogout

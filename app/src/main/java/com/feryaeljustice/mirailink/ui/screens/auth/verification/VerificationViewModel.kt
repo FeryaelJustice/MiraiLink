@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerified
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VerificationViewModel @Inject constructor(
+    private val checkIsVerified: CheckIsVerified,
     private val requestCode: RequestVerificationCodeUseCase,
     private val confirmCode: ConfirmVerificationCodeUseCase,
 ) : ViewModel() {
@@ -28,6 +30,19 @@ class VerificationViewModel @Inject constructor(
 
     fun onTokenChanged(token: String) {
         _state.value = state.value.copy(token = token, error = null)
+    }
+
+    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch {
+        when (val result = checkIsVerified()) {
+            is MiraiLinkResult.Success -> {
+                if (result.data) {
+                    resetState()
+                    onFinish()
+                }
+            }
+
+            is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
+        }
     }
 
     fun requestCode(userId: String) = viewModelScope.launch {

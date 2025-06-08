@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.data.model.request.VerificationConfirmReques
 import com.feryaeljustice.mirailink.data.model.request.VerificationRequest
 import com.feryaeljustice.mirailink.data.model.response.BasicResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.AutologinResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.CheckIsVerifiedResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.RegisterResponse
@@ -44,6 +45,9 @@ interface UserApiService {
 
     @POST("auth/password/confirm-reset")
     suspend fun confirmPasswordReset(@Body body: PasswordResetConfirmRequest): BasicResponse
+
+    @GET("auth/verification/check")
+    suspend fun checkIsVerified(): CheckIsVerifiedResponse
 
     @POST("auth/verification/request")
     suspend fun requestVerificationCode(@Body body: VerificationRequest): BasicResponse

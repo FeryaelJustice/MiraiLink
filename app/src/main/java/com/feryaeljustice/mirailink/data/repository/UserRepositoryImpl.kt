@@ -41,6 +41,8 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun confirmPasswordReset(email: String, token: String, newPassword: String) =
         remote.confirmPasswordReset(email, token, newPassword)
 
+    override suspend fun checkIsVerified() = remote.checkIsVerified()
+
     override suspend fun requestVerificationCode(userId: String, type: String) =
         remote.requestVerificationCode(userId, type)
 

@@ -30,7 +30,7 @@ class SessionManager @Inject constructor(
     // Token & userId flows
     val tokenFlow: Flow<String?> = context.dataStore.data.map { it[KEY_TOKEN] }
     val userIdFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_ID] }
-    val isVerifiedFlow: Flow<Boolean> = context.dataStore.data.map { it[KEY_VERIFIED] ?: false }
+    val isVerifiedFlow: Flow<Boolean> = context.dataStore.data.map { it[KEY_VERIFIED] ?: true }
 
     // True si tiene token y userId válidos
     val isAuthenticated: Flow<Boolean> =
@@ -46,7 +46,7 @@ class SessionManager @Inject constructor(
         context.dataStore.edit {
             it[KEY_TOKEN] = token
             it[KEY_USER_ID] = userId
-            it[KEY_VERIFIED] = false // Asumimos que recién logueado, aún no verificado
+            it[KEY_VERIFIED] = true // Asumimos que recién logueado, verificado
         }
     }
 

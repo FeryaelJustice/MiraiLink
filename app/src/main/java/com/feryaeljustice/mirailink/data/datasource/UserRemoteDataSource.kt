@@ -109,6 +109,13 @@ class UserRemoteDataSource @Inject constructor(
         MiraiLinkResult.Error("Código incorrecto", e)
     }
 
+    suspend fun checkIsVerified(): MiraiLinkResult<Boolean> = try {
+        val response = api.checkIsVerified()
+        MiraiLinkResult.Success(response.isVerified)
+    } catch (e: Exception) {
+        MiraiLinkResult.Error("Error verificando si está verificado: ${e.message}", e)
+    }
+
     suspend fun requestVerificationCode(userId: String, type: String): MiraiLinkResult<String> =
         try {
             val response = api.requestVerificationCode(VerificationRequest(userId, type))
