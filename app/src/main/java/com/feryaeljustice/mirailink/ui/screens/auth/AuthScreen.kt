@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
@@ -99,20 +99,23 @@ fun AuthScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(
+            MiraiLinkTextButton(
+                modifier = Modifier
+                    .focusRequester(focusRequester),
                 onClick = {
                     isLogin = !isLogin
                     usernameError = null
                     passwordError = null
                     confirmPasswordError = null
-                }, modifier = Modifier
-                    .focusRequester(focusRequester)
-            ) {
-                Text(if (isLogin) "Registrarse" else "Iniciar sesión")
-            }
+                },
+                text = if (isLogin) "Registrarse" else "Iniciar sesión",
+            )
         }
 
         OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             value = if (loginByUsername && isLogin) username else email,
             onValueChange = {
                 if (loginByUsername && isLogin) {
@@ -161,15 +164,15 @@ fun AuthScreen(
                 imeAction = ImeAction.Next
             ),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
         )
 
         if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 value = username,
                 onValueChange = {
                     username = it
@@ -198,15 +201,15 @@ fun AuthScreen(
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             value = password,
             onValueChange = {
                 password = it
@@ -242,14 +245,14 @@ fun AuthScreen(
                     focusManager.clearFocus()
                     viewModel.login(email, username, password)
                 }),
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
         )
 
         if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 value = confirmPassword,
                 onValueChange = {
                     confirmPassword = it
@@ -287,9 +290,6 @@ fun AuthScreen(
                         password
                     )
                 }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
             )
         }
 
@@ -299,19 +299,22 @@ fun AuthScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(
+            MiraiLinkTextButton(
+                modifier = Modifier
+                    .focusRequester(focusRequester),
                 onClick = {
                     onRequestPasswordReset(email)
-                }, modifier = Modifier
-                    .focusRequester(focusRequester)
-            ) {
-                Text("¿Has olvidado tu contraseña?")
-            }
+                },
+                text = "¿Has olvidado tu contraseña?",
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             onClick = {
                 var valid = true
                 if (isLogin) {
@@ -338,10 +341,7 @@ fun AuthScreen(
 
                 if (isLogin) viewModel.login(email, username, password)
                 else viewModel.register(username, email, password)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
+            }
         ) {
             Text(if (isLogin) "Iniciar sesión" else "Registrarse")
         }

@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.data.util.createImageUri
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
@@ -180,23 +180,25 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                 title = { Text("¿Qué quieres hacer?") },
                                 text = { Text("Selecciona una acción para esta foto") },
                                 confirmButton = {
-                                    TextButton(onClick = {
-                                        viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
-                                    }) {
-                                        Text("Actualizar")
-                                    }
+                                    MiraiLinkTextButton(
+                                        onClick = {
+                                            viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
+                                        },
+                                        text = "Actualizar"
+                                    )
                                 },
                                 dismissButton = {
-                                    TextButton(onClick = {
-                                        editState.selectedSlotForDialog?.let {
-                                            viewModel.onIntent(
-                                                EditProfileIntent.RemovePhoto(it)
-                                            )
-                                            viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
-                                        }
-                                    }) {
-                                        Text("Eliminar")
-                                    }
+                                    MiraiLinkTextButton(
+                                        onClick = {
+                                            editState.selectedSlotForDialog?.let {
+                                                viewModel.onIntent(
+                                                    EditProfileIntent.RemovePhoto(it)
+                                                )
+                                                viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                            }
+                                        },
+                                        text = "Eliminar"
+                                    )
                                 }
                             )
                         }
@@ -208,33 +210,35 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                 title = { Text("Seleccionar fuente") },
                                 text = { Text("¿Desde dónde quieres añadir la foto?") },
                                 confirmButton = {
-                                    TextButton(onClick = {
-                                        // Aquí lanzas launcher de galería
-                                        Log.d("ProfileScreen", "Elegido: Galería")
-                                        galleryLauncher.launch("image/*")
-                                    }) {
-                                        Text("Galería")
-                                    }
+                                    MiraiLinkTextButton(
+                                        onClick = {
+                                            // Aquí lanzas launcher de galería
+                                            Log.d("ProfileScreen", "Elegido: Galería")
+                                            galleryLauncher.launch("image/*")
+                                        },
+                                        text = "Galería"
+                                    )
                                 },
                                 dismissButton = {
-                                    TextButton(onClick = {
-                                        // Aquí lanzas launcher de cámara
-                                        Log.d("ProfileScreen", "Elegido: Cámara")
-                                        if (ContextCompat.checkSelfPermission(
-                                                context,
-                                                Manifest.permission.CAMERA
-                                            ) == PackageManager.PERMISSION_GRANTED
-                                        ) {
-                                            val uri = createImageUri(context)
-                                            tempCameraUri = uri
-                                            cameraLauncher.launch(uri)
-                                        } else {
-                                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                            viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
-                                        }
-                                    }) {
-                                        Text("Cámara")
-                                    }
+                                    MiraiLinkTextButton(
+                                        onClick = {
+                                            // Aquí lanzas launcher de cámara
+                                            Log.d("ProfileScreen", "Elegido: Cámara")
+                                            if (ContextCompat.checkSelfPermission(
+                                                    context,
+                                                    Manifest.permission.CAMERA
+                                                ) == PackageManager.PERMISSION_GRANTED
+                                            ) {
+                                                val uri = createImageUri(context)
+                                                tempCameraUri = uri
+                                                cameraLauncher.launch(uri)
+                                            } else {
+                                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                                viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                            }
+                                        },
+                                        text = "Cámara"
+                                    )
                                 }
                             )
                         }
