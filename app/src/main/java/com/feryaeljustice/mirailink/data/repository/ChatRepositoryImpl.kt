@@ -1,10 +1,10 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
-import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
-import com.feryaeljustice.mirailink.domain.model.ChatMessage
-import com.feryaeljustice.mirailink.domain.model.ChatSummary
+import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
+import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject

@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.ui.viewentities
 
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
-import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.model.user.User
 
 data class MatchUserViewEntity(
     val id: String,

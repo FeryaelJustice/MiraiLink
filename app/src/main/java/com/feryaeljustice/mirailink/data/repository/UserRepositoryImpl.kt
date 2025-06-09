@@ -2,8 +2,8 @@ package com.feryaeljustice.mirailink.data.repository
 
 import android.net.Uri
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
-import com.feryaeljustice.mirailink.data.mappers.toDomain
-import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls

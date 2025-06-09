@@ -2,19 +2,19 @@ package com.feryaeljustice.mirailink.data.remote
 
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
-import com.feryaeljustice.mirailink.data.model.request.ByIdRequest
-import com.feryaeljustice.mirailink.data.model.request.EmailRequest
-import com.feryaeljustice.mirailink.data.model.request.LoginRequest
-import com.feryaeljustice.mirailink.data.model.request.PasswordResetConfirmRequest
-import com.feryaeljustice.mirailink.data.model.request.RegisterRequest
-import com.feryaeljustice.mirailink.data.model.request.VerificationConfirmRequest
-import com.feryaeljustice.mirailink.data.model.request.VerificationRequest
-import com.feryaeljustice.mirailink.data.model.response.BasicResponse
+import com.feryaeljustice.mirailink.data.model.request.auth.LoginRequest
+import com.feryaeljustice.mirailink.data.model.request.auth.PasswordResetConfirmRequest
+import com.feryaeljustice.mirailink.data.model.request.auth.RegisterRequest
+import com.feryaeljustice.mirailink.data.model.request.generic.ByIdRequest
+import com.feryaeljustice.mirailink.data.model.request.generic.EmailRequest
+import com.feryaeljustice.mirailink.data.model.request.verification.VerificationConfirmRequest
+import com.feryaeljustice.mirailink.data.model.request.verification.VerificationRequest
 import com.feryaeljustice.mirailink.data.model.response.auth.AutologinResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.CheckIsVerifiedResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.RegisterResponse
+import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.feryaeljustice.mirailink.data.model.response.photo.UploadPhotoResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

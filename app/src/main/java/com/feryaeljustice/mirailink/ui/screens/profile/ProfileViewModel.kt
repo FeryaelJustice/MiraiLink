@@ -4,12 +4,12 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.data.model.request.UploadPhotoDto
+import com.feryaeljustice.mirailink.data.model.request.media.UploadPhotoDto
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
-import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase

@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.feryaeljustice.mirailink.ui.components.SwipeCardStack
+import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
@@ -41,7 +41,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
 
                 if (visibleUsers.isNotEmpty() && index < visibleUsers.size) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        SwipeCardStack(
+                        UserSwipeCardStack(
                             modifier = Modifier.padding(16.dp),
                             users = visibleUsers,
                             canUndo = canUndo,

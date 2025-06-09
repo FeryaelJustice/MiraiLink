@@ -1,0 +1,7 @@
+package com.feryaeljustice.mirailink.data.model.request.swipe
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class SwipeRequest(@SerialName("toUserId") val toUserId: String)

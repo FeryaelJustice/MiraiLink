@@ -1,8 +1,8 @@
 package com.feryaeljustice.mirailink.data.remote
 
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.request.MarkMatchAsSeenRequest
-import com.feryaeljustice.mirailink.data.model.response.BasicResponse
+import com.feryaeljustice.mirailink.data.model.request.match.MarkMatchAsSeenRequest
+import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

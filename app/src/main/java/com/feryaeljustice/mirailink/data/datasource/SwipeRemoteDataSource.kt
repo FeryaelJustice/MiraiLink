@@ -2,7 +2,7 @@ package com.feryaeljustice.mirailink.data.datasource
 
 import android.util.Log
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.request.SwipeRequest
+import com.feryaeljustice.mirailink.data.model.request.swipe.SwipeRequest
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject

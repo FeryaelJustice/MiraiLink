@@ -1,6 +1,6 @@
 package com.feryaeljustice.mirailink.data.model.response.chat
 
-import com.feryaeljustice.mirailink.data.model.response.MinimalUserInfo
+import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

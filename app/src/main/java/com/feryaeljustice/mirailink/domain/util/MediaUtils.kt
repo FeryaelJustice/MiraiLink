@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.domain.util
 
 import com.feryaeljustice.mirailink.domain.constants.HTTP_REGEX
-import com.feryaeljustice.mirailink.domain.model.UserPhoto
+import com.feryaeljustice.mirailink.domain.model.user.UserPhoto
 
 fun resolvePhotoUrls(baseUrl: String, photos: List<UserPhoto>): List<UserPhoto> {
     return photos.sortedBy { it.position }.map { photo ->

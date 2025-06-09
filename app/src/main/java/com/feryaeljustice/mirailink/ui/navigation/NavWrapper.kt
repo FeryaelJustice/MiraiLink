@@ -20,8 +20,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.feryaeljustice.mirailink.ui.components.MiraiLinkBottomBar
-import com.feryaeljustice.mirailink.ui.components.MiraiLinkTopBar
+import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
+import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen

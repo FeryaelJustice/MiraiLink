@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.domain.repository
 
-import com.feryaeljustice.mirailink.domain.model.ChatMessage
-import com.feryaeljustice.mirailink.domain.model.ChatSummary
+import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
+import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
 interface ChatRepository {

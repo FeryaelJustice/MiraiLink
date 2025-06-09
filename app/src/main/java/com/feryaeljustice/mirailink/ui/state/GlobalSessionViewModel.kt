@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.components.TopBarConfig
+import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ViewModel para manejar el logout y redirigir a la pantalla de inicio de sesión de la app
+// ViewModel to manage the global session state (like login events, topbar...)
 @HiltViewModel
 class GlobalSessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,

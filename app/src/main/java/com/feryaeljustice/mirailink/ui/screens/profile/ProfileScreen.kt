@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.data.util.createImageUri
-import com.feryaeljustice.mirailink.ui.components.UserCard
+import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent

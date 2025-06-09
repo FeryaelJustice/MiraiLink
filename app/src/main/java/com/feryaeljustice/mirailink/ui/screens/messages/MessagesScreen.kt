@@ -23,8 +23,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.feryaeljustice.mirailink.ui.components.ChatList
-import com.feryaeljustice.mirailink.ui.components.MatchesRow
+import com.feryaeljustice.mirailink.ui.components.chat.ChatList
+import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

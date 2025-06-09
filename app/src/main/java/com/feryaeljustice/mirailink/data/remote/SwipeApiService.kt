@@ -1,8 +1,8 @@
 package com.feryaeljustice.mirailink.data.remote
 
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.request.SwipeRequest
-import com.feryaeljustice.mirailink.data.model.response.BasicResponse
+import com.feryaeljustice.mirailink.data.model.request.swipe.SwipeRequest
+import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.feryaeljustice.mirailink.data.model.response.swipe.SwipeResponse
 import retrofit2.http.Body
 import retrofit2.http.GET

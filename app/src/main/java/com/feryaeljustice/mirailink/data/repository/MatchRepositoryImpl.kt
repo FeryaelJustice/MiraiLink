@@ -1,9 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
-import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
-import com.feryaeljustice.mirailink.data.mappers.toDomain
-import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.MatchRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls

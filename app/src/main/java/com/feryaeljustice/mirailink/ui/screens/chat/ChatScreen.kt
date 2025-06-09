@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
-import com.feryaeljustice.mirailink.ui.components.ChatTopBar
-import com.feryaeljustice.mirailink.ui.components.MessageItem
+import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
+import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable

@@ -1,6 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
-import com.feryaeljustice.mirailink.domain.model.ChatMessage
+import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject

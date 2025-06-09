@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.request.MarkMatchAsSeenRequest
+import com.feryaeljustice.mirailink.data.model.request.match.MarkMatchAsSeenRequest
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject

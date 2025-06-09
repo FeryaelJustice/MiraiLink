@@ -3,9 +3,9 @@ package com.feryaeljustice.mirailink.ui.screens.profile.edit
 import android.net.Uri
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
-import com.feryaeljustice.mirailink.domain.model.Anime
-import com.feryaeljustice.mirailink.domain.model.Game
-import com.feryaeljustice.mirailink.domain.model.User
+import com.feryaeljustice.mirailink.domain.model.catalog.Anime
+import com.feryaeljustice.mirailink.domain.model.catalog.Game
+import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
 
 data class EditProfileUiState(
