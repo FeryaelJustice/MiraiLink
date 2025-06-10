@@ -17,7 +17,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
@@ -304,7 +304,10 @@ fun AuthScreen(
                 else viewModel.register(username, email, password)
             },
             content = {
-                Text(if (isLogin) "Iniciar sesión" else "Registrarse")
+                MiraiLinkText(
+                    text = if (isLogin) "Iniciar sesión" else "Registrarse",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         )
 
@@ -312,14 +315,14 @@ fun AuthScreen(
             is AuthUiState.Success -> {
                 val userId = (state as AuthUiState.Success).userId
                 clearForm()
-                Text("Éxito")
+                MiraiLinkText(text = "Éxito")
                 if (isLogin) onLogin(userId) else onRegister(userId)
             }
 
             is AuthUiState.Error -> {
                 val error = state as AuthUiState.Error
                 Log.e("AuthScreen", error.message)
-                Text(error.message, color = MaterialTheme.colorScheme.error)
+                MiraiLinkText(error.message, color = MaterialTheme.colorScheme.error)
             }
 
             is AuthUiState.IsAuthenticated -> {

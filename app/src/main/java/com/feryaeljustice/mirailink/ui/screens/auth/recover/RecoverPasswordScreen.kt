@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -50,7 +51,12 @@ fun RecoverPasswordScreen(
                 MiraiLinkButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = viewModel::requestReset,
-                ) { Text("Enviar código") }
+                ) {
+                    MiraiLinkText(
+                        text = "Enviar código",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
 
             2 -> {
@@ -76,10 +82,10 @@ fun RecoverPasswordScreen(
                         viewModel.confirmReset(onConfirmed = onConfirmedRecoverPassword)
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Confirmar") }
+                ) { MiraiLinkText(text = "Confirmar", color = MaterialTheme.colorScheme.onPrimary) }
             }
         }
 
-        if (uiState.error != null) Text(uiState.error!!, color = Color.Red)
+        if (uiState.error != null) MiraiLinkText(text = uiState.error!!, color = Color.Red)
     }
 }

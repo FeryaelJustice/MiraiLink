@@ -31,7 +31,6 @@ interface UserRepository {
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photosJson: String,
         photoUris: List<Uri?>
     ): MiraiLinkResult<Unit>
     suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean>

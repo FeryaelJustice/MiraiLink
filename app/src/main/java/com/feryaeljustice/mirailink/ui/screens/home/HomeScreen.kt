@@ -52,7 +52,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                     }
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        MiraiLinkText("No hay más usuarios por ahora")
+                        MiraiLinkText(text = "No hay más usuarios por ahora")
                     }
                 }
             }
@@ -61,8 +61,8 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                 val error = state as HomeUiState.Error
                 MiraiLinkText(
                     text = error.message,
+                    modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
                 )
             }
 

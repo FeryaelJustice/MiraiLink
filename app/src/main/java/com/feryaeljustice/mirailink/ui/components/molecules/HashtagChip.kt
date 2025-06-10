@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun HashtagChip(
@@ -36,10 +36,9 @@ fun HashtagChip(
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Text(
+        MiraiLinkText(
             text = text,
             color = textColor,
-            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -64,10 +63,8 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier) {
         MiraiLinkText(
             text = name?.superCapitalize() ?: "Desconocido",
             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-            fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
     }
 }

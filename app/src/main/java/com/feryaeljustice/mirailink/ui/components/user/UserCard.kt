@@ -21,16 +21,12 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +45,10 @@ import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
@@ -95,17 +94,17 @@ fun UserCard(
         ) {
 
             if (editUiState?.isEditing == true) {
-                OutlinedIconButton(
+                MiraiLinkOutlinedIconButton(
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .align(Alignment.TopEnd)
+                        .alpha(0.8f)
+                        .zIndex(10f), // Lo eleva sobre el grid
                     colors = IconButtonDefaults.outlinedIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondary
                     ),
                     onClick = { onEdit?.invoke(false) },
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .align(Alignment.TopEnd)
-                        .alpha(0.8f)
-                        .zIndex(10f) // Lo eleva sobre el grid
                 ) {
                     Icon(Icons.Default.Close, contentDescription = "Cerrar modo de edición")
                 }
@@ -150,8 +149,6 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
-                    Text("Animes favoritos:")
-                    Spacer(modifier = Modifier.height(8.dp))
                     MultiSelectDropdown(
                         label = "Animes favoritos",
                         options = editUiState.animeCatalog.map { it.name },
@@ -159,10 +156,8 @@ fun UserCard(
                         onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) }
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    Text("Videojuegos favoritos:")
-                    Spacer(modifier = Modifier.height(8.dp))
                     MultiSelectDropdown(
                         label = "Videojuegos favoritos",
                         options = editUiState.gameCatalog.map { it.name },
@@ -175,50 +170,51 @@ fun UserCard(
                     PhotoCarousel(photoUrls = user.photos.map { it.url })
 
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
+                        MiraiLinkText(
                             text = user.nicknameElseUsername(),
                             fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                            fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.headlineSmall.copy(textDecoration = TextDecoration.Underline),
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
+                        MiraiLinkText(
                             if (!user.bio.isNullOrBlank()) user.bio else "Aquí para triunfar",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = FontStyle.Italic,
-                            style = MaterialTheme.typography.bodyMedium
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
                         // Secciones: anime y videojuegos
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Animes favoritos:", fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        MiraiLinkText(text = "Animes favoritos:", fontWeight = FontWeight.SemiBold)
                         user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
                             TagsSection(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp),
                                 tags = animes.map { it.name })
-                        } ?: Text(
+                        } ?: MiraiLinkText(
                             text = "No hay animes favoritos",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
                             fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Videojuegos favoritos:", fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        MiraiLinkText(
+                            text = "Videojuegos favoritos:",
+                            fontWeight = FontWeight.SemiBold
+                        )
                         user.games.takeIf { it.isNotEmpty() }?.let { games ->
                             TagsSection(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp),
                                 tags = games.map { it.name })
-                        } ?: Text(
+                        } ?: MiraiLinkText(
                             text = "No hay videojuegos favoritos",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = MaterialTheme.typography.labelSmall.fontSize,
                             fontStyle = MaterialTheme.typography.labelSmall.fontStyle
                         )
@@ -244,19 +240,25 @@ fun UserCard(
                         content = {
                             Icon(Icons.Default.Edit, contentDescription = "Guardar")
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Guardar cambios")
+                            MiraiLinkText(
+                                text = "Guardar cambios",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
                         })
                 } else if (isPreviewMode) {
-                    Button(
+                    MiraiLinkButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onEdit?.invoke(true) },
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Editar perfil")
+                        MiraiLinkText(
+                            text = "Editar perfil",
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 } else {
-                    OutlinedButton(
+                    MiraiLinkOutlinedButton(
                         modifier = Modifier
                             .size(64.dp),
                         onClick = { onDislike?.invoke() },
@@ -274,7 +276,7 @@ fun UserCard(
                     Spacer(modifier = Modifier.width(32.dp))
 
                     if (canUndo) {
-                        OutlinedButton(
+                        MiraiLinkOutlinedButton(
                             modifier = Modifier
                                 .size(64.dp),
                             onClick = { onGoBackToLast?.invoke() },
@@ -292,7 +294,7 @@ fun UserCard(
                         Spacer(modifier = Modifier.width(32.dp))
                     }
 
-                    OutlinedButton(
+                    MiraiLinkOutlinedButton(
                         modifier = Modifier
                             .size(64.dp),
                         onClick = { onLike?.invoke() },

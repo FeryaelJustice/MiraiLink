@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,9 +39,14 @@ fun VerificationScreen(
     Column(modifier = Modifier.padding(16.dp)) {
         when (uiState.step) {
             1 -> {
-                MiraiLinkText("Solicitar verificación a email")
+                MiraiLinkText(text = "Solicitar verificación a email")
                 Spacer(modifier = Modifier.height(8.dp))
-                MiraiLinkButton(onClick = { viewModel.requestCode(userId) }) { Text("Enviar código") }
+                MiraiLinkButton(onClick = { viewModel.requestCode(userId) }) {
+                    MiraiLinkText(
+                        text = "Enviar código",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
 
             2 -> {
@@ -58,7 +63,12 @@ fun VerificationScreen(
                         userId,
                         onFinish = onFinish
                     )
-                }) { MiraiLinkText("Verificar") }
+                }) {
+                    MiraiLinkText(
+                        text = "Verificar",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
 

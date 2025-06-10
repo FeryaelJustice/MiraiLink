@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.util.formatTimestamp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun MessageItem(
@@ -44,15 +44,15 @@ fun MessageItem(
                 .padding(12.dp),
             horizontalAlignment = style.horizontalAlignment
         ) {
-            Text(
+            MiraiLinkText(
                 text = message.content,
-                color = style.textColor
+                color = style.textColor,
             )
-            Text(
+            MiraiLinkText(
                 text = timeText,
+                modifier = Modifier.align(Alignment.End),
                 color = style.textColor.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.align(Alignment.End)
             )
         }
     }

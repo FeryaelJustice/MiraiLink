@@ -172,7 +172,6 @@ class UserRemoteDataSource @Inject constructor(
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photosJson: String,
         photoUris: List<Uri?>
     ): MiraiLinkResult<Unit> {
         return try {
@@ -191,13 +190,18 @@ class UserRemoteDataSource @Inject constructor(
                 }
             }
 
+            Log.d(
+                "UserRemoteDataSource",
+                "updateProfile - photoParts: $photoParts | nickname: $nickname | bio: $bio | animesJson: $animesJson | gamesJson: $gamesJson"
+            )
+
             // Llamar a la API
             api.updateProfile(
                 nickname = nickname.toRequestBody(),
                 bio = bio.toRequestBody(),
                 animes = animesJson.toRequestBody(),
                 games = gamesJson.toRequestBody(),
-                photos = photosJson.toRequestBody(),
+//                photos = photosJson.toRequestBody(),
                 photo_0 = photoParts.getOrNull(0),
                 photo_1 = photoParts.getOrNull(1),
                 photo_2 = photoParts.getOrNull(2),

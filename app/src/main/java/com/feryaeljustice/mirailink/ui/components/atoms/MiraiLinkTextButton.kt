@@ -31,7 +31,7 @@ fun MiraiLinkTextButton(
     ) {
         MiraiLinkText(
             text = text,
-            color = if (isTransparentBackground) onTransparentBackgroundContentColor else contentColor
+            color = if (isTransparentBackground) onTransparentBackgroundContentColor else contentColor,
         )
     }
 }

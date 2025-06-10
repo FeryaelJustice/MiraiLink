@@ -14,19 +14,17 @@ class UpdateUserProfileUseCase @Inject constructor(
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photosJson: String,
         photoUris: List<Uri?>
     ): MiraiLinkResult<Unit> {
         Log.d(
             "UpdateUserProfileUseCase",
-            "invoke: $nickname $bio $animesJson $gamesJson $photosJson $photoUris"
+            "invoke: $nickname $bio $animesJson $gamesJson $photoUris"
         )
         return repository.updateProfile(
             nickname = nickname,
             bio = bio,
             animesJson = animesJson,
             gamesJson = gamesJson,
-            photosJson = photosJson,
             photoUris = photoUris
         )
     }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +25,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
@@ -87,10 +87,11 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                 onValueChange = { input.value = it },
                 modifier = Modifier.weight(1f),
                 placeholder = {
-                    Text(
-                        "${
-                            sender?.nicknameElseUsername()?.superCapitalize()
-                        }, escribe un mensaje..."
+                    MiraiLinkText(
+                        text =
+                            "${
+                                sender?.nicknameElseUsername()?.superCapitalize()
+                            }, escribe un mensaje..."
                     )
                 }
             )

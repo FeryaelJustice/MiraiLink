@@ -17,7 +17,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun MultiSelectDropdown(
@@ -71,7 +71,7 @@ fun MultiSelectDropdown(
                         onClick = {
                             onSelectionChange(selected - tag)
                         },
-                        label = { Text(tag) },
+                        label = { MiraiLinkText(tag) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.padding(end = 8.dp, bottom = 4.dp),
                         colors = AssistChipDefaults.assistChipColors(
@@ -91,7 +91,7 @@ fun MultiSelectDropdown(
             options.forEach { option ->
                 val isSelected = option in selected
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { MiraiLinkText(option) },
                     onClick = {
                         val newSelection = if (isSelected) {
                             selected - option

@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 
 @Composable
@@ -21,15 +21,15 @@ fun MatchesRow(
     onNavigateToChat: (String) -> Unit
 ) {
     Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {
-        Text(
+        MiraiLinkText(
             text = "Matches",
+            modifier = Modifier.padding(bottom = 8.dp),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         Row {
             if (matches.isEmpty()) {
-                Text(
+                MiraiLinkText(
                     text = "No tienes matches",
                     style = MaterialTheme.typography.bodySmall,
                 )

@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 
 @Composable
@@ -50,7 +50,7 @@ fun MessageListItem(
 
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
+                MiraiLinkText(
                     text = chat.nickname.ifBlank { chat.username },
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
@@ -69,7 +69,7 @@ fun MessageListItem(
             }
 
             chat.lastMessage?.let { lastMsg ->
-                Text(
+                MiraiLinkText(
                     text = lastMsg,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -84,7 +84,7 @@ fun MessageListItem(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
                 modifier = Modifier.padding(end = 8.dp)
-            ) { Text(text = if (chat.readsPending > 99) "99+" else chat.readsPending.toString()) }
+            ) { MiraiLinkText(text = if (chat.readsPending > 99) "99+" else chat.readsPending.toString()) }
         }
     }
 }

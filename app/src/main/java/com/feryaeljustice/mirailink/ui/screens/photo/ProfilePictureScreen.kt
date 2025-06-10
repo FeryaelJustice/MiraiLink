@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,6 +30,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -80,22 +80,25 @@ fun ProfilePictureScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = { launcher.launch("image/*") }) {
-            Text("Seleccionar imagen")
+            MiraiLinkText(text = "Seleccionar imagen")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout),
+        MiraiLinkText(
             text = "Cerrar Sesión",
-            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout),
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
+            fontSize = MaterialTheme.typography.labelMedium.fontSize,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uploadResult is MiraiLinkResult.Error) {
-            Text("Error al subir. Inténtalo de nuevo.", color = MaterialTheme.colorScheme.error)
+            MiraiLinkText(
+                text = "Error al subir. Inténtalo de nuevo.",
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 

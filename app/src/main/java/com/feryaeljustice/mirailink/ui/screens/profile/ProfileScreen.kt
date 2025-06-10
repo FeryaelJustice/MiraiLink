@@ -14,7 +14,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -178,8 +177,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                         if (editState.showActionDialog && editState.selectedSlotForDialog != null) {
                             AlertDialog(
                                 onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { Text("¿Qué quieres hacer?") },
-                                text = { Text("Selecciona una acción para esta foto") },
+                                title = { MiraiLinkText(text = "¿Qué quieres hacer?") },
+                                text = { MiraiLinkText(text = "Selecciona una acción para esta foto") },
                                 confirmButton = {
                                     MiraiLinkTextButton(
                                         onClick = {
@@ -208,8 +207,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                         if (editState.showPhotoSourceDialog && editState.selectedSlotForDialog != null) {
                             AlertDialog(
                                 onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { Text("Seleccionar fuente") },
-                                text = { Text("¿Desde dónde quieres añadir la foto?") },
+                                title = { MiraiLinkText(text = "Seleccionar fuente") },
+                                text = { MiraiLinkText(text = "¿Desde dónde quieres añadir la foto?") },
                                 confirmButton = {
                                     MiraiLinkTextButton(
                                         onClick = {
@@ -251,8 +250,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                 val error = state as ProfileUiState.Error
                 MiraiLinkText(
                     text = error.message,
+                    modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
                 )
             }
 

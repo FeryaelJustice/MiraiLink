@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.data.model.request.media.UploadPhotoDto
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
@@ -15,7 +14,6 @@ import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.util.mapNotNullIndexed
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
@@ -123,11 +121,11 @@ class ProfileViewModel @Inject constructor(
                     val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
                     val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
 
-                    val photosJson = Json.encodeToString(
-                        state.photos.mapNotNullIndexed { index, slot ->
-                            slot.url?.let { UploadPhotoDto(position = index + 1, url = it) }
-                        }
-                    )
+//                    val photosJson = Json.encodeToString(
+//                        state.photos.mapNotNullIndexed { index, slot ->
+//                            slot.url?.let { UploadPhotoDto(position = index + 1, url = it) }
+//                        }
+//                    )
 
                     val photoUris = state.photos.map { slot ->
                         slot.url?.takeIf {
@@ -141,7 +139,6 @@ class ProfileViewModel @Inject constructor(
                             bio = bio,
                             animesJson = animesJson,
                             gamesJson = gamesJson,
-                            photosJson = photosJson,
                             photoUris = photoUris
                         )
 

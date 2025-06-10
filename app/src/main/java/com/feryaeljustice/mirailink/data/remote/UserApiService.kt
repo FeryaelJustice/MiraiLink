@@ -78,10 +78,10 @@ interface UserApiService {
         @Part("bio") bio: RequestBody,
         @Part("animes") animes: RequestBody,
         @Part("games") games: RequestBody,
-        @Part("photos") photos: RequestBody, // JSON con { position, url }
-        @Part photo_0: MultipartBody.Part?, // Solo si existe nuevo archivo
-        @Part photo_1: MultipartBody.Part?,
-        @Part photo_2: MultipartBody.Part?,
-        @Part photo_3: MultipartBody.Part?
+//        @Part("photos") photos: RequestBody, // JSON con { position, url }
+        @Part photo_0: MultipartBody.Part? = null, // Solo si existe nuevo archivo
+        @Part photo_1: MultipartBody.Part? = null,
+        @Part photo_2: MultipartBody.Part? = null,
+        @Part photo_3: MultipartBody.Part? = null,
     ): Response<Unit>
 }

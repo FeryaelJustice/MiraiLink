@@ -4,7 +4,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
@@ -31,13 +30,13 @@ fun MiraiLinkOutlinedTextField(
         readOnly = readOnly,
         singleLine = maxLines == 1,
         maxLines = maxLines,
-        label = { Text(text = label) },
+        label = { MiraiLinkText(text = label) },
         isError = isError,
         supportingText = {
             supportingText?.let {
-                Text(
+                MiraiLinkText(
                     it,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
         },

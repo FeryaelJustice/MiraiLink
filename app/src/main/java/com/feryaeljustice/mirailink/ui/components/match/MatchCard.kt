@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.extensions.debounceClickable
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 
@@ -66,7 +66,7 @@ fun MatchCard(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
+        MiraiLinkText(
             text = user.nickname.ifBlank { user.username },
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,

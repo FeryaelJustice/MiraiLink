@@ -8,17 +8,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun MiraiLinkText(
     text: String,
     modifier: Modifier = Modifier,
-    fontStyle: FontStyle = FontStyle.Normal,
+    fontStyle: FontStyle? = FontStyle.Normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,
     color: Color = MaterialTheme.colorScheme.primary,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Visible
 ) {
     Text(
         text = text,
@@ -27,6 +30,8 @@ fun MiraiLinkText(
         fontSize = fontSize,
         fontWeight = fontWeight,
         color = color,
+        maxLines = maxLines,
+        overflow = overflow,
         style = style,
     )
 }

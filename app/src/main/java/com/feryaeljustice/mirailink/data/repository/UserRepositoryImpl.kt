@@ -82,7 +82,6 @@ class UserRepositoryImpl @Inject constructor(
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photosJson: String,
         photoUris: List<Uri?>
     ): MiraiLinkResult<Unit> {
         return remote.updateProfile(
@@ -90,7 +89,6 @@ class UserRepositoryImpl @Inject constructor(
             bio = bio,
             animesJson = animesJson,
             gamesJson = gamesJson,
-            photosJson = photosJson,
             photoUris = photoUris
         )
     }

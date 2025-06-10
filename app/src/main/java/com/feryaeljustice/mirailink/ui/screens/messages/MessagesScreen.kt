@@ -89,8 +89,8 @@ fun MessagesScreen(
             is MessagesViewModel.MessagesUiState.Error -> {
                 val error = state as MessagesViewModel.MessagesUiState.Error
                 MiraiLinkText(
-                    modifier = Modifier.padding(16.dp),
                     text = error.message,
+                    modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
