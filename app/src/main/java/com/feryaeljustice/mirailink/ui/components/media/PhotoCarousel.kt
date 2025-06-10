@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.components.media
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -36,7 +38,7 @@ import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import kotlinx.coroutines.launch
 
 @Composable
-fun PhotoCarousel(photoUrls: List<String>) {
+fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit) {
     val scope = rememberCoroutineScope()
 
     val images = photoUrls.ifEmpty { listOf(R.drawable.logomirailink.toString()) }
@@ -91,6 +93,13 @@ fun PhotoCarousel(photoUrls: List<String>) {
                             val nextPage = (pagerState.currentPage + 1) % images.size
                             pagerState.animateScrollToPage(nextPage)
                         }
+                    }
+                    .pointerInput(url) {
+                        detectTapGestures(
+                            onLongPress = {
+                                onLongPressOnImage(url)
+                            }
+                        )
                     }
             )
         }

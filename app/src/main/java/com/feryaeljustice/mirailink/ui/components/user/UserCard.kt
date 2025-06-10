@@ -1,11 +1,14 @@
 package com.feryaeljustice.mirailink.ui.components.user
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +31,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -38,6 +43,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
@@ -45,6 +51,7 @@ import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
@@ -73,6 +80,42 @@ fun UserCard(
     onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null
 ) {
+    val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
+
+    if (fullscreenImageUrl != null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable { setFullscreenImageUrl(null) } // Dismiss al hacer clic fuera
+                .padding(8.dp)
+                .zIndex(99f),
+            contentAlignment = Alignment.Center
+        ) {
+            MiraiLinkIconButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+                    .zIndex(100f),
+                onClick = {
+                    setFullscreenImageUrl(null)
+                }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close fullscreen image"
+                )
+            }
+            AsyncImage(
+                model = fullscreenImageUrl,
+                contentDescription = "Imagen en pantalla completa",
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .aspectRatio(1f)
+                    .clickable(enabled = false) {} // Evita que el clic cierre si se hace en la imagen
+            )
+        }
+    }
+
     Card(
         modifier = modifier
             .fillMaxSize()
@@ -167,7 +210,11 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(64.dp))
                 } else {
-                    PhotoCarousel(photoUrls = user.photos.map { it.url })
+                    PhotoCarousel(
+                        photoUrls = user.photos.map { it.url },
+                        onLongPressOnImage = { url ->
+                            setFullscreenImageUrl(url)
+                        })
 
                     Column(modifier = Modifier.padding(16.dp)) {
                         MiraiLinkText(
