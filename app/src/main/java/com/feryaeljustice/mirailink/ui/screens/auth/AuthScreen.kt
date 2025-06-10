@@ -13,12 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +38,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
@@ -112,7 +112,7 @@ fun AuthScreen(
             )
         }
 
-        OutlinedTextField(
+        MiraiLinkOutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -126,25 +126,10 @@ fun AuthScreen(
                     emailError = null
                 }
             },
-            singleLine = true,
             maxLines = 1,
-            label = { Text(if (loginByUsername && isLogin) "Usuario" else "Email") },
+            label = if (loginByUsername && isLogin) "Usuario" else "Email",
             isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
-            supportingText = if (loginByUsername && isLogin) usernameError?.let {
-                {
-                    Text(
-                        it,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            } else emailError?.let {
-                {
-                    Text(
-                        it,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
+            supportingText = if (loginByUsername && isLogin) usernameError else emailError,
             trailingIcon = {
                 if (isLogin) {
                     val icon =
@@ -169,7 +154,7 @@ fun AuthScreen(
         if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
+            MiraiLinkOutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
@@ -178,18 +163,10 @@ fun AuthScreen(
                     username = it
                     usernameError = null
                 },
-                singleLine = true,
                 maxLines = 1,
-                label = { Text(text = "Usuario") },
+                label = "Usuario",
                 isError = usernameError != null,
-                supportingText = usernameError?.let {
-                    {
-                        Text(
-                            it,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                supportingText = usernameError,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_user),
@@ -206,7 +183,7 @@ fun AuthScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        MiraiLinkOutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -215,9 +192,8 @@ fun AuthScreen(
                 password = it
                 passwordError = null
             },
-            singleLine = true,
             maxLines = 1,
-            label = { Text("Contraseña") },
+            label = "Contraseña",
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val icon =
@@ -227,14 +203,7 @@ fun AuthScreen(
                 }
             },
             isError = passwordError != null,
-            supportingText = passwordError?.let {
-                {
-                    Text(
-                        it,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
+            supportingText = passwordError,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = if (isLogin) ImeAction.Done else ImeAction.Next
@@ -249,7 +218,7 @@ fun AuthScreen(
 
         if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
+            MiraiLinkOutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
@@ -258,9 +227,8 @@ fun AuthScreen(
                     confirmPassword = it
                     confirmPasswordError = null
                 },
-                singleLine = true,
                 maxLines = 1,
-                label = { Text("Repetir contraseña") },
+                label = "Repetir contraseña",
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon =
@@ -270,14 +238,7 @@ fun AuthScreen(
                     }
                 },
                 isError = confirmPasswordError != null,
-                supportingText = confirmPasswordError?.let {
-                    {
-                        Text(
-                            it,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                supportingText = confirmPasswordError,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
@@ -311,7 +272,7 @@ fun AuthScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        MiraiLinkButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -337,14 +298,15 @@ fun AuthScreen(
                     valid = false
                 }
 
-                if (!valid) return@Button
+                if (!valid) return@MiraiLinkButton
 
                 if (isLogin) viewModel.login(email, username, password)
                 else viewModel.register(username, email, password)
+            },
+            content = {
+                Text(if (isLogin) "Iniciar sesión" else "Registrarse")
             }
-        ) {
-            Text(if (isLogin) "Iniciar sesión" else "Registrarse")
-        }
+        )
 
         when (state) {
             is AuthUiState.Success -> {

@@ -11,9 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
@@ -82,7 +82,7 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            TextField(
+            MiraiLinkTextField(
                 value = input.value,
                 onValueChange = { input.value = it },
                 modifier = Modifier.weight(1f),
@@ -95,7 +95,7 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = {
+            MiraiLinkIconButton(onClick = {
                 if (input.value.isNotBlank()) {
                     viewModel.sendMessage(input.value)
                     input.value = ""

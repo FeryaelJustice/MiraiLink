@@ -67,14 +67,14 @@ fun ProfilePictureScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.logomirailink),
-            contentDescription = "Profile picture placeholder",
             modifier = Modifier
                 .size(128.dp)
                 .clip(
                     CircleShape
                 )
-                .background(Color.Gray)
+                .background(Color.Gray),
+            painter = painterResource(id = R.drawable.logomirailink),
+            contentDescription = "Profile picture placeholder",
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -86,10 +86,10 @@ fun ProfilePictureScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
+            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout),
             text = "Cerrar Sesión",
             fontSize = MaterialTheme.typography.labelMedium.fontSize,
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
-            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout)
         )
 
         Spacer(modifier = Modifier.height(16.dp))

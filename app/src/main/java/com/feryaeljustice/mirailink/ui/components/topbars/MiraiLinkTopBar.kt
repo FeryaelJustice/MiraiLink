@@ -7,14 +7,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.ThemeSwitcher
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,13 +40,13 @@ fun MiraiLinkTopBar(
                 painter = painterResource(id = R.drawable.logomirailink),
                 contentDescription = "Mirai Link",
             )
-            Text(text = title ?: "Mirai Link")
+            MiraiLinkText(text = title ?: "Mirai Link")
         }
     }, actions = {
         if (enabled) {
             ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
             if (showSettingsIcon) {
-                IconButton(onClick = onNavigateToSettings) {
+                MiraiLinkIconButton(onClick = onNavigateToSettings) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             }

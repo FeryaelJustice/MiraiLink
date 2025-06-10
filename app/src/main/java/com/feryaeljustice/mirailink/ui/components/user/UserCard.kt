@@ -30,7 +30,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,6 +48,8 @@ import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
@@ -73,7 +74,6 @@ fun UserCard(
     onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null
 ) {
-
     Card(
         modifier = modifier
             .fillMaxSize()
@@ -130,21 +130,21 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // TextField para nombre
-                    OutlinedTextField(
+                    MiraiLinkOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = editUiState.nickname,
                         onValueChange = { onValueChange?.invoke(TextFieldType.NICKNAME, it) },
-                        label = { Text("Nickname") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = "Nickname",
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // TextField para bio
-                    OutlinedTextField(
+                    MiraiLinkOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = editUiState.bio,
                         onValueChange = { onValueChange?.invoke(TextFieldType.BIO, it) },
-                        label = { Text("Biografía") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = "Biografía",
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -238,15 +238,18 @@ fun UserCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (editUiState != null && editUiState.isEditing) {
-                    Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Default.Edit, contentDescription = "Guardar")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Guardar cambios")
-                    }
+                    MiraiLinkButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onSave,
+                        content = {
+                            Icon(Icons.Default.Edit, contentDescription = "Guardar")
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Guardar cambios")
+                        })
                 } else if (isPreviewMode) {
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { onEdit?.invoke(true) },
-                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
                         Spacer(modifier = Modifier.width(8.dp))
@@ -254,12 +257,12 @@ fun UserCard(
                     }
                 } else {
                     OutlinedButton(
+                        modifier = Modifier
+                            .size(64.dp),
                         onClick = { onDislike?.invoke() },
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Blue),
                         shape = CircleShape,
                         border = BorderStroke(1.dp, Color.Black),
-                        modifier = Modifier
-                            .size(64.dp)
                     ) {
                         Icon(
                             Icons.Default.Close,
@@ -272,12 +275,12 @@ fun UserCard(
 
                     if (canUndo) {
                         OutlinedButton(
+                            modifier = Modifier
+                                .size(64.dp),
                             onClick = { onGoBackToLast?.invoke() },
                             colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Yellow),
                             shape = CircleShape,
                             border = BorderStroke(1.dp, Color.Black),
-                            modifier = Modifier
-                                .size(64.dp)
                         ) {
                             Icon(
                                 Icons.Default.Refresh,
@@ -290,12 +293,12 @@ fun UserCard(
                     }
 
                     OutlinedButton(
+                        modifier = Modifier
+                            .size(64.dp),
                         onClick = { onLike?.invoke() },
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Red),
                         shape = CircleShape,
                         border = BorderStroke(1.dp, Color.Black),
-                        modifier = Modifier
-                            .size(64.dp)
                     ) {
                         Icon(
                             Icons.Default.Favorite,

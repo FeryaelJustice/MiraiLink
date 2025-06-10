@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.data.util.createImageUri
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
@@ -114,6 +115,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                 (state as ProfileUiState.Success).user?.let { user ->
                     Box(modifier = Modifier.padding(16.dp)) {
                         UserCard(
+                            modifier = Modifier
+                                .padding(2.dp),
                             user = user,
                             isPreviewMode = true,
                             editUiState = editState,
@@ -169,8 +172,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                 )
                                 viewModel.onIntent(EditProfileIntent.OpenPhotoActionDialog(position))
                             },
-                            modifier = Modifier
-                                .padding(2.dp)
                         )
 
                         // 1. Dialogo: Actualizar o Borrar
@@ -248,7 +249,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
 
             is ProfileUiState.Error -> {
                 val error = state as ProfileUiState.Error
-                Text(
+                MiraiLinkText(
                     text = error.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)

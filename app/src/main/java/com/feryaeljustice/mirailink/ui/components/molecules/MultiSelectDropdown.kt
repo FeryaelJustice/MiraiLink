@@ -17,7 +17,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 
 @Composable
 fun MultiSelectDropdown(
@@ -38,10 +38,13 @@ fun MultiSelectDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
+        MiraiLinkOutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true },
             value = if (selected.isEmpty()) "" else selected.joinToString(", "),
             onValueChange = {},
-            label = { Text(label) },
+            label = label,
             readOnly = true,
             trailingIcon = {
                 Icon(
@@ -51,9 +54,6 @@ fun MultiSelectDropdown(
                         expanded = true
                     })
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
         )
 
         // Chips debajo (más usabilidad)

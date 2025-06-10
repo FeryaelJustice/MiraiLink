@@ -11,7 +11,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
@@ -88,10 +88,10 @@ fun MessagesScreen(
 
             is MessagesViewModel.MessagesUiState.Error -> {
                 val error = state as MessagesViewModel.MessagesUiState.Error
-                Text(
+                MiraiLinkText(
+                    modifier = Modifier.padding(16.dp),
                     text = error.message,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
                 )
             }
 

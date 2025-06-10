@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +26,7 @@ import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier) {
@@ -61,7 +61,7 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier) {
                 .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(12.dp))
-        Text(
+        MiraiLinkText(
             text = name?.superCapitalize() ?: "Desconocido",
             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             fontStyle = FontStyle.Normal,

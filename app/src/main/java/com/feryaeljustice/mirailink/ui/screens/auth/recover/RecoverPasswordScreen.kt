@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -39,42 +39,39 @@ fun RecoverPasswordScreen(
     Column(modifier = Modifier.padding(16.dp)) {
         when (uiState.step) {
             1 -> {
-                OutlinedTextField(
+                MiraiLinkOutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
-                    label = { Text("Correo electrónico") },
-                    singleLine = true,
+                    label = "Correo electrónico",
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
+                MiraiLinkButton(
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = viewModel::requestReset,
-                    modifier = Modifier.fillMaxWidth()
                 ) { Text("Enviar código") }
             }
 
             2 -> {
-                OutlinedTextField(
+                MiraiLinkOutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = uiState.token,
                     onValueChange = viewModel::onTokenChanged,
-                    label = { Text("Código de verificación") },
-                    singleLine = true,
+                    label = "Código de verificación",
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
+                MiraiLinkOutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     value = uiState.newPassword,
                     onValueChange = viewModel::onPasswordChanged,
-                    label = { Text("Nueva contraseña") },
-                    singleLine = true,
+                    label = "Nueva contraseña",
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
+                MiraiLinkButton(
                     onClick = {
                         viewModel.confirmReset(onConfirmed = onConfirmedRecoverPassword)
                     },
