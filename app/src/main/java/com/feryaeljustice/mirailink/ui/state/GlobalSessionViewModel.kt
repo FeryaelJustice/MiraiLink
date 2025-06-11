@@ -120,7 +120,9 @@ class GlobalSessionViewModel @Inject constructor(
             while (true) {
                 when (val result = checkProfilePictureUseCase(userId)) {
                     is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
-                    is MiraiLinkResult.Error -> _hasProfilePicture.value = false
+                    is MiraiLinkResult.Error -> {
+                        // Nothing
+                    }
                 }
                 delay(10000) // Cada 10s
             }
@@ -135,7 +137,9 @@ class GlobalSessionViewModel @Inject constructor(
     suspend fun refreshHasProfilePicture(userId: String) {
         when (val result = checkProfilePictureUseCase(userId)) {
             is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
-            is MiraiLinkResult.Error -> _hasProfilePicture.value = false
+            is MiraiLinkResult.Error -> {
+                // Nothing
+            }
         }
     }
 }

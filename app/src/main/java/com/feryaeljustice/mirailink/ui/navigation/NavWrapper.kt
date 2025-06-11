@@ -30,6 +30,8 @@ import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScr
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
+import com.feryaeljustice.mirailink.ui.screens.feedback.FeedbackScreen
+import com.feryaeljustice.mirailink.ui.screens.feedback.FeedbackViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesScreen
@@ -338,11 +340,22 @@ private fun NavGraphBuilder.appGraph(
             SettingsScreen(
                 viewModel = settingsViewModel,
                 sessionViewModel = sessionViewModel,
+                goToFeedbackScreen = {
+                    navController.navigate(AppScreen.FeedbackScreen)
+                },
                 onLogout = {
                     scope.launch {
                         sessionViewModel.clearSession()
                     }
                 })
+        }
+
+        composable<AppScreen.FeedbackScreen> {
+            val feedbackViewModel: FeedbackViewModel = hiltViewModel()
+            FeedbackScreen(
+                viewModel = feedbackViewModel,
+                sessionViewModel = sessionViewModel
+            )
         }
     }
 }

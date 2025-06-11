@@ -41,6 +41,9 @@ sealed class AppScreen {
     data object ProfileScreen : AppScreen()
 
     @Serializable
+    object FeedbackScreen : AppScreen()
+
+    @Serializable
     object SplashScreen
 }
 
