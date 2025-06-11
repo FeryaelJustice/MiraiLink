@@ -80,7 +80,7 @@ fun ProfilePictureScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = { launcher.launch("image/*") }) {
-            MiraiLinkText(text = "Seleccionar imagen")
+            MiraiLinkText(text = "Seleccionar imagen", color = MaterialTheme.colorScheme.onPrimary)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
