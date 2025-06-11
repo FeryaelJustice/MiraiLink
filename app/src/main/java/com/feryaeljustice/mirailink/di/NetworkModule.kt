@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.di
 import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
+import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
@@ -122,4 +123,10 @@ object NetworkModule {
     @Singleton
     fun provideReportApiService(retrofit: Retrofit): ReportApiService =
         retrofit.create<ReportApiService>()
+
+    @Provides
+    @Singleton
+    fun provideFeedbackApiService(retrofit: Retrofit): FeedbackApiService =
+        retrofit.create<FeedbackApiService>()
+
 }

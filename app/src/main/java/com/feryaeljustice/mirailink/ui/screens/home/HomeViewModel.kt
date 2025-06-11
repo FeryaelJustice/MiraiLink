@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,7 +49,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadCurrentUser() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
                     currentUser = result.data
@@ -86,7 +87,9 @@ class HomeViewModel @Inject constructor(
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
         viewModelScope.launch {
-            likeUser(current.id)
+            withContext(Dispatchers.IO) {
+                likeUser(current.id)
+            }
             saveToHistory(current)
             safeRemoveFirst()
             updateUiState()
@@ -96,7 +99,9 @@ class HomeViewModel @Inject constructor(
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
         viewModelScope.launch {
-            dislikeUser(current.id)
+            withContext(Dispatchers.IO) {
+                dislikeUser(current.id)
+            }
             saveToHistory(current)
             safeRemoveFirst()
             updateUiState()

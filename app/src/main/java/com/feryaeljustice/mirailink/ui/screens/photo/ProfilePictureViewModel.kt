@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,7 +19,7 @@ class ProfilePictureViewModel @Inject constructor(private val uploadUserPhotoUse
     val uploadResult = _uploadResult.asStateFlow()
 
     fun uploadImage(uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uploadResult.value = null
             when (val result = uploadUserPhotoUseCase(uri)) {
                 is MiraiLinkResult.Error -> _uploadResult.value = result

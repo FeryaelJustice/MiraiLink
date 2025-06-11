@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUse
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -43,14 +44,14 @@ class RecoverPasswordViewModel @Inject constructor(
         _state.value = state.value.copy(newPassword = password, error = null)
     }
 
-    fun requestReset() = viewModelScope.launch {
+    fun requestReset() = viewModelScope.launch(Dispatchers.IO) {
         when (val result = requestReset(_state.value.email)) {
             is MiraiLinkResult.Success -> _state.value = state.value.copy(step = 2)
             is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
         }
     }
 
-    fun confirmReset(onConfirmed: () -> Unit) = viewModelScope.launch {
+    fun confirmReset(onConfirmed: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         val s = _state.value
         when (val result = confirmReset(s.email, s.token, s.newPassword)) {
             is MiraiLinkResult.Success -> {

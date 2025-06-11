@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -36,9 +38,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -80,6 +86,7 @@ fun UserCard(
     onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null
 ) {
+    val (focusRequester) = FocusRequester.createRefs()
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
     if (fullscreenImageUrl != null) {
@@ -173,20 +180,30 @@ fun UserCard(
 
                     // TextField para nombre
                     MiraiLinkOutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         value = editUiState.nickname,
                         onValueChange = { onValueChange?.invoke(TextFieldType.NICKNAME, it) },
                         label = "Nickname",
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusRequester.requestFocus()
+                            }
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // TextField para bio
                     MiraiLinkOutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                         value = editUiState.bio,
                         onValueChange = { onValueChange?.invoke(TextFieldType.BIO, it) },
                         label = "Biografía",
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))

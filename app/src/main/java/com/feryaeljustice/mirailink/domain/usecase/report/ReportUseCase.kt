@@ -10,7 +10,6 @@ class ReportUseCase @Inject constructor(private val repository: ReportRepository
         return try {
             Log.d("ReportUseCase", "Report: $reportUser $reason")
             repository.reportUser(reportUser, reason)
-            MiraiLinkResult.Success(Unit)
         } catch (e: Exception) {
             Log.e("ReportUseCase", "Report error", e)
             MiraiLinkResult.Error("Error reportUser: ${e.message}", e)

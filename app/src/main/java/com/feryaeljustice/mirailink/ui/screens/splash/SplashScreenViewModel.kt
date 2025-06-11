@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class SplashScreenViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = SplashUiState.Loading
             when (autologinUseCase()) {
                 is MiraiLinkResult.Success -> {

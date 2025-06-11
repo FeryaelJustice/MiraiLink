@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.di
 import android.content.Context
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
+import com.feryaeljustice.mirailink.data.datasource.FeedbackRemoteDatasource
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.ReportRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
@@ -11,6 +12,7 @@ import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
 import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
+import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
@@ -71,4 +73,9 @@ object DataModule {
     @Singleton
     fun provideReportRemoteDatasource(reportApi: ReportApiService): ReportRemoteDataSource =
         ReportRemoteDataSource(reportApi)
+
+    @Provides
+    @Singleton
+    fun provideFeedbackRemoteDatasource(feedbackApi: FeedbackApiService): FeedbackRemoteDatasource =
+        FeedbackRemoteDatasource(feedbackApi)
 }

@@ -133,7 +133,7 @@ class ProfileViewModel @Inject constructor(
                         }?.toUri()
                     }
 
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         val result = updateUserProfileUseCase(
                             nickname = nickname,
                             bio = bio,
@@ -255,7 +255,7 @@ class ProfileViewModel @Inject constructor(
         val state = _editState.value
         if (state.animeCatalog.isNotEmpty() && state.gameCatalog.isNotEmpty()) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val animes = getAnimesUseCase().let {
                 if (it is MiraiLinkResult.Success) it.data else emptyList()
             }

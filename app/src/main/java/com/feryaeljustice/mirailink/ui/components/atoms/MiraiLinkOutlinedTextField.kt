@@ -18,6 +18,7 @@ fun MiraiLinkOutlinedTextField(
     maxLines: Int = 1,
     isError: Boolean = false,
     supportingText: String? = "",
+    placeholder: @Composable (() -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -30,8 +31,9 @@ fun MiraiLinkOutlinedTextField(
         readOnly = readOnly,
         singleLine = maxLines == 1,
         maxLines = maxLines,
-        label = { MiraiLinkText(text = label) },
+        label = { if (label.isNotBlank()) MiraiLinkText(text = label) },
         isError = isError,
+        placeholder = placeholder,
         supportingText = {
             supportingText?.let {
                 MiraiLinkText(

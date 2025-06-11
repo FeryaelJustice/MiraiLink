@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCode
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -32,7 +33,7 @@ class VerificationViewModel @Inject constructor(
         _state.value = state.value.copy(token = token, error = null)
     }
 
-    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch {
+    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         when (val result = checkIsVerified()) {
             is MiraiLinkResult.Success -> {
                 if (result.data) {
@@ -45,14 +46,14 @@ class VerificationViewModel @Inject constructor(
         }
     }
 
-    fun requestCode(userId: String) = viewModelScope.launch {
+    fun requestCode(userId: String) = viewModelScope.launch(Dispatchers.IO) {
         when (val result = requestCode(userId, "email")) {
             is MiraiLinkResult.Success -> _state.value = state.value.copy(step = 2)
             is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
         }
     }
 
-    fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch {
+    fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
         when (val result = confirmCode(userId, _state.value.token, "email")) {
             is MiraiLinkResult.Success -> {
                 resetState()

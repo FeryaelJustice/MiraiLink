@@ -16,6 +16,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -76,7 +77,7 @@ class ChatViewModel @Inject constructor(
         type: CHATTYPE
     ) {
         // Tanto el init private y group chat, sus usecases devuelven el chatId
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (type) {
                 CHATTYPE.PRIVATE -> {
                     initPrivateChat(receiverId)
@@ -126,13 +127,13 @@ class ChatViewModel @Inject constructor(
     }
 
     fun markChatAsRead(chatId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             markChatAsReadUseCase(chatId)
         }
     }
 
     fun setSender() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
                     val user = result.data
@@ -156,7 +157,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun setReceiver(receiverId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val res = getUserByIdUseCase(receiverId)) {
                 is MiraiLinkResult.Success -> {
                     val user = res.data
@@ -172,7 +173,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun startPolling(receiverId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isReceiverReady.collect { ready ->
                 if (ready) {
                     startMessagePolling(receiverId)
@@ -186,7 +187,7 @@ class ChatViewModel @Inject constructor(
 
     fun startMessagePolling(userId: String) {
         if (pollingJob?.isActive == true) return
-        pollingJob = viewModelScope.launch {
+        pollingJob = viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 getMessages(userId)
                 delay(3000L) // cada 3 segundos
@@ -205,7 +206,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getMessages(userId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val result = getChatMessagesUseCase(userId)) {
                 is MiraiLinkResult.Success -> {
                     val msgList = result.data
@@ -224,7 +225,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage(content: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val currSender = _sender.value
             val currReceiver = _receiver.value
 
@@ -252,7 +253,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun reportUser(userId: String, reason: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val result = reportUseCase(userId, reason)) {
                 is MiraiLinkResult.Success -> {
                     Log.d("ChatViewModel", "reportUser successfully")

@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUse
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +42,7 @@ class GlobalSessionViewModel @Inject constructor(
     suspend fun clearSession() = sessionManager.clearSession()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val curUserId = currentLocalUserId.firstOrNull()
             setUserId(curUserId)
 
@@ -116,7 +117,7 @@ class GlobalSessionViewModel @Inject constructor(
 
     fun startObservingHasProfilePicture(userId: String) {
         if (observeHasProfilePictureJob?.isActive == true) return
-        observeHasProfilePictureJob = viewModelScope.launch {
+        observeHasProfilePictureJob = viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 when (val result = checkProfilePictureUseCase(userId)) {
                     is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data

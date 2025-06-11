@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -50,13 +53,24 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
             }
             MiraiLinkTextField(
                 value = uiState.feedback,
-                maxLines = 4,
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = { viewModel.updateFeedback(it) },
                 label = "Enter your feedback",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(
+                    onSend = {
+                        if (uiState.feedback.isNotBlank()) {
+                            viewModel.sendFeedback()
+                        }
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(8.dp))
-            MiraiLinkButton(onClick = { viewModel.sendFeedback() }) {
+            MiraiLinkButton(onClick = {
+                if (uiState.feedback.isNotBlank()) {
+                    viewModel.sendFeedback()
+                }
+            }) {
                 MiraiLinkText(
                     text = "Enviar feedback",
                     color = MaterialTheme.colorScheme.onPrimary

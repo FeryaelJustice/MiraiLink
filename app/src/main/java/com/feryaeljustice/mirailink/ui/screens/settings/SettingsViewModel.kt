@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ class SettingsViewModel @Inject constructor(
     val logoutSuccess = _logoutSuccess.asSharedFlow()
 
     fun logout() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (logoutUseCase()) {
                 is MiraiLinkResult.Success<*> -> _logoutSuccess.emit(true)
                 is MiraiLinkResult.Error -> {
