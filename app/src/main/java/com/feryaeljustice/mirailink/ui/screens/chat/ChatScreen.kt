@@ -35,6 +35,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
+import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
@@ -119,7 +120,14 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                     }
                 )
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+
+            EmojiPickerButton { emoji ->
+                input.value += emoji // Añade el emoji al final del mensaje
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
             MiraiLinkIconButton(onClick = {
                 if (input.value.isNotBlank()) {
                     viewModel.sendMessage(input.value)

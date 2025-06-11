@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -139,4 +139,7 @@ dependencies {
     // Socket IO
     implementation(libs.io.socket.client)
     implementation(libs.io.socket.engine.client)
+
+    // Emoji Picker
+    implementation(libs.compose.emoji.picker)
 }

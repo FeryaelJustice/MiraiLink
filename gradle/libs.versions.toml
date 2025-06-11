@@ -1,13 +1,14 @@
 [versions]
 agp = "8.10.1"
 activityCompose = "1.10.1"
-appcompat = "1.7.0"
-composeBom = "2025.05.01"
+appcompat = "1.7.1"
+composeBom = "2025.06.00"
+composeEmojiPicker = "1.0.0-alpha16"
 coreKtx = "1.16.0"
 coil = "2.7.0"
 datastorePreferences = "1.1.7"
 espressoCore = "3.6.1"
-foundationCompose = "1.9.0-alpha03"
+foundationCompose = "1.9.0-alpha04"
 hilt = "2.56.2"
 hiltNavigation = "1.2.0"
 junit = "4.13.2"
@@ -15,7 +16,7 @@ junitVersion = "1.2.1"
 kotlin = "2.1.21"
 kotlinx-serialization = "1.8.1"
 ksp = "2.1.21-2.0.1"
-lifecycleRuntimeKtx = "2.9.0"
+lifecycleRuntimeKtx = "2.9.1"
 navigationCompose = "2.9.0"
 okhttp = "4.12.0"
 retrofit = "3.0.0"
@@ -81,6 +82,9 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 # Socket IO
 io-socket-client = { module = "io.socket:socket.io-client", version.ref = "socketVersion" }
 io-socket-engine-client = { module = "io.socket:engine.io-client", version.ref = "socketEngineVersion" }
+
+# Emoji Picker
+compose-emoji-picker = { group = "com.github.Abhimanyu14", name = "compose-emoji-picker", version.ref = "composeEmojiPicker" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
