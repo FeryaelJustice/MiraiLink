@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.domain.usecase.chat.CreatePrivateChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatMessagesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.MarkChatAsReadUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.SendMessageUseCase
+import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -34,6 +35,7 @@ class ChatViewModel @Inject constructor(
     private val sendMessageUseCase: SendMessageUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val reportUseCase: ReportUseCase,
 ) : ViewModel() {
 
     private val _chatId = MutableStateFlow<String?>(null)
@@ -51,6 +53,14 @@ class ChatViewModel @Inject constructor(
     private val _isReceiverReady = MutableStateFlow(false)
 
     private var pollingJob: Job? = null
+
+    val reportReasons = listOf(
+        "Lenguaje ofensivo",
+        "Spam o contenido no deseado",
+        "Acoso o comportamiento abusivo",
+        "Cuenta falsa",
+        "Otro"
+    )
 
     companion object {
         enum class CHATTYPE {
@@ -161,7 +171,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun startPolling(receiverId: String){
+    private fun startPolling(receiverId: String) {
         viewModelScope.launch {
             _isReceiverReady.collect { ready ->
                 if (ready) {
@@ -236,6 +246,23 @@ class ChatViewModel @Inject constructor(
 
                 is MiraiLinkResult.Error -> {
                     Log.e("ChatViewModel", "sendMessage: ${result.message}")
+                }
+            }
+        }
+    }
+
+    fun reportUser(userId: String, reason: String) {
+        viewModelScope.launch {
+            when (val result = reportUseCase(userId, reason)) {
+                is MiraiLinkResult.Success -> {
+                    Log.d("ChatViewModel", "reportUser successfully")
+                }
+
+                is MiraiLinkResult.Error -> {
+                    Log.e(
+                        "ChatViewModel",
+                        "reportUser: ${result.message} ${result.exception?.message}"
+                    )
                 }
             }
         }

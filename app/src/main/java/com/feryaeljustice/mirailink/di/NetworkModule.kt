@@ -4,6 +4,7 @@ import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
+import com.feryaeljustice.mirailink.data.remote.ReportApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
@@ -19,6 +20,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.create
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -115,4 +117,9 @@ object NetworkModule {
     @Singleton
     fun provideCatalogApiService(retrofit: Retrofit): CatalogApiService =
         retrofit.create(CatalogApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideReportApiService(retrofit: Retrofit): ReportApiService =
+        retrofit.create<ReportApiService>()
 }

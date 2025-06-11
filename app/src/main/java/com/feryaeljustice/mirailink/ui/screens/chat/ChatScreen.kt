@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -26,6 +29,7 @@ import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
@@ -33,12 +37,15 @@ import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewModel, userId: String) {
-    val chatId by viewModel.chatId.collectAsState()
+//    val chatId by viewModel.chatId.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
     val receiver by viewModel.receiver.collectAsState()
     val input = remember { mutableStateOf("") }
     val scrollState = rememberLazyListState()
+
+    var showReportDialog by remember { mutableStateOf(false) }
+    var selectedReportReason by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
@@ -65,7 +72,9 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ChatTopBar(user = receiver, modifier = Modifier)
+        ChatTopBar(user = receiver, modifier = Modifier, onReportClick = {
+            showReportDialog = true
+        })
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -107,6 +116,44 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                     contentDescription = "Enviar"
                 )
             }
+        }
+
+        if (showReportDialog) {
+            AlertDialog(
+                onDismissRequest = { showReportDialog = false },
+                confirmButton = {
+                    MiraiLinkTextButton(
+                        onClick = {
+                            if (selectedReportReason.isNotBlank()) {
+                                viewModel.reportUser(userId, selectedReportReason)
+                                showReportDialog = false
+                            }
+                        }, text = "Reportar",
+                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.secondary
+                    )
+                },
+                dismissButton = {
+                    MiraiLinkTextButton(
+                        onClick = { showReportDialog = false },
+                        text = "Cancelar",
+                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.error
+                    )
+                },
+                title = {
+                    MiraiLinkText(text = "Especifica el motivo")
+                },
+                text = {
+                    Column {
+                        viewModel.reportReasons.forEach { reason ->
+                            MiraiLinkTextButton(
+                                onClick = { selectedReportReason = reason },
+                                text = reason,
+                                onTransparentBackgroundContentColor = if (selectedReportReason == reason) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            )
         }
     }
 }

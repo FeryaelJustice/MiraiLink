@@ -104,7 +104,6 @@ fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit)
             )
         }
 
-
         PagerIndicator(
             pagerState = pagerState,
             modifier = Modifier
