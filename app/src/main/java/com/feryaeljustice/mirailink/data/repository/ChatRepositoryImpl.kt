@@ -7,11 +7,14 @@ import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrl
 import javax.inject.Inject
+import javax.inject.Named
 
 class ChatRepositoryImpl @Inject constructor(
     private val socketService: SocketService,
-    private val remote: ChatRemoteDataSource
+    private val remote: ChatRemoteDataSource,
+    @Named("BaseUrl") private val baseUrl: String,
 ) : ChatRepository {
 
     override fun connectSocket() = socketService.connect()
@@ -22,7 +25,11 @@ class ChatRepositoryImpl @Inject constructor(
         return when (val result = remote.getChatsFromUser()) {
             is MiraiLinkResult.Success -> {
                 val chatSummaries = result.data.map { chatSummary ->
-                    chatSummary.toDomain()
+                    val domain = chatSummary.toDomain()
+                    val updatedDestinatary = domain.destinatary.copy(
+                        avatarUrl = resolvePhotoUrl(baseUrl, domain.destinatary.avatarUrl)
+                    )
+                    domain.copy(destinatary = updatedDestinatary)
                 }
                 MiraiLinkResult.Success(chatSummaries)
             }
@@ -31,7 +38,7 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit>{
+    override suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit> {
         return remote.markChatAsRead(chatId)
     }
 

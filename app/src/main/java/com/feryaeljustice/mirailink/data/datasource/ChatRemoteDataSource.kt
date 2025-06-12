@@ -39,7 +39,7 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
                 val json = JSONObject(errorBody ?: "{}")
 
                 val chatId = json.optString("chatId")
-                val message = json.optString("message", "Error desconocido")
+//                val message = json.optString("message", "Error desconocido")
 
                 if (!chatId.isNullOrBlank()) {
                     // Devuélvelo como Success porque realmente no es un fallo grave
