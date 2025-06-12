@@ -23,7 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
@@ -49,7 +51,7 @@ fun MultiSelectDropdown(
             trailingIcon = {
                 Icon(
                     Icons.Default.ArrowDropDown,
-                    contentDescription = "Expand",
+                    contentDescription = stringResource(R.string.expand),
                     modifier = Modifier.clickable {
                         expanded = true
                     })
@@ -104,7 +106,7 @@ fun MultiSelectDropdown(
                         if (isSelected) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = "Selected"
+                                contentDescription = stringResource(R.string.selected)
                             )
                         }
                     }

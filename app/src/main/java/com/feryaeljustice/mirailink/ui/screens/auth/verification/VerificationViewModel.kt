@@ -2,7 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerified
+import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -10,14 +10,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class VerificationViewModel @Inject constructor(
-    private val checkIsVerified: CheckIsVerified,
-    private val requestCode: RequestVerificationCodeUseCase,
-    private val confirmCode: ConfirmVerificationCodeUseCase,
+    private val checkIsVerifiedUseCase: CheckIsVerifiedUseCase,
+    private val requestCodeUseCase: RequestVerificationCodeUseCase,
+    private val confirmCodeUseCase: ConfirmVerificationCodeUseCase,
 ) : ViewModel() {
 
     data class VerificationState(
@@ -30,11 +32,15 @@ class VerificationViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     fun onTokenChanged(token: String) {
-        _state.value = state.value.copy(token = token, error = null)
+        _state.update { it.copy(token = token, error = null) }
     }
 
-    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        when (val result = checkIsVerified()) {
+    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch {
+        val result = withContext(Dispatchers.IO) {
+            checkIsVerifiedUseCase()
+        }
+
+        when (result) {
             is MiraiLinkResult.Success -> {
                 if (result.data) {
                     resetState()
@@ -42,33 +48,40 @@ class VerificationViewModel @Inject constructor(
                 }
             }
 
-            is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
+            is MiraiLinkResult.Error -> {
+                _state.update { it.copy(error = result.message) }
+            }
         }
     }
 
-    fun requestCode(userId: String) = viewModelScope.launch(Dispatchers.IO) {
-        when (val result = requestCode(userId, "email")) {
-            is MiraiLinkResult.Success -> _state.value = state.value.copy(step = 2)
-            is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
+    fun requestCode(userId: String) = viewModelScope.launch {
+        val result = withContext(Dispatchers.IO) {
+            requestCodeUseCase(userId, "email")
+        }
+
+        when (result) {
+            is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
+            is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
         }
     }
 
-    fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        when (val result = confirmCode(userId, _state.value.token, "email")) {
+
+    fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch {
+        val result = withContext(Dispatchers.IO) {
+            confirmCodeUseCase(userId, _state.value.token, "email")
+        }
+
+        when (result) {
             is MiraiLinkResult.Success -> {
                 resetState()
                 onFinish()
             }
 
-            is MiraiLinkResult.Error -> _state.value = state.value.copy(error = result.message)
+            is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
         }
     }
 
     private fun resetState() {
-        _state.value = VerificationState(
-            step = 1,
-            token = "",
-            error = null
-        )
+        _state.value = VerificationState()
     }
 }

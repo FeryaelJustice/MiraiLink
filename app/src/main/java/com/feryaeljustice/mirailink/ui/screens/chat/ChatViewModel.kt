@@ -18,12 +18,12 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
@@ -47,21 +47,11 @@ class ChatViewModel @Inject constructor(
 
     private val _sender = MutableStateFlow<MinimalUserInfo?>(null)
     val sender: StateFlow<MinimalUserInfo?> = _sender
-    private val _isSenderReady = MutableStateFlow(false)
 
     private val _receiver = MutableStateFlow<MinimalUserInfo?>(null)
     val receiver: StateFlow<MinimalUserInfo?> = _receiver
-    private val _isReceiverReady = MutableStateFlow(false)
 
     private var pollingJob: Job? = null
-
-    val reportReasons = listOf(
-        "Lenguaje ofensivo",
-        "Spam o contenido no deseado",
-        "Acoso o comportamiento abusivo",
-        "Cuenta falsa",
-        "Otro"
-    )
 
     companion object {
         enum class CHATTYPE {
@@ -77,7 +67,7 @@ class ChatViewModel @Inject constructor(
         type: CHATTYPE
     ) {
         // Tanto el init private y group chat, sus usecases devuelven el chatId
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (type) {
                 CHATTYPE.PRIVATE -> {
                     initPrivateChat(receiverId)
@@ -92,102 +82,84 @@ class ChatViewModel @Inject constructor(
 
     private suspend fun initPrivateChat(receiverId: String? = null) {
         if (receiverId == null) return
-        when (val result = createPrivateChatUseCase(receiverId)) {
-            is MiraiLinkResult.Success -> {
-                _chatId.value = result.data
-                proceedWithPrivateChatSetup(result.data, receiverId)
-            }
 
-            is MiraiLinkResult.Error -> {
-                Log.e("ChatViewModel", "initPrivateChat error: ${result.message}")
-            }
+        val result = withContext(Dispatchers.IO) {
+            createPrivateChatUseCase(receiverId)
         }
-    }
 
-    private fun proceedWithPrivateChatSetup(chatId: String, receiverId: String) {
-        markChatAsRead(chatId)
-        setReceiver(receiverId)
-        setSender()
-        startPolling(receiverId)
+        if (result is MiraiLinkResult.Success) {
+            _chatId.value = result.data
+            proceedWithPrivateChatSetup(result.data, receiverId)
+        } else if (result is MiraiLinkResult.Error) {
+            Log.e("ChatViewModel", "initPrivateChat error: ${result.message}")
+        }
     }
 
     private suspend fun initGroupChat(name: String? = null, userIds: List<String>? = null) {
         if (name == null || userIds == null) return
-        when (val result = createGroupChatUseCase(name, userIds)) {
-            is MiraiLinkResult.Success -> {
-                //TODO
-                //setSender()
-                startGroupMessagesPolling("")
-            }
 
-            is MiraiLinkResult.Error -> {
-                Log.e("ChatViewModel", "initGroupChat error: ${result.message}")
+        val result = withContext(Dispatchers.IO) {
+            createGroupChatUseCase(name, userIds)
+        }
+
+        if (result is MiraiLinkResult.Success) {
+            // TODO: Implement group chat setup
+            startGroupMessagesPolling("")
+        } else if (result is MiraiLinkResult.Error) {
+            Log.e("ChatViewModel", "initGroupChat error: ${result.message}")
+        }
+    }
+
+    private fun proceedWithPrivateChatSetup(chatId: String, receiverId: String) {
+        viewModelScope.launch {
+            markChatAsRead(chatId)
+
+            // Esperamos a que ambas funciones terminen antes de avanzar
+            setReceiverSync(receiverId)
+            setSenderSync()
+
+            if (_sender.value != null && _receiver.value != null) {
+                startMessagePolling(receiverId)
             }
         }
     }
 
     fun markChatAsRead(chatId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            markChatAsReadUseCase(chatId)
-        }
-    }
-
-    fun setSender() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getCurrentUserUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    val user = result.data
-                    _sender.value = user.toMinimalUserInfo()
-                    _isSenderReady.value = true
-
-                    Log.d(
-                        "ChatViewModel getCurrentUserUseCase",
-                        "getCurrentUserUseCase successfully"
-                    )
-                }
-
-                is MiraiLinkResult.Error -> {
-                    Log.e(
-                        "ChatViewModel getCurrentUserUseCase",
-                        "getCurrentUserUseCase error: ${result.message}"
-                    )
-                }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                markChatAsReadUseCase(chatId)
             }
         }
     }
 
-    fun setReceiver(receiverId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val res = getUserByIdUseCase(receiverId)) {
-                is MiraiLinkResult.Success -> {
-                    val user = res.data
-                    _receiver.value = user.toMinimalUserInfo()
-                    _isReceiverReady.value = true
-                }
+    suspend fun setSenderSync() {
+        val result = withContext(Dispatchers.IO) {
+            getCurrentUserUseCase()
+        }
 
-                is MiraiLinkResult.Error -> {
-                    Log.e("ChatViewModel", "setReceiver: ${res.message}")
-                }
-            }
+        if (result is MiraiLinkResult.Success) {
+            _sender.value = result.data.toMinimalUserInfo()
+        } else if (result is MiraiLinkResult.Error) {
+            Log.e("ChatViewModel", "getCurrentUserUseCase error: ${result.message}")
         }
     }
 
-    private fun startPolling(receiverId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isReceiverReady.collect { ready ->
-                if (ready) {
-                    startMessagePolling(receiverId)
-                    _isReceiverReady.value = false
-                    _isSenderReady.value = false
-                    cancel()
-                }
-            }
+    suspend fun setReceiverSync(receiverId: String) {
+        val result = withContext(Dispatchers.IO) {
+            getUserByIdUseCase(receiverId)
+        }
+
+        if (result is MiraiLinkResult.Success) {
+            _receiver.value = result.data.toMinimalUserInfo()
+        } else if (result is MiraiLinkResult.Error) {
+            Log.e("ChatViewModel", "setReceiver: ${result.message}")
         }
     }
 
     fun startMessagePolling(userId: String) {
         if (pollingJob?.isActive == true) return
-        pollingJob = viewModelScope.launch(Dispatchers.IO) {
+
+        pollingJob = viewModelScope.launch {
             while (true) {
                 getMessages(userId)
                 delay(3000L) // cada 3 segundos
@@ -206,26 +178,21 @@ class ChatViewModel @Inject constructor(
     }
 
     fun getMessages(userId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getChatMessagesUseCase(userId)) {
-                is MiraiLinkResult.Success -> {
-                    val msgList = result.data
-                    _messages.value = msgList
-                    Log.d("ChatViewModel", "Messages retrieved successfully")
-                }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                getChatMessagesUseCase(userId)
+            }
 
-                is MiraiLinkResult.Error -> {
-                    Log.e(
-                        "ChatViewModel",
-                        "getMessages: ${result.message} ${result.exception?.message}"
-                    )
-                }
+            if (result is MiraiLinkResult.Success) {
+                _messages.value = result.data
+            } else if (result is MiraiLinkResult.Error) {
+                Log.e("ChatViewModel", "getMessages: ${result.message}")
             }
         }
     }
 
     fun sendMessage(content: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val currSender = _sender.value
             val currReceiver = _receiver.value
 
@@ -239,31 +206,28 @@ class ChatViewModel @Inject constructor(
                 timestamp = System.currentTimeMillis()
             )
 
-            when (val result = sendMessageUseCase(newMessage.receiver.id, newMessage.content)) {
-                is MiraiLinkResult.Success -> {
-                    Log.d("ChatViewModel", "Message sent successfully")
-                    _messages.update { it.plus(newMessage) }
-                }
+            val result = withContext(Dispatchers.IO) {
+                sendMessageUseCase(newMessage.receiver.id, newMessage.content)
+            }
 
-                is MiraiLinkResult.Error -> {
-                    Log.e("ChatViewModel", "sendMessage: ${result.message}")
-                }
+            if (result is MiraiLinkResult.Success) {
+                _messages.update { it.plus(newMessage) }
+                Log.d("ChatViewModel", "Message sent successfully")
+            } else if (result is MiraiLinkResult.Error) {
+                Log.e("ChatViewModel", "sendMessage: ${result.message}")
             }
         }
     }
 
     fun reportUser(userId: String, reason: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = reportUseCase(userId, reason)) {
-                is MiraiLinkResult.Success -> {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                reportUseCase(userId, reason)
+            }.also { result ->
+                if (result is MiraiLinkResult.Success) {
                     Log.d("ChatViewModel", "reportUser successfully")
-                }
-
-                is MiraiLinkResult.Error -> {
-                    Log.e(
-                        "ChatViewModel",
-                        "reportUser: ${result.message} ${result.exception?.message}"
-                    )
+                } else if (result is MiraiLinkResult.Error) {
+                    Log.e("ChatViewModel", "reportUser error: ${result.message}")
                 }
             }
         }
@@ -274,8 +238,6 @@ class ChatViewModel @Inject constructor(
         _messages.value = emptyList()
         _sender.value = null
         _receiver.value = null
-        _isSenderReady.value = false
-        _isReceiverReady.value = false
         stopMessagePolling()
     }
 

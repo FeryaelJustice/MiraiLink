@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -57,7 +58,7 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier, onReportCl
                 .crossfade(true)
                 .placeholder(drawableResId = R.drawable.logomirailink)
                 .build(),
-            contentDescription = "Foto del usuario en pantalla de chat",
+            contentDescription = stringResource(R.string.chat_top_bar_user_photo),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(48.dp)
@@ -65,7 +66,7 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier, onReportCl
         )
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
-            text = name?.superCapitalize() ?: "Desconocido",
+            text = name?.superCapitalize() ?: stringResource(R.string.unknown),
             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -77,7 +78,7 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier, onReportCl
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_report),
-                contentDescription = "Reportar usuario",
+                contentDescription = stringResource(R.string.report_user),
                 tint = MaterialTheme.colorScheme.onError
             )
         }

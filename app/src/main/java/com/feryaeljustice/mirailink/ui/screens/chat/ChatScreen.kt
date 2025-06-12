@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
@@ -100,15 +102,19 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                 onValueChange = { input.value = it },
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
-                label = "Escribe un mensaje",
+                label = stringResource(R.string.chat_screen_send_msg),
                 placeholder = {
-                    MiraiLinkText(
-                        text =
-                            "${
-                                sender?.nicknameElseUsername()?.superCapitalize()
-                            }, escribe un mensaje...",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    val txt = sender?.nicknameElseUsername()?.superCapitalize()
+                    txt?.let {
+                        MiraiLinkText(
+                            text =
+                                stringResource(
+                                    R.string.chat_screen_smthg_send_msg,
+                                    it
+                                ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(
@@ -136,7 +142,7 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_send),
-                    contentDescription = "Enviar"
+                    contentDescription = stringResource(R.string.send)
                 )
             }
         }
@@ -151,23 +157,23 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
                                 viewModel.reportUser(userId, selectedReportReason)
                                 showReportDialog = false
                             }
-                        }, text = "Reportar",
+                        }, text = stringResource(R.string.report),
                         onTransparentBackgroundContentColor = MaterialTheme.colorScheme.secondary
                     )
                 },
                 dismissButton = {
                     MiraiLinkTextButton(
                         onClick = { showReportDialog = false },
-                        text = "Cancelar",
+                        text = stringResource(R.string.cancel),
                         onTransparentBackgroundContentColor = MaterialTheme.colorScheme.error
                     )
                 },
                 title = {
-                    MiraiLinkText(text = "Especifica el motivo")
+                    MiraiLinkText(text = stringResource(R.string.specify_reason))
                 },
                 text = {
                     Column {
-                        viewModel.reportReasons.forEach { reason ->
+                        stringArrayResource(R.array.report_reasons).forEach { reason ->
                             MiraiLinkTextButton(
                                 onClick = { selectedReportReason = reason },
                                 text = reason,

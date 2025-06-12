@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -39,7 +40,7 @@ fun MessageListItem(
     ) {
         AsyncImage(
             model = chat.avatarUrl,
-            contentDescription = "User avatar",
+            contentDescription = stringResource(R.string.user_avatar),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(56.dp)
@@ -61,7 +62,7 @@ fun MessageListItem(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         painter = painterResource(id = R.drawable.ic_bolt),
-                        contentDescription = "Boosted",
+                        contentDescription = stringResource(R.string.boosted),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -84,7 +85,7 @@ fun MessageListItem(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
                 modifier = Modifier.padding(end = 8.dp)
-            ) { MiraiLinkText(text = if (chat.readsPending > 99) "99+" else chat.readsPending.toString()) }
+            ) { MiraiLinkText(text = if (chat.readsPending > 99) stringResource(R.string.more_than_ninetynine) else chat.readsPending.toString()) }
         }
     }
 }

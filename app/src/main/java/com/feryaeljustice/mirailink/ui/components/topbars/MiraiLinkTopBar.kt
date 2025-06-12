@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -33,21 +34,29 @@ fun MiraiLinkTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (isAuthenticated && enabled) Modifier.clickable(onClickLabel = "Navigate Home") { if (enabled) onNavigateHome() } else Modifier),
+                .then(
+                    if (isAuthenticated && enabled) Modifier.clickable(
+                        onClickLabel = stringResource(
+                            R.string.navigate_home
+                        )
+                    ) { if (enabled) onNavigateHome() } else Modifier),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.logomirailink),
-                contentDescription = "Mirai Link",
+                contentDescription = stringResource(R.string.app_name),
             )
-            MiraiLinkText(text = title ?: "Mirai Link")
+            MiraiLinkText(text = title ?: stringResource(R.string.app_name))
         }
     }, actions = {
         if (enabled) {
             ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
             if (showSettingsIcon) {
                 MiraiLinkIconButton(onClick = onNavigateToSettings) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.settings)
+                    )
                 }
             }
         }

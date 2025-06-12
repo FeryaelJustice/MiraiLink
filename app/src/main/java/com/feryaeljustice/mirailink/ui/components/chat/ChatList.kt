@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 
@@ -25,13 +27,13 @@ fun ChatList(
         )
     ) {
         MiraiLinkText(
-            text = "Chats",
+            text = stringResource(R.string.chats),
             style = MaterialTheme.typography.titleMedium,
         )
 
         if (chats.isEmpty()) {
             MiraiLinkText(
-                text = "No tienes chats",
+                text = stringResource(R.string.chats_empty),
                 modifier = Modifier.padding(top = 8.dp),
                 style = MaterialTheme.typography.bodySmall,
             )

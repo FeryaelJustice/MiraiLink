@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -43,7 +44,7 @@ fun MatchCard(
         Box {
             AsyncImage(
                 model = user.avatarUrl,
-                contentDescription = "User avatar",
+                contentDescription = stringResource(R.string.user_avatar),
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
@@ -53,7 +54,7 @@ fun MatchCard(
             if (user.isBoosted) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_bolt),
-                    contentDescription = "Boosted",
+                    contentDescription = stringResource(R.string.boosted),
                     modifier = Modifier
                         .size(18.dp)
                         .align(Alignment.TopEnd)

@@ -29,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -52,6 +54,7 @@ fun AuthScreen(
     onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
 
     var isLogin by remember { mutableStateOf(true) }
@@ -108,7 +111,9 @@ fun AuthScreen(
                     passwordError = null
                     confirmPasswordError = null
                 },
-                text = if (isLogin) "Registrarse" else "Iniciar sesión",
+                text = if (isLogin) stringResource(R.string.auth_screen_register) else stringResource(
+                    R.string.auth_screen_login
+                ),
             )
         }
 
@@ -127,7 +132,9 @@ fun AuthScreen(
                 }
             },
             maxLines = 1,
-            label = if (loginByUsername && isLogin) "Usuario" else "Email",
+            label = if (loginByUsername && isLogin) stringResource(R.string.auth_screen_text_field_username) else stringResource(
+                R.string.auth_screen_text_field_email
+            ),
             isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
             supportingText = if (loginByUsername && isLogin) usernameError else emailError,
             trailingIcon = {
@@ -164,7 +171,7 @@ fun AuthScreen(
                     usernameError = null
                 },
                 maxLines = 1,
-                label = "Usuario",
+                label = stringResource(R.string.auth_screen_text_field_username),
                 isError = usernameError != null,
                 supportingText = usernameError,
                 trailingIcon = {
@@ -193,7 +200,7 @@ fun AuthScreen(
                 passwordError = null
             },
             maxLines = 1,
-            label = "Contraseña",
+            label = stringResource(R.string.auth_screen_text_field_password),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val icon =
@@ -228,7 +235,7 @@ fun AuthScreen(
                     confirmPasswordError = null
                 },
                 maxLines = 1,
-                label = "Repetir contraseña",
+                label = stringResource(R.string.auth_screen_text_field_repeat_password),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon =
@@ -266,7 +273,7 @@ fun AuthScreen(
                 onClick = {
                     onRequestPasswordReset(email)
                 },
-                text = "¿Has olvidado tu contraseña?",
+                text = stringResource(R.string.auth_screen_text_btn_forgot_password),
             )
         }
 
@@ -280,21 +287,22 @@ fun AuthScreen(
                 var valid = true
                 if (isLogin) {
                     if (loginByUsername && username.length < 4) {
-                        usernameError = "Debe tener al menos 4 caracteres"
+                        usernameError = context.getString(R.string.must_have_less_than, 4)
                         valid = false
                     }
                     if (!loginByUsername && (email.length < 5 || !email.contains("@"))) {
-                        emailError = "Debe tener al menos 5 caracteres y contener @"
+                        emailError =
+                            context.getString(R.string.must_have_less_than_and_contain, 5, '@')
                         valid = false
                     }
                 } else {
                     if (confirmPassword != password) {
-                        confirmPasswordError = "Las contraseñas no coinciden"
+                        confirmPasswordError = context.getString(R.string.passwords_do_not_match)
                         valid = false
                     }
                 }
                 if (password.length < 4) {
-                    passwordError = "Debe tener al menos 4 caracteres"
+                    passwordError = context.getString(R.string.must_have_less_than, 4)
                     valid = false
                 }
 
@@ -305,7 +313,9 @@ fun AuthScreen(
             },
             content = {
                 MiraiLinkText(
-                    text = if (isLogin) "Iniciar sesión" else "Registrarse",
+                    text = if (isLogin) stringResource(R.string.auth_screen_login) else stringResource(
+                        R.string.auth_screen_register
+                    ),
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -315,7 +325,6 @@ fun AuthScreen(
             is AuthUiState.Success -> {
                 val userId = (state as AuthUiState.Success).userId
                 clearForm()
-                MiraiLinkText(text = "Éxito")
                 if (isLogin) onLogin(userId) else onRegister(userId)
             }
 

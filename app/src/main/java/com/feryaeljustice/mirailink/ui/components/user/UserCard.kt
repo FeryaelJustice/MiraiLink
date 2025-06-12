@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
@@ -109,12 +111,12 @@ fun UserCard(
                 }) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close fullscreen image"
+                    contentDescription = stringResource(id = R.string.content_description_user_card_close_btn)
                 )
             }
             AsyncImage(
                 model = fullscreenImageUrl,
-                contentDescription = "Imagen en pantalla completa",
+                contentDescription = stringResource(id = R.string.content_description_user_card_fullscreen_img),
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .aspectRatio(1f)
@@ -156,7 +158,10 @@ fun UserCard(
                     ),
                     onClick = { onEdit?.invoke(false) },
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "Cerrar modo de edición")
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(id = R.string.content_description_user_card_close_edit_mode)
+                    )
                 }
             }
 
@@ -184,7 +189,7 @@ fun UserCard(
                             .fillMaxWidth(),
                         value = editUiState.nickname,
                         onValueChange = { onValueChange?.invoke(TextFieldType.NICKNAME, it) },
-                        label = "Nickname",
+                        label = stringResource(id = R.string.user_card_nickname),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
                             onNext = {
@@ -202,7 +207,7 @@ fun UserCard(
                             .focusRequester(focusRequester),
                         value = editUiState.bio,
                         onValueChange = { onValueChange?.invoke(TextFieldType.BIO, it) },
-                        label = "Biografía",
+                        label = stringResource(id = R.string.user_card_bio),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     )
 
@@ -210,7 +215,7 @@ fun UserCard(
 
                     // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
                     MultiSelectDropdown(
-                        label = "Animes favoritos",
+                        label = stringResource(id = R.string.user_card_fav_animes),
                         options = editUiState.animeCatalog.map { it.name },
                         selected = editUiState.selectedAnimes.map { it.name },
                         onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) }
@@ -219,7 +224,7 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     MultiSelectDropdown(
-                        label = "Videojuegos favoritos",
+                        label = stringResource(id = R.string.user_card_fav_games),
                         options = editUiState.gameCatalog.map { it.name },
                         selected = editUiState.selectedGames.map { it.name },
                         onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) }
@@ -244,14 +249,17 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         MiraiLinkText(
-                            if (!user.bio.isNullOrBlank()) user.bio else "Aquí para triunfar",
+                            if (!user.bio.isNullOrBlank()) user.bio else stringResource(id = R.string.bio_placeholder),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = FontStyle.Italic,
                         )
 
                         // Secciones: anime y videojuegos
                         Spacer(modifier = Modifier.height(16.dp))
-                        MiraiLinkText(text = "Animes favoritos:", fontWeight = FontWeight.SemiBold)
+                        MiraiLinkText(
+                            text = stringResource(id = R.string.user_card_fav_animes),
+                            fontWeight = FontWeight.SemiBold
+                        )
                         user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
                             TagsSection(
                                 modifier = Modifier
@@ -259,7 +267,7 @@ fun UserCard(
                                     .padding(4.dp),
                                 tags = animes.map { it.name })
                         } ?: MiraiLinkText(
-                            text = "No hay animes favoritos",
+                            text = stringResource(id = R.string.user_card_fav_animes_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
                             fontSize = MaterialTheme.typography.labelSmall.fontSize,
@@ -267,7 +275,7 @@ fun UserCard(
 
                         Spacer(modifier = Modifier.height(16.dp))
                         MiraiLinkText(
-                            text = "Videojuegos favoritos:",
+                            text = stringResource(id = R.string.user_card_fav_games),
                             fontWeight = FontWeight.SemiBold
                         )
                         user.games.takeIf { it.isNotEmpty() }?.let { games ->
@@ -277,7 +285,7 @@ fun UserCard(
                                     .padding(4.dp),
                                 tags = games.map { it.name })
                         } ?: MiraiLinkText(
-                            text = "No hay videojuegos favoritos",
+                            text = stringResource(id = R.string.user_card_fav_games_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = MaterialTheme.typography.labelSmall.fontSize,
                             fontStyle = MaterialTheme.typography.labelSmall.fontStyle
@@ -302,10 +310,13 @@ fun UserCard(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onSave,
                         content = {
-                            Icon(Icons.Default.Edit, contentDescription = "Guardar")
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.save)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             MiraiLinkText(
-                                text = "Guardar cambios",
+                                text = stringResource(id = R.string.save),
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         })
@@ -314,10 +325,10 @@ fun UserCard(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onEdit?.invoke(true) },
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = "Editar")
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                         Spacer(modifier = Modifier.width(8.dp))
                         MiraiLinkText(
-                            text = "Editar perfil",
+                            text = stringResource(id = R.string.edit),
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -332,7 +343,7 @@ fun UserCard(
                     ) {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "Descartar",
+                            contentDescription = stringResource(R.string.discard),
                             tint = Color.White
                         )
                     }
@@ -350,7 +361,7 @@ fun UserCard(
                         ) {
                             Icon(
                                 Icons.Default.Refresh,
-                                contentDescription = "Volver",
+                                contentDescription = stringResource(R.string.comeback),
                                 tint = Color.Black
                             )
                         }
@@ -368,7 +379,7 @@ fun UserCard(
                     ) {
                         Icon(
                             Icons.Default.Favorite,
-                            contentDescription = "Me gusta",
+                            contentDescription = stringResource(R.string.like),
                             tint = Color.White
                         )
                     }

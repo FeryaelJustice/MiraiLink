@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
@@ -77,7 +79,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                 tempCameraUri = uri
                 cameraLauncher.launch(uri)
             } else {
-                Toast.makeText(context, "Se necesita permiso de cámara", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.need_camera_permission), Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -89,7 +94,11 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
         viewModel.editProfUiEvent.collect { event ->
             when (event) {
                 EditProfileUiEvent.ProfileSavedSuccessfully -> {
-                    Toast.makeText(context, "Perfil guardado correctamente", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.profile_screen_profile_saved_correctly),
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
 
@@ -177,14 +186,14 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                         if (editState.showActionDialog && editState.selectedSlotForDialog != null) {
                             AlertDialog(
                                 onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { MiraiLinkText(text = "¿Qué quieres hacer?") },
-                                text = { MiraiLinkText(text = "Selecciona una acción para esta foto") },
+                                title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_title)) },
+                                text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_text)) },
                                 confirmButton = {
                                     MiraiLinkTextButton(
                                         onClick = {
                                             viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
                                         },
-                                        text = "Actualizar"
+                                        text = stringResource(R.string.update)
                                     )
                                 },
                                 dismissButton = {
@@ -197,7 +206,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                                 viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                                             }
                                         },
-                                        text = "Eliminar"
+                                        text = stringResource(R.string.delete)
                                     )
                                 }
                             )
@@ -207,23 +216,23 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                         if (editState.showPhotoSourceDialog && editState.selectedSlotForDialog != null) {
                             AlertDialog(
                                 onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { MiraiLinkText(text = "Seleccionar fuente") },
-                                text = { MiraiLinkText(text = "¿Desde dónde quieres añadir la foto?") },
+                                title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_title)) },
+                                text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_text)) },
                                 confirmButton = {
                                     MiraiLinkTextButton(
                                         onClick = {
                                             // Aquí lanzas launcher de galería
-                                            Log.d("ProfileScreen", "Elegido: Galería")
+                                            Log.d("ProfileScreen", "Chosen: Gallery")
                                             galleryLauncher.launch("image/*")
                                         },
-                                        text = "Galería"
+                                        text = stringResource(R.string.gallery)
                                     )
                                 },
                                 dismissButton = {
                                     MiraiLinkTextButton(
                                         onClick = {
                                             // Aquí lanzas launcher de cámara
-                                            Log.d("ProfileScreen", "Elegido: Cámara")
+                                            Log.d("ProfileScreen", "Chosen: Camera")
                                             if (ContextCompat.checkSelfPermission(
                                                     context,
                                                     Manifest.permission.CAMERA
@@ -237,7 +246,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                                 viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                                             }
                                         },
-                                        text = "Cámara"
+                                        text = stringResource(R.string.camera)
                                     )
                                 }
                             )

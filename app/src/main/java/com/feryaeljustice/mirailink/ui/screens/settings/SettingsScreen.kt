@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
@@ -50,7 +51,7 @@ fun SettingsScreen(
     ) {
         Image(
             painter = painterResource(id = R.drawable.logomirailink),
-            contentDescription = "Imagen del logo en settings",
+            contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),
             modifier = Modifier
                 .size(240.dp)
                 .padding(8.dp)
@@ -58,13 +59,16 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.weight(0.25f))
         MiraiLinkButton(onClick = { goToFeedbackScreen() }, content = {
             MiraiLinkText(
-                text = "Danos tu opinión",
+                text = stringResource(R.string.settings_screen_txt_give_feedback),
                 color = MaterialTheme.colorScheme.onPrimary
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
         MiraiLinkButton(onClick = { viewModel.logout() }, content = {
-            MiraiLinkText(text = "Cerrar sesión", color = MaterialTheme.colorScheme.onPrimary)
+            MiraiLinkText(
+                text = stringResource(R.string.logout),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         })
         Spacer(modifier = Modifier.weight(1.75f))
     }

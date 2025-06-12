@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,9 +23,16 @@ class SettingsViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch(Dispatchers.IO) {
             when (logoutUseCase()) {
-                is MiraiLinkResult.Success<*> -> _logoutSuccess.emit(true)
+                is MiraiLinkResult.Success -> {
+                    withContext(Dispatchers.Main) {
+                        _logoutSuccess.emit(true)
+                    }
+                }
+
                 is MiraiLinkResult.Error -> {
-                    _logoutSuccess.emit(false)
+                    withContext(Dispatchers.Main) {
+                        _logoutSuccess.emit(false)
+                    }
                 }
             }
         }

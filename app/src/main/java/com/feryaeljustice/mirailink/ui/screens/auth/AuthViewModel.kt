@@ -35,46 +35,40 @@ class AuthViewModel @Inject constructor(
 
     fun login(email: String, username: String, password: String) {
         _state.value = AuthUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = loginUseCase(email, username, password)) {
-                is MiraiLinkResult.Success -> {
-                    val userId = extractUserId(result.data)
-                    userId?.let {
-                        sessionManager.saveSession(result.data, it)
-                        withContext(Dispatchers.Main) {
-                            _state.value = AuthUiState.Success(it)
-                        }
-                    }
-                }
-
-                is MiraiLinkResult.Error -> {
-                    withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Error(result.message, result.exception)
-                    }
-                }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                loginUseCase(email, username, password)
             }
+
+            handleAuthResult(result)
         }
     }
 
     fun register(username: String, email: String, password: String) {
         _state.value = AuthUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = registerUseCase(username, email, password)) {
-                is MiraiLinkResult.Success -> {
-                    val userId = extractUserId(result.data)
-                    userId?.let {
-                        sessionManager.saveSession(result.data, it)
-                        withContext(Dispatchers.Main) {
-                            _state.value = AuthUiState.Success(it)
-                        }
-                    }
-                }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                registerUseCase(username, email, password)
+            }
 
-                is MiraiLinkResult.Error -> {
-                    withContext(Dispatchers.Main) {
-                        _state.value = AuthUiState.Error(result.message, result.exception)
-                    }
+            handleAuthResult(result)
+        }
+    }
+
+    private suspend fun handleAuthResult(result: MiraiLinkResult<String>) {
+        when (result) {
+            is MiraiLinkResult.Success -> {
+                val userId = extractUserId(result.data)
+                userId?.let {
+                    sessionManager.saveSession(result.data, it)
+                    _state.value = AuthUiState.Success(it)
+                } ?: run {
+                    _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
                 }
+            }
+
+            is MiraiLinkResult.Error -> {
+                _state.value = AuthUiState.Error(result.message, result.exception)
             }
         }
     }

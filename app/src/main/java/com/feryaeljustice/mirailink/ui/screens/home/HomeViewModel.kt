@@ -37,11 +37,13 @@ class HomeViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     var currentUser: User? = null
+        private set
 
     private val _userQueue = mutableListOf<User>()
     private val swipeHistory = mutableListOf<User>()
-    private var lastUndoTime: Long = 0L
+
     // TODO: Meter guardado en bdd local o en bdd remota para persistencia de calculo undo feature
+    private var lastUndoTime: Long = 0L
 
     init {
         loadCurrentUser()
@@ -49,33 +51,33 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadCurrentUser() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getCurrentUserUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    currentUser = result.data
-                }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                getCurrentUserUseCase()
+            }
 
-                is MiraiLinkResult.Error -> {
-                    // Nothing
-                    Log.e("HomeViewModel", "loadCurrentUser: ${result.message}")
-                }
+            if (result is MiraiLinkResult.Success) {
+                currentUser = result.data
+            } else if (result is MiraiLinkResult.Error) {
+                Log.e("HomeViewModel", "loadCurrentUser: ${result.message}")
             }
         }
     }
 
     fun loadUsers() {
-        _state.value = HomeUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getFeedUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    _userQueue.clear()
-                    _userQueue.addAll(result.data)
-                    updateUiState()
-                }
+        viewModelScope.launch {
+            _state.value = HomeUiState.Loading
 
-                is MiraiLinkResult.Error -> {
-                    _state.value = HomeUiState.Error(result.message, result.exception)
-                }
+            val result = withContext(Dispatchers.IO) {
+                getFeedUseCase()
+            }
+
+            if (result is MiraiLinkResult.Success) {
+                _userQueue.clear()
+                _userQueue.addAll(result.data)
+                updateUiState()
+            } else if (result is MiraiLinkResult.Error) {
+                _state.value = HomeUiState.Error(result.message, result.exception)
             }
         }
     }
@@ -86,6 +88,7 @@ class HomeViewModel @Inject constructor(
 
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 likeUser(current.id)
@@ -98,6 +101,7 @@ class HomeViewModel @Inject constructor(
 
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 dislikeUser(current.id)
@@ -125,6 +129,7 @@ class HomeViewModel @Inject constructor(
 
     fun undoSwipe(): Boolean {
         if (!canUndo()) return false
+
         val userToRestore = swipeHistory.firstOrNull() ?: return false
         swipeHistory.removeAt(0)
         _userQueue.add(0, userToRestore)

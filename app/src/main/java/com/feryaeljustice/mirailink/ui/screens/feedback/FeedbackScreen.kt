@@ -17,8 +17,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
@@ -41,7 +43,7 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
             verticalArrangement = Arrangement.Center
         ) {
             MiraiLinkText(
-                text = "Feedback",
+                text = stringResource(R.string.feedback),
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -55,7 +57,7 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
                 value = uiState.feedback,
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = { viewModel.updateFeedback(it) },
-                label = "Enter your feedback",
+                label = stringResource(R.string.feedback_screen_enter_your_feedback),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(
                     onSend = {
@@ -72,7 +74,7 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
                 }
             }) {
                 MiraiLinkText(
-                    text = "Enviar feedback",
+                    text = stringResource(R.string.feedback_screen_send_feedback),
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             }

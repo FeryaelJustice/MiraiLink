@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">MiraiLink</string>
 
     <!-- Bottom Nav Bar -->
     <string name="nav_home">Inicio</string>
@@ -12,11 +12,11 @@
     <string name="content_description_editable_photo_grid_user_photo">Foto del usuario</string>
     <string name="content_description_editable_photo_grid_add_photo">Añadir foto</string>
     <string name="content_description_photo_carousel_pager_image">Foto %1$d</string>
-    <string name="content_description_settings_screen_img_logo">Imagen del logo en settings</string>
     <string name="content_description_profile_picture_screen_profilepicplaceholder">Foto de perfil placeholder</string>
+    <string name="content_description_settings_screen_img_logo">Imagen del logo en settings</string>
 
     <string name="user_card_nickname">Apodo</string>
-    <string name="user_card_bio">Biography</string>
+    <string name="user_card_bio">Biografía</string>
     <string name="user_card_fav_animes">Animes favoritos</string>
     <string name="user_card_fav_games">Juegos favoritos</string>
     <string name="user_card_fav_animes_empty">No hay animes favoritos</string>

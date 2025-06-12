@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom Nav Bar -->
+    <string name="nav_home">Home</string>
+    <string name="nav_messages">Messages</string>
+    <string name="nav_profile">Profile</string>
+
+    <string name="content_description_user_card_close_btn">Close fullscreen image</string>
+    <string name="content_description_user_card_fullscreen_img">Fullscreen image</string>
+    <string name="content_description_user_card_close_edit_mode">Close edit mode</string>
+    <string name="content_description_editable_photo_grid_user_photo">User photo</string>
+    <string name="content_description_editable_photo_grid_add_photo">Add photo</string>
+    <string name="content_description_photo_carousel_pager_image">Photo %1$d</string>
+    <string name="content_description_profile_picture_screen_profilepicplaceholder">Profile picture placeholder</string>
+    <string name="content_description_settings_screen_img_logo">Logo image in settings</string>
+
+    <string name="user_card_nickname">Nickname</string>
+    <string name="user_card_bio">Biografía</string>
+    <string name="user_card_fav_animes">Favorite animes</string>
+    <string name="user_card_fav_games">Favorite games</string>
+    <string name="user_card_fav_animes_empty">There isn\'t any favorite animes</string>
+    <string name="user_card_fav_games_empty">There isn\'t any favorite games</string>
+    <string name="bio_placeholder">Here to triumph</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="discard">Descartar</string>
+    <string name="comeback">Return</string>
+    <string name="like">Like</string>
+    <string name="chat_top_bar_user_photo">User photo in chat screen</string>
+    <string name="unknown">Desconocido</string>
+    <string name="report_user">Report user</string>
+    <string name="settings">Settings</string>
+    <string name="navigate_home">Navigate home</string>
+    <string name="expand">Expand</string>
+    <string name="selected">Selected</string>
+    <string name="theme_icon">Theme icon</string>
+    <string name="user_avatar">User Avatar</string>
+    <string name="boosted">Boosted</string>
+    <string name="matches">Matches</string>
+    <string name="matches_empty">You don\'t have matches</string>
+    <string name="chats">Chats</string>
+    <string name="chats_empty">You don\'t have chats</string>
+    <string name="more_than_ninetynine">99+</string>
+    <string name="emoji">Emoji</string>
+    <string name="auth_screen_register">Sign Up</string>
+    <string name="auth_screen_login">Login</string>
+    <string name="auth_screen_text_field_username">Username</string>
+    <string name="auth_screen_text_field_email">Email</string>
+    <string name="auth_screen_text_field_password">Password</string>
+    <string name="auth_screen_text_field_repeat_password">Repeat password</string>
+    <string name="auth_screen_text_btn_forgot_password">Have you forgot your password?</string>
+    <string name="must_have_less_than">You need at least %1$d characters</string>
+    <string name="must_have_less_than_and_contain">You need at least %1$d characters and contain %2$s</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="request_email_verification">Request email verification</string>
+    <string name="send_code">Send code</string>
+    <string name="code">Code</string>
+    <string name="verify">Verify</string>
+    <string name="recover_password_screen_mail">Mail</string>
+    <string name="new_password">New password</string>
+    <string name="confirm">Confirm</string>
+    <string name="chat_screen_send_msg">Send a message</string>
+    <string name="chat_screen_smthg_send_msg">%1$s, send a message...</string>
+    <string name="send">Send</string>
+    <string name="report">Report</string>
+    <string name="cancel">Cancel</string>
+    <string name="specify_reason">Specify the reason</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_screen_send_feedback">Send feedback</string>
+    <string name="feedback_screen_enter_your_feedback">Enter your feedback</string>
+    <string name="users_empty_by_now">No more users by now</string>
+    <string name="profile_picture_screen_select_img">Select image</string>
+    <string name="logout">Logout</string>
+    <string name="profile_picture_screen_upload_error">Error on upload. Try again.</string>
+    <string name="need_camera_permission">Camera permission required.</string>
+    <string name="profile_screen_profile_saved_correctly">Profile saved successfully.</string>
+    <string name="profile_screen_dialog_action_title">What do you want to do?</string>
+    <string name="profile_screen_dialog_action_text">Select an action for this photo</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="profile_screen_dialog_media_origin_title">Select source</string>
+    <string name="profile_screen_dialog_media_origin_text">Where do you want to add the photo from?</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="settings_screen_txt_give_feedback">Give us your opinion</string>
+
+    <string-array name="report_reasons">
+        <item>Offensive language</item>
+        <item>Spam or unwanted content</item>
+        <item>Harassment or abusive behavior</item>
+        <item>Fake account</item>
+        <item>Other</item>
+    </string-array>
+</resources>

@@ -14,7 +14,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -39,11 +41,11 @@ fun VerificationScreen(
     Column(modifier = Modifier.padding(16.dp)) {
         when (uiState.step) {
             1 -> {
-                MiraiLinkText(text = "Solicitar verificación a email")
+                MiraiLinkText(text = stringResource(R.string.request_email_verification))
                 Spacer(modifier = Modifier.height(8.dp))
                 MiraiLinkButton(onClick = { viewModel.requestCode(userId) }) {
                     MiraiLinkText(
-                        text = "Enviar código",
+                        text = stringResource(R.string.send_code),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -53,7 +55,7 @@ fun VerificationScreen(
                 MiraiLinkOutlinedTextField(
                     value = uiState.token,
                     onValueChange = viewModel::onTokenChanged,
-                    label = "Código",
+                    label = stringResource(R.string.code),
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -65,7 +67,7 @@ fun VerificationScreen(
                     )
                 }) {
                     MiraiLinkText(
-                        text = "Verificar",
+                        text = stringResource(R.string.verify),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }

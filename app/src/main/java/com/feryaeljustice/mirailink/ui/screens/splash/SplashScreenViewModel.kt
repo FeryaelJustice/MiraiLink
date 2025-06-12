@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,16 +28,16 @@ class SplashScreenViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _uiState.value = SplashUiState.Loading
-            when (autologinUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    _uiState.value = SplashUiState.NavigateToHome
-                }
 
-                is MiraiLinkResult.Error -> {
-                    _uiState.value = SplashUiState.NavigateToAuth
-                }
+            val result = withContext(Dispatchers.IO) {
+                autologinUseCase()
+            }
+
+            _uiState.value = when (result) {
+                is MiraiLinkResult.Success -> SplashUiState.NavigateToHome
+                is MiraiLinkResult.Error -> SplashUiState.NavigateToAuth
             }
         }
     }

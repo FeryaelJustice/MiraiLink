@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.components.media
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -31,8 +32,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
 
 @Composable
@@ -86,14 +89,14 @@ fun EditablePhotoGrid(
                         if (slot?.url != null) {
                             AsyncImage(
                                 model = slot.url,
-                                contentDescription = "User Photo",
+                                contentDescription = stringResource(R.string.content_description_editable_photo_grid_user_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Face,
-                                contentDescription = "Add photo",
+                                contentDescription = stringResource(R.string.content_description_editable_photo_grid_add_photo),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .size(32.dp)
@@ -127,6 +130,7 @@ fun EditablePhotoGrid(
 }
 
 // Utilidad para detectar clic sin ripple
+@SuppressLint("UnnecessaryComposedModifier")
 @Composable
 fun Modifier.clickableWithNoRipple(onClick: () -> Unit): Modifier = composed {
     this.then(

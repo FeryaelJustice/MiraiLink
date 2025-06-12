@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -80,7 +81,10 @@ fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit)
                     .crossfade(true)
                     .placeholder(drawableResId = R.drawable.logomirailink)
                     .build(),
-                contentDescription = "Foto ${page + 1}",
+                contentDescription = stringResource(
+                    R.string.content_description_photo_carousel_pager_image,
+                    page + 1
+                ),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,15 +24,24 @@ class FeedbackViewModel @Inject constructor(private val sendFeedbackUseCase: Sen
     }
 
     fun sendFeedback() {
-        _uiState.update { it.copy(loading = true, error = null) }
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = sendFeedbackUseCase(_uiState.value.feedback)) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(loading = true, error = null) }
+
+            val result = withContext(Dispatchers.IO) {
+                sendFeedbackUseCase(_uiState.value.feedback)
+            }
+
+            when (result) {
                 is MiraiLinkResult.Success -> {
-                    _uiState.update { it.copy(loading = false, error = null, feedback = "") }
+                    _uiState.update {
+                        it.copy(loading = false, error = null, feedback = "")
+                    }
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _uiState.update { it.copy(loading = false, error = result.message) }
+                    _uiState.update {
+                        it.copy(loading = false, error = result.message)
+                    }
                 }
             }
         }

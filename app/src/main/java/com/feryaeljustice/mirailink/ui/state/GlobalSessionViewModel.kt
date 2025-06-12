@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,55 +58,63 @@ class GlobalSessionViewModel @Inject constructor(
 
     // Métodos para actualizar el estado de la UI
     fun disableBars() {
-        _topBarConfig.value = _topBarConfig.value.copy(
-            disableTopBar = true,
-            disableBottomBar = true
-        )
+        _topBarConfig.update {
+            it.copy(
+                disableTopBar = true,
+                disableBottomBar = true
+            )
+        }
     }
 
     fun enableBars() {
-        _topBarConfig.value = _topBarConfig.value.copy(
-            disableTopBar = false,
-            disableBottomBar = false
-        )
+        _topBarConfig.update {
+            it.copy(
+                disableTopBar = false,
+                disableBottomBar = false
+            )
+        }
     }
 
     fun hideBars() {
-        _topBarConfig.value = _topBarConfig.value.copy(
-            showTopBar = false,
-            showBottomBar = false
-        )
+        _topBarConfig.update {
+            it.copy(
+                showTopBar = false,
+                showBottomBar = false
+            )
+        }
     }
 
     fun showBars() {
-        _topBarConfig.value = _topBarConfig.value.copy(
-            showTopBar = true,
-            showBottomBar = true
-        )
+        _topBarConfig.update {
+            it.copy(
+                showTopBar = true,
+                showBottomBar = true
+            )
+        }
     }
 
     fun showHideTopBar(show: Boolean) {
-        _topBarConfig.value = _topBarConfig.value.copy(showTopBar = show)
+        _topBarConfig.update { it.copy(showTopBar = show) }
     }
 
     fun showHideBottomBar(show: Boolean) {
-        _topBarConfig.value = _topBarConfig.value.copy(showBottomBar = show)
+        _topBarConfig.update { it.copy(showBottomBar = show) }
     }
 
     fun enableDisableTopBar(enable: Boolean) {
-        _topBarConfig.value = _topBarConfig.value.copy(disableTopBar = enable)
+        _topBarConfig.update { it.copy(disableTopBar = enable) }
     }
 
     fun enableDisableBottomBar(enable: Boolean) {
-        _topBarConfig.value = _topBarConfig.value.copy(disableBottomBar = enable)
+        _topBarConfig.update { it.copy(disableBottomBar = enable) }
     }
 
     fun hideTopBarSettingsIcon() {
-        _topBarConfig.value = _topBarConfig.value.copy(showSettingsIcon = false)
+        _topBarConfig.update { it.copy(showSettingsIcon = false) }
     }
 
     fun showTopBarSettingsIcon() {
-        _topBarConfig.value = _topBarConfig.value.copy(showSettingsIcon = true)
+        _topBarConfig.update { it.copy(showSettingsIcon = true) }
     }
 
     private suspend fun setUserId(userId: String?) {

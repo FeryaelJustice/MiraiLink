@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -22,8 +23,7 @@ import javax.inject.Inject
 class MessagesViewModel @Inject constructor(
     private val getMatchesUseCase: GetMatchesUseCase,
     private val chatUseCases: ChatUseCases,
-) :
-    ViewModel() {
+) : ViewModel() {
 
     sealed class MessagesUiState {
         object Idle : MessagesUiState()
@@ -87,15 +87,21 @@ class MessagesViewModel @Inject constructor(
     }
 
     fun loadMatches() {
-        _state.value = MessagesUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getMatchesUseCase()) {
+        viewModelScope.launch {
+            _state.value = MessagesUiState.Loading
+
+            val result = withContext(Dispatchers.IO) {
+                getMatchesUseCase()
+            }
+
+            when (result) {
                 is MiraiLinkResult.Success -> {
                     val matchesResult = result.data.map { user ->
                         val url = user.photos.firstOrNull()?.url
                         val us = user.toMatchUserViewEntity()
                         us.copy(avatarUrl = url.getFormattedUrl())
                     }
+
                     _matches = matchesResult.toMutableList()
                     _state.value =
                         MessagesUiState.Success(matches = matchesResult, openChats = _openChats)
@@ -109,9 +115,14 @@ class MessagesViewModel @Inject constructor(
     }
 
     fun loadChats() {
-        _state.value = MessagesUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = chatUseCases.getChatsFromUser()) {
+        viewModelScope.launch {
+            _state.value = MessagesUiState.Loading
+
+            val result = withContext(Dispatchers.IO) {
+                chatUseCases.getChatsFromUser()
+            }
+
+            when (result) {
                 is MiraiLinkResult.Success -> {
                     val chatsResult = result.data.map { chat ->
                         val avatar = chat.destinatary.avatarUrl
@@ -125,7 +136,6 @@ class MessagesViewModel @Inject constructor(
                             readsPending = chat.unreadCount
                         )
                     }
-
                     _openChats = chatsResult.toMutableList()
                     _state.value =
                         MessagesUiState.Success(matches = _matches, openChats = chatsResult)

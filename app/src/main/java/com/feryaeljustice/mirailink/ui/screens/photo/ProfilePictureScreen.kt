@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
@@ -74,19 +75,22 @@ fun ProfilePictureScreen(
                 )
                 .background(Color.Gray),
             painter = painterResource(id = R.drawable.logomirailink),
-            contentDescription = "Profile picture placeholder",
+            contentDescription = stringResource(R.string.content_description_profile_picture_screen_profilepicplaceholder),
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = { launcher.launch("image/*") }) {
-            MiraiLinkText(text = "Seleccionar imagen", color = MaterialTheme.colorScheme.onPrimary)
+            MiraiLinkText(
+                text = stringResource(R.string.profile_picture_screen_select_img),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         MiraiLinkText(
-            text = "Cerrar Sesión",
+            text = stringResource(R.string.logout),
             modifier = Modifier.clickable(role = Role.Button, onClick = onLogout),
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
             fontSize = MaterialTheme.typography.labelMedium.fontSize,
@@ -96,7 +100,7 @@ fun ProfilePictureScreen(
 
         if (uploadResult is MiraiLinkResult.Error) {
             MiraiLinkText(
-                text = "Error al subir. Inténtalo de nuevo.",
+                text = stringResource(R.string.profile_picture_screen_upload_error),
                 color = MaterialTheme.colorScheme.error
             )
         }

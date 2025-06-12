@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.layout.onVisibilityChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 
@@ -22,7 +24,7 @@ fun MatchesRow(
 ) {
     Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {
         MiraiLinkText(
-            text = "Matches",
+            text = stringResource(R.string.matches),
             modifier = Modifier.padding(bottom = 8.dp),
             style = MaterialTheme.typography.titleMedium,
         )
@@ -30,7 +32,7 @@ fun MatchesRow(
         Row {
             if (matches.isEmpty()) {
                 MiraiLinkText(
-                    text = "No tienes matches",
+                    text = stringResource(R.string.matches_empty),
                     style = MaterialTheme.typography.bodySmall,
                 )
             } else {

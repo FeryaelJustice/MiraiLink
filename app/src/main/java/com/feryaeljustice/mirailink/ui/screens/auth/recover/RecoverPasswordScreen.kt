@@ -12,8 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -44,7 +46,7 @@ fun RecoverPasswordScreen(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
-                    label = "Correo electrónico",
+                    label = stringResource(R.string.recover_password_screen_mail),
                     maxLines = 1,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -53,7 +55,7 @@ fun RecoverPasswordScreen(
                     onClick = viewModel::requestReset,
                 ) {
                     MiraiLinkText(
-                        text = "Enviar código",
+                        text = stringResource(R.string.send_code),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -64,7 +66,7 @@ fun RecoverPasswordScreen(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.token,
                     onValueChange = viewModel::onTokenChanged,
-                    label = "Código de verificación",
+                    label = stringResource(R.string.code),
                     maxLines = 1,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -72,7 +74,7 @@ fun RecoverPasswordScreen(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.newPassword,
                     onValueChange = viewModel::onPasswordChanged,
-                    label = "Nueva contraseña",
+                    label = stringResource(R.string.new_password),
                     maxLines = 1,
                     visualTransformation = PasswordVisualTransformation()
                 )
@@ -82,7 +84,12 @@ fun RecoverPasswordScreen(
                         viewModel.confirmReset(onConfirmed = onConfirmedRecoverPassword)
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) { MiraiLinkText(text = "Confirmar", color = MaterialTheme.colorScheme.onPrimary) }
+                ) {
+                    MiraiLinkText(
+                        text = stringResource(R.string.confirm),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
 

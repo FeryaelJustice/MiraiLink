@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -60,22 +61,21 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun getCurrentUser() {
-        _state.value = ProfileUiState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getCurrentUserUseCase()) {
-                is MiraiLinkResult.Success -> {
-                    _state.value = ProfileUiState.Success(result.data)
-                }
+        viewModelScope.launch {
+            _state.value = ProfileUiState.Loading
+            val result = withContext(Dispatchers.IO) {
+                getCurrentUserUseCase()
+            }
 
-                is MiraiLinkResult.Error -> {
-                    _state.value = ProfileUiState.Error(result.message, result.exception)
-                }
+            _state.value = when (result) {
+                is MiraiLinkResult.Success -> ProfileUiState.Success(result.data)
+                is MiraiLinkResult.Error -> ProfileUiState.Error(result.message, result.exception)
             }
         }
     }
 
     fun setIsInEditMode(isEdit: Boolean) {
-        _editState.value = _editState.value.copy(isEditing = isEdit)
+        _editState.update { it.copy(isEditing = isEdit) }
     }
 
     // Intent es para eventos de la ui al viewmodel, el uiEvent es para lo contrario
@@ -116,10 +116,11 @@ class ProfileViewModel @Inject constructor(
                         "Save: ${state.nickname} ${state.bio} ${state.selectedAnimes} ${state.selectedGames}"
                     )
 
-                    val nickname = state.nickname
-                    val bio = state.bio
-                    val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
-                    val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
+                    viewModelScope.launch {
+                        val nickname = state.nickname
+                        val bio = state.bio
+                        val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
+                        val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
 
 //                    val photosJson = Json.encodeToString(
 //                        state.photos.mapNotNullIndexed { index, slot ->
@@ -127,24 +128,25 @@ class ProfileViewModel @Inject constructor(
 //                        }
 //                    )
 
-                    val photoUris = state.photos.map { slot ->
-                        slot.url?.takeIf {
-                            it.startsWith("content://") || it.startsWith("file://")
-                        }?.toUri()
-                    }
+                        val photoUris = state.photos.map { slot ->
+                            slot.url?.takeIf {
+                                it.startsWith("content://") || it.startsWith("file://")
+                            }?.toUri()
+                        }
 
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val result = updateUserProfileUseCase(
-                            nickname = nickname,
-                            bio = bio,
-                            animesJson = animesJson,
-                            gamesJson = gamesJson,
-                            photoUris = photoUris
-                        )
+                        val result = withContext(Dispatchers.IO) {
+                            updateUserProfileUseCase(
+                                nickname = nickname,
+                                bio = bio,
+                                animesJson = animesJson,
+                                gamesJson = gamesJson,
+                                photoUris = photoUris
+                            )
+                        }
 
                         if (result is MiraiLinkResult.Success) {
-                            _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
                             getCurrentUser()
+                            _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
                             _editState.update { it.copy(isEditing = false) } // aquí cierras modo edición
                         } else if (result is MiraiLinkResult.Error) {
                             _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
@@ -255,13 +257,15 @@ class ProfileViewModel @Inject constructor(
         val state = _editState.value
         if (state.animeCatalog.isNotEmpty() && state.gameCatalog.isNotEmpty()) return
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val animes = getAnimesUseCase().let {
-                if (it is MiraiLinkResult.Success) it.data else emptyList()
+        viewModelScope.launch {
+            val animes = withContext(Dispatchers.IO) {
+                val result = getAnimesUseCase()
+                if (result is MiraiLinkResult.Success) result.data else emptyList()
             }
 
-            val games = getGamesUseCase().let {
-                if (it is MiraiLinkResult.Success) it.data else emptyList()
+            val games = withContext(Dispatchers.IO) {
+                val result = getGamesUseCase()
+                if (result is MiraiLinkResult.Success) result.data else emptyList()
             }
 
             _editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }
