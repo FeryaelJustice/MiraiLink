@@ -27,8 +27,12 @@ class AuthInterceptor @Inject constructor(
         val responseContent = rawBody?.string()
 
         val isVerified = try {
-            val json = JSONObject(responseContent ?: "{}")
-            json.optBoolean("verified", true)
+            if (responseContent?.trim()?.startsWith("{") == true) {
+                val json = JSONObject(responseContent)
+                json.optBoolean("verified", true)
+            } else {
+                true
+            }
         } catch (e: Exception) {
             Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
             true
