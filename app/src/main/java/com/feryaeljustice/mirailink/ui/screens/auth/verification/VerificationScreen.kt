@@ -2,8 +2,10 @@ package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -28,6 +31,7 @@ fun VerificationScreen(
     sessionViewModel: GlobalSessionViewModel,
     userId: String,
     onFinish: () -> Unit,
+    onLogout: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsState()
 
@@ -38,7 +42,13 @@ fun VerificationScreen(
         viewModel.checkUserIsVerified(onFinish)
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         when (uiState.step) {
             1 -> {
                 MiraiLinkText(text = stringResource(R.string.request_email_verification))
@@ -46,6 +56,12 @@ fun VerificationScreen(
                 MiraiLinkButton(onClick = { viewModel.requestCode(userId) }) {
                     MiraiLinkText(
                         text = stringResource(R.string.send_code),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                MiraiLinkButton(onClick = { onLogout() }) {
+                    MiraiLinkText(
+                        text = stringResource(R.string.logout),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }

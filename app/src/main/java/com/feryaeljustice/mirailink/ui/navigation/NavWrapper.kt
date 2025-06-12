@@ -352,6 +352,11 @@ private fun NavGraphBuilder.appGraph(
                         }
                         launchSingleTop = true
                     }
+                },
+                onLogout = {
+                    scope.launch {
+                        sessionViewModel.clearSession()
+                    }
                 }
             )
         }
