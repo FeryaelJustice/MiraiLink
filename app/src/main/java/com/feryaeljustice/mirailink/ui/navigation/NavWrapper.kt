@@ -326,7 +326,10 @@ private fun NavGraphBuilder.appGraph(
             ChatScreen(
                 viewModel = chatViewModel,
                 sessionViewModel = sessionViewModel,
-                userId = chatScreen.userId
+                userId = chatScreen.userId,
+                onBackClick = {
+                    navController.navigateUp()
+                }
             )
         }
 

@@ -88,6 +88,7 @@
     <string name="delete_account">Borrar cuenta</string>
     <string name="delete_account_done">Cuenta eliminada</string>
     <string name="feedback_done">Feedback dado correctamente</string>
+    <string name="back">Atrás</string>
 
     <string-array name="report_reasons">
         <item>Lenguaje ofensivo</item>

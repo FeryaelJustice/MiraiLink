@@ -33,7 +33,12 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
-fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier, onReportClick: () -> Unit) {
+fun ChatTopBar(
+    user: MinimalUserInfo?,
+    modifier: Modifier = Modifier,
+    onReportClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
     val url = user?.profilePhoto?.url.getFormattedUrl()
     val name = user?.nicknameElseUsername()
     Row(
@@ -52,6 +57,18 @@ fun ChatTopBar(user: MinimalUserInfo?, modifier: Modifier = Modifier, onReportCl
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        MiraiLinkIconButton(
+            modifier = Modifier.padding(horizontal = 2.dp),
+            onClick = {
+                onBackClick()
+            },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = stringResource(id = R.string.back),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(url)

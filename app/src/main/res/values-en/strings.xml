@@ -87,6 +87,7 @@
     <string name="delete_account">Delete account</string>
     <string name="delete_account_done">Account deleted</string>
     <string name="feedback_done">Feedback successfully sent</string>
+    <string name="back">Back</string>
 
     <string-array name="report_reasons">
         <item>Offensive language</item>

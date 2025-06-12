@@ -42,7 +42,12 @@ import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
-fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewModel, userId: String) {
+fun ChatScreen(
+    viewModel: ChatViewModel,
+    sessionViewModel: GlobalSessionViewModel,
+    userId: String,
+    onBackClick: () -> Unit
+) {
 //    val chatId by viewModel.chatId.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
@@ -78,9 +83,14 @@ fun ChatScreen(viewModel: ChatViewModel, sessionViewModel: GlobalSessionViewMode
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ChatTopBar(user = receiver, modifier = Modifier, onReportClick = {
-            showReportDialog = true
-        })
+        ChatTopBar(
+            user = receiver,
+            modifier = Modifier,
+            onReportClick = {
+                showReportDialog = true
+            },
+            onBackClick = onBackClick
+        )
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
