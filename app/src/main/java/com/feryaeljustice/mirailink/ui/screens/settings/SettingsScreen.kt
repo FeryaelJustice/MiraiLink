@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,8 +32,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     sessionViewModel: GlobalSessionViewModel,
     goToFeedbackScreen: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    showToast: (String, Int) -> Unit
 ) {
+    val context = LocalContext.current
     val logoutState = rememberUpdatedState(onLogout)
 
     LaunchedEffect(Unit) {
@@ -74,7 +78,11 @@ fun SettingsScreen(
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
-        MiraiLinkButton(onClick = { viewModel.logout() }, content = {
+        MiraiLinkButton(onClick = {
+            viewModel.logout(onFinish = {
+                showToast(context.getString(R.string.logout_done), Toast.LENGTH_SHORT)
+            })
+        }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.logout),
                 color = MaterialTheme.colorScheme.onPrimary
@@ -82,7 +90,11 @@ fun SettingsScreen(
         })
         Spacer(modifier = Modifier.height(16.dp))
         MiraiLinkTextButton(
-            onClick = { viewModel.deleteAccount() },
+            onClick = {
+                viewModel.deleteAccount(onFinish = {
+                    showToast(context.getString(R.string.delete_account_done), Toast.LENGTH_SHORT)
+                })
+            },
             text = stringResource(R.string.delete_account),
             isTransparentBackground = false,
             containerColor = MaterialTheme.colorScheme.error,

@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.feedback
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -24,10 +26,10 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
-fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSessionViewModel) {
+fun FeedbackScreen(viewModel: FeedbackViewModel, showToast: (String, Int) -> Unit) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     if (uiState.loading) {
@@ -62,7 +64,9 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
                 keyboardActions = KeyboardActions(
                     onSend = {
                         if (uiState.feedback.isNotBlank()) {
-                            viewModel.sendFeedback()
+                            viewModel.sendFeedback(onFinish = {
+                                showToast(context.getString(R.string.feedback), Toast.LENGTH_SHORT)
+                            })
                         }
                     }
                 )
@@ -70,7 +74,9 @@ fun FeedbackScreen(viewModel: FeedbackViewModel, sessionViewModel: GlobalSession
             Spacer(modifier = Modifier.height(8.dp))
             MiraiLinkButton(onClick = {
                 if (uiState.feedback.isNotBlank()) {
-                    viewModel.sendFeedback()
+                    viewModel.sendFeedback(onFinish = {
+                        showToast(context.getString(R.string.feedback_done), Toast.LENGTH_SHORT)
+                    })
                 }
             }) {
                 MiraiLinkText(

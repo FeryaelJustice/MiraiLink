@@ -26,12 +26,13 @@ class SettingsViewModel @Inject constructor(
     private val _deleteSuccess = MutableSharedFlow<Boolean>()
     val deleteSuccess = _deleteSuccess.asSharedFlow()
 
-    fun logout() {
+    fun logout(onFinish: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             when (logoutUseCase()) {
                 is MiraiLinkResult.Success -> {
                     withContext(Dispatchers.Main) {
                         _logoutSuccess.emit(true)
+                        onFinish()
                     }
                 }
 
@@ -44,12 +45,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun deleteAccount() {
+    fun deleteAccount(onFinish: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             when (deleteAccountUseCase()) {
                 is MiraiLinkResult.Success -> {
                     withContext(Dispatchers.Main) {
                         _deleteSuccess.emit(true)
+                        onFinish()
                     }
                 }
 

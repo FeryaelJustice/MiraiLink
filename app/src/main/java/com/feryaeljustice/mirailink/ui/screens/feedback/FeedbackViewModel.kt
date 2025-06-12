@@ -23,7 +23,7 @@ class FeedbackViewModel @Inject constructor(private val sendFeedbackUseCase: Sen
         _uiState.update { it.copy(feedback = feedback) }
     }
 
-    fun sendFeedback() {
+    fun sendFeedback(onFinish: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true, error = null) }
 
@@ -36,6 +36,7 @@ class FeedbackViewModel @Inject constructor(private val sendFeedbackUseCase: Sen
                     _uiState.update {
                         it.copy(loading = false, error = null, feedback = "")
                     }
+                    onFinish()
                 }
 
                 is MiraiLinkResult.Error -> {

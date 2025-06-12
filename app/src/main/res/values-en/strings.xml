@@ -71,6 +71,7 @@
     <string name="users_empty_by_now">No more users by now</string>
     <string name="profile_picture_screen_select_img">Select image</string>
     <string name="logout">Logout</string>
+    <string name="logout_done">Session closed</string>
     <string name="profile_picture_screen_upload_error">Error on upload. Try again.</string>
     <string name="need_camera_permission">Camera permission required.</string>
     <string name="profile_screen_profile_saved_correctly">Profile saved successfully.</string>
@@ -84,6 +85,8 @@
     <string name="camera">Camera</string>
     <string name="settings_screen_txt_give_feedback">Give us your opinion</string>
     <string name="delete_account">Delete account</string>
+    <string name="delete_account_done">Account deleted</string>
+    <string name="feedback_done">Feedback successfully sent</string>
 
     <string-array name="report_reasons">
         <item>Offensive language</item>

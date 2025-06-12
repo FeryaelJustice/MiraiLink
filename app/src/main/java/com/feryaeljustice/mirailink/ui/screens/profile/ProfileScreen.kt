@@ -37,6 +37,7 @@ import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileU
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,10 +80,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                 tempCameraUri = uri
                 cameraLauncher.launch(uri)
             } else {
-                Toast.makeText(
+                showToast(
                     context,
                     context.getString(R.string.need_camera_permission), Toast.LENGTH_SHORT
-                ).show()
+                )
             }
         }
 
@@ -94,16 +95,15 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
         viewModel.editProfUiEvent.collect { event ->
             when (event) {
                 EditProfileUiEvent.ProfileSavedSuccessfully -> {
-                    Toast.makeText(
+                    showToast(
                         context,
                         context.getString(R.string.profile_screen_profile_saved_correctly),
                         Toast.LENGTH_SHORT
                     )
-                        .show()
                 }
 
                 is EditProfileUiEvent.ShowError -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                    showToast(context, event.message, Toast.LENGTH_LONG)
                 }
             }
         }

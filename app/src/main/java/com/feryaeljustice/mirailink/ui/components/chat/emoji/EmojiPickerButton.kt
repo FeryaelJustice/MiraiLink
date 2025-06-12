@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,11 +58,11 @@ fun EmojiPickerButton(
                         isModalBottomSheetVisible = false
                     },
                     onEmojiLongClick = { emoji ->
-                        Toast.makeText(
+                        showToast(
                             context,
                             emoji.unicodeName.superCapitalize(),
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
                     },
                     searchText = searchText,
                     updateSearchText = { updatedSearchText -> searchText = updatedSearchText },

@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -11,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -45,6 +47,7 @@ import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -53,6 +56,9 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     // Nav
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    // Utils and context
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val currentDestination = navBackStackEntry?.destination
@@ -147,7 +153,9 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         AppNavHost(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            context = context,
             scope = scope,
+            snackbarHostState = snackbarHostState,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -157,7 +165,9 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
 fun AppNavHost(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    context: Context,
     scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -194,7 +204,9 @@ fun AppNavHost(
         authGraph(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            context = context,
             scope = scope,
+            snackbarHostState = snackbarHostState,
             onLogin = {
                 navController.navigate(ScreensSubgraphs.Main) {
                     launchSingleTop = true
@@ -215,7 +227,9 @@ fun AppNavHost(
         appGraph(
             navController = navController,
             sessionViewModel = sessionViewModel,
+            context = context,
             scope = scope,
+            snackbarHostState = snackbarHostState,
         )
     }
 }
@@ -223,7 +237,9 @@ fun AppNavHost(
 private fun NavGraphBuilder.authGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    context: Context,
     scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
 ) {
@@ -263,7 +279,9 @@ private fun NavGraphBuilder.authGraph(
 private fun NavGraphBuilder.appGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
+    context: Context,
     scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.ProfilePictureScreen> {
@@ -347,6 +365,9 @@ private fun NavGraphBuilder.appGraph(
                     scope.launch {
                         sessionViewModel.clearSession()
                     }
+                },
+                showToast = { msg, duration ->
+                    showToast(context = context, message = msg, duration = duration)
                 })
         }
 
@@ -354,7 +375,9 @@ private fun NavGraphBuilder.appGraph(
             val feedbackViewModel: FeedbackViewModel = hiltViewModel()
             FeedbackScreen(
                 viewModel = feedbackViewModel,
-                sessionViewModel = sessionViewModel
+                showToast = { msg, duration ->
+                    showToast(context = context, message = msg, duration = duration)
+                }
             )
         }
     }
