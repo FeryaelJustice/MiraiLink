@@ -29,7 +29,6 @@ class GlobalSessionViewModel @Inject constructor(
     val isAuthenticated: Flow<Boolean> = sessionManager.isAuthenticated
     val isVerified: Flow<Boolean> = sessionManager.isVerifiedFlow
     val onLogout: SharedFlow<Unit> = sessionManager.onLogout
-    val currentLocalUserId: Flow<String?> = sessionManager.userIdFlow
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
     private val _hasProfilePicture = MutableStateFlow<Boolean?>(null)
