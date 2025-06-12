@@ -44,19 +44,16 @@ fun UserSwipeCardStack(
         // Muestra la siguiente card detrás con menos opacidad
         nextUser?.let {
             UserCard(
-                user = it,
                 modifier = Modifier
                     .padding(2.dp)
                     .alpha(0.5f),
+                user = it,
                 onSave = {}
             )
         }
 
         // Card interactiva al frente
         UserCard(
-            user = topUser,
-            canUndo = canUndo,
-            onSave = {},
             modifier = Modifier
                 .padding(2.dp)
                 .graphicsLayer(
@@ -104,6 +101,9 @@ fun UserSwipeCardStack(
                         }
                     )
                 },
+            user = topUser,
+            canUndo = canUndo,
+            onSave = {},
             isPreviewMode = false,
             onLike = { onSwipeRight() },
             onGoBackToLast = { onGoBack() },

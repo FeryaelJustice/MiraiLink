@@ -380,6 +380,9 @@ private fun NavGraphBuilder.appGraph(
                 viewModel = feedbackViewModel,
                 showToast = { msg, duration ->
                     showToast(context = context, message = msg, duration = duration)
+                },
+                onBackClick = {
+                    navController.navigateUp()
                 }
             )
         }

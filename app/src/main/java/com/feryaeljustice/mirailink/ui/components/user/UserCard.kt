@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +41,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -93,12 +93,13 @@ fun UserCard(
 
     if (fullscreenImageUrl != null) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
                 .clickable { setFullscreenImageUrl(null) } // Dismiss al hacer clic fuera
                 .padding(8.dp)
-                .zIndex(99f),
+                .zIndex(99f)
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.Center
         ) {
             MiraiLinkIconButton(
@@ -111,15 +112,17 @@ fun UserCard(
                 }) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(id = R.string.content_description_user_card_close_btn)
+                    contentDescription = stringResource(id = R.string.content_description_user_card_close_btn),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
             AsyncImage(
                 model = fullscreenImageUrl,
                 contentDescription = stringResource(id = R.string.content_description_user_card_fullscreen_img),
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .aspectRatio(1f)
+                    .fillMaxSize(0.9f)
+                    .padding(all = 8.dp)
                     .clickable(enabled = false) {} // Evita que el clic cierre si se hace en la imagen
             )
         }
