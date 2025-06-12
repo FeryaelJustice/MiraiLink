@@ -4,4 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BasicResponse(@SerialName("message") val message: String)
+data class BasicResponse(
+    @SerialName("message") val message: String,
+    @SerialName("verified") val isVerified: Boolean = true
+)

@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,15 +43,16 @@ class GlobalSessionViewModel @Inject constructor(
     suspend fun clearSession() = sessionManager.clearSession()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val curUserId = currentLocalUserId.firstOrNull()
-            setUserId(curUserId)
-
-            if (!curUserId.isNullOrBlank()) {
+        viewModelScope.launch {
+            sessionManager.userIdFlow.collectLatest { curUserId ->
                 setUserId(curUserId)
-                startObservingHasProfilePicture(curUserId)
-            } else {
-                stopObservingHasProfilePicture()
+
+                if (!curUserId.isNullOrBlank()) {
+                    setUserId(curUserId)
+                    startObservingHasProfilePicture(curUserId)
+                } else {
+                    stopObservingHasProfilePicture()
+                }
             }
         }
     }

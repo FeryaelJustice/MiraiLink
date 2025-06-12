@@ -46,19 +46,13 @@ class SessionManager @Inject constructor(
         context.dataStore.edit {
             it[KEY_TOKEN] = token
             it[KEY_USER_ID] = userId
-            it[KEY_VERIFIED] = true // Asumimos que recién logueado, verificado
+            it[KEY_VERIFIED] = true // Asumimos que recién logueado, está verificado
         }
     }
 
     suspend fun saveUserId(userId: String) {
         context.dataStore.edit {
             it[KEY_USER_ID] = userId
-        }
-    }
-
-    suspend fun saveToken(token: String) {
-        context.dataStore.edit {
-            it[KEY_TOKEN] = token
         }
     }
 
@@ -73,7 +67,7 @@ class SessionManager @Inject constructor(
         _onLogout.emit(Unit)
     }
 
-    suspend fun getCurrentUserId(): String? = userIdFlow.first()
+    //    suspend fun getCurrentUserId(): String? = userIdFlow.first()
     suspend fun getCurrentToken(): String? = tokenFlow.first()
-    suspend fun isVerified(): Boolean = isVerifiedFlow.first()
+//    suspend fun isVerified(): Boolean = isVerifiedFlow.first()
 }

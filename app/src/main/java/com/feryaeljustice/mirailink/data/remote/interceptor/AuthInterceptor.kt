@@ -5,6 +5,8 @@ import com.feryaeljustice.mirailink.data.local.SessionManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.json.JSONObject
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
@@ -21,14 +23,24 @@ class AuthInterceptor @Inject constructor(
         }.build()
 
         val response = chain.proceed(request)
+        val rawBody = response.body
+        val responseContent = rawBody?.string()
+
+        val isVerified = try {
+            val json = JSONObject(responseContent ?: "{}")
+            json.optBoolean("verified", true)
+        } catch (e: Exception) {
+            Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
+            true
+        }
+
+        if (!isVerified) {
+            runBlocking {
+                sessionManager.saveIsVerified(false)
+            }
+        }
 
         when (response.code) {
-            403 -> {
-                runBlocking {
-                    sessionManager.saveIsVerified(false)
-                }
-            }
-
             401, 404 -> {
                 // Token inválido o usuario no encontrado → Logout total
                 if (!token.isNullOrBlank()) {
@@ -39,6 +51,10 @@ class AuthInterceptor @Inject constructor(
             }
         }
 
-        return response
+        // Reconstruir el body para que Retrofit/OkHttp puedan leerlo luego al haber accedido
+        val mediaType = rawBody?.contentType()
+        val newBody = responseContent?.toResponseBody(mediaType)
+
+        return response.newBuilder().body(newBody).build()
     }
 }
