@@ -1,11 +1,11 @@
 package com.feryaeljustice.mirailink.data.datasource
 
-import android.util.Log
 import com.feryaeljustice.mirailink.data.model.request.chat.ChatRequest
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
 import org.json.JSONObject
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -15,9 +15,8 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         return try {
             val response = api.getChatsFromUser()
             MiraiLinkResult.Success(response)
-        } catch (e: Exception) {
-            Log.e("ChatRemoteDataSource", "getChatsFromUser error", e)
-            MiraiLinkResult.Error("Error al obtener los chats: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "getChatsFromUser")
         }
     }
 
@@ -25,9 +24,8 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         return try {
             api.markChatAsRead(chatId)
             MiraiLinkResult.Success(Unit)
-        } catch (e: Exception) {
-            Log.e("ChatRemoteDataSource", "markChatAsRead error", e)
-            MiraiLinkResult.Error("Error al marcar el chat como leído: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "markChatAsRead")
         }
     }
 
@@ -48,11 +46,12 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
                     return MiraiLinkResult.Success(chatId)
                 }
 
-                return MiraiLinkResult.Error(message, e)
+                parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "createPrivateChat")
             } catch (parseError: Exception) {
-                return MiraiLinkResult.Error(
-                    "Error al interpretar respuesta de error: ${e.message}",
-                    parseError
+                parseMiraiLinkHttpError(
+                    e,
+                    "ChatRemoteDataSource",
+                    "createPrivateChat catch in catch"
                 )
             }
         }
@@ -77,11 +76,12 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
                     return MiraiLinkResult.Success(chatId)
                 }
 
-                return MiraiLinkResult.Error(message, e)
-            } catch (parseError: Exception) {
-                return MiraiLinkResult.Error(
-                    "Error al interpretar respuesta de error: ${e.message}",
-                    parseError
+                parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "createGroupChat")
+            } catch (err: Throwable) {
+                parseMiraiLinkHttpError(
+                    err,
+                    "ChatRemoteDataSource",
+                    "createGroupChat catch in catch"
                 )
             }
         }
@@ -91,8 +91,8 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         return try {
             api.sendMessage(ChatRequest(toUserId, content))
             MiraiLinkResult.Success(Unit)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("Error enviar mensaje al chat: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "sendMessage")
         }
     }
 
@@ -100,8 +100,8 @@ class ChatRemoteDataSource @Inject constructor(private val api: ChatApiService) 
         return try {
             val response = api.getChatHistory(withUserId)
             MiraiLinkResult.Success(response)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("Error al obtener el historial del chat: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "ChatRemoteDataSource", "getChatHistory")
         }
     }
 }

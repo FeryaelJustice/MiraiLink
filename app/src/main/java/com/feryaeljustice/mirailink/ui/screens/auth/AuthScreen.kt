@@ -73,11 +73,15 @@ fun AuthScreen(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    fun clearForm() {
+    fun resetAuthUiState() {
         username = ""
+        email = ""
         password = ""
         confirmPassword = ""
+        passwordVisible = false
+
         usernameError = null
+        emailError = null
         passwordError = null
         confirmPasswordError = null
     }
@@ -107,9 +111,8 @@ fun AuthScreen(
                     .focusRequester(focusRequester),
                 onClick = {
                     isLogin = !isLogin
-                    usernameError = null
-                    passwordError = null
-                    confirmPasswordError = null
+                    viewModel.resetUiState()
+                    resetAuthUiState()
                 },
                 text = if (isLogin) stringResource(R.string.auth_screen_register) else stringResource(
                     R.string.auth_screen_login
@@ -324,7 +327,7 @@ fun AuthScreen(
         when (state) {
             is AuthUiState.Success -> {
                 val userId = (state as AuthUiState.Success).userId
-                clearForm()
+                resetAuthUiState()
                 if (isLogin) onLogin(userId) else onRegister(userId)
             }
 

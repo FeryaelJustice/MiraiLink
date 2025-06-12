@@ -14,11 +14,11 @@ import com.feryaeljustice.mirailink.data.model.request.verification.Verification
 import com.feryaeljustice.mirailink.data.model.request.verification.VerificationRequest
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
 import javax.inject.Inject
 
 // For only current user operations (auth and authenticated for own user logged)
@@ -31,13 +31,7 @@ class UserRemoteDataSource @Inject constructor(
             val res = api.autologin()
             MiraiLinkResult.success(res.userId)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "autologin - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "autologin", e)
-            }
-            MiraiLinkResult.error("autologin error: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "autologin")
         }
     }
 
@@ -46,13 +40,7 @@ class UserRemoteDataSource @Inject constructor(
             val response = api.login(LoginRequest(email, username, password))
             MiraiLinkResult.success(response.token)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "Login - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "Login", e)
-            }
-            MiraiLinkResult.error("Login error: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "login")
         }
     }
 
@@ -61,13 +49,7 @@ class UserRemoteDataSource @Inject constructor(
             api.logout()
             MiraiLinkResult.success(true)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "Logout - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "Logout", e)
-            }
-            MiraiLinkResult.error("Logout error: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "logout")
         }
     }
 
@@ -80,21 +62,15 @@ class UserRemoteDataSource @Inject constructor(
             val response = api.register(RegisterRequest(username, email, password))
             MiraiLinkResult.success(response.token)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "Login - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "Login", e)
-            }
-            MiraiLinkResult.error("Login error: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "register")
         }
     }
 
     suspend fun requestPasswordReset(email: String): MiraiLinkResult<String> = try {
         val response = api.requestPasswordReset(EmailRequest(email))
         MiraiLinkResult.Success(response.message)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("Error solicitando recuperación de contraseña: ${e.message}", e)
+    } catch (e: Throwable) {
+        parseMiraiLinkHttpError(e, "UserRemoteDataSource", "requestPasswordReset")
     }
 
     suspend fun confirmPasswordReset(
@@ -105,23 +81,23 @@ class UserRemoteDataSource @Inject constructor(
         val response =
             api.confirmPasswordReset(PasswordResetConfirmRequest(email, token, newPassword))
         MiraiLinkResult.Success(response.message)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("Código incorrecto", e)
+    } catch (e: Throwable) {
+        parseMiraiLinkHttpError(e, "UserRemoteDataSource", "confirmPasswordReset")
     }
 
     suspend fun checkIsVerified(): MiraiLinkResult<Boolean> = try {
         val response = api.checkIsVerified()
         MiraiLinkResult.Success(response.isVerified)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("Error verificando si está verificado: ${e.message}", e)
+    } catch (e: Throwable) {
+        parseMiraiLinkHttpError(e, "UserRemoteDataSource", "checkIsVerified")
     }
 
     suspend fun requestVerificationCode(userId: String, type: String): MiraiLinkResult<String> =
         try {
             val response = api.requestVerificationCode(VerificationRequest(userId, type))
             MiraiLinkResult.Success(response.message)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("Error solicitando código de verificación: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "requestVerificationCode")
         }
 
     suspend fun confirmVerificationCode(
@@ -131,8 +107,8 @@ class UserRemoteDataSource @Inject constructor(
     ): MiraiLinkResult<String> = try {
         val response = api.confirmVerificationCode(VerificationConfirmRequest(userId, token, type))
         MiraiLinkResult.Success(response.message)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("Código incorrecto", e)
+    } catch (e: Throwable) {
+        parseMiraiLinkHttpError(e, "UserRemoteDataSource", "confirmVerificationCode")
     }
 
     suspend fun getCurrentUser(): MiraiLinkResult<Pair<UserDto, List<UserPhotoDto>>> {
@@ -141,13 +117,7 @@ class UserRemoteDataSource @Inject constructor(
             val photos = api.getUserPhotos(userId = user.id)
             MiraiLinkResult.success(user to photos)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "getCurrentUser - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "getCurrentUser", e)
-            }
-            MiraiLinkResult.error("No se pudo obtener el usuario actual: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "getCurrentUser")
         }
     }
 
@@ -157,13 +127,7 @@ class UserRemoteDataSource @Inject constructor(
             val photos = api.getUserPhotos(userId = user.id)
             MiraiLinkResult.success(user to photos)
         } catch (e: Throwable) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "getUserById - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "getUserById", e)
-            }
-            MiraiLinkResult.error("No se pudo obtener el usuario by id: ${e.message}", e)
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "getUserById")
         }
     }
 
@@ -209,14 +173,8 @@ class UserRemoteDataSource @Inject constructor(
             )
 
             MiraiLinkResult.Success(Unit)
-        } catch (e: Exception) {
-            if (e is HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Log.e("UserRemoteDataSource", "updateProfile - Error HTTP Body: $errorBody")
-            } else {
-                Log.w("UserRemoteDataSource", "updateProfile", e)
-            }
-            MiraiLinkResult.error("No se pudo actualizar el perfil: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "updateProfile")
         }
     }
 
@@ -224,8 +182,8 @@ class UserRemoteDataSource @Inject constructor(
         return try {
             val userPhotos = api.getUserPhotos(userId)
             MiraiLinkResult.success(userPhotos.any { it.position == 1 })
-        } catch (e: Exception) {
-            MiraiLinkResult.error("hasProfilePicture: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "hasProfilePicture")
         }
     }
 
@@ -245,8 +203,8 @@ class UserRemoteDataSource @Inject constructor(
             val response = api.uploadUserPhoto(multipart, position)
 
             MiraiLinkResult.Success(response.url)
-        } catch (e: Exception) {
-            MiraiLinkResult.error("uploadUserPhoto: ${e.message}", e)
+        } catch (e: Throwable) {
+            parseMiraiLinkHttpError(e, "UserRemoteDataSource", "uploadUserPhoto")
         }
     }
 }
