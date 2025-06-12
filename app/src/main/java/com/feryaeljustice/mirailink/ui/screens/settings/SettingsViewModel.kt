@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,11 +15,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase,
 ) : ViewModel() {
 
     private val _logoutSuccess = MutableSharedFlow<Boolean>()
     val logoutSuccess = _logoutSuccess.asSharedFlow()
+
+
+    private val _deleteSuccess = MutableSharedFlow<Boolean>()
+    val deleteSuccess = _deleteSuccess.asSharedFlow()
 
     fun logout() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -32,6 +38,24 @@ class SettingsViewModel @Inject constructor(
                 is MiraiLinkResult.Error -> {
                     withContext(Dispatchers.Main) {
                         _logoutSuccess.emit(false)
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (deleteAccountUseCase()) {
+                is MiraiLinkResult.Success -> {
+                    withContext(Dispatchers.Main) {
+                        _deleteSuccess.emit(true)
+                    }
+                }
+
+                is MiraiLinkResult.Error -> {
+                    withContext(Dispatchers.Main) {
+                        _deleteSuccess.emit(false)
                     }
                 }
             }

@@ -83,6 +83,7 @@
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
     <string name="settings_screen_txt_give_feedback">Give us your opinion</string>
+    <string name="delete_account">Delete account</string>
 
     <string-array name="report_reasons">
         <item>Offensive language</item>

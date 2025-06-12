@@ -9,6 +9,7 @@ interface UserRepository {
     suspend fun login(email: String, username: String, password: String): MiraiLinkResult<String>
     suspend fun logout(): MiraiLinkResult<Boolean>
     suspend fun register(username: String, email: String, password: String): MiraiLinkResult<String>
+    suspend fun deleteAccount(): MiraiLinkResult<Unit>
     suspend fun checkIsVerified(): MiraiLinkResult<Boolean>
     suspend fun requestPasswordReset(email: String): MiraiLinkResult<String>
     suspend fun confirmPasswordReset(

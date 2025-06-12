@@ -20,6 +20,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -57,6 +58,9 @@ interface UserApiService {
 
     @GET("user")
     suspend fun getCurrentUser(): UserDto
+
+    @DELETE("user")
+    suspend fun deleteAccount(): BasicResponse
 
     @GET("user/photos")
     suspend fun getUserPhotos(@Query("userId") userId: String): List<UserPhotoDto>

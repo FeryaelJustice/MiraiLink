@@ -54,7 +54,9 @@ fun VerificationScreen(
             2 -> {
                 MiraiLinkOutlinedTextField(
                     value = uiState.token,
-                    onValueChange = viewModel::onTokenChanged,
+                    onValueChange = {
+                        viewModel.onTokenChanged(it)
+                    },
                     label = stringResource(R.string.code),
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth()

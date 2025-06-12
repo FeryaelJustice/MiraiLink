@@ -48,7 +48,7 @@ class GlobalSessionViewModel @Inject constructor(
             setUserId(curUserId)
 
             if (!curUserId.isNullOrBlank()) {
-                sessionManager.saveUserId(curUserId)
+                setUserId(curUserId)
                 startObservingHasProfilePicture(curUserId)
             } else {
                 stopObservingHasProfilePicture()

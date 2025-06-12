@@ -66,6 +66,13 @@ class UserRemoteDataSource @Inject constructor(
         }
     }
 
+    suspend fun deleteAccount(): MiraiLinkResult<Unit> = try {
+        api.deleteAccount()
+        MiraiLinkResult.Success(Unit)
+    } catch (e: Throwable) {
+        parseMiraiLinkHttpError(e, "UserRemoteDataSource", "deleteAccount")
+    }
+
     suspend fun requestPasswordReset(email: String): MiraiLinkResult<String> = try {
         val response = api.requestPasswordReset(EmailRequest(email))
         MiraiLinkResult.Success(response.message)

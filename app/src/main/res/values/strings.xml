@@ -84,6 +84,7 @@
     <string name="gallery">Galería</string>
     <string name="camera">Cámara</string>
     <string name="settings_screen_txt_give_feedback">Danos tu opinión</string>
+    <string name="delete_account">Borrar cuenta</string>
 
     <string-array name="report_reasons">
         <item>Lenguaje ofensivo</item>

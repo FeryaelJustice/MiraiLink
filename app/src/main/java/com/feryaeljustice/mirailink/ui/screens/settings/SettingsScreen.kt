@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -37,7 +38,16 @@ fun SettingsScreen(
         sessionViewModel.showBars()
         sessionViewModel.enableBars()
         sessionViewModel.hideTopBarSettingsIcon()
+    }
+
+    LaunchedEffect(Unit) {
         viewModel.logoutSuccess.collect { success ->
+            if (success) logoutState.value()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.deleteSuccess.collect { success ->
             if (success) logoutState.value()
         }
     }
@@ -70,6 +80,14 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onPrimary
             )
         })
+        Spacer(modifier = Modifier.height(16.dp))
+        MiraiLinkTextButton(
+            onClick = { viewModel.deleteAccount() },
+            text = stringResource(R.string.delete_account),
+            isTransparentBackground = false,
+            containerColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.onError
+        )
         Spacer(modifier = Modifier.weight(1.75f))
     }
 }

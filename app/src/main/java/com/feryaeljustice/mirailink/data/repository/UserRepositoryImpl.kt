@@ -37,6 +37,8 @@ class UserRepositoryImpl @Inject constructor(
         return remote.register(username, email, password)
     }
 
+    override suspend fun deleteAccount(): MiraiLinkResult<Unit> = remote.deleteAccount()
+
     override suspend fun requestPasswordReset(email: String) = remote.requestPasswordReset(email)
     override suspend fun confirmPasswordReset(email: String, token: String, newPassword: String) =
         remote.confirmPasswordReset(email, token, newPassword)
