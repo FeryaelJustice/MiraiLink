@@ -1,7 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.profile
 
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
@@ -129,9 +128,11 @@ class ProfileViewModel @Inject constructor(
 //                    )
 
                         val photoUris = state.photos.map { slot ->
-                            slot.url?.takeIf {
-                                it.startsWith("content://") || it.startsWith("file://")
-                            }?.toUri()
+                            if (slot.url?.startsWith("http") == true && slot.uri == null) {
+                                null // no reenviamos porque ya está en el backend y no ha cambiado
+                            } else {
+                                slot.uri
+                            }
                         }
 
                         val result = withContext(Dispatchers.IO) {
@@ -191,14 +192,16 @@ class ProfileViewModel @Inject constructor(
 
                 is EditProfileIntent.RemovePhoto -> {
                     val photos = state.photos.toMutableList()
-                    photos[intent.position] = PhotoSlotViewEntity(url = null)
+                    photos[intent.position] =
+                        PhotoSlotViewEntity(url = null, uri = null, position = intent.position)
                     state.copy(photos = photos)
                 }
 
                 is EditProfileIntent.UpdatePhoto -> {
                     val photos = state.photos.toMutableList()
                     photos[intent.position] = PhotoSlotViewEntity(
-                        url = intent.uri.toString(), // o guarda el URI directamente
+                        uri = intent.uri,
+                        url = intent.uri.toString(),
                         position = intent.position
                     )
                     state.copy(

@@ -149,7 +149,7 @@ class UserRemoteDataSource @Inject constructor(
             val contentResolver = context.contentResolver
 
             // Convertir URIs a MultipartBody.Part?, si existen
-            val photoParts = photoUris.mapIndexed { index, uri ->
+            val photoParts: List<MultipartBody.Part?> = photoUris.mapIndexed { index, uri ->
                 uri?.let {
                     val inputStream = contentResolver.openInputStream(it)
                         ?: return MiraiLinkResult.Error("No se pudo abrir la imagen en slot $index")

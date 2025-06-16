@@ -86,7 +86,16 @@ fun EditablePhotoGrid(
                     ) {
                         val slot = photos.getOrNull(index)
 
-                        if (slot?.url != null) {
+                        if (slot?.uri != null) {
+                            // Si hay imagen nueva desde galería/cámara (local)
+                            AsyncImage(
+                                model = slot.uri,
+                                contentDescription = stringResource(R.string.content_description_editable_photo_grid_user_photo),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else if (slot?.url != null) {
+                            // Imagen existente del backend (remota)
                             AsyncImage(
                                 model = slot.url,
                                 contentDescription = stringResource(R.string.content_description_editable_photo_grid_user_photo),
