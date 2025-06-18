@@ -10,4 +10,4 @@ val URL_REGEX = Regex(
 )
 
 const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
-    "http://192.168.1.132:3000/assets/img/profiles/Goku.jpeg"
+    "https://mirailink.xyz/assets/img/profiles/Goku.jpeg"

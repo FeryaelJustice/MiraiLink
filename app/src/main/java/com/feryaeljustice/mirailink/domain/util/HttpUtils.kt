@@ -11,9 +11,13 @@ fun parseMiraiLinkHttpError(
 ): MiraiLinkResult<Nothing> {
     return if (e is HttpException) {
         val errorBody = e.response()?.errorBody()?.string()
-        val json = JSONObject(errorBody ?: "{}")
-
-        val message = json.optString("message", "Error desconocido")
+        val message = try {
+            val json = JSONObject(errorBody ?: "{}")
+            json.optString("message", "Error desconocido")
+        } catch (ex: Exception) {
+            Log.w(logTag, "No se pudo parsear errorBody como JSON: ${ex.message}")
+            errorBody ?: "Error HTTP"
+        }
 
         Log.e(
             logTag,

@@ -39,7 +39,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("BaseUrl")
-    fun provideBaseUrl(): String = "http://192.168.1.132:3000"
+    fun provideBaseUrl(): String = "https://mirailink.xyz"
 
     @Provides
     @Singleton
