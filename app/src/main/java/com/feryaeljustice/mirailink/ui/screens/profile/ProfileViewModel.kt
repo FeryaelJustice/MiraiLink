@@ -69,7 +69,11 @@ class ProfileViewModel @Inject constructor(
             }
 
             _state.value = when (result) {
-                is MiraiLinkResult.Success -> ProfileUiState.Success(result.data)
+                is MiraiLinkResult.Success -> {
+                    val user = result.data
+                    onIntent(EditProfileIntent.Initialize(user))
+                    ProfileUiState.Success(user)
+                }
                 is MiraiLinkResult.Error -> ProfileUiState.Error(result.message, result.exception)
             }
         }
@@ -91,7 +95,7 @@ class ProfileViewModel @Inject constructor(
                         // Importante aqui este sync con la bdd si empieza las position en 0 o 1
                         // Hacemos -1 porque la posicion empiezan en 1 y no en 0 en bdd,
                         // pero aqui empiezan en 0
-                        if (it.position in 0..3) {
+                        if (it.position in 1..4) {
                             photos[it.position - 1] =
                                 PhotoSlotViewEntity(url = it.url, position = it.position)
                         }
