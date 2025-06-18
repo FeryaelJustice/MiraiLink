@@ -71,7 +71,6 @@ class ProfileViewModel @Inject constructor(
             _state.value = when (result) {
                 is MiraiLinkResult.Success -> {
                     val user = result.data
-                    onIntent(EditProfileIntent.Initialize(user))
                     ProfileUiState.Success(user)
                 }
                 is MiraiLinkResult.Error -> ProfileUiState.Error(result.message, result.exception)
