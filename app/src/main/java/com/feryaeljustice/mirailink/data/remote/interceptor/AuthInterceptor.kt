@@ -38,6 +38,18 @@ class AuthInterceptor @Inject constructor(
             true
         }
 
+        val shouldLogout = try {
+            if (responseContent?.trim()?.startsWith("{") == true) {
+                val json = JSONObject(responseContent)
+                json.optBoolean("shouldLogout", true)
+            } else {
+                true
+            }
+        } catch (e: Exception) {
+            Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
+            true
+        }
+
         if (!isVerified) {
             runBlocking {
                 sessionManager.saveIsVerified(false)
@@ -45,9 +57,8 @@ class AuthInterceptor @Inject constructor(
         }
 
         when (response.code) {
-            401, 404 -> {
-                // Token inválido o usuario no encontrado → Logout total
-                if (!token.isNullOrBlank()) {
+            401, 404, 502 -> {
+                if (shouldLogout && !token.isNullOrBlank()) {
                     runBlocking {
                         sessionManager.clearSession()
                     }

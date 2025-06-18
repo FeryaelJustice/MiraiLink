@@ -10,6 +10,7 @@ import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -33,6 +34,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
+    private val deleteUserPhotoUseCase: DeleteUserPhotoUseCase,
     private val getAnimesUseCase: GetAnimesUseCase,
     private val getGamesUseCase: GetGamesUseCase,
 ) :
@@ -191,10 +193,25 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is EditProfileIntent.RemovePhoto -> {
-                    val photos = state.photos.toMutableList()
-                    photos[intent.position] =
-                        PhotoSlotViewEntity(url = null, uri = null, position = intent.position)
-                    state.copy(photos = photos)
+                    viewModelScope.launch {
+                        val result = withContext(Dispatchers.IO) {
+                            deleteUserPhotoUseCase(intent.position + 1) // posición real
+                        }
+
+                        if (result is MiraiLinkResult.Success) {
+                            // Actualiza el estado UI eliminando la foto
+                            val updatedPhotos = state.photos.toMutableList()
+                            updatedPhotos[intent.position] =
+                                PhotoSlotViewEntity(position = intent.position)
+                            _editState.update { it.copy(photos = updatedPhotos) }
+
+                            getCurrentUser()
+                        } else if (result is MiraiLinkResult.Error) {
+                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
+                        }
+                    }
+
+                    return@update state
                 }
 
                 is EditProfileIntent.UpdatePhoto -> {

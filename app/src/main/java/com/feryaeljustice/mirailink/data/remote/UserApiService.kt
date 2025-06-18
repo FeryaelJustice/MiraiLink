@@ -26,6 +26,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UserApiService {
@@ -61,6 +62,11 @@ interface UserApiService {
 
     @DELETE("user")
     suspend fun deleteAccount(): BasicResponse
+
+    @DELETE("user/photo/{position}")
+    suspend fun deleteUserPhoto(
+        @Path("position") position: Int
+    ): Response<Unit>
 
     @GET("user/photos")
     suspend fun getUserPhotos(@Query("userId") userId: String): List<UserPhotoDto>
