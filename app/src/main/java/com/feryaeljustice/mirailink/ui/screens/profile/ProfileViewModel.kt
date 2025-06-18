@@ -140,13 +140,15 @@ class ProfileViewModel @Inject constructor(
                             }
                         }
 
+                        val existingPhotoUrls = editState.value.photos.map { it.url }
                         val result = withContext(Dispatchers.IO) {
                             updateUserProfileUseCase(
                                 nickname = nickname,
                                 bio = bio,
                                 animesJson = animesJson,
                                 gamesJson = gamesJson,
-                                photoUris = photoUris
+                                photoUris = photoUris,
+                                existingPhotoUrls = existingPhotoUrls
                             )
                         }
 

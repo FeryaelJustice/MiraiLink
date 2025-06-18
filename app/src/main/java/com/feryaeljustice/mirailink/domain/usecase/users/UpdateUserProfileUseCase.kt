@@ -14,7 +14,8 @@ class UpdateUserProfileUseCase @Inject constructor(
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photoUris: List<Uri?>
+        photoUris: List<Uri?>,
+        existingPhotoUrls: List<String?>
     ): MiraiLinkResult<Unit> {
         Log.d(
             "UpdateUserProfileUseCase",
@@ -25,7 +26,8 @@ class UpdateUserProfileUseCase @Inject constructor(
             bio = bio,
             animesJson = animesJson,
             gamesJson = gamesJson,
-            photoUris = photoUris
+            photoUris = photoUris,
+            existingPhotoUrls = existingPhotoUrls
         )
     }
 }

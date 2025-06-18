@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.data.datasource
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.feryaeljustice.mirailink.data.model.ReorderedPhoto
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.feryaeljustice.mirailink.data.model.request.auth.LoginRequest
@@ -15,6 +16,7 @@ import com.feryaeljustice.mirailink.data.model.request.verification.Verification
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -150,7 +152,8 @@ class UserRemoteDataSource @Inject constructor(
         bio: String,
         animesJson: String,
         gamesJson: String,
-        photoUris: List<Uri?>
+        photoUris: List<Uri?>,
+        existingPhotoUrls: List<String?>
     ): MiraiLinkResult<Unit> {
         return try {
             val contentResolver = context.contentResolver
@@ -168,6 +171,13 @@ class UserRemoteDataSource @Inject constructor(
                 }
             }
 
+            val reorderedList = existingPhotoUrls.mapIndexedNotNull { index, url ->
+                url?.let { ReorderedPhoto(it, index + 1) }
+            }
+
+            val reorderedJson = Json.encodeToString(reorderedList)
+            val reorderedRequestBody = reorderedJson.toRequestBody("application/json".toMediaType())
+
             Log.d(
                 "UserRemoteDataSource",
                 "updateProfile - photoParts: $photoParts | nickname: $nickname | bio: $bio | animesJson: $animesJson | gamesJson: $gamesJson"
@@ -179,7 +189,7 @@ class UserRemoteDataSource @Inject constructor(
                 bio = bio.toRequestBody(),
                 animes = animesJson.toRequestBody(),
                 games = gamesJson.toRequestBody(),
-//                photos = photosJson.toRequestBody(),
+                reorderedPositions = reorderedRequestBody,
                 photo_0 = photoParts.getOrNull(0),
                 photo_1 = photoParts.getOrNull(1),
                 photo_2 = photoParts.getOrNull(2),
