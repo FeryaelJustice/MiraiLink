@@ -14,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -122,12 +123,23 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                     title = topBarConfig.title,
                     onThemeChange = onThemeChange,
                     onNavigateHome = {
-                        navController.navigate(AppScreen.HomeScreen) {
-                            restoreState = true
-                        }
+                        val isHomeRoute =
+                            navBackStackEntry?.destination?.hasRoute(AppScreen.HomeScreen::class)
+                        if (isHomeRoute == false)
+                            navController.navigate(AppScreen.HomeScreen) {
+                                popUpTo(AppScreen.HomeScreen) {
+                                    inclusive = true // elimina duplicado si ya existía
+                                }
+                                launchSingleTop = true // evita nueva instancia si ya está en el top
+                                restoreState = true // restaura el scroll/estado si aplica
+                            }
                     },
                     onNavigateToSettings = {
-                        navController.navigate(AppScreen.SettingsScreen)
+                        val isSettingsRoute =
+                            navBackStackEntry?.destination?.hasRoute(AppScreen.SettingsScreen::class)
+                        if (isSettingsRoute == false) {
+                            navController.navigate(AppScreen.SettingsScreen)
+                        }
                     },
                 )
             }
