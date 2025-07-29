@@ -93,6 +93,7 @@
     <string name="delete_account_confirm_title">¿Estás seguro de eliminar la cuenta?</string>
     <string name="delete_account_confirm_text">La cuenta se eliminará, deberás contactar a soporte si quieres recuperarla.</string>
     <string name="logout_account_confirm_title">¿Seguro que quieres cerrar sesión?</string>
+    <string name="privacy_policy">Política de privacidad</string>
 
     <string-array name="report_reasons">
         <item>Lenguaje ofensivo</item>

@@ -12,11 +12,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
+    @param:Named("BaseUrl") val baseUrl: String
 ) : ViewModel() {
 
     private val _logoutSuccess = MutableSharedFlow<Boolean>()

@@ -14,7 +14,7 @@ import javax.inject.Named
 class ChatRepositoryImpl @Inject constructor(
     private val socketService: SocketService,
     private val remote: ChatRemoteDataSource,
-    @Named("BaseUrl") private val baseUrl: String,
+    @param:Named("BaseUrl") private val baseUrl: String,
 ) : ChatRepository {
 
     override fun connectSocket() = socketService.connect()

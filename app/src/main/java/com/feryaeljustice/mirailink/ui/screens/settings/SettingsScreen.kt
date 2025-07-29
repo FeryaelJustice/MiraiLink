@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,10 +43,13 @@ fun SettingsScreen(
     showToast: (String, Int) -> Unit
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val currentOnLogout by rememberUpdatedState(onLogout)
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    val privacyUrl = viewModel.baseUrl + "/privacypolicy"
 
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
@@ -143,5 +148,21 @@ fun SettingsScreen(
             contentColor = MaterialTheme.colorScheme.onError
         )
         Spacer(modifier = Modifier.weight(1.75f))
+
+        Row(
+            modifier = Modifier
+                .padding(bottom = 24.dp)
+                .align(Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MiraiLinkTextButton(
+                text = stringResource(R.string.privacy_policy),
+                onClick = {
+                    uriHandler.openUri(privacyUrl)
+                },
+                isTransparentBackground = true
+            )
+        }
     }
 }
