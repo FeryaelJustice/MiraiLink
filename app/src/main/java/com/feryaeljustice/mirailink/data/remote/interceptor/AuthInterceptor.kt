@@ -24,10 +24,10 @@ class AuthInterceptor @Inject constructor(
 
         val response = chain.proceed(request)
         val rawBody = response.body
-        val responseContent = rawBody?.string()
+        val responseContent = rawBody.string()
 
         val isVerified = try {
-            if (responseContent?.trim()?.startsWith("{") == true) {
+            if (responseContent.trim()?.startsWith("{") == true) {
                 val json = JSONObject(responseContent)
                 json.optBoolean("verified", true)
             } else {
@@ -39,7 +39,7 @@ class AuthInterceptor @Inject constructor(
         }
 
         val shouldLogout = try {
-            if (responseContent?.trim()?.startsWith("{") == true) {
+            if (responseContent.trim().startsWith("{")) {
                 val json = JSONObject(responseContent)
                 json.optBoolean("shouldLogout", true)
             } else {
@@ -67,9 +67,9 @@ class AuthInterceptor @Inject constructor(
         }
 
         // Reconstruir el body para que Retrofit/OkHttp puedan leerlo luego al haber accedido
-        val mediaType = rawBody?.contentType()
+        val mediaType = rawBody.contentType()
         val newBody = responseContent?.toResponseBody(mediaType)
 
-        return response.newBuilder().body(newBody).build()
+        return newBody?.let { response.newBuilder().body(newBody).build() } ?: response
     }
 }

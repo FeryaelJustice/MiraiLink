@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,7 @@ fun SettingsScreen(
     showToast: (String, Int) -> Unit
 ) {
     val context = LocalContext.current
-    val logoutState = rememberUpdatedState(onLogout)
+    val currentOnLogout by rememberUpdatedState(onLogout)
 
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
@@ -46,13 +47,13 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.logoutSuccess.collect { success ->
-            if (success) logoutState.value()
+            if (success) currentOnLogout()
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.deleteSuccess.collect { success ->
-            if (success) logoutState.value()
+            if (success) currentOnLogout()
         }
     }
 

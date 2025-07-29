@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +42,8 @@ fun ProfilePictureScreen(
     onProfileUploaded: () -> Unit,
     onLogout: () -> Unit,
 ) {
+    val currentOnProfileUploaded by rememberUpdatedState(onProfileUploaded)
+
     val userId = sessionViewModel.currentUserId.collectAsState().value
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { viewModel.uploadImage(it) }
@@ -56,7 +59,7 @@ fun ProfilePictureScreen(
         if (uploadResult is MiraiLinkResult.Success && userId != null) {
             viewModel.clearResult()
             sessionViewModel.refreshHasProfilePicture(userId)
-            onProfileUploaded()
+            currentOnProfileUploaded()
         }
     }
 

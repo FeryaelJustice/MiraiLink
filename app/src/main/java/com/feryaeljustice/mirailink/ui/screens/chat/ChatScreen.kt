@@ -98,7 +98,7 @@ fun ChatScreen(
             reverseLayout = true,
             state = scrollState,
         ) {
-            items(messages.reversed()) { msg ->
+            items(messages.reversed(), key = { it.id }) { msg ->
                 MessageItem(message = msg, isOwnMessage = msg.sender.id == sender?.id)
             }
         }
