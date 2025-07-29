@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.settings
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -69,7 +70,7 @@ fun SettingsScreen(
         }
     }
 
-    if (showDeleteDialog) {
+    AnimatedVisibility(showDeleteDialog) {
         MiraiLinkDialog(
             title = stringResource(R.string.delete_account_confirm_title),
             message = stringResource(R.string.delete_account_confirm_text),
@@ -92,7 +93,7 @@ fun SettingsScreen(
         )
     }
 
-    if (showLogoutDialog) {
+    AnimatedVisibility(showLogoutDialog) {
         MiraiLinkDialog(
             title = stringResource(R.string.logout_account_confirm_title),
             onDismiss = { showLogoutDialog = false },

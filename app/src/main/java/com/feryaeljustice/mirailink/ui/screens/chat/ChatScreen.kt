@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.chat
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -157,7 +158,7 @@ fun ChatScreen(
             }
         }
 
-        if (showReportDialog) {
+        AnimatedVisibility(showReportDialog) {
             AlertDialog(
                 onDismissRequest = { showReportDialog = false },
                 confirmButton = {

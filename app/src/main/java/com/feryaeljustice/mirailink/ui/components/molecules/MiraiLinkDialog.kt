@@ -1,8 +1,12 @@
 package com.feryaeljustice.mirailink.ui.components.molecules
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.feryaeljustice.mirailink.R
@@ -24,6 +28,12 @@ fun MiraiLinkDialog(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     buttonTextColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
+    val showConfirmButton by remember {
+        derivedStateOf { showAcceptButton && onAccept != null }
+    }
+    val showDismissButton by remember {
+        derivedStateOf { showCancelButton && onCancel != null }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = containerColor,
@@ -46,8 +56,8 @@ fun MiraiLinkDialog(
             null
         },
         confirmButton = {
-            if (showAcceptButton && onAccept != null) {
-                MiraiLinkButton(onClick = onAccept) {
+            AnimatedVisibility(showConfirmButton) {
+                MiraiLinkButton(onClick = onAccept ?: {}) {
                     MiraiLinkText(
                         text = acceptText,
                         color = buttonTextColor
@@ -56,8 +66,8 @@ fun MiraiLinkDialog(
             }
         },
         dismissButton = {
-            if (showCancelButton && onCancel != null) {
-                MiraiLinkButton(onClick = onCancel) {
+            AnimatedVisibility(showDismissButton) {
+                MiraiLinkButton(onClick = onCancel ?: {}) {
                     MiraiLinkText(
                         text = cancelText,
                         color = buttonTextColor
