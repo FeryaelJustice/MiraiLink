@@ -59,6 +59,11 @@ fun ChatScreen(
     var showReportDialog by remember { mutableStateOf(false) }
     var selectedReportReason by remember { mutableStateOf("") }
 
+    // Optimized ui
+    val reversedMessages = remember(messages) {
+        messages.reversed()
+    }
+
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
         sessionViewModel.enableBars()
@@ -99,7 +104,7 @@ fun ChatScreen(
             reverseLayout = true,
             state = scrollState,
         ) {
-            items(messages.reversed(), key = { it.id }) { msg ->
+            items(reversedMessages, key = { message -> message.id }) { msg ->
                 MessageItem(message = msg, isOwnMessage = msg.sender.id == sender?.id)
             }
         }

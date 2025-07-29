@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,9 @@ fun EditablePhotoGrid(
     onSlotClick: ((Int) -> Unit)?,
     onPhotoReorder: ((Int, Int) -> Unit)?
 ) {
+    val currentSlotClick by rememberUpdatedState(newValue = onSlotClick)
+    val currentPhotoReorder by rememberUpdatedState(newValue = onPhotoReorder)
+
     var draggedIndex by remember { mutableStateOf<Int?>(null) }
     var dragOffset by remember { mutableStateOf(Offset.Zero) }
 
@@ -82,7 +86,7 @@ fun EditablePhotoGrid(
                                     }
                                 )
                             }
-                            .clickableWithNoRipple { onSlotClick?.invoke(index) }
+                            .clickableWithNoRipple { currentSlotClick?.invoke(index) }
                     ) {
                         val slot = photos.getOrNull(index)
 
@@ -131,7 +135,7 @@ fun EditablePhotoGrid(
             val from = draggedIndex ?: return@LaunchedEffect
             val to = getSlotIndexFromOffset(dragOffset, gridSize = 2)
             if (to != null && to != from) {
-                onPhotoReorder?.invoke(from, to)
+                currentPhotoReorder?.invoke(from, to)
                 draggedIndex = to
             }
         }

@@ -21,8 +21,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +42,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit) {
+    val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
 
     val images = photoUrls.ifEmpty { listOf(R.drawable.logomirailink.toString()) }
@@ -101,7 +104,7 @@ fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit)
                     .pointerInput(url) {
                         detectTapGestures(
                             onLongPress = {
-                                onLongPressOnImage(url)
+                                currentLongPressHandler(url)
                             }
                         )
                     }
