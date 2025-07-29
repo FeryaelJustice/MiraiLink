@@ -26,6 +26,8 @@ class GlobalSessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
 ) : ViewModel() {
+    private val _isInitialized = MutableStateFlow(false)
+    val isInitialized: StateFlow<Boolean> = _isInitialized
     val isAuthenticated: Flow<Boolean> = sessionManager.isAuthenticated
     val isVerified: Flow<Boolean> = sessionManager.isVerifiedFlow
     val onLogout: SharedFlow<Unit> = sessionManager.onLogout
@@ -51,6 +53,10 @@ class GlobalSessionViewModel @Inject constructor(
                     startObservingHasProfilePicture(curUserId)
                 } else {
                     stopObservingHasProfilePicture()
+                }
+
+                if (!_isInitialized.value) {
+                    _isInitialized.value = true
                 }
             }
         }

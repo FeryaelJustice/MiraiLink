@@ -67,6 +67,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
 
     // Session states
+    val isInitialized by sessionViewModel.isInitialized.collectAsState()
     val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
     val currentUserId by sessionViewModel.currentUserId.collectAsState()
@@ -77,14 +78,16 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val onLogout = sessionViewModel.onLogout
 
     // 1. Logout detectado desde interceptor
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isInitialized, isAuthenticated) {
         onLogout.collect {
-            navController.navigate(AppScreen.AuthScreen) {
-                popUpTo(0) {
-                    inclusive = true
+            if (isInitialized && !isAuthenticated) {
+                navController.navigate(AppScreen.AuthScreen) {
+                    popUpTo(0) {
+                        inclusive = true
+                    }
+                    // Limpia backstack
+                    launchSingleTop = true
                 }
-                // Limpia backstack
-                launchSingleTop = true
             }
         }
     }
