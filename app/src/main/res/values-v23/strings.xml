@@ -63,6 +63,7 @@
     <string name="chat_screen_smthg_send_msg">%1$s, escribe un mensaje...</string>
     <string name="send">Enviar</string>
     <string name="report">Reportar</string>
+    <string name="accept">Aceptar</string>
     <string name="cancel">Cancelar</string>
     <string name="specify_reason">Especifica el motivo</string>
     <string name="feedback">Feedback</string>
@@ -88,6 +89,9 @@
     <string name="delete_account_done">Cuenta eliminada</string>
     <string name="feedback_done">Feedback dado correctamente</string>
     <string name="back">Atrás</string>
+    <string name="delete_account_confirm_title">¿Estás seguro de eliminar la cuenta?</string>
+    <string name="delete_account_confirm_text">La cuenta se eliminará, deberás contactar a soporte si quieres recuperarla.</string>
+    <string name="logout_account_confirm_title">¿Seguro que quieres cerrar sesión?</string>
 
     <string-array name="report_reasons">
         <item>Lenguaje ofensivo</item>

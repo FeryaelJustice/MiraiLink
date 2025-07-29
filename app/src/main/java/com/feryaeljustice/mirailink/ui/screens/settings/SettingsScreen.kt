@@ -15,7 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +29,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
@@ -38,6 +42,9 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val currentOnLogout by rememberUpdatedState(onLogout)
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
@@ -55,6 +62,48 @@ fun SettingsScreen(
         viewModel.deleteSuccess.collect { success ->
             if (success) currentOnLogout()
         }
+    }
+
+    if (showDeleteDialog) {
+        MiraiLinkDialog(
+            title = stringResource(R.string.delete_account_confirm_title),
+            message = stringResource(R.string.delete_account_confirm_text),
+            onDismiss = { showDeleteDialog = false },
+            onAccept = {
+                showDeleteDialog = false
+                viewModel.deleteAccount {
+                    showToast(
+                        context.getString(R.string.delete_account_done),
+                        Toast.LENGTH_SHORT
+                    )
+                }
+            },
+            onCancel = { showDeleteDialog = false },
+            acceptText = stringResource(R.string.accept),
+            cancelText = stringResource(R.string.cancel),
+            containerColor = MaterialTheme.colorScheme.surface,
+            textColor = MaterialTheme.colorScheme.onSurface,
+            buttonTextColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+
+    if (showLogoutDialog) {
+        MiraiLinkDialog(
+            title = stringResource(R.string.logout_account_confirm_title),
+            onDismiss = { showLogoutDialog = false },
+            onAccept = {
+                showLogoutDialog = false
+                viewModel.logout(onFinish = {
+                    showToast(context.getString(R.string.logout_done), Toast.LENGTH_SHORT)
+                })
+            },
+            onCancel = { showLogoutDialog = false },
+            acceptText = stringResource(R.string.accept),
+            cancelText = stringResource(R.string.cancel),
+            containerColor = MaterialTheme.colorScheme.surface,
+            textColor = MaterialTheme.colorScheme.onSurface,
+            buttonTextColor = MaterialTheme.colorScheme.onPrimary
+        )
     }
 
     Column(
@@ -79,11 +128,7 @@ fun SettingsScreen(
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
-        MiraiLinkButton(onClick = {
-            viewModel.logout(onFinish = {
-                showToast(context.getString(R.string.logout_done), Toast.LENGTH_SHORT)
-            })
-        }, content = {
+        MiraiLinkButton(onClick = { showLogoutDialog = true }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.logout),
                 color = MaterialTheme.colorScheme.onPrimary
@@ -91,11 +136,7 @@ fun SettingsScreen(
         })
         Spacer(modifier = Modifier.height(16.dp))
         MiraiLinkTextButton(
-            onClick = {
-                viewModel.deleteAccount(onFinish = {
-                    showToast(context.getString(R.string.delete_account_done), Toast.LENGTH_SHORT)
-                })
-            },
+            onClick = { showDeleteDialog = true },
             text = stringResource(R.string.delete_account),
             isTransparentBackground = false,
             containerColor = MaterialTheme.colorScheme.error,
