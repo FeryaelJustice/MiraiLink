@@ -8,8 +8,11 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,7 +120,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
 
     PullToRefreshBox(isRefreshing = state is ProfileUiState.Loading, onRefresh = {
         viewModel.getCurrentUser()
-    }, modifier = Modifier.fillMaxSize()) {
+    }, modifier = Modifier
+        .fillMaxSize()
+        .windowInsetsPadding(WindowInsets.displayCutout)
+    ) {
         when (state) {
             is ProfileUiState.Success -> {
                 (state as ProfileUiState.Success).user?.let { user ->

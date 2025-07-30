@@ -4,6 +4,7 @@ import com.feryaeljustice.mirailink.data.repository.CatalogRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ChatRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.FeedbackRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.MatchRepositoryImpl
+import com.feryaeljustice.mirailink.data.repository.OnboardingRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ReportRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
@@ -12,6 +13,7 @@ import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.repository.FeedbackRepository
 import com.feryaeljustice.mirailink.domain.repository.MatchRepository
+import com.feryaeljustice.mirailink.domain.repository.OnboardingRepository
 import com.feryaeljustice.mirailink.domain.repository.ReportRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
@@ -25,6 +27,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindOnboardingRepository(impl: OnboardingRepositoryImpl): OnboardingRepository
+
     @Binds
     @Singleton
     abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository

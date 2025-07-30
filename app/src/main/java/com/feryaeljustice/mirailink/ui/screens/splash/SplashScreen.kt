@@ -9,14 +9,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 
 @Composable
 fun SplashScreen(
     viewModel: SplashScreenViewModel,
     sessionViewModel: GlobalSessionViewModel,
-    onNavigateToAuth: () -> Unit,
-    onNavigateToHome: () -> Unit,
+    onInitialNavigation: (InitialNavigationAction) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -26,12 +26,8 @@ fun SplashScreen(
     }
 
     when (uiState) {
-        SplashScreenViewModel.SplashUiState.NavigateToAuth -> {
-            onNavigateToAuth()
-        }
-
-        SplashScreenViewModel.SplashUiState.NavigateToHome -> {
-            onNavigateToHome()
+        is SplashScreenViewModel.SplashUiState.Navigate -> {
+            onInitialNavigation((uiState as SplashScreenViewModel.SplashUiState.Navigate).action)
         }
 
         is SplashScreenViewModel.SplashUiState.Loading -> {

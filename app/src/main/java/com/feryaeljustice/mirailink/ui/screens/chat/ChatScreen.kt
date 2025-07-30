@@ -4,10 +4,13 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -53,11 +57,11 @@ fun ChatScreen(
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
     val receiver by viewModel.receiver.collectAsState()
-    val input = remember { mutableStateOf("") }
+    val input = rememberSaveable { mutableStateOf("") }
     val scrollState = rememberLazyListState()
 
-    var showReportDialog by remember { mutableStateOf(false) }
-    var selectedReportReason by remember { mutableStateOf("") }
+    var showReportDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedReportReason by rememberSaveable { mutableStateOf("") }
 
     // Optimized ui
     val reversedMessages = remember(messages) {
@@ -88,6 +92,7 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.displayCutout)
     ) {
         ChatTopBar(
             user = receiver,

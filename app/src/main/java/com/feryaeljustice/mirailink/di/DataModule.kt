@@ -9,6 +9,7 @@ import com.feryaeljustice.mirailink.data.datasource.ReportRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
+import com.feryaeljustice.mirailink.data.local.MiraiLinkPrefs
 import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
@@ -35,6 +36,12 @@ object DataModule {
     ): SessionManager = SessionManager(
         context,
     )
+
+    @Provides
+    @Singleton
+    fun provideMiraiLinkPrefs(
+        @ApplicationContext context: Context
+    ): MiraiLinkPrefs = MiraiLinkPrefs(context)
 
     @Provides
     @Singleton

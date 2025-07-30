@@ -1,8 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.home
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +38,10 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
 
     PullToRefreshBox(isRefreshing = state is HomeUiState.Loading, onRefresh = {
         viewModel.loadUsers()
-    }, modifier = Modifier.fillMaxSize()) {
+    }, modifier = Modifier
+        .fillMaxSize()
+        .windowInsetsPadding(WindowInsets.displayCutout)
+    ) {
         when (val currentState = state) {
             is HomeUiState.Success -> {
                 val visibleUsers = currentState.visibleUsers.take(2)
@@ -48,7 +54,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                             users = visibleUsers,
                             canUndo = canUndo,
                             onSwipeLeft = { viewModel.swipeLeft() },
-                            onGoBack = {viewModel.undoSwipe()  },
+                            onGoBack = { viewModel.undoSwipe() },
                             onSwipeRight = { viewModel.swipeRight() },
                         )
                     }

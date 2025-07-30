@@ -12,7 +12,7 @@ import javax.inject.Named
 
 class UserRepositoryImpl @Inject constructor(
     private val remote: UserRemoteDataSource,
-    @Named("BaseUrl") private val baseUrl: String,
+    @param:Named("BaseUrl") private val baseUrl: String,
 ) : UserRepository {
 
     override suspend fun autologin(): MiraiLinkResult<String> = remote.autologin()

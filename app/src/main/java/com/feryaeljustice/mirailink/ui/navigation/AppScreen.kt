@@ -14,6 +14,12 @@ sealed class ScreensSubgraphs {
 @Serializable
 sealed class AppScreen {
     @Serializable
+    object SplashScreen : AppScreen()
+
+    @Serializable
+    object OnboardingScreen : AppScreen()
+
+    @Serializable
     data object AuthScreen : AppScreen()
 
     @Serializable
@@ -42,9 +48,6 @@ sealed class AppScreen {
 
     @Serializable
     object FeedbackScreen : AppScreen()
-
-    @Serializable
-    object SplashScreen : AppScreen()
 }
 
 /*
