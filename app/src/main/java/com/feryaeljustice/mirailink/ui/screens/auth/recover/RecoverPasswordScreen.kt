@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +29,8 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun RecoverPasswordScreen(
@@ -34,6 +39,9 @@ fun RecoverPasswordScreen(
     email: String,
     onConfirmedRecoverPassword: () -> Unit,
 ) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
     LaunchedEffect(Unit) {
         sessionViewModel.showHideTopBar(true)
         sessionViewModel.showHideBottomBar(false)
@@ -49,7 +57,14 @@ fun RecoverPasswordScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .windowInsetsPadding(WindowInsets.displayCutout),
+            .verticalScroll(rememberScrollState())
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

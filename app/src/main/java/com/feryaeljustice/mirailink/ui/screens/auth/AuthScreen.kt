@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +49,8 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun AuthScreen(
@@ -57,6 +60,9 @@ fun AuthScreen(
     onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
 ) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
 
@@ -103,7 +109,13 @@ fun AuthScreen(
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-            .windowInsetsPadding(WindowInsets.displayCutout),
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(

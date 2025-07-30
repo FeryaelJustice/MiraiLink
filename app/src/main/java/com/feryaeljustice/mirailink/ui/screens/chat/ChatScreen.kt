@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +46,8 @@ import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun ChatScreen(
@@ -53,6 +56,9 @@ fun ChatScreen(
     userId: String,
     onBackClick: () -> Unit
 ) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
 //    val chatId by viewModel.chatId.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
@@ -92,7 +98,13 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.displayCutout)
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            )
     ) {
         ChatTopBar(
             user = receiver,

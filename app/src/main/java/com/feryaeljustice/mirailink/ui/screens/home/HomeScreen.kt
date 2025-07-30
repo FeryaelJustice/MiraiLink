@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,10 +24,15 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewModel) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
     val state by viewModel.state.collectAsState()
     val canUndo = viewModel.canUndo()
 
@@ -36,11 +42,18 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
         sessionViewModel.showTopBarSettingsIcon()
     }
 
-    PullToRefreshBox(isRefreshing = state is HomeUiState.Loading, onRefresh = {
-        viewModel.loadUsers()
-    }, modifier = Modifier
-        .fillMaxSize()
-        .windowInsetsPadding(WindowInsets.displayCutout)
+    PullToRefreshBox(
+        isRefreshing = state is HomeUiState.Loading, onRefresh = {
+            viewModel.loadUsers()
+        }, modifier = Modifier
+            .fillMaxSize()
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            )
     ) {
         when (val currentState = state) {
             is HomeUiState.Success -> {

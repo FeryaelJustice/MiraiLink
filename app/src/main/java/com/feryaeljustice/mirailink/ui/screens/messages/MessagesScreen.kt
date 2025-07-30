@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +30,8 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +40,9 @@ fun MessagesScreen(
     sessionViewModel: GlobalSessionViewModel,
     onNavigateToChat: (String) -> Unit
 ) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
     val state by viewModel.state.collectAsState()
     val searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -53,7 +59,13 @@ fun MessagesScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.displayCutout)
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            )
     ) {
         when (val currentState = state) {
             is MessagesViewModel.MessagesUiState.Success -> {

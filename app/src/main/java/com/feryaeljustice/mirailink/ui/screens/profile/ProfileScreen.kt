@@ -17,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,11 +41,16 @@ import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileU
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionViewModel) {
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
     val state by viewModel.state.collectAsState()
     val editState by viewModel.editState.collectAsState()
 
@@ -118,11 +124,18 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
         }
     }
 
-    PullToRefreshBox(isRefreshing = state is ProfileUiState.Loading, onRefresh = {
-        viewModel.getCurrentUser()
-    }, modifier = Modifier
-        .fillMaxSize()
-        .windowInsetsPadding(WindowInsets.displayCutout)
+    PullToRefreshBox(
+        isRefreshing = state is ProfileUiState.Loading, onRefresh = {
+            viewModel.getCurrentUser()
+        }, modifier = Modifier
+            .fillMaxSize()
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                }
+            )
     ) {
         when (state) {
             is ProfileUiState.Success -> {

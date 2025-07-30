@@ -96,6 +96,9 @@ dependencies {
     // Material 3
     implementation(libs.androidx.material3)
 
+    // M3 Adaptive
+    implementation(libs.androidx.material3.adaptive)
+
     // AppCompat
     implementation(libs.androidx.appcompat)
 
