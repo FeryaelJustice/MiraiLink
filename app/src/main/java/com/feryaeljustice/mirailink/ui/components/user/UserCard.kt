@@ -171,10 +171,10 @@ fun UserCard(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .then(
                         if (editUiState != null && editUiState.isEditing) Modifier.padding(16.dp) else Modifier
                     )
+                    .verticalScroll(rememberScrollState())
             ) {
                 if (editUiState != null && editUiState.isEditing) {
                     // Cuadrícula de imágenes

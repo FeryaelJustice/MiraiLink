@@ -128,14 +128,14 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .then(
                 if (deviceConfiguration.requiresDisplayCutoutPadding()) {
                     Modifier.windowInsetsPadding(WindowInsets.displayCutout)
                 } else {
                     Modifier
                 }
-            ),
+            )
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

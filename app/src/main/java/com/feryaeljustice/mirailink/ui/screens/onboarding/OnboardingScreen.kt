@@ -14,13 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkImage
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -40,62 +48,88 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
 
     val pages = listOf(
-        R.drawable.logomirailink,
-        R.drawable.logomirailink,
-        R.drawable.logomirailink
+        R.drawable.onboarding_1,
+        R.drawable.onboarding_2,
+        R.drawable.onboarding_3
     )
     val pageTexts = listOf(
-        "A", "B", "C"
+        R.string.onboarding_1, R.string.onboarding_2, R.string.onboarding_3
     )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(8.dp)
             .then(
                 if (deviceConfiguration.requiresDisplayCutoutPadding()) {
                     Modifier.windowInsetsPadding(WindowInsets.displayCutout)
                 } else {
                     Modifier
                 }
-            )
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logomirailink),
+            contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),
+            modifier = Modifier
+                .weight(0.1f)
+                .padding(8.dp)
+        )
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(0.8f)
+                .verticalScroll(rememberScrollState())
         ) { page ->
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = pages[page]),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
+                MiraiLinkImage(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.6f)
+                        .fillMaxSize(0.4f),
+                    painterId = pages[page],
+                    contentScale = ContentScale.Fit,
+                    hasBorder = true,
                 )
-                MiraiLinkText(text = pageTexts[page])
+                Spacer(modifier = Modifier.height(16.dp))
+                MiraiLinkText(
+                    text = stringResource(id = pageTexts[page]),
+                    textAlign = TextAlign.Justify
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .weight(0.1f)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = if (pagerState.currentPage == 0) Arrangement.End else Arrangement.SpaceBetween
         ) {
             if (pagerState.currentPage > 0) {
                 MiraiLinkTextButton(
-                    text = "Atrás",
+                    text = stringResource(R.string.previous),
                     onClick = {
                         scope.launch {
                             pagerState.animateScrollToPage(pagerState.currentPage - 1)
                         }
-                    }
+                    },
+                    isTransparentBackground = false,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             }
 
             MiraiLinkTextButton(
-                text = if (pagerState.currentPage == pages.lastIndex) "Comenzar" else "Siguiente",
+                text = if (pagerState.currentPage == pages.lastIndex) stringResource(R.string.start) else stringResource(
+                    R.string.next
+                ),
                 onClick = {
                     scope.launch {
                         if (pagerState.currentPage == pages.lastIndex) {
@@ -104,7 +138,10 @@ fun OnboardingScreen(
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
                     }
-                }
+                },
+                isTransparentBackground = false,
+                contentColor = if (pagerState.currentPage == pages.lastIndex) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.tertiary,
+                containerColor = if (pagerState.currentPage == pages.lastIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiaryContainer,
             )
         }
     }

@@ -102,4 +102,10 @@
         <item>Fake account</item>
         <item>Other</item>
     </string-array>
+    <string name="onboarding_1">Discover new friendships and connections. This is the main MiraiLink screen. Here you\'ll see profiles in card format. You can swipe right to like ❤️ or left to dismiss ❌. If you both like each other, you\'ll match and the chat will be unlocked! You can also use the large buttons to easily make your selection. All your matches will then appear in your Messages section.</string>
+    <string name="onboarding_2">This is your profile, how others see you. Go to your profile screen to see how other users see you. You\'ll see your featured photo, your description, and your favorite anime and games. From here, you can easily edit any information by tapping the Edit button. Make your profile reflect who you are to connect with those who share your passions!</string>
+    <string name="onboarding_3">Chat in real time with your matches. When you match with someone, private chat is enabled. Here you can talk in real time, send messages, emojis, and get to know each other better. Tap the message icon in the bottom bar to see all your chats and return to chatting with your matches whenever you want.</string>
+    <string name="start">Start</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
 </resources>

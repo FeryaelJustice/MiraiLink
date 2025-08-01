@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
@@ -18,6 +19,7 @@ fun MiraiLinkText(
     fontStyle: FontStyle? = FontStyle.Normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,
+    textAlign: TextAlign = TextAlign.Unspecified,
     color: Color = MaterialTheme.colorScheme.primary,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
     maxLines: Int = Int.MAX_VALUE,
@@ -29,6 +31,7 @@ fun MiraiLinkText(
         fontStyle = fontStyle,
         fontSize = fontSize,
         fontWeight = fontWeight,
+        textAlign = textAlign,
         color = color,
         maxLines = maxLines,
         overflow = overflow,
