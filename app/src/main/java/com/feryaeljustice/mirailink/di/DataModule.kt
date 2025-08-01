@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.data.datasource.FeedbackRemoteDatasource
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.ReportRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
+import com.feryaeljustice.mirailink.data.datasource.TwoFactorRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
 import com.feryaeljustice.mirailink.data.local.MiraiLinkPrefs
@@ -17,6 +18,7 @@ import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
+import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
 import dagger.Module
@@ -55,6 +57,11 @@ object DataModule {
     @Singleton
     fun provideUsersRemoteDataSource(usersApi: UsersApiService): UsersRemoteDataSource =
         UsersRemoteDataSource(usersApi)
+
+    @Provides
+    @Singleton
+    fun provideTwoFactorRemoteDataSource(twoFactorApiService: TwoFactorApiService): TwoFactorRemoteDataSource =
+        TwoFactorRemoteDataSource(twoFactorApiService)
 
     @Provides
     @Singleton

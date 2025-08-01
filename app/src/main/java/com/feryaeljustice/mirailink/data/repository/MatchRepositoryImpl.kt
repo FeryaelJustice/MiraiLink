@@ -11,7 +11,7 @@ import javax.inject.Named
 
 class MatchRepositoryImpl @Inject constructor(
     private val remote: MatchRemoteDataSource,
-    @Named("BaseUrl") private val baseUrl: String,
+    @param:Named("BaseUrl") private val baseUrl: String,
 ) : MatchRepository {
     override suspend fun getMatches(): MiraiLinkResult<List<User>> {
         return when (val result = remote.getMatches()) {

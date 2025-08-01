@@ -93,6 +93,7 @@
     <string name="delete_account_confirm_text">You may contact support if you want to recover it.</string>
     <string name="logout_account_confirm_title">Are you sure you want to logout?</string>
     <string name="privacy_policy">Privacy policy</string>
+    <string name="configure_two_factor">Configure 2FA</string>
 
     <string-array name="report_reasons">
         <item>Offensive language</item>

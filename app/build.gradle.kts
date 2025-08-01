@@ -145,4 +145,7 @@ dependencies {
 
     // Emoji Picker
     implementation(libs.compose.emoji.picker)
+
+    // QR Code
+    implementation(libs.zxing.core)
 }

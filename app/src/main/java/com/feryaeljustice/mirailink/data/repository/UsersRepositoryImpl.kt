@@ -11,7 +11,7 @@ import javax.inject.Named
 
 class UsersRepositoryImpl @Inject constructor(
     private val remote: UsersRemoteDataSource,
-    @Named("BaseUrl") private val baseUrl: String,
+    @param:Named("BaseUrl") private val baseUrl: String,
 ) : UsersRepository {
     override suspend fun getUsers(): MiraiLinkResult<List<User>> {
         return when (val result = remote.getUsers()) {

@@ -11,7 +11,7 @@ import javax.inject.Named
 
 class SwipeRepositoryImpl @Inject constructor(
     private val remote: SwipeRemoteDataSource,
-    @Named("BaseUrl") private val baseUrl: String,
+    @param:Named("BaseUrl") private val baseUrl: String,
 ) :
     SwipeRepository {
     override suspend fun getFeed(): MiraiLinkResult<List<User>> {

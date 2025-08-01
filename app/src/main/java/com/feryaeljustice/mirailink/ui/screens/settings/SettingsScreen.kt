@@ -46,11 +46,15 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     sessionViewModel: GlobalSessionViewModel,
     goToFeedbackScreen: () -> Unit,
+    goToConfigureTwoFactorScreen: () -> Unit,
     onLogout: () -> Unit,
     showToast: (String, Int) -> Unit
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
+    val actualGoToFeedbackScreen by rememberUpdatedState(goToFeedbackScreen)
+    val actualGoToConfigureTwoFactorScreen by rememberUpdatedState(goToConfigureTwoFactorScreen)
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -143,9 +147,16 @@ fun SettingsScreen(
                 .padding(8.dp)
         )
         Spacer(modifier = Modifier.weight(0.25f))
-        MiraiLinkButton(onClick = { goToFeedbackScreen() }, content = {
+        MiraiLinkButton(onClick = { actualGoToFeedbackScreen() }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.settings_screen_txt_give_feedback),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        })
+        Spacer(modifier = Modifier.height(16.dp))
+        MiraiLinkButton(onClick = { actualGoToConfigureTwoFactorScreen() }, content = {
+            MiraiLinkText(
+                text = stringResource(R.string.configure_two_factor),
                 color = MaterialTheme.colorScheme.onPrimary
             )
         })

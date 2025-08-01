@@ -23,6 +23,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,11 +41,14 @@ import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun FeedbackScreen(
-    viewModel: FeedbackViewModel, showToast: (String, Int) -> Unit,
+    viewModel: FeedbackViewModel,
+    showToast: (String, Int) -> Unit,
     onBackClick: () -> Unit
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+
+    val actualBackClick by rememberUpdatedState(onBackClick)
 
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -68,7 +72,7 @@ fun FeedbackScreen(
             MiraiLinkIconButton(
                 modifier = Modifier.align(Alignment.TopStart),
                 onClick = {
-                    onBackClick()
+                    actualBackClick()
                 },
             ) {
                 Icon(

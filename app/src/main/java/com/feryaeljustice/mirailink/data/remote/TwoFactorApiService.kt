@@ -1,0 +1,26 @@
+package com.feryaeljustice.mirailink.data.remote
+
+import com.feryaeljustice.mirailink.data.model.response.auth.TokenResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
+import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorStatusResponse
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+
+interface TwoFactorApiService {
+    @GET("auth/2fa/status")
+    suspend fun getTwoFactorStatus(): TwoFactorStatusResponse
+
+    @POST("auth/2fa/setup")
+    suspend fun setupTwoFactor(): TwoFactorSetupResponse
+
+    @POST("auth/2fa/verify")
+    suspend fun verifyTwoFactor(@Body body: Map<String, String>): Response<Unit>
+
+    @POST("auth/2fa/disable")
+    suspend fun disableTwoFactor(): Response<Unit>
+
+    @POST("auth/2fa/login")
+    suspend fun loginWithTwoFactor(@Body body: Map<String, String>): TokenResponse
+}

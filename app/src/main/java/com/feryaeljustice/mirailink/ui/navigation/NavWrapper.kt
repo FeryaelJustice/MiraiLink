@@ -30,6 +30,7 @@ import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
+import com.feryaeljustice.mirailink.ui.screens.auth.two_factor.configure.ConfigureTwoFactorScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
@@ -432,6 +433,9 @@ private fun NavGraphBuilder.appGraph(
                 goToFeedbackScreen = {
                     navController.navigate(AppScreen.FeedbackScreen)
                 },
+                goToConfigureTwoFactorScreen = {
+                    navController.navigate(AppScreen.ConfigureTwoFactorScreen)
+                },
                 onLogout = {
                     scope.launch {
                         sessionViewModel.clearSession()
@@ -453,6 +457,12 @@ private fun NavGraphBuilder.appGraph(
                     navController.navigateUp()
                 }
             )
+        }
+
+        composable<AppScreen.ConfigureTwoFactorScreen> {
+            ConfigureTwoFactorScreen(onBackClick = {
+                navController.navigateUp()
+            })
         }
     }
 }

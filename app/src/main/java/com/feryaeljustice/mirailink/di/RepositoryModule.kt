@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.data.repository.MatchRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.OnboardingRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ReportRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
+import com.feryaeljustice.mirailink.data.repository.TwoFactorRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
@@ -16,6 +17,7 @@ import com.feryaeljustice.mirailink.domain.repository.MatchRepository
 import com.feryaeljustice.mirailink.domain.repository.OnboardingRepository
 import com.feryaeljustice.mirailink.domain.repository.ReportRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
+import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
 import dagger.Binds
@@ -38,6 +40,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUsersRepository(impl: UsersRepositoryImpl): UsersRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTwoFactorRepository(impl: TwoFactorRepositoryImpl): TwoFactorRepository
 
     @Binds
     @Singleton

@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
+import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
 import com.feryaeljustice.mirailink.data.remote.interceptor.AuthInterceptor
@@ -33,8 +34,8 @@ object NetworkModule {
     /**
      * Base URL for the API.
      * This is the URL that will be used to make requests to the API.
-     * 10.0.2.2 inside emulator, local ip over wifi (with port)
-     * in production domain remove :3000
+     * http://10.0.2.2:3000 inside emulator, local ip over wifi (with port)
+     * in production domain remove :3000 and put https://mirailink.xyz
      */
     @Provides
     @Singleton
@@ -98,6 +99,11 @@ object NetworkModule {
     @Singleton
     fun provideUsersApiService(retrofit: Retrofit): UsersApiService =
         retrofit.create(UsersApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideTwoFactorApiService(retrofit: Retrofit): TwoFactorApiService =
+        retrofit.create(TwoFactorApiService::class.java)
 
     @Provides
     @Singleton

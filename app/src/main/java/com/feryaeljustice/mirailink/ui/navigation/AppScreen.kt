@@ -48,6 +48,9 @@ sealed class AppScreen {
 
     @Serializable
     object FeedbackScreen : AppScreen()
+
+    @Serializable
+    object ConfigureTwoFactorScreen : AppScreen()
 }
 
 /*
