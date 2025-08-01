@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +18,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VerificationViewModel @Inject constructor(
-    private val checkIsVerifiedUseCase: CheckIsVerifiedUseCase,
-    private val requestCodeUseCase: RequestVerificationCodeUseCase,
-    private val confirmCodeUseCase: ConfirmVerificationCodeUseCase,
+    private val checkIsVerifiedUseCase: Lazy<CheckIsVerifiedUseCase>,
+    private val requestCodeUseCase: Lazy<RequestVerificationCodeUseCase>,
+    private val confirmCodeUseCase: Lazy<ConfirmVerificationCodeUseCase>,
 ) : ViewModel() {
 
     data class VerificationState(
@@ -37,7 +38,7 @@ class VerificationViewModel @Inject constructor(
 
     fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch {
         val result = withContext(Dispatchers.IO) {
-            checkIsVerifiedUseCase()
+            checkIsVerifiedUseCase.get()()
         }
 
         when (result) {
@@ -56,7 +57,7 @@ class VerificationViewModel @Inject constructor(
 
     fun requestCode(userId: String) = viewModelScope.launch {
         val result = withContext(Dispatchers.IO) {
-            requestCodeUseCase(userId, "email")
+            requestCodeUseCase.get()(userId, "email")
         }
 
         when (result) {
@@ -68,7 +69,7 @@ class VerificationViewModel @Inject constructor(
 
     fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch {
         val result = withContext(Dispatchers.IO) {
-            confirmCodeUseCase(userId, _state.value.token, "email")
+            confirmCodeUseCase.get()(userId, _state.value.token, "email")
         }
 
         when (result) {

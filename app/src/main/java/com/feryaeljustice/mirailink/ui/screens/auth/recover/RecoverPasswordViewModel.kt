@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecoverPasswordViewModel @Inject constructor(
-    private val requestResetUseCase: RequestPasswordResetUseCase,
-    private val confirmResetUseCase: ConfirmPasswordResetUseCase
+    private val requestResetUseCase: Lazy<RequestPasswordResetUseCase>,
+    private val confirmResetUseCase: Lazy<ConfirmPasswordResetUseCase>
 ) : ViewModel() {
 
     data class PasswordResetState(
@@ -48,7 +49,7 @@ class RecoverPasswordViewModel @Inject constructor(
     fun requestReset() = viewModelScope.launch {
         val email = state.value.email
         val result = withContext(Dispatchers.IO) {
-            requestResetUseCase(email)
+            requestResetUseCase.get()(email)
         }
 
         when (result) {
@@ -61,7 +62,7 @@ class RecoverPasswordViewModel @Inject constructor(
         val s = state.value
 
         val result = withContext(Dispatchers.IO) {
-            confirmResetUseCase(s.email, s.token, s.newPassword)
+            confirmResetUseCase.get()(s.email, s.token, s.newPassword)
         }
 
         when (result) {

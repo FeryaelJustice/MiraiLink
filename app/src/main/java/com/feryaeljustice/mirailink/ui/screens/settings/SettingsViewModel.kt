@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,8 +17,8 @@ import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val logoutUseCase: LogoutUseCase,
-    private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val logoutUseCase: Lazy<LogoutUseCase>,
+    private val deleteAccountUseCase: Lazy<DeleteAccountUseCase>,
     @param:Named("BaseUrl") val baseUrl: String
 ) : ViewModel() {
 
@@ -30,7 +31,7 @@ class SettingsViewModel @Inject constructor(
 
     fun logout(onFinish: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (logoutUseCase()) {
+            when (logoutUseCase.get()()) {
                 is MiraiLinkResult.Success -> {
                     withContext(Dispatchers.Main) {
                         _logoutSuccess.emit(true)
@@ -49,7 +50,7 @@ class SettingsViewModel @Inject constructor(
 
     fun deleteAccount(onFinish: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (deleteAccountUseCase()) {
+            when (deleteAccountUseCase.get()()) {
                 is MiraiLinkResult.Success -> {
                     withContext(Dispatchers.Main) {
                         _deleteSuccess.emit(true)

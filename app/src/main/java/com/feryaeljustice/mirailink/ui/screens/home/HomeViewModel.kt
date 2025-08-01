@@ -10,6 +10,7 @@ import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getFeedUseCase: GetFeedUseCase,
-    private val likeUser: LikeUserUseCase,
-    private val dislikeUser: DislikeUserUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getFeedUseCase: Lazy<GetFeedUseCase>,
+    private val likeUser: Lazy<LikeUserUseCase>,
+    private val dislikeUser: Lazy<DislikeUserUseCase>,
+    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase>
 ) : ViewModel() {
 
     sealed class HomeUiState {
@@ -53,7 +54,7 @@ class HomeViewModel @Inject constructor(
     private fun loadCurrentUser() {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                getCurrentUserUseCase()
+                getCurrentUserUseCase.get()()
             }
 
             if (result is MiraiLinkResult.Success) {
@@ -69,7 +70,7 @@ class HomeViewModel @Inject constructor(
             _state.value = HomeUiState.Loading
 
             val result = withContext(Dispatchers.IO) {
-                getFeedUseCase()
+                getFeedUseCase.get()()
             }
 
             if (result is MiraiLinkResult.Success) {
@@ -91,7 +92,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                likeUser(current.id)
+                likeUser.get()(current.id)
             }
             saveToHistory(current)
             safeRemoveFirst()
@@ -104,7 +105,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                dislikeUser(current.id)
+                dislikeUser.get()(current.id)
             }
             saveToHistory(current)
             safeRemoveFirst()

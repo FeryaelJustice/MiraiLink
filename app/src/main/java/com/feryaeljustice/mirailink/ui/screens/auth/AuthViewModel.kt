@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +18,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
-    private val registerUseCase: RegisterUseCase,
-    private val sessionManager: SessionManager,
+    private val loginUseCase: Lazy<LoginUseCase>,
+    private val registerUseCase: Lazy<RegisterUseCase>,
+    private val sessionManager: Lazy<SessionManager>,
 ) : ViewModel() {
 
     sealed class AuthUiState {
@@ -37,7 +38,7 @@ class AuthViewModel @Inject constructor(
         _state.value = AuthUiState.Loading
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                loginUseCase(email, username, password)
+                loginUseCase.get()(email, username, password)
             }
 
             handleAuthResult(result)
@@ -48,7 +49,7 @@ class AuthViewModel @Inject constructor(
         _state.value = AuthUiState.Loading
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                registerUseCase(username, email, password)
+                registerUseCase.get()(username, email, password)
             }
 
             handleAuthResult(result)
@@ -60,7 +61,7 @@ class AuthViewModel @Inject constructor(
             is MiraiLinkResult.Success -> {
                 val userId = extractUserId(result.data)
                 userId?.let {
-                    sessionManager.saveSession(result.data, it)
+                    sessionManager.get().saveSession(result.data, it)
                     _state.value = AuthUiState.Success(it)
                 } ?: run {
                     _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")

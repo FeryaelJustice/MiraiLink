@@ -18,6 +18,7 @@ import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,11 +33,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
-    private val deleteUserPhotoUseCase: DeleteUserPhotoUseCase,
-    private val getAnimesUseCase: GetAnimesUseCase,
-    private val getGamesUseCase: GetGamesUseCase,
+    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase>,
+    private val updateUserProfileUseCase: Lazy<UpdateUserProfileUseCase>,
+    private val deleteUserPhotoUseCase: Lazy<DeleteUserPhotoUseCase>,
+    private val getAnimesUseCase: Lazy<GetAnimesUseCase>,
+    private val getGamesUseCase: Lazy<GetGamesUseCase>,
 ) :
     ViewModel() {
 
@@ -65,7 +66,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = ProfileUiState.Loading
             val result = withContext(Dispatchers.IO) {
-                getCurrentUserUseCase()
+                getCurrentUserUseCase.get()()
             }
 
             _state.value = when (result) {
@@ -142,7 +143,7 @@ class ProfileViewModel @Inject constructor(
 
                         val existingPhotoUrls = editState.value.photos.map { it.url }
                         val result = withContext(Dispatchers.IO) {
-                            updateUserProfileUseCase(
+                            updateUserProfileUseCase.get()(
                                 nickname = nickname,
                                 bio = bio,
                                 animesJson = animesJson,
@@ -200,7 +201,7 @@ class ProfileViewModel @Inject constructor(
                 is EditProfileIntent.RemovePhoto -> {
                     viewModelScope.launch {
                         val result = withContext(Dispatchers.IO) {
-                            deleteUserPhotoUseCase(intent.position + 1) // posición real
+                            deleteUserPhotoUseCase.get()(intent.position + 1) // posición real
                         }
 
                         if (result is MiraiLinkResult.Success) {
@@ -284,12 +285,12 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             val animes = withContext(Dispatchers.IO) {
-                val result = getAnimesUseCase()
+                val result = getAnimesUseCase.get()()
                 if (result is MiraiLinkResult.Success) result.data else emptyList()
             }
 
             val games = withContext(Dispatchers.IO) {
-                val result = getGamesUseCase()
+                val result = getGamesUseCase.get()()
                 if (result is MiraiLinkResult.Success) result.data else emptyList()
             }
 

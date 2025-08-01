@@ -10,6 +10,7 @@ import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
 import com.feryaeljustice.mirailink.ui.viewentities.toMatchUserViewEntity
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
-    private val getMatchesUseCase: GetMatchesUseCase,
-    private val chatUseCases: ChatUseCases,
+    private val getMatchesUseCase: Lazy<GetMatchesUseCase>,
+    private val chatUseCases: Lazy<ChatUseCases>,
 ) : ViewModel() {
 
     sealed class MessagesUiState {
@@ -91,7 +92,7 @@ class MessagesViewModel @Inject constructor(
             _state.value = MessagesUiState.Loading
 
             val result = withContext(Dispatchers.IO) {
-                getMatchesUseCase()
+                getMatchesUseCase.get()()
             }
 
             when (result) {
@@ -119,7 +120,7 @@ class MessagesViewModel @Inject constructor(
             _state.value = MessagesUiState.Loading
 
             val result = withContext(Dispatchers.IO) {
-                chatUseCases.getChatsFromUser()
+                chatUseCases.get().getChatsFromUser()
             }
 
             when (result) {

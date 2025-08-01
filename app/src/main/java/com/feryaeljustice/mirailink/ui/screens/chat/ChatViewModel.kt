@@ -15,6 +15,7 @@ import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,14 +30,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val createPrivateChatUseCase: CreatePrivateChatUseCase,
-    private val createGroupChatUseCase: CreateGroupChatUseCase,
-    private val getChatMessagesUseCase: GetChatMessagesUseCase,
-    private val markChatAsReadUseCase: MarkChatAsReadUseCase,
-    private val sendMessageUseCase: SendMessageUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val getUserByIdUseCase: GetUserByIdUseCase,
-    private val reportUseCase: ReportUseCase,
+    private val createPrivateChatUseCase: Lazy<CreatePrivateChatUseCase>,
+    private val createGroupChatUseCase: Lazy<CreateGroupChatUseCase>,
+    private val getChatMessagesUseCase: Lazy<GetChatMessagesUseCase>,
+    private val markChatAsReadUseCase: Lazy<MarkChatAsReadUseCase>,
+    private val sendMessageUseCase: Lazy<SendMessageUseCase>,
+    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase>,
+    private val getUserByIdUseCase: Lazy<GetUserByIdUseCase>,
+    private val reportUseCase: Lazy<ReportUseCase>,
 ) : ViewModel() {
 
     private val _chatId = MutableStateFlow<String?>(null)
@@ -84,7 +85,7 @@ class ChatViewModel @Inject constructor(
         if (receiverId == null) return
 
         val result = withContext(Dispatchers.IO) {
-            createPrivateChatUseCase(receiverId)
+            createPrivateChatUseCase.get()(receiverId)
         }
 
         if (result is MiraiLinkResult.Success) {
@@ -99,7 +100,7 @@ class ChatViewModel @Inject constructor(
         if (name == null || userIds == null) return
 
         val result = withContext(Dispatchers.IO) {
-            createGroupChatUseCase(name, userIds)
+            createGroupChatUseCase.get()(name, userIds)
         }
 
         if (result is MiraiLinkResult.Success) {
@@ -127,14 +128,14 @@ class ChatViewModel @Inject constructor(
     fun markChatAsRead(chatId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                markChatAsReadUseCase(chatId)
+                markChatAsReadUseCase.get()(chatId)
             }
         }
     }
 
     suspend fun setSenderSync() {
         val result = withContext(Dispatchers.IO) {
-            getCurrentUserUseCase()
+            getCurrentUserUseCase.get()()
         }
 
         if (result is MiraiLinkResult.Success) {
@@ -146,7 +147,7 @@ class ChatViewModel @Inject constructor(
 
     suspend fun setReceiverSync(receiverId: String) {
         val result = withContext(Dispatchers.IO) {
-            getUserByIdUseCase(receiverId)
+            getUserByIdUseCase.get()(receiverId)
         }
 
         if (result is MiraiLinkResult.Success) {
@@ -180,7 +181,7 @@ class ChatViewModel @Inject constructor(
     fun getMessages(userId: String) {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                getChatMessagesUseCase(userId)
+                getChatMessagesUseCase.get()(userId)
             }
 
             if (result is MiraiLinkResult.Success) {
@@ -207,7 +208,7 @@ class ChatViewModel @Inject constructor(
             )
 
             val result = withContext(Dispatchers.IO) {
-                sendMessageUseCase(newMessage.receiver.id, newMessage.content)
+                sendMessageUseCase.get()(newMessage.receiver.id, newMessage.content)
             }
 
             if (result is MiraiLinkResult.Success) {
@@ -222,7 +223,7 @@ class ChatViewModel @Inject constructor(
     fun reportUser(userId: String, reason: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                reportUseCase(userId, reason)
+                reportUseCase.get()(userId, reason)
             }.also { result ->
                 if (result is MiraiLinkResult.Success) {
                     Log.d("ChatViewModel", "reportUser successfully")
