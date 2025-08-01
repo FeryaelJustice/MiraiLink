@@ -32,7 +32,7 @@
     <string name="settings">Ajustes</string>
     <string name="navigate_home">Navegar al inicio</string>
     <string name="expand">Expandir</string>
-    <string name="selected">Seleccionado</string>
+    <string name="selectedd">Seleccionado</string>
     <string name="theme_icon">Icono temático</string>
     <string name="user_avatar">Avatar del usuario</string>
     <string name="boosted">Impulsado</string>
@@ -60,7 +60,7 @@
     <string name="new_password">Nueva contraseña</string>
     <string name="confirm">Confirmar</string>
     <string name="chat_screen_send_msg">Escribe un mensaje</string>
-    <string name="chat_screen_smthg_send_msg">%1$s, escribe un mensaje...</string>
+    <string name="chat_screen_smthg_send_msg">%1$s, escribe un mensaje…</string>
     <string name="send">Enviar</string>
     <string name="report">Reportar</string>
     <string name="accept">Aceptar</string>

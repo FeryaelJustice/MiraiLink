@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,8 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -38,8 +44,14 @@ fun MultiSelectDropdown(
     onSelectionChange: (List<String>) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var columnSize by remember { mutableStateOf(Size.Zero) }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { layoutCoordinates ->
+                columnSize = layoutCoordinates.size.toSize()
+            }) {
         MiraiLinkOutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -88,12 +100,21 @@ fun MultiSelectDropdown(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .width(with(LocalDensity.current) {
+                    columnSize.width.toDp()
+                })
+                .fillMaxHeight(fraction = 0.6f)
         ) {
             options.forEach { option ->
                 val isSelected = option in selected
                 DropdownMenuItem(
-                    text = { MiraiLinkText(option) },
+                    text = {
+                        MiraiLinkText(
+                            text = option,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
                     onClick = {
                         val newSelection = if (isSelected) {
                             selected - option
@@ -106,7 +127,7 @@ fun MultiSelectDropdown(
                         if (isSelected) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = stringResource(R.string.selected)
+                                contentDescription = stringResource(R.string.selectedd)
                             )
                         }
                     }
