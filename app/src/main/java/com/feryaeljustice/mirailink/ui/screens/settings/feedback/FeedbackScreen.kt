@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.screens.feedback
+package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

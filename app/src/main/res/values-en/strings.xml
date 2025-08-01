@@ -108,4 +108,10 @@
     <string name="start">Start</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="is_two_factor_enabled">¿Is multifactor authentication enabled?</string>
+    <string name="setup_two_factor">Configure 2FA</string>
+    <string name="enter_code_from_app">Introduce the app code</string>
+    <string name="code_placeholder">Code</string>
+    <string name="or_use_secret_code">Or use a secret code</string>
+    <string name="recovery_codes">Recovery codes</string>
 </resources>

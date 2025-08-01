@@ -109,4 +109,10 @@
     <string name="start">Comenzar</string>
     <string name="next">Siguiente</string>
     <string name="previous">Previo</string>
+    <string name="is_two_factor_enabled">¿La autenticación multifactor está activada?</string>
+    <string name="setup_two_factor">Configurar 2FA</string>
+    <string name="enter_code_from_app">Introduce el código de la app</string>
+    <string name="code_placeholder">Código</string>
+    <string name="or_use_secret_code">O usa un código secreto</string>
+    <string name="recovery_codes">Códigos de recuperación</string>
 </resources>

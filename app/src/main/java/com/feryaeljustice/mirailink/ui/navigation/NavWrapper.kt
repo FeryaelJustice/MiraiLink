@@ -30,13 +30,10 @@ import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
-import com.feryaeljustice.mirailink.ui.screens.auth.two_factor.configure.ConfigureTwoFactorScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
-import com.feryaeljustice.mirailink.ui.screens.feedback.FeedbackScreen
-import com.feryaeljustice.mirailink.ui.screens.feedback.FeedbackViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesScreen
@@ -48,6 +45,10 @@ import com.feryaeljustice.mirailink.ui.screens.profile.ProfileScreen
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
+import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
+import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackViewModel
+import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorScreen
+import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalMiraiLinkPrefsViewModel
@@ -460,9 +461,13 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.ConfigureTwoFactorScreen> {
-            ConfigureTwoFactorScreen(onBackClick = {
-                navController.navigateUp()
-            })
+            val configureTwoFactorViewModel: ConfigureTwoFactorViewModel = hiltViewModel()
+            ConfigureTwoFactorScreen(
+                viewModel = configureTwoFactorViewModel,
+                onBackClick = {
+                    navController.navigateUp()
+                }
+            )
         }
     }
 }

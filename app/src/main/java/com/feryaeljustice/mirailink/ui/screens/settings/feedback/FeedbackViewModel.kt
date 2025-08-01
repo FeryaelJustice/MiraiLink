@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.screens.feedback
+package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
