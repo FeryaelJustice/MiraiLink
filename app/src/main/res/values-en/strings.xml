@@ -18,8 +18,8 @@
     <string name="user_card_bio">Biography</string>
     <string name="user_card_fav_animes">Favorite animes</string>
     <string name="user_card_fav_games">Favorite games</string>
-    <string name="user_card_fav_animes_empty">There isn\'t any favorite animes</string>
-    <string name="user_card_fav_games_empty">There isn\'t any favorite games</string>
+    <string name="user_card_fav_animes_empty">There aren\'t any favorite animes</string>
+    <string name="user_card_fav_games_empty">There aren\'t any favorite games</string>
     <string name="bio_placeholder">Here to triumph</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
