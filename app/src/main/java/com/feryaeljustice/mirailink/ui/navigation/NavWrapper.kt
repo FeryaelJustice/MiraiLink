@@ -22,8 +22,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import com.feryaeljustice.mirailink.domain.constants.deepLinkHomeUrl
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
@@ -367,7 +369,9 @@ private fun NavGraphBuilder.appGraph(
             )
         }
 
-        composable<AppScreen.HomeScreen> {
+        composable<AppScreen.HomeScreen>(deepLinks = listOf(navDeepLink {
+            uriPattern = deepLinkHomeUrl
+        })) {
             val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
                 viewModel = homeViewModel,
