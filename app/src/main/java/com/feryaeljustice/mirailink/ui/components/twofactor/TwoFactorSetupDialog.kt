@@ -43,8 +43,9 @@ fun TwoFactorSetupDialog(
             ) {
                 otpUrl?.let {
                     QrCodeImage(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
                         content = it,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        size = 300.dp
                     )
                 }
                 MiraiLinkText(

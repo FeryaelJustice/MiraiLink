@@ -114,4 +114,5 @@
     <string name="code_placeholder">Código</string>
     <string name="or_use_secret_code">O usa un código secreto</string>
     <string name="recovery_codes">Códigos de recuperación</string>
+    <string name="error">Error</string>
 </resources>

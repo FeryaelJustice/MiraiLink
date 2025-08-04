@@ -17,7 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,19 +35,28 @@ import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
-fun ConfigureTwoFactorScreen(viewModel: ConfigureTwoFactorViewModel, onBackClick: () -> Unit) {
+fun ConfigureTwoFactorScreen(
+    viewModel: ConfigureTwoFactorViewModel,
+    onBackClick: () -> Unit,
+    onShowError: (String) -> Unit
+) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val actualBackClick by rememberUpdatedState(onBackClick)
+    val actualOnShowError by rememberUpdatedState(onShowError)
 
     val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsState()
     val showSetupDialog by viewModel.showSetupDialog.collectAsState()
     val otpUrl by viewModel.otpUrl.collectAsState()
     val base32 by viewModel.base32.collectAsState()
     val recoveryCodes by viewModel.recoveryCodes.collectAsState()
-    val code by viewModel.code.collectAsState()
+    val code by viewModel.verify2FACode.collectAsState()
     val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsState()
+    val errorMsg by viewModel.errorString.collectAsState()
+    val showError by remember(errorMsg) {
+        derivedStateOf { errorMsg?.isNotBlank() ?: false }
+    }
 
     if (showSetupDialog) {
         TwoFactorSetupDialog(
@@ -58,6 +69,10 @@ fun ConfigureTwoFactorScreen(viewModel: ConfigureTwoFactorViewModel, onBackClick
             onDismiss = viewModel::dismissDialog,
             onConfirm = viewModel::confirmCode
         )
+    }
+
+    if (showError) {
+        actualOnShowError(errorMsg ?: "")
     }
 
     Column(

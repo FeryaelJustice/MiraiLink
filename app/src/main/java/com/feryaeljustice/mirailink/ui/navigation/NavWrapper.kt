@@ -470,6 +470,13 @@ private fun NavGraphBuilder.appGraph(
                 viewModel = configureTwoFactorViewModel,
                 onBackClick = {
                     navController.navigateUp()
+                },
+                onShowError = { error ->
+                    if (error.isNotBlank()) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(error)
+                        }
+                    }
                 }
             )
         }
