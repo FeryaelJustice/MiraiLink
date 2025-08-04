@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.components.atoms
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,7 @@ fun MiraiLinkText(
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,
     textAlign: TextAlign = TextAlign.Unspecified,
-    color: Color = MaterialTheme.colorScheme.primary,
+    color: Color = LocalContentColor.current,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Visible

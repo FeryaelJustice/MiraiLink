@@ -104,6 +104,7 @@ dependencies {
 
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.material3)
 
     // Testing
     testImplementation(libs.junit)

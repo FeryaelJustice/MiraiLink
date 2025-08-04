@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.DisableTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.SetupTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.VerifyTwoFactorUseCase
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class ConfigureTwoFactorViewModel @Inject constructor(
     private val setup2FAUseCase: SetupTwoFactorUseCase,
     private val verifyTwoFactorUseCase: VerifyTwoFactorUseCase,
-    private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase
+    private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase,
+    private val disableTwoFactorUseCase: DisableTwoFactorUseCase
 ) :
     ViewModel() {
     private val _isTwoFactorEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -25,6 +27,13 @@ class ConfigureTwoFactorViewModel @Inject constructor(
 
     private val _showSetupDialog = MutableStateFlow(false)
     val showSetupDialog = _showSetupDialog.asStateFlow()
+
+    private val _isConfigure2FALoading = MutableStateFlow(false)
+    val isConfigure2FALoading = _isConfigure2FALoading.asStateFlow()
+    private val _showDisableTwoFactorDialog = MutableStateFlow(false)
+    val showDisableTwoFactorDialog = _showDisableTwoFactorDialog.asStateFlow()
+    private val _isDisable2FALoading = MutableStateFlow(false)
+    val isDisable2FALoading = _isDisable2FALoading.asStateFlow()
 
     private val _otpUrl = MutableStateFlow<String?>(null)
     val otpUrl = _otpUrl.asStateFlow()
@@ -37,16 +46,11 @@ class ConfigureTwoFactorViewModel @Inject constructor(
 
     private val _verify2FACode = MutableStateFlow("")
     val verify2FACode = _verify2FACode.asStateFlow()
-
-    private val _isConfigure2FALoading = MutableStateFlow(false)
-    val isConfigure2FALoading = _isConfigure2FALoading.asStateFlow()
+    private val _disable2FACode = MutableStateFlow("")
+    val disable2FACode = _disable2FACode.asStateFlow()
 
     private val _errorString = MutableStateFlow<String?>(null)
     val errorString = _errorString.asStateFlow()
-
-    fun onCodeChanged(newCode: String) {
-        _verify2FACode.value = newCode
-    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -54,7 +58,15 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    fun launchSetupDialog() {
+    fun onSetupTwoFactorCodeChanged(newCode: String) {
+        _verify2FACode.value = newCode
+    }
+
+    fun onDisableTwoFactorCodeChanged(newCode: String) {
+        _disable2FACode.value = newCode
+    }
+
+    fun launchSetupTwoFactorDialog() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = setup2FAUseCase()) {
                 is MiraiLinkResult.Success -> {
@@ -73,7 +85,13 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    fun confirmCode() {
+    fun launchDisableTwoFactorDialog() {
+        if (_isTwoFactorEnabled.value) {
+            _showDisableTwoFactorDialog.value = true
+        }
+    }
+
+    fun confirmSetupTwoFactor() {
         _isConfigure2FALoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             // Implementación futura
@@ -95,6 +113,26 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
+    fun confirmDisableTwoFactor() {
+        _isDisable2FALoading.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result =
+                disableTwoFactorUseCase(codeOrRecoveryCode = _disable2FACode.value)) {
+                is MiraiLinkResult.Success -> {
+                    _isDisable2FALoading.value = false
+                    _showDisableTwoFactorDialog.value = false
+                    checkTwoFacStatus()
+                }
+
+                is MiraiLinkResult.Error -> {
+                    _errorString.value = result.message
+                    _isDisable2FALoading.value = false
+                    _showDisableTwoFactorDialog.value = false
+                }
+            }
+        }
+    }
+
     suspend fun checkTwoFacStatus() {
         when (val res = getTwoFactorStatusUseCase()) {
             is MiraiLinkResult.Success -> {
@@ -107,13 +145,24 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    fun dismissDialog() {
+    fun dismissSetupTwoFactorDialog() {
         _showSetupDialog.value = false
+        _isDisable2FALoading.value = false
+
         _verify2FACode.value = ""
         _otpUrl.value = null
         _base32.value = ""
         _recoveryCodes.value = emptyList()
+
         _errorString.value = null
+    }
+
+    fun dismissDisableTwoFactorDialog() {
+        _showDisableTwoFactorDialog.value = false
         _isConfigure2FALoading.value = false
+
+        _disable2FACode.value = ""
+
+        _errorString.value = null
     }
 }

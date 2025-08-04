@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,11 +26,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkCard
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorDisableDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -40,6 +45,11 @@ fun ConfigureTwoFactorScreen(
     onBackClick: () -> Unit,
     onShowError: (String) -> Unit
 ) {
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val secondaryContainerColor = MaterialTheme.colorScheme.secondaryContainer
+    val errorColor = MaterialTheme.colorScheme.error
+    val errorContainerColor = MaterialTheme.colorScheme.errorContainer
+
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
@@ -47,15 +57,25 @@ fun ConfigureTwoFactorScreen(
     val actualOnShowError by rememberUpdatedState(onShowError)
 
     val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsState()
+
     val showSetupDialog by viewModel.showSetupDialog.collectAsState()
+    val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsState()
     val otpUrl by viewModel.otpUrl.collectAsState()
     val base32 by viewModel.base32.collectAsState()
     val recoveryCodes by viewModel.recoveryCodes.collectAsState()
-    val code by viewModel.verify2FACode.collectAsState()
-    val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsState()
+    val setupTwoFactorCode by viewModel.verify2FACode.collectAsState()
+
+    val showDisableTwoFactorDialog by viewModel.showDisableTwoFactorDialog.collectAsState()
+    val isDisable2FADialogLoading by viewModel.isDisable2FALoading.collectAsState()
+    val disableTwoFactorCode by viewModel.disable2FACode.collectAsState()
+
     val errorMsg by viewModel.errorString.collectAsState()
     val showError by remember(errorMsg) {
         derivedStateOf { errorMsg?.isNotBlank() ?: false }
+    }
+
+    val cardTextColor by remember(isTwoFactorEnabled) {
+        derivedStateOf { if (isTwoFactorEnabled) secondaryColor else errorColor }
     }
 
     if (showSetupDialog) {
@@ -63,11 +83,21 @@ fun ConfigureTwoFactorScreen(
             otpUrl = otpUrl,
             base32 = base32,
             recoveryCodes = recoveryCodes,
-            code = code,
+            code = setupTwoFactorCode,
             isLoading = isConfigure2FADialogLoading,
-            onCodeChange = viewModel::onCodeChanged,
-            onDismiss = viewModel::dismissDialog,
-            onConfirm = viewModel::confirmCode
+            onCodeChange = viewModel::onSetupTwoFactorCodeChanged,
+            onDismiss = viewModel::dismissSetupTwoFactorDialog,
+            onConfirm = viewModel::confirmSetupTwoFactor
+        )
+    }
+
+    if (showDisableTwoFactorDialog) {
+        TwoFactorDisableDialog(
+            code = disableTwoFactorCode,
+            isLoading = isDisable2FADialogLoading,
+            onCodeChange = viewModel::onDisableTwoFactorCodeChanged,
+            onDismiss = viewModel::dismissDisableTwoFactorDialog,
+            onConfirm = viewModel::confirmDisableTwoFactor
         )
     }
 
@@ -109,26 +139,41 @@ fun ConfigureTwoFactorScreen(
             MiraiLinkCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClickLabel = stringResource(R.string.configure_two_factor)) {
-                        viewModel.launchSetupDialog()
-                    },
-                containerColor = if (isTwoFactorEnabled) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    .then(
+                        if (isTwoFactorEnabled) {
+                            Modifier.clickable(onClickLabel = stringResource(R.string.disable_two_factor)) {
+                                viewModel.launchDisableTwoFactorDialog()
+                            }
+                        } else {
+                            Modifier.clickable(onClickLabel = stringResource(R.string.configure_two_factor)) {
+                                viewModel.launchSetupTwoFactorDialog()
+                            }
+                        }
+                    ),
+                containerColor = if (isTwoFactorEnabled) secondaryContainerColor else errorContainerColor
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(all = 4.dp),
+                        .padding(all = 12.dp),
                     horizontalArrangement = Arrangement.SpaceAround,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MiraiLinkText(
+                    MiraiLinkBasicText(
                         text = stringResource(R.string.is_two_factor_enabled),
-                        color = if (isTwoFactorEnabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error
+                        textStyle = TextStyle(fontSize = 12.sp),
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = 14.sp,
+                            maxFontSize = 16.sp,
+                            stepSize = 1.sp
+                        ),
+                        color = { cardTextColor },
+                        overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         painter = painterResource(id = if (isTwoFactorEnabled) R.drawable.ic_check_box else R.drawable.ic_indeterminate_check_box),
                         contentDescription = stringResource(R.string.is_two_factor_enabled),
-                        tint = if (isTwoFactorEnabled) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error
+                        tint = if (isTwoFactorEnabled) secondaryColor else errorColor
                     )
                 }
             }

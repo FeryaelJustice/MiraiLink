@@ -37,9 +37,9 @@ class TwoFactorRemoteDataSource @Inject constructor(
     }
 
 
-    suspend fun disable2FA(): MiraiLinkResult<Unit> {
+    suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> {
         return try {
-            api.disableTwoFactor().isSuccessful
+            api.disableTwoFactor(mapOf("code" to codeOrRecoveryCode))
             MiraiLinkResult.success(Unit)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "disable2FA")

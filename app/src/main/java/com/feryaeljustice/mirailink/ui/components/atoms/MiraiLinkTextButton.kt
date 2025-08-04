@@ -16,8 +16,8 @@ fun MiraiLinkTextButton(
     onTransparentBackgroundContentColor: Color = MaterialTheme.colorScheme.onBackground,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    disabledContainerColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-    disabledContentColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
+    disabledContainerColor: Color = MaterialTheme.colorScheme.primary,
+    disabledContentColor: Color = MaterialTheme.colorScheme.primary
 ) {
     TextButton(
         modifier = modifier,
@@ -25,8 +25,12 @@ fun MiraiLinkTextButton(
         colors = ButtonDefaults.textButtonColors(
             containerColor = if (isTransparentBackground) Color.Transparent else containerColor,
             contentColor = if (isTransparentBackground) onTransparentBackgroundContentColor else contentColor,
-            disabledContainerColor = if (isTransparentBackground) Color.Transparent else disabledContainerColor,
-            disabledContentColor = if (isTransparentBackground) Color.Transparent else disabledContentColor
+            disabledContainerColor = if (isTransparentBackground) Color.Transparent else disabledContainerColor.copy(
+                alpha = 0.12f
+            ),
+            disabledContentColor = if (isTransparentBackground) Color.Transparent else disabledContentColor.copy(
+                alpha = 0.38f
+            )
         )
     ) {
         MiraiLinkText(

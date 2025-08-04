@@ -19,7 +19,7 @@ interface TwoFactorApiService {
     suspend fun verifyTwoFactor(@Body body: Map<String, String>): Response<Unit>
 
     @POST("auth/2fa/disable")
-    suspend fun disableTwoFactor(): Response<Unit>
+    suspend fun disableTwoFactor(@Body body: Map<String, String>): Response<Unit>
 
     @POST("auth/2fa/login")
     suspend fun loginWithTwoFactor(@Body body: Map<String, String>): TokenResponse

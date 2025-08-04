@@ -25,7 +25,8 @@ class TwoFactorRepositoryImpl @Inject constructor(
 
     override suspend fun verify2FA(code: String): MiraiLinkResult<Unit> = remote.verify2FA(code)
 
-    override suspend fun disable2FA(): MiraiLinkResult<Unit> = remote.disable2FA()
+    override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
+        remote.disable2FA(codeOrRecoveryCode)
 
     override suspend fun loginWith2FA(userId: String, code: String): MiraiLinkResult<String> =
         remote.loginWith2FA(userId, code)

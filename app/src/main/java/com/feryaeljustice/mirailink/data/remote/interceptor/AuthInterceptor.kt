@@ -41,7 +41,7 @@ class AuthInterceptor @Inject constructor(
         val shouldLogout = try {
             if (responseContent.trim().startsWith("{")) {
                 val json = JSONObject(responseContent)
-                json.optBoolean("shouldLogout", true)
+                json.optBoolean("shouldLogout", false)
             } else {
                 true
             }
