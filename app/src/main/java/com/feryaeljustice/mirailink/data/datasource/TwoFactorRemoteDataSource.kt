@@ -46,10 +46,14 @@ class TwoFactorRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun loginWith2FA(userId: String, code: String): MiraiLinkResult<String> {
+    suspend fun loginVerifyTwoFactorLastStep(
+        userId: String,
+        code: String
+    ): MiraiLinkResult<String> {
         return try {
-            val response = api.loginWithTwoFactor(mapOf("userId" to userId, "token" to code))
-            MiraiLinkResult.success(response.token)
+            val response =
+                api.loginVerifyTwoFactorLastStep(mapOf("userId" to userId, "code" to code))
+            MiraiLinkResult.success(response.message)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "setup2FA")
         }
