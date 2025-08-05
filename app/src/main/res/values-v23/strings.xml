@@ -117,4 +117,5 @@
     <string name="error">Error</string>
     <string name="disable_two_factor">Desactivar doble factor</string>
     <string name="enter_code_from_app_or_use_recovery_code">Pon el código de la app autenticadora. Si no la tienes, pon uno de los códigos de recuperación.</string>
+    <string name="complete_login">Completa el inicio de sesión</string>
 </resources>

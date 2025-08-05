@@ -113,6 +113,7 @@ fun AuthScreen(
         TwoFactorPutCodeOrRecoveryCDialog(
             code = twoFactorCode,
             isLoading = twoFactorLastStepIsLoading,
+            isDisable = false,
             onCodeChange = viewModel::onCodeChangeTwoFactorDiag,
             onDismiss = viewModel::dismissTwoFactorDiag,
             onConfirm = viewModel::confirmTwoFactorDiag

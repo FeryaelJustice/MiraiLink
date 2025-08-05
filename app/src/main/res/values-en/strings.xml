@@ -117,4 +117,5 @@
     <string name="error">Error</string>
     <string name="disable_two_factor">Disable two factor</string>
     <string name="enter_code_from_app_or_use_recovery_code">Put the code from the auth app. If you don\'t have it, you can use one of the recovery codes</string>
+    <string name="complete_login">Complete the login</string>
 </resources>

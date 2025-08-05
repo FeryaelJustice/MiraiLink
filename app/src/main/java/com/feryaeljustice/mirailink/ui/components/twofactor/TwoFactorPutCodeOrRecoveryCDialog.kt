@@ -21,6 +21,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 fun TwoFactorPutCodeOrRecoveryCDialog(
     code: String,
     isLoading: Boolean,
+    isDisable: Boolean = true,
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
@@ -31,7 +32,7 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
         onCancel = onDismiss,
         acceptText = stringResource(R.string.accept),
         cancelText = stringResource(R.string.cancel),
-        title = stringResource(R.string.disable_two_factor),
+        title = stringResource(if (isDisable) R.string.disable_two_factor else R.string.complete_login),
         messageContent = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
