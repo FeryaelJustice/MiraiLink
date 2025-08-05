@@ -9,9 +9,9 @@ import javax.inject.Inject
 class TwoFactorRemoteDataSource @Inject constructor(
     private val api: TwoFactorApiService,
 ) {
-    suspend fun get2FAStatus(): MiraiLinkResult<Boolean> {
+    suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> {
         return try {
-            val twoFactorStatus = api.getTwoFactorStatus().enabled
+            val twoFactorStatus = api.getTwoFactorStatus(mapOf("userId" to userID)).enabled
             MiraiLinkResult.success(twoFactorStatus)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "get2FAStatus")

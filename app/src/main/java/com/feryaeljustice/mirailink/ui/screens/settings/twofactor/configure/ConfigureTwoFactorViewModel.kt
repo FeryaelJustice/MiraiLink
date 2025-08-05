@@ -19,7 +19,7 @@ class ConfigureTwoFactorViewModel @Inject constructor(
     private val setup2FAUseCase: SetupTwoFactorUseCase,
     private val verifyTwoFactorUseCase: VerifyTwoFactorUseCase,
     private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase,
-    private val disableTwoFactorUseCase: DisableTwoFactorUseCase
+    private val disableTwoFactorUseCase: DisableTwoFactorUseCase,
 ) :
     ViewModel() {
     private val _isTwoFactorEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -52,9 +52,9 @@ class ConfigureTwoFactorViewModel @Inject constructor(
     private val _errorString = MutableStateFlow<String?>(null)
     val errorString = _errorString.asStateFlow()
 
-    init {
+    fun onlyCheckTwoFacStatusWithIO(userID: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            checkTwoFacStatus()
+            checkTwoFacStatus(userID = userID)
         }
     }
 
@@ -91,7 +91,7 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    fun confirmSetupTwoFactor() {
+    fun confirmSetupTwoFactor(userID: String?) {
         _isConfigure2FALoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             // Implementación futura
@@ -101,7 +101,7 @@ class ConfigureTwoFactorViewModel @Inject constructor(
                 is MiraiLinkResult.Success -> {
                     _isConfigure2FALoading.value = false
                     _showSetupDialog.value = false
-                    checkTwoFacStatus()
+                    checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
@@ -113,7 +113,7 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    fun confirmDisableTwoFactor() {
+    fun confirmDisableTwoFactor(userID: String?) {
         _isDisable2FALoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             when (val result =
@@ -121,7 +121,7 @@ class ConfigureTwoFactorViewModel @Inject constructor(
                 is MiraiLinkResult.Success -> {
                     _isDisable2FALoading.value = false
                     _showDisableTwoFactorDialog.value = false
-                    checkTwoFacStatus()
+                    checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
@@ -133,14 +133,16 @@ class ConfigureTwoFactorViewModel @Inject constructor(
         }
     }
 
-    suspend fun checkTwoFacStatus() {
-        when (val res = getTwoFactorStatusUseCase()) {
-            is MiraiLinkResult.Success -> {
-                _isTwoFactorEnabled.value = res.data
-            }
+    suspend fun checkTwoFacStatus(userID: String?) {
+        userID?.let { usID ->
+            when (val res = getTwoFactorStatusUseCase(userID = usID)) {
+                is MiraiLinkResult.Success -> {
+                    _isTwoFactorEnabled.value = res.data
+                }
 
-            is MiraiLinkResult.Error -> {
-                _isTwoFactorEnabled.value = false
+                is MiraiLinkResult.Error -> {
+                    _isTwoFactorEnabled.value = false
+                }
             }
         }
     }

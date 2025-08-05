@@ -1,6 +1,5 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +46,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -65,6 +65,11 @@ fun AuthScreen(
 
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val loginToken by viewModel.loginToken.collectAsState()
+    val userId by viewModel.userId.collectAsState()
+    val showTwoFactorLastStepDialog by viewModel.showTwoFactorLastStepDialog.collectAsState()
+    val twoFactorLastStepIsLoading by viewModel.twoFactorLastStepDialogIsLoading.collectAsState()
+    val twoFactorCode by viewModel.twoFactorCode.collectAsState()
 
     var isLogin by remember { mutableStateOf(true) }
     var loginByUsername by remember { mutableStateOf(true) }
@@ -104,6 +109,16 @@ fun AuthScreen(
         focusRequester.requestFocus()
     }
 
+    if (showTwoFactorLastStepDialog) {
+        TwoFactorPutCodeOrRecoveryCDialog(
+            code = twoFactorCode,
+            isLoading = twoFactorLastStepIsLoading,
+            onCodeChange = viewModel::onCodeChangeTwoFactorDiag,
+            onDismiss = viewModel::dismissTwoFactorDiag,
+            onConfirm = viewModel::confirmTwoFactorDiag
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -127,7 +142,7 @@ fun AuthScreen(
                     .focusRequester(focusRequester),
                 onClick = {
                     isLogin = !isLogin
-                    viewModel.resetUiState()
+                    viewModel.resetScreenVMState()
                     resetAuthUiState()
                 },
                 text = if (isLogin) stringResource(R.string.auth_screen_register) else stringResource(
@@ -342,14 +357,12 @@ fun AuthScreen(
 
         when (state) {
             is AuthUiState.Success -> {
-                val userId = (state as AuthUiState.Success).userId
                 resetAuthUiState()
                 if (isLogin) onLogin(userId) else onRegister(userId)
             }
 
             is AuthUiState.Error -> {
                 val error = state as AuthUiState.Error
-                Log.e("AuthScreen", error.message)
                 MiraiLinkText(error.message, color = MaterialTheme.colorScheme.error)
             }
 

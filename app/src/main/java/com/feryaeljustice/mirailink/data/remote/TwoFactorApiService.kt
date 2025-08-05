@@ -5,12 +5,11 @@ import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFacto
 import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface TwoFactorApiService {
-    @GET("auth/2fa/status")
-    suspend fun getTwoFactorStatus(): TwoFactorStatusResponse
+    @POST("auth/2fa/status")
+    suspend fun getTwoFactorStatus(@Body body: Map<String, String>): TwoFactorStatusResponse
 
     @POST("auth/2fa/setup")
     suspend fun setupTwoFactor(): TwoFactorSetupResponse

@@ -6,6 +6,8 @@ import com.feryaeljustice.mirailink.data.local.SessionManager
 import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,18 +23,33 @@ class AuthViewModel @Inject constructor(
     private val loginUseCase: Lazy<LoginUseCase>,
     private val registerUseCase: Lazy<RegisterUseCase>,
     private val sessionManager: Lazy<SessionManager>,
+    private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
+    private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
 ) : ViewModel() {
 
     sealed class AuthUiState {
         object Idle : AuthUiState()
         object Loading : AuthUiState()
-        data class Success(val userId: String?) : AuthUiState()
+        object Success : AuthUiState()
         data class IsAuthenticated(val userId: String?) : AuthUiState()
         data class Error(val message: String, val exception: Throwable? = null) : AuthUiState()
     }
 
     private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state = _state.asStateFlow()
+
+    private val _loginToken = MutableStateFlow<String?>(null)
+    val loginToken = _loginToken.asStateFlow()
+
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId = _userId.asStateFlow()
+
+    private val _showTwoFactorLastStepDialog = MutableStateFlow(false)
+    val showTwoFactorLastStepDialog = _showTwoFactorLastStepDialog.asStateFlow()
+    private val _twoFactorLastStepDialogIsLoading = MutableStateFlow(false)
+    val twoFactorLastStepDialogIsLoading = _twoFactorLastStepDialogIsLoading.asStateFlow()
+    private val _twoFactorCode = MutableStateFlow("")
+    val twoFactorCode = _twoFactorCode.asStateFlow()
 
     fun login(email: String, username: String, password: String) {
         _state.value = AuthUiState.Loading
@@ -47,11 +64,15 @@ class AuthViewModel @Inject constructor(
 
     fun register(username: String, email: String, password: String) {
         _state.value = AuthUiState.Loading
-        viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                registerUseCase.get()(username, email, password)
-            }
+        /*    viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    registerUseCase.get()(username, email, password)
+                }
 
+                handleAuthResult(result)
+            }*/
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = registerUseCase.get()(username, email, password)
             handleAuthResult(result)
         }
     }
@@ -59,12 +80,32 @@ class AuthViewModel @Inject constructor(
     private suspend fun handleAuthResult(result: MiraiLinkResult<String>) {
         when (result) {
             is MiraiLinkResult.Success -> {
-                val userId = extractUserId(result.data)
-                userId?.let {
-                    sessionManager.get().saveSession(result.data, it)
-                    _state.value = AuthUiState.Success(it)
-                } ?: run {
-                    _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+                var usID: String? = null
+
+                _loginToken.value = result.data
+                _loginToken.value?.let { tok ->
+                    usID = extractUserId(tok)
+                    _userId.value = usID
+                }
+
+                usID?.let { usuID ->
+                    // Check 2fa is enabled to show dialog
+                    when (val twoFactorResult =
+                        getTwoFactorStatusUseCase.get()(userID = usuID)) {
+                        is MiraiLinkResult.Success -> {
+                            val isTwoFactorEnabled = twoFactorResult.data
+                            _showTwoFactorLastStepDialog.value = isTwoFactorEnabled
+                            if (!isTwoFactorEnabled) {
+                                completeAuth(userId = _userId.value, token = _loginToken.value)
+                            }
+                        }
+
+                        is MiraiLinkResult.Error -> {
+                            _showTwoFactorLastStepDialog.value = false
+                        }
+                    }
+
+//                completeAuth(userId = userId, token = token)
                 }
             }
 
@@ -74,7 +115,63 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun resetUiState() {
+    suspend fun completeAuth(userId: String?, token: String?) {
+        // Do login / register (for the ui to manage)
+        if (userId == null || token == null) {
+            _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+            return
+        }
+        sessionManager.get().saveSession(token = token, userId = userId)
+        _state.value = AuthUiState.Success
+    }
+
+    // 2FA (si procede)
+    fun dismissTwoFactorDiag() {
+        _showTwoFactorLastStepDialog.value = false
+    }
+
+    fun confirmTwoFactorDiag() {
+        val userID = _userId.value
+        if (userID == null) {
+            _state.value = AuthUiState.Error("No existe el ID del usuario")
+            return
+        }
+        if (_twoFactorCode.value.isBlank()) {
+            _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val twoFactorLoginVerify =
+                loginVerifyTwoFactorLastStepUseCase.get()(
+                    userId = userID,
+                    code = _twoFactorCode.value
+                )) {
+                is MiraiLinkResult.Error -> {
+                    resetTwoFaDiag()
+                    _state.value = AuthUiState.Error(twoFactorLoginVerify.message)
+                }
+
+                is MiraiLinkResult.Success -> {
+                    resetTwoFaDiag()
+                    completeAuth(userId = userID, token = _loginToken.value)
+                }
+            }
+        }
+    }
+
+    fun onCodeChangeTwoFactorDiag(code: String) {
+        _twoFactorCode.value = code
+    }
+
+    fun resetScreenVMState() {
         _state.value = AuthUiState.Idle
+//        _loginToken.value = null
+//        _userId.value = null
+    }
+
+    fun resetTwoFaDiag() {
+        _showTwoFactorLastStepDialog.value = false
+        _twoFactorCode.value = ""
+        _twoFactorLastStepDialogIsLoading.value = false
     }
 }

@@ -4,5 +4,5 @@ import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import javax.inject.Inject
 
 class GetTwoFactorStatusUseCase @Inject constructor(private val repo: TwoFactorRepository) {
-    suspend operator fun invoke() = repo.get2FAStatus()
+    suspend operator fun invoke(userID: String) = repo.get2FAStatus(userID)
 }

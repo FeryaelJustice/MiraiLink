@@ -18,7 +18,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 
 @Composable
-fun TwoFactorDisableDialog(
+fun TwoFactorPutCodeOrRecoveryCDialog(
     code: String,
     isLoading: Boolean,
     onCodeChange: (String) -> Unit,

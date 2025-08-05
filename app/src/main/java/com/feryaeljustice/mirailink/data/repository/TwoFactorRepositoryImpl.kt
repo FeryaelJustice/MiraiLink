@@ -10,7 +10,8 @@ import javax.inject.Inject
 class TwoFactorRepositoryImpl @Inject constructor(
     private val remote: TwoFactorRemoteDataSource,
 ) : TwoFactorRepository {
-    override suspend fun get2FAStatus(): MiraiLinkResult<Boolean> = remote.get2FAStatus()
+    override suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> =
+        remote.get2FAStatus(userID)
     override suspend fun setup2FA(): MiraiLinkResult<TwoFactorAuthInfo> {
         return when (val result = remote.setup2FA()) {
             is MiraiLinkResult.Success -> {

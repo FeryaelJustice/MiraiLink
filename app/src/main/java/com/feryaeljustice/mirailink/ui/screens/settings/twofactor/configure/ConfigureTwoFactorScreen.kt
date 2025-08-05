@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -34,17 +35,21 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkCard
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
-import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorDisableDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
+import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun ConfigureTwoFactorScreen(
     viewModel: ConfigureTwoFactorViewModel,
+    sessionViewModel: GlobalSessionViewModel,
     onBackClick: () -> Unit,
     onShowError: (String) -> Unit
 ) {
+    val userID = sessionViewModel.currentUserId.collectAsState()
+
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val secondaryContainerColor = MaterialTheme.colorScheme.secondaryContainer
     val errorColor = MaterialTheme.colorScheme.error
@@ -78,6 +83,10 @@ fun ConfigureTwoFactorScreen(
         derivedStateOf { if (isTwoFactorEnabled) secondaryColor else errorColor }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.onlyCheckTwoFacStatusWithIO(userID.value)
+    }
+
     if (showSetupDialog) {
         TwoFactorSetupDialog(
             otpUrl = otpUrl,
@@ -87,17 +96,21 @@ fun ConfigureTwoFactorScreen(
             isLoading = isConfigure2FADialogLoading,
             onCodeChange = viewModel::onSetupTwoFactorCodeChanged,
             onDismiss = viewModel::dismissSetupTwoFactorDialog,
-            onConfirm = viewModel::confirmSetupTwoFactor
+            onConfirm = {
+                viewModel.confirmSetupTwoFactor(userID = userID.value)
+            }
         )
     }
 
     if (showDisableTwoFactorDialog) {
-        TwoFactorDisableDialog(
+        TwoFactorPutCodeOrRecoveryCDialog(
             code = disableTwoFactorCode,
             isLoading = isDisable2FADialogLoading,
             onCodeChange = viewModel::onDisableTwoFactorCodeChanged,
             onDismiss = viewModel::dismissDisableTwoFactorDialog,
-            onConfirm = viewModel::confirmDisableTwoFactor
+            onConfirm = {
+                viewModel.confirmDisableTwoFactor(userID = userID.value)
+            }
         )
     }
 

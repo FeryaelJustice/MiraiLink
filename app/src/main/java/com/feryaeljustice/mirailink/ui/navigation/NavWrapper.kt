@@ -468,6 +468,7 @@ private fun NavGraphBuilder.appGraph(
             val configureTwoFactorViewModel: ConfigureTwoFactorViewModel = hiltViewModel()
             ConfigureTwoFactorScreen(
                 viewModel = configureTwoFactorViewModel,
+                sessionViewModel = sessionViewModel,
                 onBackClick = {
                     navController.navigateUp()
                 },
