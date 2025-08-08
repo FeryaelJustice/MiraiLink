@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.di
 
 import com.feryaeljustice.mirailink.data.local.SessionManager
+import com.feryaeljustice.mirailink.data.remote.AppConfigApiService
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
 import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
@@ -89,6 +90,11 @@ object NetworkModule {
         ignoreUnknownKeys = true
         isLenient = true
     }
+
+    @Provides
+    @Singleton
+    fun provideAppConfigApiService(retrofit: Retrofit): AppConfigApiService =
+        retrofit.create(AppConfigApiService::class.java)
 
     @Provides
     @Singleton
