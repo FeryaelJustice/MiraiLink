@@ -2,6 +2,9 @@ package com.feryaeljustice.mirailink.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.BuildConfig
+import com.feryaeljustice.mirailink.domain.model.VersionCheckResult
+import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -18,9 +21,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
+    private val checkAppVersionUseCase: CheckAppVersionUseCase,
     private val autologinUseCase: Lazy<AutologinUseCase>,
     private val checkOnboardingIsCompletedUseCase: Lazy<CheckOnboardingIsCompleted>,
 ) : ViewModel() {
+
+    private val _updateBlocker = MutableStateFlow<VersionCheckResult?>(null)
+    val updateBlocker = _updateBlocker.asStateFlow()
 
     sealed class SplashUiState {
         object Idle : SplashUiState()
@@ -35,6 +42,28 @@ class SplashScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = SplashUiState.Loading
 
+            // 1) Chequeo de versión
+            val versionResult = withContext(Dispatchers.IO) {
+                checkAppVersionUseCase(BuildConfig.VERSION_CODE)
+            }
+            when (versionResult) {
+                is MiraiLinkResult.Success -> {
+                    val info = versionResult.data
+                    if (info.mustUpdate) {
+                        // Bloquea navegación y deja que la UI muestre el diálogo forzando update
+                        _updateBlocker.value = info
+                        _uiState.value = SplashUiState.Idle
+                        return@launch
+                    }
+                    // (opcional) info.shouldUpdate -> mostrar banner no bloqueante más tarde
+                }
+
+                is MiraiLinkResult.Error -> {
+                    // En error de red/config: NO bloquear, continúa normal
+                }
+            }
+
+            // 2) Onboarding + autologin en paralelo
             withContext(Dispatchers.IO) {
                 val onboardingDeferred =
                     async { checkOnboardingIsCompletedUseCase.get()() }

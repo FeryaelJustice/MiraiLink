@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.di
 
+import com.feryaeljustice.mirailink.data.repository.AppConfigRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.CatalogRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ChatRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.FeedbackRepositoryImpl
@@ -10,6 +11,7 @@ import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.TwoFactorRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
+import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.repository.FeedbackRepository
@@ -29,6 +31,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindAppConfigRepository(impl: AppConfigRepositoryImpl): AppConfigRepository
+
     @Binds
     @Singleton
     abstract fun bindOnboardingRepository(impl: OnboardingRepositoryImpl): OnboardingRepository

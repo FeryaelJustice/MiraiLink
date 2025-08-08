@@ -118,4 +118,7 @@
     <string name="disable_two_factor">Desactivar doble factor</string>
     <string name="enter_code_from_app_or_use_recovery_code">Pon el código de la app autenticadora. Si no la tienes, pon uno de los códigos de recuperación.</string>
     <string name="complete_login">Completa el inicio de sesión</string>
+    <string name="update_required_title">Actualización requerida</string>
+    <string name="update_required_body">Para continuar usando la app debes actualizar a la última versión.</string>
+    <string name="update_now">Actualizar ahora</string>
 </resources>

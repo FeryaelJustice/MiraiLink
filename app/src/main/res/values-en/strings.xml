@@ -118,4 +118,7 @@
     <string name="disable_two_factor">Disable two factor</string>
     <string name="enter_code_from_app_or_use_recovery_code">Put the code from the auth app. If you don\'t have it, you can use one of the recovery codes</string>
     <string name="complete_login">Complete the login</string>
+    <string name="update_required_title">Update required</string>
+    <string name="update_required_body">In order to keep using the app, you need to update to the latest version.</string>
+    <string name="update_now">Update now</string>
 </resources>
