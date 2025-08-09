@@ -1,6 +1,8 @@
 package com.feryaeljustice.mirailink.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.feryaeljustice.mirailink.data.datasource.AppConfigRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
@@ -11,8 +13,8 @@ import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.TwoFactorRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
-import com.feryaeljustice.mirailink.data.local.MiraiLinkPrefs
-import com.feryaeljustice.mirailink.data.local.SessionManager
+import com.feryaeljustice.mirailink.data.datastore.MiraiLinkPrefs
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.data.remote.AppConfigApiService
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
@@ -36,16 +38,16 @@ object DataModule {
     @Provides
     @Singleton
     fun provideSessionManager(
-        @ApplicationContext context: Context,
+        @SessionDataStore dataStore: DataStore<Preferences>,
     ): SessionManager = SessionManager(
-        context,
+        dataStore = dataStore,
     )
 
     @Provides
     @Singleton
     fun provideMiraiLinkPrefs(
-        @ApplicationContext context: Context
-    ): MiraiLinkPrefs = MiraiLinkPrefs(context)
+        @PrefsDataStore dataStore: DataStore<Preferences>
+    ): MiraiLinkPrefs = MiraiLinkPrefs(dataStore = dataStore)
 
     @Provides
     @Singleton

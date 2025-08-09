@@ -1,6 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
-import com.feryaeljustice.mirailink.data.local.MiraiLinkPrefs
+import com.feryaeljustice.mirailink.data.datastore.MiraiLinkPrefs
 import com.feryaeljustice.mirailink.domain.repository.OnboardingRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject

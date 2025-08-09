@@ -2,8 +2,6 @@
 <data-extraction-rules>
     <cloud-backup>
         <!-- Excluir el archivo DataStore (con token JWT) -->
-        <exclude domain="file" path="datastore/user_prefs.preferences_pb" />
-        <!-- Excluir el archivo DataStore (con token JWT) -->
         <exclude
             domain="file"
             path="datastore/session_prefs.preferences_pb" />
@@ -13,8 +11,6 @@
             path="datastore/mirailink_prefs.preferences_pb" />
     </cloud-backup>
     <device-transfer>
-        <!-- También excluir archivo DataStore de de la restauración entre dispositivos -->
-        <exclude domain="file" path="datastore/user_prefs.preferences_pb" />
         <!-- También excluir archivo DataStore de de la restauración entre dispositivos -->
         <exclude
             domain="file"

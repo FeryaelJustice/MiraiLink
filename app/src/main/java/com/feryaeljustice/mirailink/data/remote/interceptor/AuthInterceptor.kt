@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.remote.interceptor
 
 import android.util.Log
-import com.feryaeljustice.mirailink.data.local.SessionManager
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
