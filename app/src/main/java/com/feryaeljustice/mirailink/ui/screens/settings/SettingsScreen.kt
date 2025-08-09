@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
@@ -47,7 +48,6 @@ fun SettingsScreen(
     sessionViewModel: GlobalSessionViewModel,
     goToFeedbackScreen: () -> Unit,
     goToConfigureTwoFactorScreen: () -> Unit,
-    onLogout: () -> Unit,
     showToast: (String, Int) -> Unit
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -58,12 +58,9 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    val currentOnLogout by rememberUpdatedState(onLogout)
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
-
-    val privacyUrl = viewModel.baseUrl + "/privacypolicy"
 
     LaunchedEffect(Unit) {
         sessionViewModel.showBars()
@@ -73,13 +70,13 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.logoutSuccess.collect { success ->
-            if (success) currentOnLogout()
+            if (success) sessionViewModel.clearSession()
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.deleteSuccess.collect { success ->
-            if (success) currentOnLogout()
+            if (success) sessionViewModel.clearSession()
         }
     }
 
@@ -187,7 +184,7 @@ fun SettingsScreen(
             MiraiLinkTextButton(
                 text = stringResource(R.string.privacy_policy),
                 onClick = {
-                    uriHandler.openUri(privacyUrl)
+                    uriHandler.openUri(deepLinkPrivacyPolicyUrl)
                 },
                 isTransparentBackground = true
             )

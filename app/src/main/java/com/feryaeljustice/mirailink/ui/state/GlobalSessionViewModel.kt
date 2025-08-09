@@ -10,14 +10,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // ViewModel to manage the global session state (like login events, topbar...)
@@ -26,10 +31,21 @@ class GlobalSessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
 ) : ViewModel() {
-    private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized
-    val isAuthenticated: Flow<Boolean> = sessionManager.isAuthenticated
-    val isVerified: Flow<Boolean> = sessionManager.isVerifiedFlow
+    /*    private val _isInitialized = MutableStateFlow(false)
+        val isInitialized: StateFlow<Boolean> = _isInitialized*/
+    val isAuthenticated: StateFlow<Boolean> =
+        sessionManager.isAuthenticatedFlow.distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = runBlocking { sessionManager.isAuthenticatedFlow.first() }
+            )
+    val isVerified: StateFlow<Boolean> = sessionManager.isVerifiedFlow.distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = runBlocking { sessionManager.isVerifiedFlow.first() }
+        )
     val onLogout: SharedFlow<Unit> = sessionManager.onLogout
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
@@ -41,23 +57,25 @@ class GlobalSessionViewModel @Inject constructor(
     private val _topBarConfig = MutableStateFlow(TopBarConfig())
     val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
 
-    suspend fun clearSession() = sessionManager.clearSession()
+    fun clearSession() = viewModelScope.launch { sessionManager.clearSession() }
+
+    fun saveIsVerified(verified: Boolean) =
+        viewModelScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
 
     init {
         viewModelScope.launch {
-            sessionManager.userIdFlow.collectLatest { curUserId ->
-                setUserId(curUserId)
+            sessionManager.userIdFlow.distinctUntilChanged().collectLatest { curUserId ->
+                _currentUserId.value = curUserId
 
                 if (!curUserId.isNullOrBlank()) {
-                    setUserId(curUserId)
                     startObservingHasProfilePicture(curUserId)
                 } else {
                     stopObservingHasProfilePicture()
                 }
 
-                if (!_isInitialized.value) {
-                    _isInitialized.value = true
-                }
+                /* if (!_isInitialized.value) {
+                     _isInitialized.value = true
+                 }*/
             }
         }
     }
@@ -123,24 +141,31 @@ class GlobalSessionViewModel @Inject constructor(
         _topBarConfig.update { it.copy(showSettingsIcon = true) }
     }
 
-    private suspend fun setUserId(userId: String?) {
-        userId?.let {
-            sessionManager.saveUserId(it)
-            _currentUserId.value = it
-        }
-    }
+    /*    private suspend fun saveUserId(userId: String?) {
+            userId?.let {
+                sessionManager.saveUserId(it)
+                _currentUserId.value = it
+            }
+        }*/
 
     fun startObservingHasProfilePicture(userId: String) {
         if (observeHasProfilePictureJob?.isActive == true) return
         observeHasProfilePictureJob = viewModelScope.launch(Dispatchers.IO) {
-            while (true) {
-                when (val result = checkProfilePictureUseCase(userId)) {
-                    is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
+            var backoff = 10_000L
+            while (isActive) {
+                val old = _hasProfilePicture.value
+                when (val r = checkProfilePictureUseCase(userId)) {
+                    is MiraiLinkResult.Success -> {
+                        val new = r.data
+                        if (new != old) _hasProfilePicture.value = new
+                        backoff = 10_000L // reset
+                    }
+
                     is MiraiLinkResult.Error -> {
-                        // Nothing
+                        backoff = (backoff * 2).coerceAtMost(120_000L)
                     }
                 }
-                delay(10000) // Cada 10s
+                delay(backoff)
             }
         }
     }
@@ -153,9 +178,7 @@ class GlobalSessionViewModel @Inject constructor(
     suspend fun refreshHasProfilePicture(userId: String) {
         when (val result = checkProfilePictureUseCase(userId)) {
             is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
-            is MiraiLinkResult.Error -> {
-                // Nothing
-            }
+            is MiraiLinkResult.Error -> {}
         }
     }
 }

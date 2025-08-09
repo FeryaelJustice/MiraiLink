@@ -30,31 +30,31 @@ class SessionManager @Inject constructor(
     // Token & userId flows
     val tokenFlow: Flow<String?> = context.dataStore.data.map { it[KEY_TOKEN] }
     val userIdFlow: Flow<String?> = context.dataStore.data.map { it[KEY_USER_ID] }
-    val isVerifiedFlow: Flow<Boolean> = context.dataStore.data.map { it[KEY_VERIFIED] ?: true }
+    val isVerifiedFlow: Flow<Boolean> = context.dataStore.data.map { it[KEY_VERIFIED] ?: false }
 
     // True si tiene token y userId válidos
-    val isAuthenticated: Flow<Boolean> =
+    val isAuthenticatedFlow: Flow<Boolean> =
         combine(tokenFlow, userIdFlow) { token, userId ->
             !token.isNullOrBlank() && !userId.isNullOrBlank()
         }
 
     // Logout notifier
-    private val _onLogout = MutableSharedFlow<Unit>(replay = 1)
+    private val _onLogout = MutableSharedFlow<Unit>(replay = 0)
     val onLogout: SharedFlow<Unit> = _onLogout.asSharedFlow()
 
     suspend fun saveSession(token: String, userId: String) {
         context.dataStore.edit {
             it[KEY_TOKEN] = token
             it[KEY_USER_ID] = userId
-            it[KEY_VERIFIED] = true // Asumimos que recién logueado, está verificado
+            it[KEY_VERIFIED] = false
         }
     }
 
-    suspend fun saveUserId(userId: String) {
-        context.dataStore.edit {
-            it[KEY_USER_ID] = userId
-        }
-    }
+    /*   suspend fun saveUserId(userId: String) {
+           context.dataStore.edit {
+               it[KEY_USER_ID] = userId
+           }
+       }*/
 
     suspend fun saveIsVerified(isVerified: Boolean) {
         context.dataStore.edit {

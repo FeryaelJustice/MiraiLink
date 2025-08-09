@@ -36,16 +36,16 @@ class VerificationViewModel @Inject constructor(
         _state.update { it.copy(token = token, error = null) }
     }
 
-    fun checkUserIsVerified(onFinish: () -> Unit) = viewModelScope.launch {
+    fun checkUserIsVerified(onFinish: (isVerified: Boolean) -> Unit) = viewModelScope.launch {
         val result = withContext(Dispatchers.IO) {
             checkIsVerifiedUseCase.get()()
         }
 
         when (result) {
             is MiraiLinkResult.Success -> {
+                onFinish(result.data)
                 if (result.data) {
                     resetState()
-                    onFinish()
                 }
             }
 
@@ -74,6 +74,7 @@ class VerificationViewModel @Inject constructor(
 
         when (result) {
             is MiraiLinkResult.Success -> {
+
                 resetState()
                 onFinish()
             }

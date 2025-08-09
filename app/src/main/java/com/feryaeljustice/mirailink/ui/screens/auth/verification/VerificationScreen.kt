@@ -39,7 +39,6 @@ fun VerificationScreen(
     sessionViewModel: GlobalSessionViewModel,
     userId: String,
     onFinish: () -> Unit,
-    onLogout: () -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -50,7 +49,10 @@ fun VerificationScreen(
         sessionViewModel.hideBars()
         sessionViewModel.disableBars()
 
-        viewModel.checkUserIsVerified(onFinish)
+        viewModel.checkUserIsVerified(onFinish = { isVerified ->
+            sessionViewModel.saveIsVerified(verified = isVerified)
+            onFinish()
+        })
     }
 
     Column(
@@ -78,7 +80,7 @@ fun VerificationScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-                MiraiLinkButton(onClick = { onLogout() }) {
+                MiraiLinkButton(onClick = { sessionViewModel.clearSession() }) {
                     MiraiLinkText(
                         text = stringResource(R.string.logout),
                         color = MaterialTheme.colorScheme.onPrimary

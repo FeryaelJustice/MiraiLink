@@ -20,3 +20,4 @@ const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
 
 const val deepLinkBaseUrl = "https://mirailink.xyz"
 const val deepLinkHomeUrl = "$deepLinkBaseUrl/home"
+const val deepLinkPrivacyPolicyUrl = "$deepLinkBaseUrl/privacypolicy"

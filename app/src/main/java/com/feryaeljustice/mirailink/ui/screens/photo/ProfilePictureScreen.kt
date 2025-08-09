@@ -46,14 +46,13 @@ fun ProfilePictureScreen(
     viewModel: ProfilePictureViewModel,
     sessionViewModel: GlobalSessionViewModel,
     onProfileUploaded: () -> Unit,
-    onLogout: () -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val currentOnProfileUploaded by rememberUpdatedState(onProfileUploaded)
 
-    val userId = sessionViewModel.currentUserId.collectAsState().value
+    val userId by sessionViewModel.currentUserId.collectAsState()
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { viewModel.uploadImage(it) }
     }
@@ -65,9 +64,9 @@ fun ProfilePictureScreen(
     }
 
     LaunchedEffect(uploadResult) {
-        if (uploadResult is MiraiLinkResult.Success && userId != null) {
+        if (uploadResult is MiraiLinkResult.Success && !userId.isNullOrBlank()) {
             viewModel.clearResult()
-            sessionViewModel.refreshHasProfilePicture(userId)
+            sessionViewModel.refreshHasProfilePicture(userId!!)
             currentOnProfileUploaded()
         }
     }
@@ -110,7 +109,9 @@ fun ProfilePictureScreen(
 
         MiraiLinkText(
             text = stringResource(R.string.logout),
-            modifier = Modifier.clickable(role = Role.Button, onClick = onLogout),
+            modifier = Modifier.clickable(role = Role.Button, onClick = {
+                sessionViewModel.clearSession()
+            }),
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
             fontSize = MaterialTheme.typography.labelMedium.fontSize,
         )

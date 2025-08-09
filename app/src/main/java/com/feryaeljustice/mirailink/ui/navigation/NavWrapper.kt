@@ -6,12 +6,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,11 +57,9 @@ import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalMiraiLinkPrefsViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+
+private val LocalShowSnackbar = staticCompositionLocalOf<(String) -> Unit> { { } }
 
 @Composable
 fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
@@ -68,44 +67,49 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    // Utils and context
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    // Utils
     val snackbarHostState = remember { SnackbarHostState() }
-    val currentDestination = navBackStackEntry?.destination
+    val scope = rememberCoroutineScope()
+    val showSnackbar: (String) -> Unit = { msg ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar(message = msg)
+        }
+    }
 
-    // MiraiLink Prefs
+    // VMs globales
     val miraiLinkPrefs = hiltViewModel<GlobalMiraiLinkPrefsViewModel>()
-
-    // Session
     val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
 
+    // Nav
+    val currentDestination = navBackStackEntry?.destination
+
     // Session states
-    val isAppSessionInitialized by sessionViewModel.isInitialized.collectAsState(initial = false)
-    val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState(initial = false)
+//    val isAppSessionInitialized by sessionViewModel.isInitialized.collectAsState()
+    val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState()
     val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
     val currentUserId by sessionViewModel.currentUserId.collectAsState()
     val hasProfilePicture by sessionViewModel.hasProfilePicture.collectAsState()
-    val isVerified by sessionViewModel.isVerified.collectAsState(initial = true)
+    val isVerified by sessionViewModel.isVerified.collectAsState()
 
     // Session events
     val onLogout = sessionViewModel.onLogout
 
     // 1. Reacción a logout
     LaunchedEffect(Unit) {
-        snapshotFlow { isAppSessionInitialized }
-            .filter { it }
-            .take(1)
-            .collect {
-                onLogout.collect {
-                    if (!isAuthenticated && miraiLinkPrefs.isOnboardingCompleted()) {
-                        navController.navigate(AppScreen.AuthScreen) {
-                            popUpTo(0) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
+        /*  snapshotFlow { isAppSessionInitialized }
+              .filter { it }
+              .take(1)
+              .collect {*/
+        onLogout.collect {
+            if (miraiLinkPrefs.isOnboardingCompleted()) {
+                navController.navigate(AppScreen.AuthScreen) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
                 }
             }
+        }
+//            }
     }
 
     // 2. Requiere verificación o chequeo de foto de perfil
@@ -127,68 +131,67 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         }
     }
 
-    Scaffold(
-        topBar = {
-            if (topBarConfig.showTopBar) {
-                MiraiLinkTopBar(
-                    darkTheme = darkTheme,
-                    enabled = !topBarConfig.disableTopBar,
-                    isAuthenticated = isAuthenticated,
-                    showSettingsIcon = topBarConfig.showSettingsIcon,
-                    title = topBarConfig.title,
-                    onThemeChange = onThemeChange,
-                    onNavigateHome = {
-                        val isHomeRoute =
-                            navBackStackEntry?.destination?.hasRoute(AppScreen.HomeScreen::class)
-                        if (isHomeRoute == false)
-                            navController.navigate(AppScreen.HomeScreen) {
-                                popUpTo(AppScreen.HomeScreen) {
-                                    inclusive = true // elimina duplicado si ya existía
+    CompositionLocalProvider(LocalShowSnackbar provides showSnackbar) {
+        Scaffold(
+            topBar = {
+                if (topBarConfig.showTopBar) {
+                    MiraiLinkTopBar(
+                        darkTheme = darkTheme,
+                        enabled = !topBarConfig.disableTopBar,
+                        isAuthenticated = isAuthenticated,
+                        showSettingsIcon = topBarConfig.showSettingsIcon,
+                        title = topBarConfig.title,
+                        onThemeChange = onThemeChange,
+                        onNavigateHome = {
+                            val isHomeRoute =
+                                navBackStackEntry?.destination?.hasRoute(AppScreen.HomeScreen::class)
+                            if (isHomeRoute == false)
+                                navController.navigate(AppScreen.HomeScreen) {
+                                    popUpTo(AppScreen.HomeScreen) {
+                                        inclusive = true // elimina duplicado si ya existía
+                                    }
+                                    launchSingleTop =
+                                        true // evita nueva instancia si ya está en el top
+                                    restoreState = true // restaura el scroll/estado si aplica
                                 }
-                                launchSingleTop = true // evita nueva instancia si ya está en el top
-                                restoreState = true // restaura el scroll/estado si aplica
+                        },
+                        onNavigateToSettings = {
+                            val isSettingsRoute =
+                                navBackStackEntry?.destination?.hasRoute(AppScreen.SettingsScreen::class)
+                            if (isSettingsRoute == false) {
+                                navController.navigate(AppScreen.SettingsScreen)
                             }
-                    },
-                    onNavigateToSettings = {
-                        val isSettingsRoute =
-                            navBackStackEntry?.destination?.hasRoute(AppScreen.SettingsScreen::class)
-                        if (isSettingsRoute == false) {
-                            navController.navigate(AppScreen.SettingsScreen)
-                        }
-                    },
-                )
-            }
-        },
-        bottomBar = {
-            if (topBarConfig.showBottomBar) {
-                MiraiLinkBottomBar(
-                    navController = navController,
-                    currentDestination = currentDestination,
-                    enabled = !topBarConfig.disableBottomBar,
-                    onDestinationClick = {
-                        if (topBarConfig.disableBottomBar) {
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar("Bottom bar is disabled")
+                        },
+                    )
+                }
+            },
+            bottomBar = {
+                if (topBarConfig.showBottomBar) {
+                    MiraiLinkBottomBar(
+                        navController = navController,
+                        currentDestination = currentDestination,
+                        enabled = !topBarConfig.disableBottomBar,
+                        onDestinationClick = {
+                            if (topBarConfig.disableBottomBar) {
+                                showSnackbar("Bottom bar is disabled")
                             }
                         }
-                    }
-                )
-            }
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-    ) { innerPadding ->
-        AppNavHost(
-            navController = navController,
-            sessionViewModel = sessionViewModel,
-            miraiLinkPrefs = miraiLinkPrefs,
-            context = context,
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            modifier = Modifier.padding(innerPadding)
-        )
+                    )
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+        ) { innerPadding ->
+            AppNavHost(
+                navController = navController,
+                sessionViewModel = sessionViewModel,
+                miraiLinkPrefs = miraiLinkPrefs,
+                modifier = Modifier.padding(innerPadding),
+                showSnackbar = showSnackbar,
+                isAuthenticated = isAuthenticated,
+            )
+        }
     }
 }
 
@@ -197,11 +200,11 @@ fun AppNavHost(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
     miraiLinkPrefs: GlobalMiraiLinkPrefsViewModel,
-    context: Context,
-    scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
+    showSnackbar: (String) -> Unit = {},
+    isAuthenticated: Boolean,
 ) {
+    val context = LocalContext.current
     NavHost(
         navController = navController,
         startDestination = AppScreen.SplashScreen,
@@ -248,32 +251,24 @@ fun AppNavHost(
         }
         composable<AppScreen.OnboardingScreen> {
             OnboardingScreen(onFinish = {
-                scope.launch {
-                    // 1. Guardar flag en DataStore
-                    miraiLinkPrefs.markOnboardingCompleted()
+                // 1. Guardar flag en DataStore
+                miraiLinkPrefs.markOnboardingCompleted()
 
-                    // 2. Esperar al último valor de autenticación
-                    val isLoggedIn = sessionViewModel.isAuthenticated.first()
+                // 2. Navegación condicional
+                val destination =
+                    if (isAuthenticated) ScreensSubgraphs.Main else ScreensSubgraphs.Auth
 
-                    // 3. Navegación condicional
-                    val destination =
-                        if (isLoggedIn) ScreensSubgraphs.Main else ScreensSubgraphs.Auth
-
-                    navController.navigate(destination) {
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
+                navController.navigate(destination) {
+                    popUpTo(0) {
+                        inclusive = true
                     }
+                    launchSingleTop = true
                 }
             })
         }
         authGraph(
             navController = navController,
             sessionViewModel = sessionViewModel,
-            context = context,
-            scope = scope,
-            snackbarHostState = snackbarHostState,
             onLogin = {
                 navController.navigate(ScreensSubgraphs.Main) {
                     launchSingleTop = true
@@ -295,8 +290,7 @@ fun AppNavHost(
             navController = navController,
             sessionViewModel = sessionViewModel,
             context = context,
-            scope = scope,
-            snackbarHostState = snackbarHostState,
+            showSnackbar = showSnackbar,
         )
     }
 }
@@ -304,9 +298,6 @@ fun AppNavHost(
 private fun NavGraphBuilder.authGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
-    context: Context,
-    scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
 ) {
@@ -347,8 +338,7 @@ private fun NavGraphBuilder.appGraph(
     navController: NavHostController,
     sessionViewModel: GlobalSessionViewModel,
     context: Context,
-    scope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
+    showSnackbar: (String) -> Unit,
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.ProfilePictureScreen> {
@@ -361,11 +351,6 @@ private fun NavGraphBuilder.appGraph(
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                onLogout = {
-                    scope.launch {
-                        sessionViewModel.clearSession()
-                    }
-                }
             )
         }
 
@@ -422,11 +407,6 @@ private fun NavGraphBuilder.appGraph(
                         launchSingleTop = true
                     }
                 },
-                onLogout = {
-                    scope.launch {
-                        sessionViewModel.clearSession()
-                    }
-                }
             )
         }
 
@@ -440,11 +420,6 @@ private fun NavGraphBuilder.appGraph(
                 },
                 goToConfigureTwoFactorScreen = {
                     navController.navigate(AppScreen.ConfigureTwoFactorScreen)
-                },
-                onLogout = {
-                    scope.launch {
-                        sessionViewModel.clearSession()
-                    }
                 },
                 showToast = { msg, duration ->
                     showToast(context = context, message = msg, duration = duration)
@@ -472,13 +447,7 @@ private fun NavGraphBuilder.appGraph(
                 onBackClick = {
                     navController.navigateUp()
                 },
-                onShowError = { error ->
-                    if (error.isNotBlank()) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(error)
-                        }
-                    }
-                }
+                onShowError = { error -> if (error.isNotBlank()) showSnackbar(error) }
             )
         }
     }
