@@ -6,12 +6,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.feryaeljustice.mirailink.BuildConfig
-import com.feryaeljustice.mirailink.ui.components.appconfig.ForceUpdateGate
+import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
@@ -23,7 +25,10 @@ fun SplashScreen(
     onInitialNavigation: (InitialNavigationAction) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val updateBlocker by viewModel.updateBlocker.collectAsState()
+    val updateDiagInfo by viewModel.updateDiagInfo.collectAsState()
+    val showUpdateDialog by remember(updateDiagInfo) {
+        derivedStateOf { updateDiagInfo != null && (updateDiagInfo?.mustUpdate == true || updateDiagInfo?.shouldUpdate == true) }
+    }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -32,9 +37,11 @@ fun SplashScreen(
     }
 
     // 1. Chequeo: si hay bloqueador de versión, mostramos ForceUpdateGate y no navegamos
-    if (updateBlocker != null) {
-        ForceUpdateGate(
-            result = updateBlocker!!,
+    if (showUpdateDialog) {
+        UpdateGate(
+            message = updateDiagInfo?.message,
+            force = updateDiagInfo?.mustUpdate == true && updateDiagInfo?.shouldUpdate == false,
+            onDismiss = viewModel::onDismissUpdateGate,
             onOpenStore = {
                 // Abre Play Store
                 val playStoreUrl =

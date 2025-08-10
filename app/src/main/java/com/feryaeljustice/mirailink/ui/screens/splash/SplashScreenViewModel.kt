@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,8 +27,8 @@ class SplashScreenViewModel @Inject constructor(
     private val checkOnboardingIsCompletedUseCase: Lazy<CheckOnboardingIsCompleted>,
 ) : ViewModel() {
 
-    private val _updateBlocker = MutableStateFlow<VersionCheckResult?>(null)
-    val updateBlocker = _updateBlocker.asStateFlow()
+    private val _updateDiagInfo = MutableStateFlow<VersionCheckResult?>(null)
+    val updateDiagInfo = _updateDiagInfo.asStateFlow()
 
     sealed class SplashUiState {
         object Idle : SplashUiState()
@@ -49,13 +50,11 @@ class SplashScreenViewModel @Inject constructor(
             when (versionResult) {
                 is MiraiLinkResult.Success -> {
                     val info = versionResult.data
-                    if (info.mustUpdate) {
-                        // Bloquea navegación y deja que la UI muestre el diálogo forzando update
-                        _updateBlocker.value = info
+                    if (info.mustUpdate || info.shouldUpdate) {
+                        // Deja que la UI muestre el diálogo forzando update
+                        _updateDiagInfo.value = info
                         _uiState.value = SplashUiState.Idle
-                        return@launch
                     }
-                    // (opcional) info.shouldUpdate -> mostrar banner no bloqueante más tarde
                 }
 
                 is MiraiLinkResult.Error -> {
@@ -95,5 +94,9 @@ class SplashScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onDismissUpdateGate() {
+        _updateDiagInfo.update { it?.copy(mustUpdate = false, shouldUpdate = false) }
     }
 }
