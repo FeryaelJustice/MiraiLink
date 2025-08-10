@@ -24,17 +24,17 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
 
 @Composable
 fun MessageListItem(
-    chat: ChatPreviewViewEntity,
+    chat: ChatPreviewViewEntry,
     onClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(chat.userId) }
+            .clickable { chat.userId?.let { uId -> onClick(uId) } }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

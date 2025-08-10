@@ -1,8 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
-import com.feryaeljustice.mirailink.domain.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
@@ -26,8 +26,13 @@ class ChatRepositoryImpl @Inject constructor(
             is MiraiLinkResult.Success -> {
                 val chatSummaries = result.data.map { chatSummary ->
                     val domain = chatSummary.toDomain()
-                    val updatedDestinatary = domain.destinatary.copy(
-                        avatarUrl = resolvePhotoUrl(baseUrl, domain.destinatary.avatarUrl)
+                    val updatedDestinatary = domain.destinatary?.copy(
+                        profilePhoto = domain.destinatary.profilePhoto?.copy(
+                            url = resolvePhotoUrl(
+                                baseUrl,
+                                domain.destinatary.profilePhoto.url
+                            )
+                        )
                     )
                     domain.copy(destinatary = updatedDestinatary)
                 }

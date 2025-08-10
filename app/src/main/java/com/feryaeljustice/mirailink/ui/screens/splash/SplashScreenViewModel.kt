@@ -3,12 +3,13 @@ package com.feryaeljustice.mirailink.ui.screens.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.BuildConfig
-import com.feryaeljustice.mirailink.domain.model.VersionCheckResult
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.mappers.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
+import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,7 @@ class SplashScreenViewModel @Inject constructor(
     private val checkOnboardingIsCompletedUseCase: Lazy<CheckOnboardingIsCompleted>,
 ) : ViewModel() {
 
-    private val _updateDiagInfo = MutableStateFlow<VersionCheckResult?>(null)
+    private val _updateDiagInfo = MutableStateFlow<VersionCheckResultViewEntry?>(null)
     val updateDiagInfo = _updateDiagInfo.asStateFlow()
 
     sealed class SplashUiState {
@@ -52,7 +53,7 @@ class SplashScreenViewModel @Inject constructor(
                     val info = versionResult.data
                     if (info.mustUpdate || info.shouldUpdate) {
                         // Deja que la UI muestre el diálogo forzando update
-                        _updateDiagInfo.value = info
+                        _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
                         _uiState.value = SplashUiState.Idle
                     }
                 }

@@ -10,12 +10,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
 
 @Composable
 fun ChatList(
     modifier: Modifier = Modifier,
-    chats: List<ChatPreviewViewEntity>,
+    chats: List<ChatPreviewViewEntry>,
     onNavigateToChat: (String) -> Unit
 ) {
     Column(

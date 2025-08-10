@@ -6,7 +6,7 @@ import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.model.user.User
-import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
 
 data class EditProfileUiState(
     val isEditing: Boolean = false,
@@ -16,7 +16,7 @@ data class EditProfileUiState(
     val selectedGames: List<Game> = emptyList(),
     val animeCatalog: List<Anime> = emptyList(),
     val gameCatalog: List<Game> = emptyList(),
-    val photos: List<PhotoSlotViewEntity> = List(4) { PhotoSlotViewEntity() }, // index = position
+    val photos: List<PhotoSlotViewEntry> = List(4) { PhotoSlotViewEntry() }, // index = position
     val selectedSlotForDialog: Int? = null, // el slot que ha sido clicado
     val showActionDialog: Boolean = false,
     val showPhotoSourceDialog: Boolean = false,

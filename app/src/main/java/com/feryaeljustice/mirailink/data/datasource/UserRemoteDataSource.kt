@@ -3,7 +3,7 @@ package com.feryaeljustice.mirailink.data.datasource
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.feryaeljustice.mirailink.data.model.ReorderedPhoto
+import com.feryaeljustice.mirailink.data.model.ReorderedPhotoDto
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.feryaeljustice.mirailink.data.model.request.auth.LoginRequest
@@ -172,7 +172,7 @@ class UserRemoteDataSource @Inject constructor(
             }
 
             val reorderedList = existingPhotoUrls.mapIndexedNotNull { index, url ->
-                url?.let { ReorderedPhoto(it, index + 1) }
+                url?.let { ReorderedPhotoDto(it, index + 1) }
             }
 
             val reorderedJson = Json.encodeToString(reorderedList)

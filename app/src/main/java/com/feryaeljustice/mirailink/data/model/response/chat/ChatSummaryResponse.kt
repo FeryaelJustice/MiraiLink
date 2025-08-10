@@ -1,6 +1,6 @@
 package com.feryaeljustice.mirailink.data.model.response.chat
 
-import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfo
+import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfoResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,5 +17,5 @@ data class ChatSummaryResponse(
     @SerialName("last_message_sender_id") val lastMessageSenderId: String? = null,
     @SerialName("last_message_sent_at") val lastMessageSentAt: String? = null,
     @SerialName("unread_count") val unreadCount: String,
-    @SerialName("destinatary") val destinatary: MinimalUserInfo? = null
+    @SerialName("destinatary") val destinatary: MinimalUserInfoResponse? = null
 )

@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.domain.mappers
+package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.AppVersionInfoDto
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo

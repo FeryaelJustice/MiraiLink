@@ -22,9 +22,25 @@ fun resolvePhotoUrls(baseUrl: String, photos: List<UserPhoto>): List<UserPhoto> 
     }
 }
 
-fun resolvePhotoUrl(baseUrl: String, url: String?): String? {
+/*fun resolvePhotoUrl(baseUrl: String, url: String?): String? {
     if (url.isNullOrBlank()) return null
 
+    return if (HTTP_REGEX.matches(url)) {
+        url
+    } else {
+        when {
+            baseUrl.endsWith('/') && url.startsWith('/') ->
+                baseUrl + url.drop(1)
+
+            !baseUrl.endsWith('/') && !url.startsWith('/') ->
+                "$baseUrl/$url"
+
+            else -> baseUrl + url
+        }
+    }
+}*/
+
+fun resolvePhotoUrl(baseUrl: String, url: String): String {
     return if (HTTP_REGEX.matches(url)) {
         url
     } else {

@@ -1,17 +1,10 @@
-package com.feryaeljustice.mirailink.ui.viewentities
+package com.feryaeljustice.mirailink.ui.mappers
 
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.model.user.User
+import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
 
-data class MatchUserViewEntity(
-    val id: String,
-    val username: String,
-    val nickname: String,
-    val avatarUrl: String,
-    val isBoosted: Boolean = false
-)
-
-fun User.toMatchUserViewEntity() = MatchUserViewEntity(
+fun User.toMatchUserViewEntry() = MatchUserViewEntry(
     id = id,
     username = username,
     nickname = nickname,

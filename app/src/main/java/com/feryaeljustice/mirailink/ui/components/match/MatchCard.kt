@@ -26,12 +26,12 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.extensions.debounceClickable
-import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
 
 
 @Composable
 fun MatchCard(
-    user: MatchUserViewEntity,
+    user: MatchUserViewEntry,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {

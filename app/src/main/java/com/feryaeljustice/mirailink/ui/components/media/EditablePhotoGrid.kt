@@ -37,11 +37,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
-import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
 
 @Composable
 fun EditablePhotoGrid(
-    photos: List<PhotoSlotViewEntity>,
+    photos: List<PhotoSlotViewEntry>,
     onSlotClick: ((Int) -> Unit)?,
     onPhotoReorder: ((Int, Int) -> Unit)?
 ) {

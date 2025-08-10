@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 // Represents user info for chat preview and else
 @Serializable
-data class MinimalUserInfo(
-    @SerialName("id") val id: String? = null,
-    @SerialName("username") val username: String? = null,
-    @SerialName("nickname") val nickname: String? = null,
+data class MinimalUserInfoResponse(
+    @SerialName("id") val id: String,
+    @SerialName("username") val username: String,
+    @SerialName("nickname") val nickname: String,
     @SerialName("avatarUrl") val avatarUrl: String? = null
 )

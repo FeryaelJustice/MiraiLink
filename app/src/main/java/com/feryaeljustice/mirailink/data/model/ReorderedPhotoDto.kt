@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ReorderedPhoto(
+data class ReorderedPhotoDto(
     @SerialName("url") val url: String,
     @SerialName("position") val position: Int
 )

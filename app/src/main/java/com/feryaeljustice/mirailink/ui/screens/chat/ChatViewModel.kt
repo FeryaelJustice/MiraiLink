@@ -3,7 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.chat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.domain.mappers.toMinimalUserInfo
+import com.feryaeljustice.mirailink.data.mappers.toMinimalUserInfo
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase

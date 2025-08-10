@@ -14,10 +14,11 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.mappers.toPhotoSlotViewEntry
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
-import com.feryaeljustice.mirailink.ui.viewentities.PhotoSlotViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -89,15 +90,14 @@ class ProfileViewModel @Inject constructor(
             when (intent) {
                 is EditProfileIntent.Initialize -> {
                     val user = intent.user
-                    val photos = MutableList(4) { PhotoSlotViewEntity() }
+                    val photos = MutableList(4) { PhotoSlotViewEntry() }
 
                     user.photos.forEach {
                         // Importante aqui este sync con la bdd si empieza las position en 0 o 1
                         // Hacemos -1 porque la posicion empiezan en 1 y no en 0 en bdd,
                         // pero aqui empiezan en 0
                         if (it.position in 1..4) {
-                            photos[it.position - 1] =
-                                PhotoSlotViewEntity(url = it.url, position = it.position)
+                            photos[it.position - 1] = it.toPhotoSlotViewEntry()
                         }
                         // RECORDAR!! : Al subir las imagenes sumar +1 a la posicion para la bdd
                     }
@@ -126,12 +126,6 @@ class ProfileViewModel @Inject constructor(
                         val bio = state.bio
                         val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
                         val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
-
-//                    val photosJson = Json.encodeToString(
-//                        state.photos.mapNotNullIndexed { index, slot ->
-//                            slot.url?.let { UploadPhotoDto(position = index + 1, url = it) }
-//                        }
-//                    )
 
                         val photoUris = state.photos.map { slot ->
                             if (slot.url?.startsWith("http") == true && slot.uri == null) {
@@ -208,7 +202,7 @@ class ProfileViewModel @Inject constructor(
                             // Actualiza el estado UI eliminando la foto
                             val updatedPhotos = state.photos.toMutableList()
                             updatedPhotos[intent.position] =
-                                PhotoSlotViewEntity(position = intent.position)
+                                PhotoSlotViewEntry(position = intent.position)
                             _editState.update { it.copy(photos = updatedPhotos) }
 
                             getCurrentUser()
@@ -222,7 +216,7 @@ class ProfileViewModel @Inject constructor(
 
                 is EditProfileIntent.UpdatePhoto -> {
                     val photos = state.photos.toMutableList()
-                    photos[intent.position] = PhotoSlotViewEntity(
+                    photos[intent.position] = PhotoSlotViewEntry(
                         uri = intent.uri,
                         url = intent.uri.toString(),
                         position = intent.position

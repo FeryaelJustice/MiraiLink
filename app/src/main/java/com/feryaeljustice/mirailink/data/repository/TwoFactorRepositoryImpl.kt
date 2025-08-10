@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.TwoFactorRemoteDataSource
-import com.feryaeljustice.mirailink.domain.mappers.toTwoFactorAuthInfo
+import com.feryaeljustice.mirailink.data.mappers.toTwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.model.auth.TwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult

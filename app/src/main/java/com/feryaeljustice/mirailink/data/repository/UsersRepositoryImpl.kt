@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
-import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult

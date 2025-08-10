@@ -1,8 +1,8 @@
 package com.feryaeljustice.mirailink.domain.model.chat
 
-import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.enums.ChatRole
 import com.feryaeljustice.mirailink.domain.enums.ChatType
+import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.util.DateSerializer
 import kotlinx.serialization.Serializable
 import java.util.Date
@@ -18,10 +18,10 @@ data class ChatSummary(
     val joinedAt: Date,
     val role: ChatRole,
     val lastMessageId: String? = null,
-    val lastMessageText: String? = null,
+    val lastMessageText: String = "",
     val lastMessageSenderId: String? = null,
     @Serializable(with = DateSerializer::class)
     val lastMessageSentAt: Date? = null,
-    val unreadCount: Int,
-    val destinatary: MinimalUserInfo,
+    val unreadCount: Int = 0,
+    val destinatary: MinimalUserInfo? = null,
 )

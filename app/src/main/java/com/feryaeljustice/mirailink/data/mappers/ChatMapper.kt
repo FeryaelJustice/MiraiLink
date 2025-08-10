@@ -1,8 +1,7 @@
-package com.feryaeljustice.mirailink.domain.mappers
+package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
-import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.enums.ChatRole
 import com.feryaeljustice.mirailink.domain.enums.ChatType
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
@@ -17,25 +16,19 @@ fun ChatSummaryResponse.toDomain() = ChatSummary(
     joinedAt = parseDate(joinedAt),
     role = ChatRole.fromString(role),
     lastMessageId = lastMessageId,
-    lastMessageText = lastMessageText,
+    lastMessageText = lastMessageText.orEmpty(),
     lastMessageSenderId = lastMessageSenderId,
     lastMessageSentAt = lastMessageSentAt?.let { parseDate(lastMessageSentAt) } ?: parseDate(
         createdAt
     ),
     unreadCount = unreadCount.toIntOrNull() ?: 0,
-    destinatary =
-        MinimalUserInfo(
-            id = destinatary?.id ?: "",
-            username = destinatary?.username ?: "Desconocido",
-            nickname = destinatary?.nickname ?: "Desconocido",
-            avatarUrl = destinatary?.avatarUrl.orEmpty()
-        )
+    destinatary = destinatary?.toMinimalUserInfo()
 )
 
 fun ChatMessageResponse.toDomain(): ChatMessage = ChatMessage(
     id = id,
-    sender = sender.toMinimalUserInfoDomain(),
-    receiver = receiver.toMinimalUserInfoDomain(),
+    sender = sender.toMinimalUserInfo(),
+    receiver = receiver.toMinimalUserInfo(),
     content = content,
     timestamp = timestamp
 )

@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.datasource
 
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.data.remote.AppConfigApiService
-import com.feryaeljustice.mirailink.domain.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError

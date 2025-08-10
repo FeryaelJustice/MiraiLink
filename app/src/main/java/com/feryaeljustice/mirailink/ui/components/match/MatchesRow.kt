@@ -14,12 +14,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
+import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
 
 @Composable
 fun MatchesRow(
     modifier: Modifier = Modifier,
-    matches: List<MatchUserViewEntity>,
+    matches: List<MatchUserViewEntry>,
     onNavigateToChat: (String) -> Unit
 ) {
     Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {

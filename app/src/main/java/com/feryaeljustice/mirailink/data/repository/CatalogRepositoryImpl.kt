@@ -1,7 +1,7 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
-import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository

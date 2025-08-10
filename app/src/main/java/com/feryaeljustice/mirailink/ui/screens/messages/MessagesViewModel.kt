@@ -7,9 +7,10 @@ import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
-import com.feryaeljustice.mirailink.ui.viewentities.ChatPreviewViewEntity
-import com.feryaeljustice.mirailink.ui.viewentities.MatchUserViewEntity
-import com.feryaeljustice.mirailink.ui.viewentities.toMatchUserViewEntity
+import com.feryaeljustice.mirailink.ui.mappers.toChatPreviewViewEntry
+import com.feryaeljustice.mirailink.ui.mappers.toMatchUserViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,8 +30,8 @@ class MessagesViewModel @Inject constructor(
         object Idle : MessagesUiState()
         object Loading : MessagesUiState()
         data class Success(
-            val matches: List<MatchUserViewEntity>,
-            val openChats: List<ChatPreviewViewEntity>
+            val matches: List<MatchUserViewEntry>,
+            val openChats: List<ChatPreviewViewEntry>
         ) : MessagesUiState()
 
         data class Error(val message: String, val exception: Throwable? = null) : MessagesUiState()
@@ -40,16 +40,16 @@ class MessagesViewModel @Inject constructor(
     private val _state = MutableStateFlow<MessagesUiState>(MessagesUiState.Idle)
     val state = _state.asStateFlow()
 
-    private var _matches: MutableList<MatchUserViewEntity> =
+    private var _matches: MutableList<MatchUserViewEntry> =
         mutableListOf(
-            MatchUserViewEntity(
+            MatchUserViewEntry(
                 "1",
                 "Fer",
                 "Ferr",
                 TEMPORAL_PLACEHOLDER_PICTURE_URL,
                 false
             ),
-            MatchUserViewEntity(
+            MatchUserViewEntry(
                 "2",
                 "Maria",
                 "Mariaa",
@@ -58,9 +58,9 @@ class MessagesViewModel @Inject constructor(
             )
         )
 
-    private var _openChats: MutableList<ChatPreviewViewEntity> =
+    private var _openChats: MutableList<ChatPreviewViewEntry> =
         mutableListOf(
-            ChatPreviewViewEntity(
+            ChatPreviewViewEntry(
                 "1",
                 "Fer",
                 "Ferr",
@@ -68,7 +68,7 @@ class MessagesViewModel @Inject constructor(
                 "Hola, ¿cómo estás?",
                 false
             ),
-            ChatPreviewViewEntity(
+            ChatPreviewViewEntry(
                 "2",
                 "Maria",
                 "Mariaa",
@@ -99,7 +99,7 @@ class MessagesViewModel @Inject constructor(
                 is MiraiLinkResult.Success -> {
                     val matchesResult = result.data.map { user ->
                         val url = user.photos.firstOrNull()?.url
-                        val us = user.toMatchUserViewEntity()
+                        val us = user.toMatchUserViewEntry()
                         us.copy(avatarUrl = url.getFormattedUrl())
                     }
 
@@ -126,16 +126,7 @@ class MessagesViewModel @Inject constructor(
             when (result) {
                 is MiraiLinkResult.Success -> {
                     val chatsResult = result.data.map { chat ->
-                        val avatar = chat.destinatary.avatarUrl
-                        ChatPreviewViewEntity(
-                            userId = chat.destinatary.id ?: Date().toString(),
-                            username = chat.destinatary.username ?: "Unknown",
-                            nickname = chat.destinatary.nickname ?: "Unknown",
-                            avatarUrl = avatar.getFormattedUrl(),
-                            lastMessage = chat.lastMessageText,
-                            isBoosted = false,
-                            readsPending = chat.unreadCount
-                        )
+                        chat.toChatPreviewViewEntry()
                     }
                     _openChats = chatsResult.toMutableList()
                     _state.value =

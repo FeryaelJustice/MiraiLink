@@ -2,7 +2,8 @@ package com.feryaeljustice.mirailink.data.repository
 
 import android.net.Uri
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
-import com.feryaeljustice.mirailink.domain.mappers.toDomain
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.mappers.toDomain
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -12,6 +13,7 @@ import javax.inject.Named
 
 class UserRepositoryImpl @Inject constructor(
     private val remote: UserRemoteDataSource,
+    private val sessionManager: SessionManager,
     @param:Named("BaseUrl") private val baseUrl: String,
 ) : UserRepository {
 
@@ -26,6 +28,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout(): MiraiLinkResult<Boolean> {
+        sessionManager.clearSession()
         return remote.logout()
     }
 
