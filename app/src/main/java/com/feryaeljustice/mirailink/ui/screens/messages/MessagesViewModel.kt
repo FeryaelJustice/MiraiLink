@@ -9,8 +9,8 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.ui.mappers.toChatPreviewViewEntry
 import com.feryaeljustice.mirailink.ui.mappers.toMatchUserViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.viewentries
+package com.feryaeljustice.mirailink.ui.viewentries.user
 
 import com.feryaeljustice.mirailink.domain.model.user.UserPhoto
 

@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.viewentries
+package com.feryaeljustice.mirailink.ui.viewentries.media
 
 import android.net.Uri
 

@@ -4,12 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
-import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.mappers.toUserViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,18 +31,20 @@ class HomeViewModel @Inject constructor(
     sealed class HomeUiState {
         object Idle : HomeUiState()
         object Loading : HomeUiState()
-        data class Success(val visibleUsers: List<User>, val currentIndex: Int = 0) : HomeUiState()
+        data class Success(val visibleUsers: List<UserViewEntry>, val currentIndex: Int = 0) :
+            HomeUiState()
+
         data class Error(val message: String, val exception: Throwable? = null) : HomeUiState()
     }
 
     private val _state = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
     val state = _state.asStateFlow()
 
-    var currentUser: User? = null
+    var currentUser: UserViewEntry? = null
         private set
 
-    private val _userQueue = mutableListOf<User>()
-    private val swipeHistory = mutableListOf<User>()
+    private val _userQueue = mutableListOf<UserViewEntry>()
+    private val swipeHistory = mutableListOf<UserViewEntry>()
 
     // TODO: Meter guardado en bdd local o en bdd remota para persistencia de calculo undo feature
     private var lastUndoTime: Long = 0L
@@ -58,7 +61,7 @@ class HomeViewModel @Inject constructor(
             }
 
             if (result is MiraiLinkResult.Success) {
-                currentUser = result.data
+                currentUser = result.data.toUserViewEntry()
             } else if (result is MiraiLinkResult.Error) {
                 Log.e("HomeViewModel", "loadCurrentUser: ${result.message}")
             }
@@ -75,7 +78,7 @@ class HomeViewModel @Inject constructor(
 
             if (result is MiraiLinkResult.Success) {
                 _userQueue.clear()
-                _userQueue.addAll(result.data)
+                _userQueue.addAll(result.data.map { it.toUserViewEntry() })
                 updateUiState()
             } else if (result is MiraiLinkResult.Error) {
                 _state.value = HomeUiState.Error(result.message, result.exception)
@@ -84,7 +87,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateUiState() {
-        _state.value = HomeUiState.Success(_userQueue.take(2))
+        _state.value = HomeUiState.Success(visibleUsers = _userQueue.take(2))
     }
 
     fun swipeRight() {
@@ -119,7 +122,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun saveToHistory(user: User) {
+    private fun saveToHistory(user: UserViewEntry) {
         swipeHistory.add(0, user)
     }
 

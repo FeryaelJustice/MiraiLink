@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
 @Composable
 fun ChatList(

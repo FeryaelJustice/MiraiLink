@@ -54,9 +54,6 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
-import com.feryaeljustice.mirailink.domain.model.catalog.Anime
-import com.feryaeljustice.mirailink.domain.model.catalog.Game
-import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
@@ -70,11 +67,14 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
 import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
+import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 @Composable
 fun UserCard(
     modifier: Modifier = Modifier,
-    user: User,
+    user: UserViewEntry,
     canUndo: Boolean = false,
     isPreviewMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
@@ -396,41 +396,41 @@ fun UserCard(
 @Composable
 fun UserCardPreview() {
     UserCard(
-        user = User(
+        user = UserViewEntry(
             id = "1",
             username = "FeryaelJustice",
             nickname = "Feryael Justice",
             bio = "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
             phoneNumber = "604892842",
             animes = listOf(
-                Anime(
+                AnimeViewEntry(
                     id = "1",
                     name = "Naruto",
                     imageUrl = null,
                 ),
-                Anime(
+                AnimeViewEntry(
                     id = "2",
                     name = "One Punch Man",
                     imageUrl = null,
                 ),
-                Anime(
+                AnimeViewEntry(
                     id = "3",
                     name = "Dragon Ball Z",
                     imageUrl = null,
                 )
             ),
             games = listOf(
-                Game(
+                GameViewEntry(
                     id = "1",
                     name = "Final Fantasy VII",
                     imageUrl = null,
                 ),
-                Game(
+                GameViewEntry(
                     id = "2",
                     name = "Soul Calibur V",
                     imageUrl = null,
                 ),
-                Game(
+                GameViewEntry(
                     id = "3",
                     name = "The Legend of Zelda: Breath of the Wild",
                     imageUrl = null,

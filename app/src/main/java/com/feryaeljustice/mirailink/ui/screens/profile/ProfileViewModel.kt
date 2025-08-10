@@ -7,18 +7,21 @@ import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
-import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.mappers.toAnimeViewEntry
+import com.feryaeljustice.mirailink.ui.mappers.toGameViewEntry
 import com.feryaeljustice.mirailink.ui.mappers.toPhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.mappers.toUserViewEntry
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
-import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.media.PhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +48,7 @@ class ProfileViewModel @Inject constructor(
     sealed class ProfileUiState {
         object Idle : ProfileUiState()
         object Loading : ProfileUiState()
-        data class Success(val user: User?) : ProfileUiState()
+        data class Success(val user: UserViewEntry?) : ProfileUiState()
         data class Error(val message: String, val exception: Throwable? = null) : ProfileUiState()
     }
 
@@ -73,8 +76,9 @@ class ProfileViewModel @Inject constructor(
             _state.value = when (result) {
                 is MiraiLinkResult.Success -> {
                     val user = result.data
-                    ProfileUiState.Success(user)
+                    ProfileUiState.Success(user.toUserViewEntry())
                 }
+
                 is MiraiLinkResult.Error -> ProfileUiState.Error(result.message, result.exception)
             }
         }
@@ -280,12 +284,12 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val animes = withContext(Dispatchers.IO) {
                 val result = getAnimesUseCase.get()()
-                if (result is MiraiLinkResult.Success) result.data else emptyList()
+                if (result is MiraiLinkResult.Success) result.data.map { it.toAnimeViewEntry() } else emptyList()
             }
 
             val games = withContext(Dispatchers.IO) {
                 val result = getGamesUseCase.get()()
-                if (result is MiraiLinkResult.Success) result.data else emptyList()
+                if (result is MiraiLinkResult.Success) result.data.map { it.toGameViewEntry() } else emptyList()
             }
 
             _editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }

@@ -15,8 +15,8 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.mappers.toChatMessageViewEntry
 import com.feryaeljustice.mirailink.ui.mappers.toMinimalUserInfoViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.ChatMessageViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.MinimalUserInfoViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

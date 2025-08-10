@@ -1,4 +1,6 @@
-package com.feryaeljustice.mirailink.ui.viewentries
+package com.feryaeljustice.mirailink.ui.viewentries.chat
+
+import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
 
 data class ChatMessageViewEntry(
     val id: String,

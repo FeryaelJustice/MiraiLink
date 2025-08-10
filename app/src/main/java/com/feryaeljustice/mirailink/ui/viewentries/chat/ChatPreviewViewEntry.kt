@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.viewentries
+package com.feryaeljustice.mirailink.ui.viewentries.chat
 
 data class ChatPreviewViewEntry(
     val userId: String? = null,

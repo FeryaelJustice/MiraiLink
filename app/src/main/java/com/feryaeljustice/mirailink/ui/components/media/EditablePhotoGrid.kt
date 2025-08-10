@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
-import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.media.PhotoSlotViewEntry
 
 @Composable
 fun EditablePhotoGrid(

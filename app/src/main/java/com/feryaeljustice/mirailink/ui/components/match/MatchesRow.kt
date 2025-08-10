@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 
 @Composable
 fun MatchesRow(

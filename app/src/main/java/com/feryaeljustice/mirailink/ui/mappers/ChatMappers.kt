@@ -3,8 +3,8 @@ package com.feryaeljustice.mirailink.ui.mappers
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
-import com.feryaeljustice.mirailink.ui.viewentries.ChatMessageViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
 fun ChatSummary.toChatPreviewViewEntry(): ChatPreviewViewEntry = ChatPreviewViewEntry(
     userId = destinatary?.id,

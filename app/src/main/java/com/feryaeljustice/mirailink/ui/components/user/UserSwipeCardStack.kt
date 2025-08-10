@@ -14,14 +14,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.feryaeljustice.mirailink.domain.model.user.User
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @Composable
 fun UserSwipeCardStack(
     modifier: Modifier = Modifier,
-    users: List<User>,
+    users: List<UserViewEntry>,
     canUndo: Boolean,
     onSwipeLeft: () -> Unit,
     onGoBack: (() -> Unit),

@@ -1,9 +1,9 @@
 package com.feryaeljustice.mirailink.domain.util
 
-import com.feryaeljustice.mirailink.domain.model.user.User
-import com.feryaeljustice.mirailink.ui.viewentries.MinimalUserInfoViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
-fun User.nicknameElseUsername(): String {
+fun UserViewEntry.nicknameElseUsername(): String {
     return this.nickname.ifBlank { this.username }
 }
 
