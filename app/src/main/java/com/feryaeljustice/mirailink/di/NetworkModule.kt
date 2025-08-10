@@ -86,13 +86,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
-
-    @Provides
-    @Singleton
     fun provideAppConfigApiService(retrofit: Retrofit): AppConfigApiService =
         retrofit.create(AppConfigApiService::class.java)
 

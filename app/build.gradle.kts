@@ -125,6 +125,11 @@ dependencies {
 
     // Datastore
     implementation(libs.androidx.datastore.preferences)
+    // Proto DataStore
+    implementation(libs.androidx.datastore)
+
+    // Jetpack Security
+    implementation(libs.androidx.security.crypto)
 
     // Navigation & Hilt
     implementation(libs.hilt.android)

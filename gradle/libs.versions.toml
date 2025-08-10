@@ -7,6 +7,7 @@ composeBom = "2025.07.00"
 composeEmojiPicker = "1.0.0-alpha16"
 coreKtx = "1.16.0"
 coil = "2.7.0"
+datastoreProto = "1.1.7"
 datastorePreferences = "1.1.7"
 espressoCore = "3.7.0"
 foundationCompose = "1.9.0-rc01"
@@ -21,6 +22,7 @@ lifecycleRuntimeKtx = "2.9.2"
 navigationCompose = "2.9.3"
 okhttp = "5.1.0"
 retrofit = "3.0.0"
+securityCrypto = "1.1.0"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
 uiTextGoogleFonts = "1.8.3"
@@ -61,6 +63,10 @@ androidx-material3-adaptive = { module = "androidx.compose.material3.adaptive:ad
 
 # Datastore
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastoreProto" }
+
+# Androidx Security crypto
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 
 # Images
 coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil" }

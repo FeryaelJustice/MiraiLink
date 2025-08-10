@@ -1,10 +1,7 @@
 package com.feryaeljustice.mirailink.data.datastore
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
+import com.feryaeljustice.mirailink.data.model.local.datastore.Session
 import com.feryaeljustice.mirailink.di.SessionDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,18 +15,12 @@ import javax.inject.Inject
 // Clase para manejar el logout y redirigir a la pantalla de inicio de sesión de la app
 // que la utilizaremos en el nav wrapper y notificaremos desde cualquier punto de la app
 class SessionManager @Inject constructor(
-    @param:SessionDataStore private val dataStore: DataStore<Preferences>
+    @param:SessionDataStore private val dataStore: DataStore<Session>
 ) {
-    companion object {
-        val KEY_TOKEN = stringPreferencesKey("jwt_token")
-        val KEY_USER_ID = stringPreferencesKey("user_id")
-        val KEY_VERIFIED = booleanPreferencesKey("verified")
-    }
-
     // Token & userId flows
-    val tokenFlow: Flow<String?> = dataStore.data.map { it[KEY_TOKEN] }
-    val userIdFlow: Flow<String?> = dataStore.data.map { it[KEY_USER_ID] }
-    val isVerifiedFlow: Flow<Boolean> = dataStore.data.map { it[KEY_VERIFIED] ?: false }
+    val tokenFlow: Flow<String?> = dataStore.data.map { it.token.ifBlank { null } }
+    val userIdFlow: Flow<String?> = dataStore.data.map { it.userId.ifBlank { null } }
+    val isVerifiedFlow: Flow<Boolean> = dataStore.data.map { it.verified }
 
     // True si tiene token y userId válidos
     val isAuthenticatedFlow: Flow<Boolean> =
@@ -41,32 +32,19 @@ class SessionManager @Inject constructor(
     private val _onLogout = MutableSharedFlow<Unit>(replay = 0)
     val onLogout: SharedFlow<Unit> = _onLogout.asSharedFlow()
 
-    suspend fun saveSession(token: String, userId: String) {
-        dataStore.edit {
-            it[KEY_TOKEN] = token
-            it[KEY_USER_ID] = userId
-            it[KEY_VERIFIED] = false
-        }
+    suspend fun saveSession(token: String, userId: String, verified: Boolean = false) {
+        dataStore.updateData { it.copy(token = token, userId = userId, verified = verified) }
     }
-
-    /*   suspend fun saveUserId(userId: String) {
-           dataStore.edit {
-               it[KEY_USER_ID] = userId
-           }
-       }*/
 
     suspend fun saveIsVerified(isVerified: Boolean) {
-        dataStore.edit {
-            it[KEY_VERIFIED] = isVerified
-        }
+        dataStore.updateData { it.copy(verified = isVerified) }
     }
 
+
     suspend fun clearSession() {
-        dataStore.edit { it.clear() }
+        dataStore.updateData { Session() }
         _onLogout.emit(Unit)
     }
 
-    //    suspend fun getCurrentUserId(): String? = userIdFlow.first()
-    suspend fun getCurrentToken(): String? = tokenFlow.first()
-//    suspend fun isVerified(): Boolean = isVerifiedFlow.first()
+    suspend fun getCurrentToken(): String? = dataStore.data.first().token.ifBlank { null }
 }
