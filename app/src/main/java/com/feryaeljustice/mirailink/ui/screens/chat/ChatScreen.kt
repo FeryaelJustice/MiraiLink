@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
@@ -107,8 +108,9 @@ fun ChatScreen(
             )
     ) {
         ChatTopBar(
-            user = receiver,
             modifier = Modifier,
+            receiverName = receiver?.nicknameElseUsername(),
+            receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
             onReportClick = {
                 showReportDialog = true
             },
@@ -122,7 +124,11 @@ fun ChatScreen(
             state = scrollState,
         ) {
             items(reversedMessages, key = { message -> message.id }) { msg ->
-                MessageItem(message = msg, isOwnMessage = msg.sender.id == sender?.id)
+                MessageItem(
+                    msgContent = msg.content,
+                    msgTimestamp = msg.timestamp,
+                    isOwnMessage = msg.sender.id == sender?.id
+                )
             }
         }
         Row(

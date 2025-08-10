@@ -37,7 +37,7 @@ fun MiraiLinkTextField(
         supportingText = {
             supportingText?.let {
                 MiraiLinkText(
-                    it,
+                    text = it,
                     color = MaterialTheme.colorScheme.error,
                 )
             }

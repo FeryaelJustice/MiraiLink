@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.toMinimalUserInfo
-import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
-import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreatePrivateChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatMessagesUseCase
@@ -15,6 +13,10 @@ import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.mappers.toChatMessageViewEntry
+import com.feryaeljustice.mirailink.ui.mappers.toMinimalUserInfoViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.ChatMessageViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.MinimalUserInfoViewEntry
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -43,14 +45,14 @@ class ChatViewModel @Inject constructor(
     private val _chatId = MutableStateFlow<String?>(null)
     val chatId: StateFlow<String?> = _chatId
 
-    private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
-    val messages: StateFlow<List<ChatMessage>> = _messages
+    private val _messages = MutableStateFlow<List<ChatMessageViewEntry>>(emptyList())
+    val messages: StateFlow<List<ChatMessageViewEntry>> = _messages
 
-    private val _sender = MutableStateFlow<MinimalUserInfo?>(null)
-    val sender: StateFlow<MinimalUserInfo?> = _sender
+    private val _sender = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
+    val sender: StateFlow<MinimalUserInfoViewEntry?> = _sender
 
-    private val _receiver = MutableStateFlow<MinimalUserInfo?>(null)
-    val receiver: StateFlow<MinimalUserInfo?> = _receiver
+    private val _receiver = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
+    val receiver: StateFlow<MinimalUserInfoViewEntry?> = _receiver
 
     private var pollingJob: Job? = null
 
@@ -139,7 +141,7 @@ class ChatViewModel @Inject constructor(
         }
 
         if (result is MiraiLinkResult.Success) {
-            _sender.value = result.data.toMinimalUserInfo()
+            _sender.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
             Log.e("ChatViewModel", "getCurrentUserUseCase error: ${result.message}")
         }
@@ -151,7 +153,7 @@ class ChatViewModel @Inject constructor(
         }
 
         if (result is MiraiLinkResult.Success) {
-            _receiver.value = result.data.toMinimalUserInfo()
+            _receiver.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
             Log.e("ChatViewModel", "setReceiver: ${result.message}")
         }
@@ -185,7 +187,7 @@ class ChatViewModel @Inject constructor(
             }
 
             if (result is MiraiLinkResult.Success) {
-                _messages.value = result.data
+                _messages.value = result.data.map { it.toChatMessageViewEntry() }
             } else if (result is MiraiLinkResult.Error) {
                 Log.e("ChatViewModel", "getMessages: ${result.message}")
             }
@@ -199,7 +201,7 @@ class ChatViewModel @Inject constructor(
 
             if (currSender == null || currReceiver == null) return@launch
 
-            val newMessage = ChatMessage(
+            val newMessage = ChatMessageViewEntry(
                 id = UUID.randomUUID().toString(),
                 sender = currSender,
                 receiver = currReceiver,

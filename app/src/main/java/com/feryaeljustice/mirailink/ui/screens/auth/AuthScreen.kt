@@ -65,7 +65,6 @@ fun AuthScreen(
 
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
-    val loginToken by viewModel.loginToken.collectAsState()
     val userId by viewModel.userId.collectAsState()
     val showTwoFactorLastStepDialog by viewModel.showTwoFactorLastStepDialog.collectAsState()
     val twoFactorLastStepIsLoading by viewModel.twoFactorLastStepDialogIsLoading.collectAsState()
@@ -116,7 +115,11 @@ fun AuthScreen(
             isDisable = false,
             onCodeChange = viewModel::onCodeChangeTwoFactorDiag,
             onDismiss = viewModel::dismissTwoFactorDiag,
-            onConfirm = viewModel::confirmTwoFactorDiag
+            onConfirm = {
+                viewModel.confirmTwoFactorDiag { userId, token ->
+                    sessionViewModel.saveSession(token, userId)
+                }
+            }
         )
     }
 
@@ -254,7 +257,9 @@ fun AuthScreen(
                 onNext = { focusManager.moveFocus(FocusDirection.Next) },
                 onDone = {
                     focusManager.clearFocus()
-                    viewModel.login(email, username, password)
+                    viewModel.login(email, username, password, onSaveSession = { userId, token ->
+                        sessionViewModel.saveSession(token, userId)
+                    })
                 }),
         )
 
@@ -290,7 +295,10 @@ fun AuthScreen(
                     viewModel.register(
                         username,
                         email,
-                        password
+                        password,
+                        onSaveSession = { userId, token ->
+                            sessionViewModel.saveSession(token, userId)
+                        }
                     )
                 }),
             )
@@ -343,8 +351,20 @@ fun AuthScreen(
 
                 if (!valid) return@MiraiLinkButton
 
-                if (isLogin) viewModel.login(email, username, password)
-                else viewModel.register(username, email, password)
+                if (isLogin) viewModel.login(
+                    email,
+                    username,
+                    password,
+                    onSaveSession = { userId, token ->
+                        sessionViewModel.saveSession(token, userId)
+                    })
+                else viewModel.register(
+                    username,
+                    email,
+                    password,
+                    onSaveSession = { userId, token ->
+                        sessionViewModel.saveSession(token, userId)
+                    })
             },
             content = {
                 MiraiLinkText(
@@ -364,7 +384,7 @@ fun AuthScreen(
 
             is AuthUiState.Error -> {
                 val error = state as AuthUiState.Error
-                MiraiLinkText(error.message, color = MaterialTheme.colorScheme.error)
+                MiraiLinkText(text = error.message, color = MaterialTheme.colorScheme.error)
             }
 
             is AuthUiState.IsAuthenticated -> {

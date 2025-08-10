@@ -24,22 +24,28 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.viewentries.ChatPreviewViewEntry
 
 @Composable
 fun MessageListItem(
-    chat: ChatPreviewViewEntry,
+    modifier: Modifier = Modifier,
+    chatUserId: String? = null,
+    chatAvatarUrl: String = "",
+    chatUsername: String = "",
+    chatNickname: String = "",
+    chatIsBoosted: Boolean = false,
+    chatLastMessage: String = "",
+    chatReadsPending: Int = 0,
     onClick: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clickable { chat.userId?.let { uId -> onClick(uId) } }
+            .clickable { chatUserId?.let { uId -> onClick(uId) } }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
-            model = chat.avatarUrl,
+            model = chatAvatarUrl,
             contentDescription = stringResource(R.string.user_avatar),
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -52,13 +58,13 @@ fun MessageListItem(
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MiraiLinkText(
-                    text = chat.nickname.ifBlank { chat.username },
+                    text = chatNickname.ifBlank { chatUsername },
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (chat.isBoosted) {
+                if (chatIsBoosted) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         painter = painterResource(id = R.drawable.ic_bolt),
@@ -69,23 +75,21 @@ fun MessageListItem(
                 }
             }
 
-            chat.lastMessage?.let { lastMsg ->
-                MiraiLinkText(
-                    text = lastMsg,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            MiraiLinkText(
+                text = chatLastMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
 
-        if (chat.readsPending > 0) {
+        if (chatReadsPending > 0) {
             Badge(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
                 modifier = Modifier.padding(end = 8.dp)
-            ) { MiraiLinkText(text = if (chat.readsPending > 99) stringResource(R.string.more_than_ninetynine) else chat.readsPending.toString()) }
+            ) { MiraiLinkText(text = if (chatReadsPending > 99) stringResource(R.string.more_than_ninetynine) else chatReadsPending.toString()) }
         }
     }
 }

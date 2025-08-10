@@ -58,6 +58,8 @@ class GlobalSessionViewModel @Inject constructor(
     val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
 
     fun clearSession() = viewModelScope.launch { sessionManager.clearSession() }
+    fun saveSession(token: String, userId: String) =
+        viewModelScope.launch { sessionManager.saveSession(token, userId) }
 
     fun saveIsVerified(verified: Boolean) =
         viewModelScope.launch { sessionManager.saveIsVerified(isVerified = verified) }

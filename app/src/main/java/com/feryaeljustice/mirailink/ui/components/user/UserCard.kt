@@ -252,7 +252,7 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         MiraiLinkText(
-                            if (!user.bio.isNullOrBlank()) user.bio else stringResource(id = R.string.bio_placeholder),
+                            text = if (!user.bio.isNullOrBlank()) user.bio else stringResource(id = R.string.bio_placeholder),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = FontStyle.Italic,
                         )

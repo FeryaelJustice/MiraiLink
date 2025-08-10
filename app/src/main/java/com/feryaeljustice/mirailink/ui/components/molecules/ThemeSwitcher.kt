@@ -32,6 +32,7 @@ import com.feryaeljustice.mirailink.R
 
 @Composable
 fun ThemeSwitcher(
+    modifier: Modifier = Modifier,
     darkTheme: Boolean = false,
     size: Dp = 48.dp,
     iconSize: Dp = size / 3,
@@ -48,7 +49,7 @@ fun ThemeSwitcher(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(size.times(2))
             .height(size)
             .clip(shape = parentShape)

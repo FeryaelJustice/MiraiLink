@@ -21,6 +21,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.ThemeSwitcher
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiraiLinkTopBar(
+    modifier: Modifier = Modifier,
     darkTheme: Boolean = false,
     enabled: Boolean = true,
     isAuthenticated: Boolean,
@@ -32,7 +33,7 @@ fun MiraiLinkTopBar(
 ) {
     TopAppBar(title = {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .then(
                     if (isAuthenticated && enabled) Modifier.clickable(

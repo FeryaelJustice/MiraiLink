@@ -41,7 +41,11 @@ import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import kotlinx.coroutines.launch
 
 @Composable
-fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit) {
+fun PhotoCarousel(
+    modifier: Modifier = Modifier,
+    photoUrls: List<String>,
+    onLongPressOnImage: (String) -> Unit
+) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
 
@@ -67,7 +71,7 @@ fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit)
 //    }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
     ) {
@@ -124,8 +128,8 @@ fun PhotoCarousel(photoUrls: List<String>, onLongPressOnImage: (String) -> Unit)
 
 @Composable
 private fun PagerIndicator(
-    pagerState: PagerState,
     modifier: Modifier = Modifier,
+    pagerState: PagerState,
     activeColor: Color = MaterialTheme.colorScheme.primary,
     inactiveColor: Color = Color.LightGray
 ) {

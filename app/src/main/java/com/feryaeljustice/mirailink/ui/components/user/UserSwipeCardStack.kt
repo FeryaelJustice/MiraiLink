@@ -20,12 +20,12 @@ import kotlin.math.abs
 
 @Composable
 fun UserSwipeCardStack(
+    modifier: Modifier = Modifier,
     users: List<User>,
     canUndo: Boolean,
     onSwipeLeft: () -> Unit,
     onGoBack: (() -> Unit),
-    onSwipeRight: () -> Unit,
-    modifier: Modifier = Modifier
+    onSwipeRight: () -> Unit
 ) {
     if (users.isEmpty()) return
 

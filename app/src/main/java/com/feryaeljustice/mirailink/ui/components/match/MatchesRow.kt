@@ -38,7 +38,6 @@ fun MatchesRow(
             } else {
                 matches.forEach { user ->
                     MatchCard(
-                        user = user,
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
                             .onVisibilityChanged(callback = {
@@ -47,6 +46,10 @@ fun MatchesRow(
                             .onFirstVisible(callback = {
                                 Log.d("MatchesRow", "First visible: ${user.username}")
                             }),
+                        userAvatarUrl = user.avatarUrl,
+                        userIsBoosted = user.isBoosted,
+                        userUsername = user.username,
+                        userNickname = user.nickname,
                         onClick = { onNavigateToChat(user.id) })
                 }
             }

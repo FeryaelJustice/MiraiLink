@@ -25,22 +25,18 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
-import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo
-import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
-import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun ChatTopBar(
-    user: MinimalUserInfo?,
     modifier: Modifier = Modifier,
+    receiverName: String? = null,
+    receiverUrlPhoto: String? = null,
     onReportClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val url = user?.profilePhoto?.url.getFormattedUrl()
-    val name = user?.nicknameElseUsername()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -71,7 +67,7 @@ fun ChatTopBar(
         }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(url)
+                .data(receiverUrlPhoto)
                 .crossfade(true)
                 .placeholder(drawableResId = R.drawable.logomirailink)
                 .build(),
@@ -83,7 +79,7 @@ fun ChatTopBar(
         )
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
-            text = name?.superCapitalize() ?: stringResource(R.string.unknown),
+            text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer,

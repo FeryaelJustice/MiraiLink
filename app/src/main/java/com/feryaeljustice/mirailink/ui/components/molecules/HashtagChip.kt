@@ -16,9 +16,9 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun HashtagChip(
+    modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
-    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
     val backgroundColor = if (selected) {

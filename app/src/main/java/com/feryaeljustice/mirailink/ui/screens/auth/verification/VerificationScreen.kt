@@ -113,7 +113,7 @@ fun VerificationScreen(
             }
         }
 
-        if (uiState.error != null) MiraiLinkText(uiState.error!!, color = Color.Red)
+        if (uiState.error != null) MiraiLinkText(text = uiState.error!!, color = Color.Red)
     }
 
     BackHandler(enabled = true) { Log.i("OnBack", "Clicked back on Verification Screen") }

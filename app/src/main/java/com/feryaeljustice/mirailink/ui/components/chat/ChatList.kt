@@ -39,9 +39,16 @@ fun ChatList(
             )
         } else {
             chats.forEach { chat ->
-                MessageListItem(chat = chat, onClick = {
-                    onNavigateToChat(it)
-                })
+                MessageListItem(
+                    chatUserId = chat.userId,
+                    chatAvatarUrl = chat.avatarUrl,
+                    chatUsername = chat.username,
+                    chatNickname = chat.nickname,
+                    chatIsBoosted = chat.isBoosted,
+                    chatLastMessage = chat.lastMessage,
+                    onClick = {
+                        onNavigateToChat(it)
+                    })
             }
         }
     }

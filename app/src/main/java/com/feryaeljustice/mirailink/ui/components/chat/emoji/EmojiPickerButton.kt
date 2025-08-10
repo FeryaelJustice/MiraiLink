@@ -28,6 +28,8 @@ import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomS
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmojiPickerButton(
+    modifier: Modifier = Modifier,
+    modifierEmojiButton: Modifier = Modifier,
     onEmojiSelected: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -37,6 +39,7 @@ fun EmojiPickerButton(
 
     if (isModalBottomSheetVisible) {
         ModalBottomSheet(
+            modifier = modifier,
             sheetState = sheetState,
             shape = RectangleShape,
             tonalElevation = 0.dp,
@@ -72,6 +75,7 @@ fun EmojiPickerButton(
     }
 
     MiraiLinkIconButton(
+        modifier = modifierEmojiButton,
         onClick = { isModalBottomSheetVisible = true }
     ) {
         Icon(

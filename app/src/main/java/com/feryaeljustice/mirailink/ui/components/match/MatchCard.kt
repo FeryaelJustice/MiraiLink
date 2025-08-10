@@ -24,15 +24,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.extensions.debounceClickable
-import com.feryaeljustice.mirailink.ui.viewentries.MatchUserViewEntry
-
 
 @Composable
 fun MatchCard(
-    user: MatchUserViewEntry,
     modifier: Modifier = Modifier,
+    userAvatarUrl: String? = TEMPORAL_PLACEHOLDER_PICTURE_URL,
+    userIsBoosted: Boolean = false,
+    userUsername: String = "",
+    userNickname: String = "",
     onClick: () -> Unit
 ) {
     Column(
@@ -43,7 +45,7 @@ fun MatchCard(
     ) {
         Box {
             AsyncImage(
-                model = user.avatarUrl,
+                model = userAvatarUrl,
                 contentDescription = stringResource(R.string.user_avatar),
                 modifier = Modifier
                     .size(64.dp)
@@ -51,7 +53,7 @@ fun MatchCard(
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                 contentScale = ContentScale.Crop
             )
-            if (user.isBoosted) {
+            if (userIsBoosted) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_bolt),
                     contentDescription = stringResource(R.string.boosted),
@@ -68,7 +70,7 @@ fun MatchCard(
         Spacer(modifier = Modifier.height(4.dp))
 
         MiraiLinkText(
-            text = user.nickname.ifBlank { user.username },
+            text = userNickname.ifBlank { userUsername },
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

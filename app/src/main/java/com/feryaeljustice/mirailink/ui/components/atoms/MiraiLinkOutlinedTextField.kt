@@ -39,7 +39,7 @@ fun MiraiLinkOutlinedTextField(
         supportingText = {
             supportingText?.let {
                 MiraiLinkText(
-                    it,
+                    text = it,
                     color = MaterialTheme.colorScheme.error,
                 )
             }

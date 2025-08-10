@@ -15,17 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
 import com.feryaeljustice.mirailink.domain.util.formatTimestamp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Composable
 fun MessageItem(
-    message: ChatMessage,
+    msgContent: String = "",
+    msgTimestamp: Long = 0,
     isOwnMessage: Boolean
 ) {
     val style = getMessageStyle(isOwnMessage)
-    val timeText = remember(message.timestamp) { formatTimestamp(message.timestamp) }
+    val timeText = remember(msgTimestamp) { formatTimestamp(msgTimestamp) }
 
     Box(
         modifier = Modifier
@@ -45,7 +45,7 @@ fun MessageItem(
             horizontalAlignment = style.horizontalAlignment
         ) {
             MiraiLinkText(
-                text = message.content,
+                text = msgContent,
                 color = style.textColor,
             )
             MiraiLinkText(

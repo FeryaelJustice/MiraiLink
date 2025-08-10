@@ -17,8 +17,8 @@ import com.google.zxing.qrcode.QRCodeWriter
 @SuppressLint("UseKtx")
 @Composable
 fun QrCodeImage(
-    content: String,
     modifier: Modifier = Modifier,
+    content: String,
     size: Dp = 240.dp
 ) {
     val bitmap = remember(content) {

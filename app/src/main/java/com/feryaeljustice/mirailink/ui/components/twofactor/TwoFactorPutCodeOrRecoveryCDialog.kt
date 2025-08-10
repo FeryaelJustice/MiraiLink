@@ -19,6 +19,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 
 @Composable
 fun TwoFactorPutCodeOrRecoveryCDialog(
+    modifier: Modifier = Modifier,
     code: String,
     isLoading: Boolean,
     isDisable: Boolean = true,
@@ -27,6 +28,7 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
     onConfirm: () -> Unit
 ) {
     MiraiLinkDialog(
+        modifier = modifier,
         onDismiss = null,
         onAccept = onConfirm,
         onCancel = onDismiss,

@@ -11,8 +11,8 @@ import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun MiraiLinkBasicText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     textStyle: TextStyle = TextStyle.Default,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Visible,

@@ -85,7 +85,7 @@ fun MultiSelectDropdown(
                         onClick = {
                             onSelectionChange(selected - tag)
                         },
-                        label = { MiraiLinkText(tag) },
+                        label = { MiraiLinkText(text = tag) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.padding(end = 8.dp, bottom = 4.dp),
                         colors = AssistChipDefaults.assistChipColors(

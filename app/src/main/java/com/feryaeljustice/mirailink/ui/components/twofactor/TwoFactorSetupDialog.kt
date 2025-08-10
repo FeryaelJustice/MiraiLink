@@ -22,6 +22,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.QrCodeImage
 
 @Composable
 fun TwoFactorSetupDialog(
+    modifier: Modifier = Modifier,
     otpUrl: String?,
     base32: String,
     recoveryCodes: List<String>,
@@ -32,6 +33,7 @@ fun TwoFactorSetupDialog(
     onConfirm: () -> Unit
 ) {
     MiraiLinkDialog(
+        modifier = modifier,
         onDismiss = onDismiss,
         onAccept = onConfirm,
         onCancel = onDismiss,

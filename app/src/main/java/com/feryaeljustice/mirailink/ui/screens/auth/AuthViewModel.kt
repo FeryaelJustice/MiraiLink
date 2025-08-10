@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
@@ -22,7 +21,6 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val loginUseCase: Lazy<LoginUseCase>,
     private val registerUseCase: Lazy<RegisterUseCase>,
-    private val sessionManager: Lazy<SessionManager>,
     private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
     private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
 ) : ViewModel() {
@@ -51,18 +49,27 @@ class AuthViewModel @Inject constructor(
     private val _twoFactorCode = MutableStateFlow("")
     val twoFactorCode = _twoFactorCode.asStateFlow()
 
-    fun login(email: String, username: String, password: String) {
+    fun login(
+        email: String, username: String, password: String, onSaveSession: (String, String) -> Unit
+    ) {
         _state.value = AuthUiState.Loading
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 loginUseCase.get()(email, username, password)
             }
 
-            handleAuthResult(result)
+            handleAuthResult(result, onSaveTheSession = { userId, token ->
+                onSaveSession(userId, token)
+            })
         }
     }
 
-    fun register(username: String, email: String, password: String) {
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        onSaveSession: (String, String) -> Unit
+    ) {
         _state.value = AuthUiState.Loading
         /*    viewModelScope.launch {
                 val result = withContext(Dispatchers.IO) {
@@ -73,11 +80,22 @@ class AuthViewModel @Inject constructor(
             }*/
         viewModelScope.launch(Dispatchers.IO) {
             val result = registerUseCase.get()(username, email, password)
-            handleAuthResult(result)
+            var usId: String = ""
+            var tokn: String = ""
+            handleAuthResult(result, onSaveTheSession = { userId, token ->
+                usId = userId
+                tokn = token
+            })
+            withContext(Dispatchers.Main) {
+                onSaveSession(usId, tokn)
+            }
         }
     }
 
-    private suspend fun handleAuthResult(result: MiraiLinkResult<String>) {
+    private suspend fun handleAuthResult(
+        result: MiraiLinkResult<String>,
+        onSaveTheSession: (String, String) -> Unit
+    ) {
         when (result) {
             is MiraiLinkResult.Success -> {
                 var usID: String? = null
@@ -96,7 +114,11 @@ class AuthViewModel @Inject constructor(
                             val isTwoFactorEnabled = twoFactorResult.data
                             _showTwoFactorLastStepDialog.value = isTwoFactorEnabled
                             if (!isTwoFactorEnabled) {
-                                completeAuth(userId = _userId.value, token = _loginToken.value)
+                                completeAuth(
+                                    userId = _userId.value,
+                                    token = _loginToken.value,
+                                    onSaveSession = onSaveTheSession
+                                )
                             }
                         }
 
@@ -115,14 +137,14 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    suspend fun completeAuth(userId: String?, token: String?) {
+    fun completeAuth(userId: String?, token: String?, onSaveSession: (String, String) -> Unit) {
         // Do login / register (for the ui to manage)
         if (userId == null || token == null) {
             _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
             return
         }
-        sessionManager.get().saveSession(token = token, userId = userId)
         _state.value = AuthUiState.Success
+        onSaveSession(userId, token)
     }
 
     // 2FA (si procede)
@@ -130,7 +152,7 @@ class AuthViewModel @Inject constructor(
         _showTwoFactorLastStepDialog.value = false
     }
 
-    fun confirmTwoFactorDiag() {
+    fun confirmTwoFactorDiag(onSaveTheSession: (String, String) -> Unit) {
         val userID = _userId.value
         if (userID == null) {
             _state.value = AuthUiState.Error("No existe el ID del usuario")
@@ -153,7 +175,11 @@ class AuthViewModel @Inject constructor(
 
                 is MiraiLinkResult.Success -> {
                     resetTwoFaDiag()
-                    completeAuth(userId = userID, token = _loginToken.value)
+                    completeAuth(
+                        userId = userID,
+                        token = _loginToken.value,
+                        onSaveSession = onSaveTheSession
+                    )
                 }
             }
         }

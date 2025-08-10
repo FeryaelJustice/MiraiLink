@@ -1,18 +1,21 @@
 package com.feryaeljustice.mirailink.ui.components.appconfig
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 
 @Composable
 fun UpdateGate(
+    modifier: Modifier = Modifier,
     message: String? = stringResource(R.string.update_required_body),
     force: Boolean = true,
     onDismiss: (() -> Unit)? = {},
     onOpenStore: () -> Unit
 ) {
     MiraiLinkDialog(
+        modifier = modifier,
         title = stringResource(R.string.update_required_title),
         message = message?.ifBlank { stringResource(R.string.update_required_body) },
         onDismiss = if (force) {

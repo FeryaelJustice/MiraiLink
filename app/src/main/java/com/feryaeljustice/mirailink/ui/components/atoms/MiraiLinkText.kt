@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun MiraiLinkText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     fontStyle: FontStyle? = FontStyle.Normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,

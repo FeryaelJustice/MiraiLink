@@ -41,6 +41,7 @@ import com.feryaeljustice.mirailink.ui.viewentries.PhotoSlotViewEntry
 
 @Composable
 fun EditablePhotoGrid(
+    modifier: Modifier = Modifier,
     photos: List<PhotoSlotViewEntry>,
     onSlotClick: ((Int) -> Unit)?,
     onPhotoReorder: ((Int, Int) -> Unit)?
@@ -55,7 +56,7 @@ fun EditablePhotoGrid(
     val cols = 2
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         for (row in 0 until rows) {
