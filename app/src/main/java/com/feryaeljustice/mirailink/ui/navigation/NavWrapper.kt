@@ -224,7 +224,7 @@ fun AppNavHost(
     isAuthenticated: Boolean,
 ) {
     val context = LocalContext.current
-    val clipboard = LocalClipboard.current
+    LocalClipboard.current
     NavHost(
         navController = navController,
         startDestination = AppScreen.SplashScreen,
