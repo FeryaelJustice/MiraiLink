@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -48,7 +49,8 @@ fun SettingsScreen(
     sessionViewModel: GlobalSessionViewModel,
     goToFeedbackScreen: () -> Unit,
     goToConfigureTwoFactorScreen: () -> Unit,
-    showToast: (String, Int) -> Unit
+    showToast: (String, Int) -> Unit,
+    copyToClipBoard: (String) -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -58,6 +60,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val clipboard = LocalClipboard.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -185,6 +188,9 @@ fun SettingsScreen(
                 text = stringResource(R.string.privacy_policy),
                 onClick = {
                     uriHandler.openUri(deepLinkPrivacyPolicyUrl)
+                },
+                onLongClick = {
+                    copyToClipBoard(deepLinkPrivacyPolicyUrl)
                 },
                 isTransparentBackground = true
             )

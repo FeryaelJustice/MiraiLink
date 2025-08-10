@@ -121,4 +121,5 @@
     <string name="update_required_title">Update required</string>
     <string name="update_required_body">In order to keep using the app, you need to update to the latest version.</string>
     <string name="update_now">Update now</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>

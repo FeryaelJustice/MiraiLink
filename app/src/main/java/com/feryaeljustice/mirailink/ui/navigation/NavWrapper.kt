@@ -1,6 +1,8 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
+import android.content.ClipData
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -12,9 +14,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.toClipEntry
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
@@ -26,7 +29,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.feryaeljustice.mirailink.domain.constants.deepLinkHomeUrl
+import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
@@ -56,10 +60,9 @@ import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalMiraiLinkPrefsViewModel
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
+import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.launch
-
-private val LocalShowSnackbar = staticCompositionLocalOf<(String) -> Unit> { { } }
 
 @Composable
 fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
@@ -70,10 +73,24 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     // Utils
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
+    val context = LocalContext.current
+
     val showSnackbar: (String) -> Unit = { msg ->
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()
             snackbarHostState.showSnackbar(message = msg)
+        }
+    }
+    val copyToClipBoard: (String) -> Unit = { msg ->
+        scope.launch {
+            clipboard.setClipEntry(
+                ClipData.newPlainText(
+                    msg,
+                    msg
+                ).toClipEntry()
+            )
+            showToast(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT)
         }
     }
 
@@ -189,6 +206,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                 miraiLinkPrefs = miraiLinkPrefs,
                 modifier = Modifier.padding(innerPadding),
                 showSnackbar = showSnackbar,
+                copyToClipboard = copyToClipBoard,
                 isAuthenticated = isAuthenticated,
             )
         }
@@ -202,9 +220,11 @@ fun AppNavHost(
     miraiLinkPrefs: GlobalMiraiLinkPrefsViewModel,
     modifier: Modifier = Modifier,
     showSnackbar: (String) -> Unit = {},
+    copyToClipboard: (String) -> Unit = {},
     isAuthenticated: Boolean,
 ) {
     val context = LocalContext.current
+    val clipboard = LocalClipboard.current
     NavHost(
         navController = navController,
         startDestination = AppScreen.SplashScreen,
@@ -291,6 +311,7 @@ fun AppNavHost(
             sessionViewModel = sessionViewModel,
             context = context,
             showSnackbar = showSnackbar,
+            copyToClipBoard = copyToClipboard,
         )
     }
 }
@@ -339,6 +360,7 @@ private fun NavGraphBuilder.appGraph(
     sessionViewModel: GlobalSessionViewModel,
     context: Context,
     showSnackbar: (String) -> Unit,
+    copyToClipBoard: (String) -> Unit,
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.ProfilePictureScreen> {
@@ -355,7 +377,7 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.HomeScreen>(deepLinks = listOf(navDeepLink {
-            uriPattern = deepLinkHomeUrl
+            uriPattern = deepLinkBaseUrl
         })) {
             val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
@@ -423,7 +445,9 @@ private fun NavGraphBuilder.appGraph(
                 },
                 showToast = { msg, duration ->
                     showToast(context = context, message = msg, duration = duration)
-                })
+                },
+                copyToClipBoard = copyToClipBoard
+            )
         }
 
         composable<AppScreen.FeedbackScreen> {

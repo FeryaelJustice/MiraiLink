@@ -19,5 +19,4 @@ const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
     "https://mirailink.xyz/assets/img/profiles/Goku.jpeg"
 
 const val deepLinkBaseUrl = "https://mirailink.xyz"
-const val deepLinkHomeUrl = "$deepLinkBaseUrl/home"
 const val deepLinkPrivacyPolicyUrl = "$deepLinkBaseUrl/privacypolicy"
