@@ -69,6 +69,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     // Nav
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val navAnalyticsVm: NavAnalyticsViewModel = hiltViewModel()
 
     // Utils
     val snackbarHostState = remember { SnackbarHostState() }
@@ -145,6 +146,12 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+
+    LaunchedEffect(navBackStackEntry?.destination?.route) {
+        navBackStackEntry?.destination?.route?.let { route ->
+            navAnalyticsVm.logScreen(route)
         }
     }
 

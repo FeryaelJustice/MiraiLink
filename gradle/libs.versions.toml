@@ -1,16 +1,16 @@
 [versions]
-adaptive = "1.2.0-alpha10"
+adaptive = "1.2.0-alpha11"
 agp = "8.12.0-alpha08"
 activityCompose = "1.10.1"
 appcompat = "1.7.1"
-composeBom = "2025.07.00"
+composeBom = "2025.08.00"
 composeEmojiPicker = "1.0.0-alpha16"
-coreKtx = "1.16.0"
+coreKtx = "1.17.0"
 coil = "2.7.0"
 datastoreProto = "1.1.7"
 datastorePreferences = "1.1.7"
 espressoCore = "3.7.0"
-foundationCompose = "1.9.0-rc01"
+foundationCompose = "1.9.0"
 hilt = "2.57"
 hiltNavigation = "1.2.0"
 junit = "4.13.2"
@@ -25,9 +25,12 @@ retrofit = "3.0.0"
 securityCrypto = "1.1.0"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
-uiTextGoogleFonts = "1.8.3"
+uiTextGoogleFonts = "1.9.0"
 zxingCore = "3.5.3"
 material3 = "1.3.2"
+firebase-bom = "34.1.0"
+google-services = "4.4.3"
+crashlytics-gradle = "3.0.6"
 
 [libraries]
 # Core
@@ -100,6 +103,11 @@ compose-emoji-picker = { group = "com.github.Abhimanyu14", name = "compose-emoji
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxingCore" }
 material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
+# Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -108,3 +116,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics-gradle" }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "886541470453",
+    "project_id": "mirailink-afb49",
+    "storage_bucket": "mirailink-afb49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886541470453:android:bc3f9ee507f74f20cc13bc",
+        "android_client_info": {
+          "package_name": "com.feryaeljustice.mirailink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBupLdW_jG7A-hEGrDGgHFGtzr-OgVyoqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

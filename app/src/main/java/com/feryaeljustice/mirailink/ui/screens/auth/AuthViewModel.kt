@@ -3,6 +3,8 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
@@ -23,6 +25,8 @@ class AuthViewModel @Inject constructor(
     private val registerUseCase: Lazy<RegisterUseCase>,
     private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
     private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
+    private val analytics: AnalyticsTracker,
+    private val crash: CrashReporter
 ) : ViewModel() {
 
     sealed class AuthUiState {
@@ -37,7 +41,7 @@ class AuthViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val _loginToken = MutableStateFlow<String?>(null)
-    val loginToken = _loginToken.asStateFlow()
+//    val loginToken = _loginToken.asStateFlow()
 
     private val _userId = MutableStateFlow<String?>(null)
     val userId = _userId.asStateFlow()
@@ -80,8 +84,8 @@ class AuthViewModel @Inject constructor(
             }*/
         viewModelScope.launch(Dispatchers.IO) {
             val result = registerUseCase.get()(username, email, password)
-            var usId: String = ""
-            var tokn: String = ""
+            var usId = ""
+            var tokn = ""
             handleAuthResult(result, onSaveTheSession = { userId, token ->
                 usId = userId
                 tokn = token
@@ -107,6 +111,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 usID?.let { usuID ->
+                    onLoginSuccess(userId = usuID)
                     // Check 2fa is enabled to show dialog
                     when (val twoFactorResult =
                         getTwoFactorStatusUseCase.get()(userID = usuID)) {
@@ -133,6 +138,7 @@ class AuthViewModel @Inject constructor(
 
             is MiraiLinkResult.Error -> {
                 _state.value = AuthUiState.Error(result.message, result.exception)
+                onLoginError(result.exception ?: Throwable(result.message))
             }
         }
     }
@@ -199,5 +205,15 @@ class AuthViewModel @Inject constructor(
         _showTwoFactorLastStepDialog.value = false
         _twoFactorCode.value = ""
         _twoFactorLastStepDialogIsLoading.value = false
+    }
+
+    fun onLoginSuccess(userId: String) {
+        analytics.setUserId(userId)
+        analytics.logEvent("login_success")
+    }
+
+    fun onLoginError(e: Throwable) {
+        crash.recordNonFatal(e)
+        analytics.logEvent("login_error")
     }
 }
