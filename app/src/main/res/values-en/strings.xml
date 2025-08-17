@@ -122,4 +122,12 @@
     <string name="update_required_body">In order to keep using the app, you need to update to the latest version.</string>
     <string name="update_now">Update now</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="age_presentation">Age: %1$s</string>
+    <string name="birthdate">Birth date</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="gender_presentation">Genre: %1$s</string>
 </resources>

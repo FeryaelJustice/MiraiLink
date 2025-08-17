@@ -12,6 +12,8 @@ data class EditProfileUiState(
     val isEditing: Boolean = false,
     val nickname: String = "",
     val bio: String = "",
+    val gender: String = "",            // guardaremos la clave ("male", etc.)
+    val birthdate: String = "",         // "YYYY-MM-DD"
     val selectedAnimes: List<AnimeViewEntry> = emptyList(),
     val selectedGames: List<GameViewEntry> = emptyList(),
     val animeCatalog: List<AnimeViewEntry> = emptyList(),

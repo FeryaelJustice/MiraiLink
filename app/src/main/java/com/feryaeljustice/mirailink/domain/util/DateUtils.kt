@@ -10,8 +10,11 @@ import kotlinx.serialization.encoding.Encoder
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
+import java.time.Period
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -51,5 +54,51 @@ object DateSerializer : KSerializer<Date> {
     override fun deserialize(decoder: Decoder): Date {
         return dateFormat.parse(decoder.decodeString())
             ?: throw IllegalArgumentException("Invalid date format")
+    }
+}
+
+/** De millis del DatePicker a "yyyy-MM-dd" en tu zona */
+fun millisToBackendDate(millis: Long): String =
+    Instant.ofEpochMilli(millis)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .toString() // "yyyy-MM-dd"
+
+/** Normaliza cualquier String (con o sin 'Z') a "yyyy-MM-dd" */
+fun toBackendDate(input: String): String =
+    try {
+        val safeInput = input.takeIf { it.isNotBlank() }
+        when {
+            safeInput == null -> LocalDate.now().toString() // blank o null → hoy
+            else -> {
+                try {
+                    // Caso ISO con hora: "1999-06-26T22:00:00.000Z"
+                    Instant.parse(safeInput).atZone(ZoneId.systemDefault()).toLocalDate().toString()
+                } catch (_: Exception) {
+                    // Caso ya "yyyy-MM-dd" (o parseable como LocalDate)
+                    LocalDate.parse(safeInput).toString()
+                }
+            }
+        }
+    } catch (_: Exception) {
+        LocalDate.now().toString() // fallback absoluto
+    }
+
+/** Para inicializar el DatePicker desde "yyyy-MM-dd" */
+fun backendDateToMillis(date: String): Long =
+    LocalDate.parse(date)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
+
+fun String?.toAgeOrNull(): String? {
+    if (this.isNullOrBlank()) return null
+    return try {
+        val birthDate = LocalDate.parse(this) // "YYYY-MM-DD"
+        val today = LocalDate.now()
+        val age = Period.between(birthDate, today).years
+        return age.toString()
+    } catch (e: DateTimeParseException) {
+        null
     }
 }

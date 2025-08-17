@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:ignore="AdvertisingIdPolicy" />
 
     <application
         android:name=".MiraiLinkApp"
@@ -22,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiraiLink"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1078603769231868~7405600656" />
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"

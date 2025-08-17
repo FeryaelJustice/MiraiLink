@@ -88,6 +88,8 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateProfile(
         nickname: String,
         bio: String,
+        gender: String?,
+        birthdate: String?,
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,
@@ -96,6 +98,8 @@ class UserRepositoryImpl @Inject constructor(
         return remote.updateProfile(
             nickname = nickname,
             bio = bio,
+            gender = gender,
+            birthdate = birthdate,
             animesJson = animesJson,
             gamesJson = gamesJson,
             photoUris = photoUris,

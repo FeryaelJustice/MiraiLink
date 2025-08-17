@@ -113,6 +113,8 @@ class ProfileViewModel @Inject constructor(
                         isEditing = true,
                         nickname = user.nickname,
                         bio = user.bio ?: "",
+                        gender = user.gender ?: "",
+                        birthdate = user.birthdate ?: "",
                         selectedAnimes = user.animes,
                         selectedGames = user.games,
                         photos = photos
@@ -128,6 +130,16 @@ class ProfileViewModel @Inject constructor(
                     viewModelScope.launch {
                         val nickname = state.nickname
                         val bio = state.bio
+                        val gender = state.gender.ifBlank { null }
+                        val birthdate = state.birthdate.ifBlank { null } // "YYYY-MM-DD"
+
+                        // validación mínima local (opcional)
+                        val dateOk = birthdate?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) ?: true
+                        if (!dateOk) {
+                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError("Fecha de nacimiento inválida"))
+                            return@launch
+                        }
+
                         val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
                         val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
 
@@ -144,6 +156,8 @@ class ProfileViewModel @Inject constructor(
                             updateUserProfileUseCase.get()(
                                 nickname = nickname,
                                 bio = bio,
+                                gender = gender,
+                                birthdate = birthdate,
                                 animesJson = animesJson,
                                 gamesJson = gamesJson,
                                 photoUris = photoUris,
@@ -167,6 +181,8 @@ class ProfileViewModel @Inject constructor(
                     when (intent.field) {
                         TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
                         TextFieldType.BIO -> state.copy(bio = intent.value)
+                        TextFieldType.GENDER -> state.copy(gender = intent.value)
+                        TextFieldType.BIRTHDATE -> state.copy(birthdate = intent.value)
                     }
                 }
 

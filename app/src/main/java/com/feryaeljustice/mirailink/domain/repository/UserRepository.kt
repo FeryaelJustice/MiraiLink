@@ -31,6 +31,8 @@ interface UserRepository {
     suspend fun updateProfile(
         nickname: String,
         bio: String,
+        gender: String?,
+        birthdate: String?,
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,

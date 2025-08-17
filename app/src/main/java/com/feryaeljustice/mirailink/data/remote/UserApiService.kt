@@ -86,6 +86,8 @@ interface UserApiService {
     suspend fun updateProfile(
         @Part("nickname") nickname: RequestBody,
         @Part("bio") bio: RequestBody,
+        @Part("gender") gender: RequestBody?,
+        @Part("birthdate") birthdate: RequestBody?,
         @Part("animes") animes: RequestBody,
         @Part("games") games: RequestBody,
         @Part("reorderedPositions") reorderedPositions: RequestBody?,

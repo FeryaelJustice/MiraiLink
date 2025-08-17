@@ -150,6 +150,8 @@ class UserRemoteDataSource @Inject constructor(
     suspend fun updateProfile(
         nickname: String,
         bio: String,
+        gender: String?,
+        birthdate: String?,
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,
@@ -187,6 +189,8 @@ class UserRemoteDataSource @Inject constructor(
             api.updateProfile(
                 nickname = nickname.toRequestBody(),
                 bio = bio.toRequestBody(),
+                gender = gender?.toRequestBody(),
+                birthdate = birthdate?.toRequestBody(),
                 animes = animesJson.toRequestBody(),
                 games = gamesJson.toRequestBody(),
                 reorderedPositions = reorderedRequestBody,

@@ -19,10 +19,11 @@ android {
 
     defaultConfig {
         applicationId = "com.feryaeljustice.mirailink"
+
         minSdk = 26
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.1.0"
+        versionCode = 13
+        versionName = "1.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -162,4 +163,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+
+    // Google Ads
+    implementation(libs.play.services.ads)
+    // UMP (consent)
+    implementation(libs.google.ump)
 }

@@ -54,7 +54,10 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
+import com.feryaeljustice.mirailink.domain.model.enum.Gender
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
+import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
+import com.feryaeljustice.mirailink.domain.util.toBackendDate
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
@@ -63,9 +66,12 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextFie
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
+import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
+import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
 import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
+import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
@@ -184,7 +190,7 @@ fun UserCard(
                         onPhotoReorder = onPhotoReorder
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // TextField para nombre
                     MiraiLinkOutlinedTextField(
@@ -201,7 +207,7 @@ fun UserCard(
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     // TextField para bio
                     MiraiLinkOutlinedTextField(
@@ -214,7 +220,25 @@ fun UserCard(
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Selector de género
+                    GenderSelector(
+                        gender = Gender.fromRealValue(editUiState.gender) ?: Gender.Other,
+                        onChange = { genderEnum ->
+                            onValueChange?.invoke(TextFieldType.GENDER, genderEnum.realValue)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // TextField para fecha de nacimiento
+                    BirthdateField(
+                        birthdateIso = toBackendDate(editUiState.birthdate),
+                        onChange = { onValueChange?.invoke(TextFieldType.BIRTHDATE, it) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
                     MultiSelectDropdown(
@@ -256,6 +280,28 @@ fun UserCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = FontStyle.Italic,
                         )
+
+                        Gender.fromRealValue(user.gender)?.let { genderEnum ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(
+                                    R.string.gender_presentation,
+                                    genderEnum.localizedLabel()
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        }
+
+                        val age = user.birthdate.toAgeOrNull()
+                        if (!age.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(R.string.age_presentation, age),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        }
 
                         // Secciones: anime y videojuegos
                         Spacer(modifier = Modifier.height(16.dp))

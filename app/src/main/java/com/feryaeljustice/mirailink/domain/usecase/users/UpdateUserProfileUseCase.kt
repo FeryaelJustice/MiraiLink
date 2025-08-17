@@ -12,6 +12,8 @@ class UpdateUserProfileUseCase @Inject constructor(
     suspend operator fun invoke(
         nickname: String,
         bio: String,
+        gender: String?,
+        birthdate: String?,
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,
@@ -24,6 +26,8 @@ class UpdateUserProfileUseCase @Inject constructor(
         return repository.updateProfile(
             nickname = nickname,
             bio = bio,
+            gender = gender,
+            birthdate = birthdate,
             animesJson = animesJson,
             gamesJson = gamesJson,
             photoUris = photoUris,

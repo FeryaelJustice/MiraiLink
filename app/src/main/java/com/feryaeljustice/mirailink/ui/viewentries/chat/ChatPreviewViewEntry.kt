@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.ui.viewentries.chat
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ChatPreviewViewEntry(
     val userId: String? = null,
     val username: String = "",

@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.ui.viewentries.user
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MatchUserViewEntry(
     val id: String,
     val username: String,
