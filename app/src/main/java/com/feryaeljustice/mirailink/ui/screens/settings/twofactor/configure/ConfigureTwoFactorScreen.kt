@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -174,10 +173,10 @@ fun ConfigureTwoFactorScreen(
                 ) {
                     MiraiLinkBasicText(
                         text = stringResource(R.string.is_two_factor_enabled),
-                        textStyle = TextStyle(fontSize = 12.sp),
+                        textStyle = MaterialTheme.typography.bodySmall,
                         autoSize = TextAutoSize.StepBased(
-                            minFontSize = 14.sp,
-                            maxFontSize = 16.sp,
+                            minFontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
                             stepSize = 1.sp
                         ),
                         color = { cardTextColor },

@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -42,13 +41,16 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
                 MiraiLinkText(
                     text = stringResource(R.string.enter_code_from_app_or_use_recovery_code),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 14.sp
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 MiraiLinkOutlinedTextField(
                     value = code,
                     onValueChange = onCodeChange,
                     placeholder = {
-                        MiraiLinkText(text = stringResource(R.string.code_placeholder))
+                        MiraiLinkText(
+                            text = stringResource(R.string.code_placeholder),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     },
                     maxLines = 1,
                     enabled = !isLoading,

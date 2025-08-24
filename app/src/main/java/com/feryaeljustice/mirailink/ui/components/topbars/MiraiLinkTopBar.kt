@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,7 +48,10 @@ fun MiraiLinkTopBar(
                 painter = painterResource(id = R.drawable.logomirailink),
                 contentDescription = stringResource(R.string.app_name),
             )
-            MiraiLinkText(text = title ?: stringResource(R.string.app_name))
+            MiraiLinkText(
+                text = title ?: stringResource(R.string.app_name),
+                style = MaterialTheme.typography.headlineMedium,
+            )
         }
     }, actions = {
         if (enabled) {

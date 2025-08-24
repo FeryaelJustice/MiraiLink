@@ -95,7 +95,7 @@ fun ChatTopBar(
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
             text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
-            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
         )

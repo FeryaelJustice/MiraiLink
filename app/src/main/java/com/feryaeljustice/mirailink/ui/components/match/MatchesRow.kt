@@ -26,7 +26,7 @@ fun MatchesRow(
         MiraiLinkText(
             text = stringResource(R.string.matches),
             modifier = Modifier.padding(bottom = 8.dp),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
         )
 
         Row {

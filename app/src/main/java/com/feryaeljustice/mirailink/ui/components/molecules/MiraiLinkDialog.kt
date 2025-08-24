@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -91,7 +90,6 @@ fun MiraiLinkDialog(
                     text = it,
                     color = textColor,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 15.sp,
                     textAlign = textAlign
                 )
             }

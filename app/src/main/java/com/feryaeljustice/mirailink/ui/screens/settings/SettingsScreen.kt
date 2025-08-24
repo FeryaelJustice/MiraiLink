@@ -186,6 +186,7 @@ fun SettingsScreen(
         ) {
             MiraiLinkTextButton(
                 text = stringResource(R.string.privacy_policy),
+                style = MaterialTheme.typography.bodyLarge,
                 onClick = {
                     uriHandler.openUri(deepLinkPrivacyPolicyUrl)
                 },

@@ -75,6 +75,7 @@ fun MiraiLinkBottomBar(
                     MiraiLinkText(
                         text = stringResource(id = item.label),
                         color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
             )

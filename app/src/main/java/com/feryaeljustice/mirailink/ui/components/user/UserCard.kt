@@ -236,9 +236,8 @@ fun UserCard(
                     Column(modifier = Modifier.padding(16.dp)) {
                         MiraiLinkText(
                             text = user.nicknameElseUsername(),
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.headlineSmall.copy(textDecoration = TextDecoration.Underline),
+                            style = MaterialTheme.typography.titleLarge.copy(textDecoration = TextDecoration.Underline),
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -287,7 +286,6 @@ fun UserCard(
                             text = stringResource(id = R.string.user_card_fav_animes_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -304,7 +302,6 @@ fun UserCard(
                         } ?: MiraiLinkText(
                             text = stringResource(id = R.string.user_card_fav_games_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
                             fontStyle = MaterialTheme.typography.labelSmall.fontStyle
                         )
                         Spacer(modifier = Modifier.height(8.dp))

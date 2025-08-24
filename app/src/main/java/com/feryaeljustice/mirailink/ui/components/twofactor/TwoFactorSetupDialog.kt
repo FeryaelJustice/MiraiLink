@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -54,7 +53,7 @@ fun TwoFactorSetupDialog(
                 MiraiLinkText(
                     text = stringResource(R.string.enter_code_from_app),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 14.sp
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 MiraiLinkOutlinedTextField(
                     value = code,
@@ -69,12 +68,12 @@ fun TwoFactorSetupDialog(
                 MiraiLinkText(
                     text = stringResource(R.string.or_use_secret_code),
                     color = Color.Gray,
-                    fontSize = 13.sp
+                    style = MaterialTheme.typography.bodySmall,
                 )
                 MiraiLinkText(
                     text = base32,
                     color = MaterialTheme.colorScheme.primary,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold
                 )
                 if (recoveryCodes.isNotEmpty()) {
@@ -86,7 +85,7 @@ fun TwoFactorSetupDialog(
                         MiraiLinkText(
                             text = it,
                             color = Color.Gray,
-                            fontSize = 12.sp
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }

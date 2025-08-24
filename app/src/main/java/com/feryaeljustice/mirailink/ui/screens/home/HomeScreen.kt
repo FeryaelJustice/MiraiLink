@@ -73,7 +73,10 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                     }
                 } else {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        MiraiLinkText(text = stringResource(R.string.users_empty_by_now))
+                        MiraiLinkText(
+                            text = stringResource(R.string.users_empty_by_now),
+                            style = MaterialTheme.typography.titleLarge
+                        )
                     }
                 }
             }

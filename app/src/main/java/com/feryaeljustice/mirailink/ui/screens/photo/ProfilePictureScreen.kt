@@ -113,7 +113,6 @@ fun ProfilePictureScreen(
                 sessionViewModel.clearSession()
             }),
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
-            fontSize = MaterialTheme.typography.labelMedium.fontSize,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

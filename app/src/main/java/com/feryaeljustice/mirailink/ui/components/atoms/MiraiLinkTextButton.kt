@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,6 +20,7 @@ fun MiraiLinkTextButton(
     modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
     isTransparentBackground: Boolean = true,
     onTransparentBackgroundContentColor: Color = MaterialTheme.colorScheme.onBackground,
     containerColor: Color = MaterialTheme.colorScheme.primary,
@@ -75,6 +77,7 @@ fun MiraiLinkTextButton(
         ) {
             MiraiLinkText(
                 text = text,
+                style = style,
                 color = textColor,
             )
         }

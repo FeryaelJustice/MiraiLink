@@ -28,7 +28,7 @@ fun ChatList(
     ) {
         MiraiLinkText(
             text = stringResource(R.string.chats),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
         )
 
         if (chats.isEmpty()) {
