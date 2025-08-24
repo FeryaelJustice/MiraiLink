@@ -45,6 +45,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
+import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -73,6 +74,17 @@ fun ChatScreen(
     // Optimized ui
     val reversedMessages = remember(messages) {
         messages.reversed()
+    }
+
+    val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
+
+    if (fullscreenImageUrl != null) {
+        FullscreenImagePreview(
+            imageUrl = fullscreenImageUrl,
+            onDismiss = { setFullscreenImageUrl(null) },
+            closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
+            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img)
+        )
     }
 
     LaunchedEffect(Unit) {
@@ -111,6 +123,9 @@ fun ChatScreen(
             modifier = Modifier,
             receiverName = receiver?.nicknameElseUsername(),
             receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
+            onLongPressOnImage = { url ->
+                setFullscreenImageUrl(url)
+            },
             onReportClick = {
                 showReportDialog = true
             },

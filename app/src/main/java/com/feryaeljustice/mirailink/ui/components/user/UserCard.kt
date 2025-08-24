@@ -1,8 +1,6 @@
 package com.feryaeljustice.mirailink.ui.components.user
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +39,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +47,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
@@ -59,12 +55,12 @@ import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.domain.util.toBackendDate
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
+import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
 import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
@@ -98,40 +94,12 @@ fun UserCard(
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
     if (fullscreenImageUrl != null) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
-                .clickable { setFullscreenImageUrl(null) } // Dismiss al hacer clic fuera
-                .padding(8.dp)
-                .zIndex(99f)
-                .verticalScroll(rememberScrollState()),
-            contentAlignment = Alignment.Center
-        ) {
-            MiraiLinkIconButton(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(12.dp)
-                    .zIndex(100f),
-                onClick = {
-                    setFullscreenImageUrl(null)
-                }) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(id = R.string.content_description_user_card_close_btn),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            AsyncImage(
-                model = fullscreenImageUrl,
-                contentDescription = stringResource(id = R.string.content_description_user_card_fullscreen_img),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxSize(0.9f)
-                    .padding(all = 8.dp)
-                    .clickable(enabled = false) {} // Evita que el clic cierre si se hace en la imagen
-            )
-        }
+        FullscreenImagePreview(
+            imageUrl = fullscreenImageUrl,
+            onDismiss = { setFullscreenImageUrl(null) },
+            closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
+            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img)
+        )
     }
 
     Card(

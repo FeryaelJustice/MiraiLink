@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.components.topbars
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,9 +14,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,9 +38,11 @@ fun ChatTopBar(
     modifier: Modifier = Modifier,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
+    onLongPressOnImage: (String) -> Unit,
     onReportClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -76,6 +82,15 @@ fun ChatTopBar(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
+                .pointerInput(receiverUrlPhoto) {
+                    detectTapGestures(
+                        onLongPress = {
+                            receiverUrlPhoto?.let { receiverUrl ->
+                                currentLongPressHandler(receiverUrlPhoto)
+                            }
+                        }
+                    )
+                }
         )
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
