@@ -22,8 +22,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 16
-        versionName = "1.1.5"
+        versionCode = 17
+        versionName = "1.1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,6 +97,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
 
+    // Material Core
+    implementation(libs.androidx.material.icons.core)
+
     // Material 3
     implementation(libs.androidx.material3)
 
@@ -108,7 +111,6 @@ dependencies {
 
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
-    implementation(libs.material3)
 
     // Testing
     testImplementation(libs.junit)

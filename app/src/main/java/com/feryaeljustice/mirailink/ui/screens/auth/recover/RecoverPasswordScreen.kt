@@ -48,6 +48,7 @@ fun RecoverPasswordScreen(
         sessionViewModel.enableDisableTopBar(false)
         sessionViewModel.enableDisableBottomBar(false)
         sessionViewModel.hideTopBarSettingsIcon()
+        sessionViewModel.disableBars()
         viewModel.initEmail(email)
     }
 

@@ -33,6 +33,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
+import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
@@ -159,16 +160,18 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         Scaffold(
             topBar = {
                 if (topBarConfig.showTopBar) {
+                    val currentBackStackEntry = navBackStackEntry?.destination
                     MiraiLinkTopBar(
                         darkTheme = darkTheme,
-                        enabled = !topBarConfig.disableTopBar,
+                        enabled = !topBarConfig.disableTopBar && isAuthenticated,
                         isAuthenticated = isAuthenticated,
                         showSettingsIcon = topBarConfig.showSettingsIcon,
                         title = topBarConfig.title,
                         onThemeChange = onThemeChange,
+                        layoutDirection = if (currentBackStackEntry?.hasRoute(AppScreen.AuthScreen::class) == true) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
                         onNavigateHome = {
                             val isHomeRoute =
-                                navBackStackEntry?.destination?.hasRoute(AppScreen.HomeScreen::class)
+                                currentBackStackEntry?.hasRoute(AppScreen.HomeScreen::class)
                             if (isHomeRoute == false)
                                 navController.navigate(AppScreen.HomeScreen) {
                                     popUpTo(AppScreen.HomeScreen) {
@@ -181,7 +184,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                         },
                         onNavigateToSettings = {
                             val isSettingsRoute =
-                                navBackStackEntry?.destination?.hasRoute(AppScreen.SettingsScreen::class)
+                                currentBackStackEntry?.hasRoute(AppScreen.SettingsScreen::class)
                             if (isSettingsRoute == false) {
                                 navController.navigate(AppScreen.SettingsScreen)
                             }
