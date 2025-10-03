@@ -6,8 +6,8 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 MiraiLink is an Android dating/social app built with Kotlin and Jetpack Compose. The app features real-time chat, user matching, profile management, and social interactions.
 
-**Package**: `com.feryaeljustice.mirailink`  
-**Min SDK**: 26 (Android 8.0)  
+**Package**: `com.feryaeljustice.mirailink`
+**Min SDK**: 26 (Android 8.0)
 **Target SDK**: 36
 
 ## Architecture
@@ -15,6 +15,7 @@ MiraiLink is an Android dating/social app built with Kotlin and Jetpack Compose.
 The project follows **Clean Architecture** with three main layers:
 
 ### Data Layer (`data/`)
+
 - **DataSources**: Remote API calls and local data storage
 - **Repositories**: Implementation of domain repository contracts
 - **Models**: DTOs and data transfer objects
@@ -23,12 +24,14 @@ The project follows **Clean Architecture** with three main layers:
 - **DataStore**: Encrypted preferences and session management using AndroidX DataStore
 
 ### Domain Layer (`domain/`)
+
 - **Models**: Core business entities (User, Chat, Match, etc.)
 - **Repositories**: Abstract repository contracts
 - **Use Cases**: Business logic encapsulation (auth, chat, matching, etc.)
 - **Utils**: Core utility functions
 
 ### UI Layer (`ui/`)
+
 - **Screens**: Compose screens with ViewModels
 - **Components**: Follows **Atomic Design Pattern**:
   - **Atoms**: Basic UI elements (buttons, text fields, cards)
@@ -51,6 +54,7 @@ The project follows **Clean Architecture** with three main layers:
 ## Common Development Commands
 
 ### Building
+
 ```powershell
 # Debug build
 .\gradlew.bat assembleDebug
@@ -63,6 +67,7 @@ The project follows **Clean Architecture** with three main layers:
 ```
 
 ### Testing
+
 ```powershell
 # Run unit tests
 .\gradlew.bat testDebugUnitTest
@@ -75,6 +80,7 @@ The project follows **Clean Architecture** with three main layers:
 ```
 
 ### Code Quality
+
 ```powershell
 # Run lint checks
 .\gradlew.bat lintDebug
@@ -87,6 +93,7 @@ The project follows **Clean Architecture** with three main layers:
 ```
 
 ### Development Tasks
+
 ```powershell
 # Install debug APK
 .\gradlew.bat installDebug
@@ -108,24 +115,28 @@ The project follows **Clean Architecture** with three main layers:
 ## Key Features & Components
 
 ### Authentication System
+
 - Login/Registration with validation
 - Two-factor authentication support
 - Auto-login functionality
 - Password reset flow
 
 ### Chat System
+
 - Real-time messaging with Socket.IO
 - Private and group chat support
 - Message read status
 - File/image sharing capabilities
 
 ### User Management
+
 - Profile creation and editing
 - Photo management (upload, delete, reorder)
 - User matching and discovery
 - Swipe functionality (like/dislike)
 
 ### Security Features
+
 - Encrypted local data storage using Android Keystore
 - Secure network communication
 - Session management
@@ -152,6 +163,6 @@ The project follows **Clean Architecture** with three main layers:
 
 - Android Studio with Kotlin support
 - Java 11 (configured in gradle)
-- Android SDK 26+ 
+- Android SDK 26+
 - Valid `keystore.properties` for release builds
 - Firebase project setup for analytics/crashlytics

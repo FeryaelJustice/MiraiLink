@@ -4,8 +4,8 @@
 
 MiraiLink is an Android dating/social app built with Kotlin and Jetpack Compose. The app features real-time chat via Socket.IO, user matching, profile management, encrypted data storage, and Firebase integration for analytics.
 
-**Architecture**: Clean Architecture (Data/Domain/UI layers)  
-**Package**: `com.feryaeljustice.mirailink`  
+**Architecture**: Clean Architecture (Data/Domain/UI layers)
+**Package**: `com.feryaeljustice.mirailink`
 **Min SDK**: 26 (Android 8.0) | **Target SDK**: 36
 
 ## Setup Commands
@@ -67,7 +67,7 @@ MiraiLink is an Android dating/social app built with Kotlin and Jetpack Compose.
 
 ## Project Structure
 
-```
+```text
 app/src/main/java/com/feryaeljustice/mirailink/
 ├── data/           # Data layer implementation
 │   ├── datasource/ # Remote API calls
@@ -90,6 +90,7 @@ app/src/main/java/com/feryaeljustice/mirailink/
 ## Key Development Patterns
 
 ### Data Flow
+
 1. UI triggers ViewModel actions
 2. ViewModel calls Domain Use Cases
 3. Use Cases orchestrate Repository calls
@@ -97,12 +98,14 @@ app/src/main/java/com/feryaeljustice/mirailink/
 5. Data flows back through mappers to UI
 
 ### Security Practices
+
 - All sensitive data stored in encrypted DataStore
 - Network requests go through AuthInterceptor
 - Use Android Keystore for encryption keys
 - Validate user input in ViewModels and Use Cases
 
 ### Compose Guidelines
+
 - Use `@Composable` functions for UI elements
 - Manage state with `remember`, `rememberSaveable`
 - Use `LaunchedEffect` for side effects
@@ -111,18 +114,21 @@ app/src/main/java/com/feryaeljustice/mirailink/
 ## Testing Instructions
 
 ### Unit Tests
+
 - Test Use Cases with mocked repositories
 - Test ViewModels with fake use cases
 - Test mappers with sample data
 - Run: `.\gradlew.bat testDebugUnitTest`
 
-### Integration Tests  
+### Integration Tests
+
 - Test API integration with mock servers
 - Test database operations
 - Test navigation flows
 - Run: `.\gradlew.bat connectedDebugAndroidTest`
 
 ### Before Committing
+
 1. Run `.\gradlew.bat lintDebug` - Fix all lint issues
 2. Run `.\gradlew.bat testDebugUnitTest` - Ensure unit tests pass
 3. Verify build: `.\gradlew.bat assembleDebug`
@@ -139,6 +145,7 @@ app/src/main/java/com/feryaeljustice/mirailink/
 ## Common Tasks
 
 ### Adding New Features
+
 1. Create domain models in `domain/model/`
 2. Define repository interface in `domain/repository/`
 3. Create use case in `domain/usecase/`
@@ -149,11 +156,13 @@ app/src/main/java/com/feryaeljustice/mirailink/
 8. Wire up navigation in `ui/navigation/`
 
 ### Adding Dependencies
+
 1. Add version to `gradle/libs.versions.toml`
 2. Add library reference in `[libraries]` section
 3. Use in `app/build.gradle.kts` with `implementation(libs.libraryName)`
 
 ### Database Changes
+
 - Modify DataStore schema in `data/datastore/`
 - Update mappers and serializers accordingly
 - Consider migration strategy for existing users
