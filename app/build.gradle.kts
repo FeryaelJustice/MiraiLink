@@ -1,5 +1,4 @@
 import java.io.FileInputStream
-import java.util.Locale
 import java.util.Properties
 
 plugins {
@@ -87,23 +86,6 @@ android {
     }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
-}
-
-// Solución para el error "CreateProcess error=206" en Windows
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform() // Asegura el uso de JUnit 5, común en tests modernos
-    if (System.getProperty("os.name").lowercase(Locale.getDefault()).contains("windows")) {
-        // Acorta la línea de comandos del classpath creando un JAR intermedio.
-        classpath = files(classpath.files.map {
-            if (it.isDirectory) {
-                it
-            } else {
-                project.tasks.create("jar${it.name}", Jar::class.java) {
-                    from(zipTree(it))
-                }.outputs.files.singleFile
-            }
-        })
-    }
 }
 
 dependencies {

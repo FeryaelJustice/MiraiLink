@@ -37,11 +37,13 @@ ump = "3.2.0"
 
 # Testing
 mockk = "1.14.6"
+mockkJ5 = "1.0.1"
 turbine = "1.2.1"
 coroutinesTest = "1.10.2"
 robolectric = "4.16"
 mockWebServer = "5.2.1"
 truth = "1.4.5"
+junit-jupiter = "5.10.3"
 
 [libraries]
 # Core
@@ -59,9 +61,14 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.7.0" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version = "1.7.0" }
 
+# Testing - JUnit 5
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+
 # Testing - MockK
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-junit5 = { module = "io.mockk:mockk-junit5", version.ref = "mockkJ5" }
 
 # Testing - Turbine (Flow testing)
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
