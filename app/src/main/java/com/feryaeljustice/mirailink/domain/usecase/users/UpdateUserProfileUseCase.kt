@@ -1,7 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.users
 
 import android.net.Uri
-import android.util.Log
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import javax.inject.Inject
@@ -19,10 +18,6 @@ class UpdateUserProfileUseCase @Inject constructor(
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>
     ): MiraiLinkResult<Unit> {
-        Log.d(
-            "UpdateUserProfileUseCase",
-            "invoke: $nickname $bio $animesJson $gamesJson $photoUris"
-        )
         return repository.updateProfile(
             nickname = nickname,
             bio = bio,
