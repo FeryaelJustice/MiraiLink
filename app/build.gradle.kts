@@ -1,16 +1,21 @@
 import java.io.FileInputStream
+import java.util.Locale
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlinx.parcelize)
+
     alias(libs.plugins.ksp)
     alias(libs.plugins.hiltAndroid)
+
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.screenshot)
 }
 
 android {
@@ -25,7 +30,7 @@ android {
         versionCode = 17
         versionName = "1.1.6"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.feryaeljustice.mirailink.HiltTestRunner"
     }
 
     // Cargar keystore.properties
@@ -73,12 +78,31 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlin {
-        jvmToolchain(11)
-    }
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    kotlin {
+        jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+    }
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+}
+
+// Solución para el error "CreateProcess error=206" en Windows
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform() // Asegura el uso de JUnit 5, común en tests modernos
+    if (System.getProperty("os.name").lowercase(Locale.getDefault()).contains("windows")) {
+        // Acorta la línea de comandos del classpath creando un JAR intermedio.
+        classpath = files(classpath.files.map {
+            if (it.isDirectory) {
+                it
+            } else {
+                project.tasks.create("jar${it.name}", Jar::class.java) {
+                    from(zipTree(it))
+                }.outputs.files.singleFile
+            }
+        })
     }
 }
 
@@ -112,12 +136,32 @@ dependencies {
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
-    // Testing
+    // Testing - Unit Tests
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.hilt.android.testing)
+
+    // Testing - Instrumentation Tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.turbine)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.okhttp.mockwebserver)
+
+    // Screenshot testing
+    screenshotTestImplementation(libs.screenshot.validation.api)
+    screenshotTestImplementation(libs.androidx.ui.tooling)
 
     // Tooling
     debugImplementation(libs.androidx.ui.tooling)

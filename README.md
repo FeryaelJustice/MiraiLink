@@ -13,15 +13,15 @@ MiraiLink es la app social pensada para fans del anime y los videojuegos. Combin
 
 La base del repositorio sigue Clean Architecture con una separación clara de responsabilidades:
 
-| Ruta | Descripción |
-| --- | --- |
-| `app/src/main/java/com/feryaeljustice/mirailink/data/` | Implementación de la capa de datos (datasources remotos/locales, repositorios concretos, mapeadores, utilidades de red y telemetría). |
-| `app/src/main/java/com/feryaeljustice/mirailink/domain/` | Capa de dominio con modelos de negocio, contratos de repositorios y casos de uso. |
-| `app/src/main/java/com/feryaeljustice/mirailink/ui/` | Presentación con pantallas Compose, componentes reutilizables (Atoms, Molecules, Organisms), ViewModels y flujo de navegación. |
-| `app/src/main/java/com/feryaeljustice/mirailink/di/` | Módulos Hilt que vinculan interfaces de dominio con implementaciones de datos y gestores del ciclo de vida. |
-| `app/src/main/res/` | Recursos Android (temas, strings, íconos, layouts XML puntuales si fueran necesarios). |
-| `gradle/libs.versions.toml` | Catálogo centralizado de versiones (AGP 8.13.0, Kotlin 2.2.20, Compose BOM 2025.09.01, etc.). |
-| `build.gradle.kts` y `app/build.gradle.kts` | Configuración de Gradle, plugins y dependencias. |
+| Ruta                                                     | Descripción                                                                                                                           |
+|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `app/src/main/java/com/feryaeljustice/mirailink/data/`   | Implementación de la capa de datos (datasources remotos/locales, repositorios concretos, mapeadores, utilidades de red y telemetría). |
+| `app/src/main/java/com/feryaeljustice/mirailink/domain/` | Capa de dominio con modelos de negocio, contratos de repositorios y casos de uso.                                                     |
+| `app/src/main/java/com/feryaeljustice/mirailink/ui/`     | Presentación con pantallas Compose, componentes reutilizables (Atoms, Molecules, Organisms), ViewModels y flujo de navegación.        |
+| `app/src/main/java/com/feryaeljustice/mirailink/di/`     | Módulos Hilt que vinculan interfaces de dominio con implementaciones de datos y gestores del ciclo de vida.                           |
+| `app/src/main/res/`                                      | Recursos Android (temas, strings, íconos, layouts XML puntuales si fueran necesarios).                                                |
+| `gradle/libs.versions.toml`                              | Catálogo centralizado de versiones (AGP 8.13.0, Kotlin 2.2.20, Compose BOM 2025.09.01, etc.).                                         |
+| `build.gradle.kts` y `app/build.gradle.kts`              | Configuración de Gradle, plugins y dependencias.                                                                                      |
 
 ### Flujo de datos resumido
 
@@ -75,3 +75,8 @@ En macOS/Linux utiliza `./gradlew` con los mismos tasks. También puedes ejecuta
 - Gestiona el ciclo de vida del socket desde la capa de datos, exponiendo estados seguros al dominio/UI.
 - Sigue el patrón de diseño atómico en los componentes Compose para facilitar reuso y pruebas visuales.
 - Antes de publicar, ejecuta lint, tests unitarios y de instrumentación, y prueba la build final en dispositivos reales.
+
+### Apuntes
+
+- Si se quiere hacer el tema del screenshot testing con el validate y update DebugScreenshotTest se
+  debe mover a la raiz del disco duro para evitar problemas de ruta muy larga.

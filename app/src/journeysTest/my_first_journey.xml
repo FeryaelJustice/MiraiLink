@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!-- @formatter:off -->
 <journey name="My first Journey">
-    <description>A Journey that tests app init</description>
-    <actions>
+    <description xml:space="preserve">A Journey that tests app init</description>
+    <actions xml:space="preserve">
         <action>app inits</action>
     </actions>
 </journey>

@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -337,9 +337,9 @@ private fun NavGraphBuilder.authGraph(
             val authViewModel: AuthViewModel = hiltViewModel()
             AuthScreen(
                 viewModel = authViewModel, sessionViewModel = sessionViewModel,
-                onLogin = { userId ->
+                onLogin = { _ ->
                     onLogin()
-                }, onRegister = { userId ->
+                }, onRegister = { _ ->
                     onRegister()
                 }, onRequestPasswordReset = { email ->
                     navController.navigate(AppScreen.RecoverPasswordScreen(email = email))
