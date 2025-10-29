@@ -3,6 +3,10 @@ package com.feryaeljustice.mirailink.ui.screens.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.data.mappers.ui.toAnimeViewEntry
+import com.feryaeljustice.mirailink.data.mappers.ui.toGameViewEntry
+import com.feryaeljustice.mirailink.data.mappers.ui.toPhotoSlotViewEntry
+import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
@@ -13,10 +17,6 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.mappers.toAnimeViewEntry
-import com.feryaeljustice.mirailink.ui.mappers.toGameViewEntry
-import com.feryaeljustice.mirailink.ui.mappers.toPhotoSlotViewEntry
-import com.feryaeljustice.mirailink.ui.mappers.toUserViewEntry
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState

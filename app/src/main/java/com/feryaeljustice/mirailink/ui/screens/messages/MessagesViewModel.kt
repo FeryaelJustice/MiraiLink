@@ -2,13 +2,13 @@ package com.feryaeljustice.mirailink.ui.screens.messages
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.data.mappers.ui.toChatPreviewViewEntry
+import com.feryaeljustice.mirailink.data.mappers.ui.toMatchUserViewEntry
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
-import com.feryaeljustice.mirailink.ui.mappers.toChatPreviewViewEntry
-import com.feryaeljustice.mirailink.ui.mappers.toMatchUserViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 import dagger.Lazy

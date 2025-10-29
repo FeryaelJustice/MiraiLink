@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.mappers
+package com.feryaeljustice.mirailink.data.mappers.ui
 
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.model.catalog.Game

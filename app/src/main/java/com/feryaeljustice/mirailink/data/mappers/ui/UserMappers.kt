@@ -1,4 +1,4 @@
-package com.feryaeljustice.mirailink.ui.mappers
+package com.feryaeljustice.mirailink.data.mappers.ui
 
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.model.user.MinimalUserInfo

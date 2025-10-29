@@ -3,11 +3,11 @@ package com.feryaeljustice.mirailink.ui.screens.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.BuildConfig
+import com.feryaeljustice.mirailink.data.mappers.ui.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.mappers.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import dagger.Lazy

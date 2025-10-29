@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.toMinimalUserInfo
+import com.feryaeljustice.mirailink.data.mappers.ui.toChatMessageViewEntry
+import com.feryaeljustice.mirailink.data.mappers.ui.toMinimalUserInfoViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreatePrivateChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatMessagesUseCase
@@ -13,8 +15,6 @@ import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.mappers.toChatMessageViewEntry
-import com.feryaeljustice.mirailink.ui.mappers.toMinimalUserInfoViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
 import dagger.Lazy
