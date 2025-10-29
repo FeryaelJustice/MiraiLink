@@ -1,3 +1,7 @@
+/**
+ * @author Feryael Justice
+ * @since 31/10/2024
+ */
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
 import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
@@ -9,6 +13,10 @@ class GetChatMessagesUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
     suspend operator fun invoke(userId: String): MiraiLinkResult<List<ChatMessage>> {
-        return repository.getMessagesWith(userId)
+        return try {
+            repository.getMessagesWith(userId)
+        } catch (e: Exception) {
+            MiraiLinkResult.Error("An error occurred while getting the messages", e)
+        }
     }
 }
