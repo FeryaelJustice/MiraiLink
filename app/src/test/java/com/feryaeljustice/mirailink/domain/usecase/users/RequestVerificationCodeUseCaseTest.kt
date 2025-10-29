@@ -72,7 +72,7 @@ class RequestVerificationCodeUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertTrue((result as MiraiLinkResult.Error).message.contains("RequestPasswordResetUseCase error:"))
+        assertTrue((result as MiraiLinkResult.Error).message.contains("RequestVerificationCodeUseCase error:"))
         assertEquals(exception, result.exception)
     }
 }

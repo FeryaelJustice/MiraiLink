@@ -9,6 +9,6 @@ class ConfirmVerificationCodeUseCase @Inject constructor(private val repo: UserR
         try {
             repo.confirmVerificationCode(userId, token, type)
         } catch (e: Exception) {
-            MiraiLinkResult.Error("ConfirmVerificationCodeUseCase error: ", e)
+            MiraiLinkResult.Error("ConfirmVerificationCodeUseCase error", e)
         }
 }

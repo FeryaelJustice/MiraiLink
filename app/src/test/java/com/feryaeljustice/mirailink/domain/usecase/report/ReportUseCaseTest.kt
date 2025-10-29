@@ -1,6 +1,6 @@
-package com.feryaeljustice.mirailink.domain.usecase.users
+package com.feryaeljustice.mirailink.domain.usecase.report
 
-import com.feryaeljustice.mirailink.domain.repository.UserRepository
+import com.feryaeljustice.mirailink.domain.repository.ReportRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
 import io.mockk.impl.annotations.RelaxedMockK
@@ -18,41 +18,41 @@ import org.junit.Test
  * @since 18/10/2024
  */
 @ExperimentalCoroutinesApi
-class DeleteAccountUseCaseTest {
+class ReportUseCaseTest {
 
     @get:Rule
     val mockkRule = MockKRule(this)
 
     @RelaxedMockK
-    private lateinit var repo: UserRepository
+    private lateinit var repo: ReportRepository
 
-    private lateinit var deleteAccountUseCase: DeleteAccountUseCase
+    private lateinit var reportUseCase: ReportUseCase
 
     @Before
     fun onBefore() {
-        deleteAccountUseCase = DeleteAccountUseCase(repo)
+        reportUseCase = ReportUseCase(repo)
     }
 
     @Test
-    fun `when repository deletes account successfully, return success`() = runTest {
+    fun `when repository reports user successfully, return success`() = runTest {
         // Given
-        coEvery { repo.deleteAccount() } returns MiraiLinkResult.Success(Unit)
+        coEvery { repo.reportUser(any(), any()) } returns MiraiLinkResult.Success(Unit)
 
         // When
-        val result = deleteAccountUseCase()
+        val result = reportUseCase("reportedUser", "reason")
 
         // Then
         assertTrue(result is MiraiLinkResult.Success)
     }
 
     @Test
-    fun `when repository fails to delete account, return error`() = runTest {
+    fun `when repository fails to report user, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Could not delete account")
-        coEvery { repo.deleteAccount() } returns errorResult
+        val errorResult = MiraiLinkResult.Error("Could not report user")
+        coEvery { repo.reportUser(any(), any()) } returns errorResult
 
         // When
-        val result = deleteAccountUseCase()
+        val result = reportUseCase("reportedUser", "reason")
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
@@ -63,14 +63,14 @@ class DeleteAccountUseCaseTest {
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
-        coEvery { repo.deleteAccount() } throws exception
+        coEvery { repo.reportUser(any(), any()) } throws exception
 
         // When
-        val result = deleteAccountUseCase()
+        val result = reportUseCase("reportedUser", "reason")
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("DeleteAccountUseCase error", (result as MiraiLinkResult.Error).message)
+        assertEquals("ReportUseCase error", (result as MiraiLinkResult.Error).message)
         assertEquals(exception, result.exception)
     }
 }

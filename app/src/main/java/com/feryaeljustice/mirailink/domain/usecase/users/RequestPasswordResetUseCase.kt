@@ -8,6 +8,6 @@ class RequestPasswordResetUseCase @Inject constructor(private val repo: UserRepo
     suspend operator fun invoke(email: String) = try {
         repo.requestPasswordReset(email)
     }catch (e: Exception){
-        MiraiLinkResult.Error("RequestPasswordResetUseCase error: ", e)
+        MiraiLinkResult.Error("RequestPasswordResetUseCase error", e)
     }
 }

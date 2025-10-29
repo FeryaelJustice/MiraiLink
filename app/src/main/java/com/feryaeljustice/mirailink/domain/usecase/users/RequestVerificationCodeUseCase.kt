@@ -8,6 +8,6 @@ class RequestVerificationCodeUseCase @Inject constructor(private val repo: UserR
     suspend operator fun invoke(userId: String, type: String) = try {
         repo.requestVerificationCode(userId, type)
     } catch (e: Exception) {
-        MiraiLinkResult.Error("RequestPasswordResetUseCase error: ", e)
+        MiraiLinkResult.Error("RequestVerificationCodeUseCase error", e)
     }
 }

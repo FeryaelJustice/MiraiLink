@@ -10,6 +10,6 @@ class DeleteAccountUseCase @Inject constructor(
     suspend operator fun invoke(): MiraiLinkResult<Unit> = try {
         repository.deleteAccount()
     } catch (e: Exception) {
-        MiraiLinkResult.Error("DeleteAccountUseCase error: ", e)
+        MiraiLinkResult.Error("DeleteAccountUseCase error", e)
     }
 }

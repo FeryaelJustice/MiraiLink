@@ -72,7 +72,7 @@ class RequestPasswordResetUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertTrue((result as MiraiLinkResult.Error).message.contains("RequestPasswordResetUseCase error:"))
+        assertEquals("RequestPasswordResetUseCase error", (result as MiraiLinkResult.Error).message)
         assertEquals(exception, result.exception)
     }
 }

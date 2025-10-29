@@ -72,7 +72,10 @@ class ConfirmVerificationCodeUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertTrue((result as MiraiLinkResult.Error).message.contains("ConfirmVerificationCodeUseCase error:"))
+        assertEquals(
+            "ConfirmVerificationCodeUseCase error",
+            (result as MiraiLinkResult.Error).message
+        )
         assertEquals(exception, result.exception)
     }
 }
