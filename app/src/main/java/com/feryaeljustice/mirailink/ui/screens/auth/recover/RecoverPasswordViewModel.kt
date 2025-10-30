@@ -2,12 +2,13 @@ package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RecoverPasswordViewModel @Inject constructor(
     private val requestResetUseCase: Lazy<RequestPasswordResetUseCase>,
-    private val confirmResetUseCase: Lazy<ConfirmPasswordResetUseCase>
+    private val confirmResetUseCase: Lazy<ConfirmPasswordResetUseCase>,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     data class PasswordResetState(
@@ -48,7 +50,7 @@ class RecoverPasswordViewModel @Inject constructor(
 
     fun requestReset() = viewModelScope.launch {
         val email = state.value.email
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(ioDispatcher) {
             requestResetUseCase.get()(email)
         }
 
@@ -61,7 +63,7 @@ class RecoverPasswordViewModel @Inject constructor(
     fun confirmReset(onConfirmed: () -> Unit) = viewModelScope.launch {
         val s = state.value
 
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(ioDispatcher) {
             confirmResetUseCase.get()(s.email, s.token, s.newPassword)
         }
 

@@ -9,3 +9,7 @@ annotation class PrefsDataStore
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class SessionDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class IoDispatcher

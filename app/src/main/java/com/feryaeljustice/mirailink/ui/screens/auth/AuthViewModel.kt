@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
 import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
@@ -12,6 +13,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTw
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +28,8 @@ class AuthViewModel @Inject constructor(
     private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
     private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
     private val analytics: AnalyticsTracker,
-    private val crash: CrashReporter
+    private val crash: CrashReporter,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     sealed class AuthUiState {
@@ -58,7 +61,7 @@ class AuthViewModel @Inject constructor(
     ) {
         _state.value = AuthUiState.Loading
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
+            val result = withContext(ioDispatcher) {
                 loginUseCase.get()(email, username, password)
             }
 
@@ -76,13 +79,13 @@ class AuthViewModel @Inject constructor(
     ) {
         _state.value = AuthUiState.Loading
         /*    viewModelScope.launch {
-                val result = withContext(Dispatchers.IO) {
+                val result = withContext(ioDispatcher) {
                     registerUseCase.get()(username, email, password)
                 }
 
                 handleAuthResult(result)
             }*/
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val result = registerUseCase.get()(username, email, password)
             var usId = ""
             var tokn = ""
@@ -168,7 +171,7 @@ class AuthViewModel @Inject constructor(
             _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío")
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             when (val twoFactorLoginVerify =
                 loginVerifyTwoFactorLastStepUseCase.get()(
                     userId = userID,

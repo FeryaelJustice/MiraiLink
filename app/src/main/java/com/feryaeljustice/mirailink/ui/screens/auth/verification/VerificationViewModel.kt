@@ -2,13 +2,14 @@ package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,6 +22,7 @@ class VerificationViewModel @Inject constructor(
     private val checkIsVerifiedUseCase: Lazy<CheckIsVerifiedUseCase>,
     private val requestCodeUseCase: Lazy<RequestVerificationCodeUseCase>,
     private val confirmCodeUseCase: Lazy<ConfirmVerificationCodeUseCase>,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     data class VerificationState(
@@ -37,7 +39,7 @@ class VerificationViewModel @Inject constructor(
     }
 
     fun checkUserIsVerified(onFinish: (isVerified: Boolean) -> Unit) = viewModelScope.launch {
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(ioDispatcher) {
             checkIsVerifiedUseCase.get()()
         }
 
@@ -56,7 +58,7 @@ class VerificationViewModel @Inject constructor(
     }
 
     fun requestCode(userId: String) = viewModelScope.launch {
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(ioDispatcher) {
             requestCodeUseCase.get()(userId, "email")
         }
 
@@ -68,7 +70,7 @@ class VerificationViewModel @Inject constructor(
 
 
     fun confirmCode(userId: String, onFinish: () -> Unit) = viewModelScope.launch {
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(ioDispatcher) {
             confirmCodeUseCase.get()(userId, _state.value.token, "email")
         }
 
