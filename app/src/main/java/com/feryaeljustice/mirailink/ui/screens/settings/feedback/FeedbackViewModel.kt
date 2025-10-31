@@ -2,11 +2,12 @@ package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -15,43 +16,48 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FeedbackViewModel @Inject constructor(private val sendFeedbackUseCase: Lazy<SendFeedbackUseCase>) :
-    ViewModel() {
-    private val _uiState = MutableStateFlow(FeedbackState())
-    val uiState: StateFlow<FeedbackState> = _uiState
+class FeedbackViewModel
+    @Inject
+    constructor(
+        private val sendFeedbackUseCase: Lazy<SendFeedbackUseCase>,
+        @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(FeedbackState())
+        val uiState: StateFlow<FeedbackState> = _uiState
 
-    fun updateFeedback(feedback: String) {
-        _uiState.update { it.copy(feedback = feedback) }
-    }
+        fun updateFeedback(feedback: String) {
+            _uiState.update { it.copy(feedback = feedback) }
+        }
 
-    fun sendFeedback(onFinish: () -> Unit) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(loading = true, error = null) }
+        fun sendFeedback(onFinish: () -> Unit) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(loading = true, error = null) }
 
-            val result = withContext(Dispatchers.IO) {
-                sendFeedbackUseCase.get()(_uiState.value.feedback)
-            }
-
-            when (result) {
-                is MiraiLinkResult.Success -> {
-                    _uiState.update {
-                        it.copy(loading = false, error = null, feedback = "")
+                val result =
+                    withContext(ioDispatcher) {
+                        sendFeedbackUseCase.get()(_uiState.value.feedback)
                     }
-                    onFinish()
-                }
 
-                is MiraiLinkResult.Error -> {
-                    _uiState.update {
-                        it.copy(loading = false, error = result.message)
+                when (result) {
+                    is MiraiLinkResult.Success -> {
+                        _uiState.update {
+                            it.copy(loading = false, error = null, feedback = "")
+                        }
+                        onFinish()
+                    }
+
+                    is MiraiLinkResult.Error -> {
+                        _uiState.update {
+                            it.copy(loading = false, error = result.message)
+                        }
                     }
                 }
             }
         }
     }
-}
 
 data class FeedbackState(
     val loading: Boolean = false,
     val error: String? = null,
-    val feedback: String = ""
+    val feedback: String = "",
 )

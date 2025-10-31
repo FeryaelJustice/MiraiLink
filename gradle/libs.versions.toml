@@ -60,6 +60,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.7.0" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version = "1.7.0" }
+androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version = "2.2.0" }
 
 # Testing - JUnit 5
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
@@ -99,7 +100,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-androidx-foundation-compose = { module = "androidx.compose.foundation:foundation", version.ref = "foundationCompose"}
+androidx-foundation-compose = { module = "androidx.compose.foundation:foundation", version.ref = "foundationCompose" }
 
 # Tooling
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }

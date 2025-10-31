@@ -33,12 +33,13 @@ android {
     }
 
     // Cargar keystore.properties
-    val keystoreProperties = Properties().apply {
-        val file = rootProject.file("keystore.properties")
-        if (file.exists()) {
-            load(FileInputStream(file))
+    val keystoreProperties =
+        Properties().apply {
+            val file = rootProject.file("keystore.properties")
+            if (file.exists()) {
+                load(FileInputStream(file))
+            }
         }
-    }
 
     signingConfigs {
         create("release") {
@@ -68,7 +69,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
         }
@@ -126,6 +127,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.hilt.android.testing)
+    testImplementation(libs.androidx.arch.core.testing)
 
     // Testing - Instrumentation Tests
     androidTestImplementation(libs.androidx.junit)
