@@ -1,3 +1,6 @@
+// Feryael Justice
+// 2024-07-28
+
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -84,6 +87,12 @@ android {
     }
     kotlin {
         jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
+        }
     }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
