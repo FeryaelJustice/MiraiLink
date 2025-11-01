@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
@@ -29,7 +30,10 @@ import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewModel) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    sessionViewModel: GlobalSessionViewModel,
+) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
@@ -43,17 +47,21 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
     }
 
     PullToRefreshBox(
-        isRefreshing = state is HomeUiState.Loading, onRefresh = {
+        isRefreshing = state is HomeUiState.Loading,
+        onRefresh = {
             viewModel.loadUsers()
-        }, modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
+        },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .testTag("HomeRefreshBox")
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         when (val currentState = state) {
             is HomeUiState.Success -> {
@@ -63,7 +71,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                 if (visibleUsers.isNotEmpty() && index < visibleUsers.size) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         UserSwipeCardStack(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(16.dp).testTag("swipeHome"),
                             users = visibleUsers,
                             canUndo = canUndo,
                             onSwipeLeft = { viewModel.swipeLeft() },
@@ -75,7 +83,7 @@ fun HomeScreen(viewModel: HomeViewModel, sessionViewModel: GlobalSessionViewMode
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         MiraiLinkText(
                             text = stringResource(R.string.users_empty_by_now),
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
                     }
                 }

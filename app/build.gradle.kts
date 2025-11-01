@@ -65,6 +65,8 @@ android {
             isShrinkResources = false
             isDebuggable = true
 //            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "TEST_USER", keystoreProperties["TEST_USER"] as String)
+            buildConfigField("String", "TEST_PASS", keystoreProperties["TEST_PASS"] as String)
         }
 
         getByName("release") {
@@ -87,6 +89,12 @@ android {
     }
     kotlin {
         jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 
     packaging {
@@ -151,6 +159,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.androidx.test.uiautomator)
 
     // Screenshot testing
     screenshotTestImplementation(libs.screenshot.validation.api)

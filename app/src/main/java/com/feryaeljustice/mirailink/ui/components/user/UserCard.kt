@@ -39,6 +39,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -88,7 +89,7 @@ fun UserCard(
     onLike: (() -> Unit)? = null,
     onGoBackToLast: (() -> Unit)? = null,
     onDislike: (() -> Unit)? = null,
-    onEdit: ((Boolean) -> Unit)? = null
+    onEdit: ((Boolean) -> Unit)? = null,
 ) {
     val (focusRequester) = FocusRequester.createRefs()
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
@@ -98,90 +99,96 @@ fun UserCard(
             imageUrl = fullscreenImageUrl,
             onDismiss = { setFullscreenImageUrl(null) },
             closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
-            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img)
+            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img),
         )
     }
 
     Card(
-        modifier = modifier
-            .fillMaxSize()
-            .shadow(
-                color = MaterialTheme.colorScheme.onSurface,
-                alpha = 0.5f,
-                offsetX = (4).dp,
-                offsetY = (4).dp,
-                blurRadius = 4.dp,
-                shape = RoundedCornerShape(24.dp)
-            ),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .shadow(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    alpha = 0.5f,
+                    offsetX = (4).dp,
+                    offsetY = (4).dp,
+                    blurRadius = 4.dp,
+                    shape = RoundedCornerShape(24.dp),
+                ).testTag("userCard"),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
-        border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.onSurface)
+        border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.onSurface),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
-
             if (editUiState?.isEditing == true) {
                 MiraiLinkOutlinedIconButton(
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .align(Alignment.TopEnd)
-                        .alpha(0.8f)
-                        .zIndex(10f), // Lo eleva sobre el grid
-                    colors = IconButtonDefaults.outlinedIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
-                    ),
+                    modifier =
+                        Modifier
+                            .padding(20.dp)
+                            .align(Alignment.TopEnd)
+                            .alpha(0.8f)
+                            .zIndex(10f),
+                    // Lo eleva sobre el grid
+                    colors =
+                        IconButtonDefaults.outlinedIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondary,
+                        ),
                     onClick = { onEdit?.invoke(false) },
                 ) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.content_description_user_card_close_edit_mode)
+                        contentDescription = stringResource(id = R.string.content_description_user_card_close_edit_mode),
                     )
                 }
             }
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(
-                        if (editUiState != null && editUiState.isEditing) Modifier.padding(16.dp) else Modifier
-                    )
-                    .verticalScroll(rememberScrollState())
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (editUiState != null && editUiState.isEditing) Modifier.padding(16.dp) else Modifier,
+                        ).verticalScroll(rememberScrollState()),
             ) {
                 if (editUiState != null && editUiState.isEditing) {
                     // Cuadrícula de imágenes
                     EditablePhotoGrid(
                         photos = editUiState.photos,
                         onSlotClick = onPhotoSlotClick,
-                        onPhotoReorder = onPhotoReorder
+                        onPhotoReorder = onPhotoReorder,
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // TextField para nombre
                     MiraiLinkOutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(),
                         value = editUiState.nickname,
                         onValueChange = { onValueChange?.invoke(TextFieldType.NICKNAME, it) },
                         label = stringResource(id = R.string.user_card_nickname),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                focusRequester.requestFocus()
-                            }
-                        )
+                        keyboardActions =
+                            KeyboardActions(
+                                onNext = {
+                                    focusRequester.requestFocus()
+                                },
+                            ),
                     )
 
                     Spacer(modifier = Modifier.height(2.dp))
 
                     // TextField para bio
                     MiraiLinkOutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
                         value = editUiState.bio,
                         onValueChange = { onValueChange?.invoke(TextFieldType.BIO, it) },
                         label = stringResource(id = R.string.user_card_bio),
@@ -195,7 +202,7 @@ fun UserCard(
                         gender = Gender.fromRealValue(editUiState.gender) ?: Gender.Other,
                         onChange = { genderEnum ->
                             onValueChange?.invoke(TextFieldType.GENDER, genderEnum.realValue)
-                        }
+                        },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -203,7 +210,7 @@ fun UserCard(
                     // TextField para fecha de nacimiento
                     BirthdateField(
                         birthdateIso = toBackendDate(editUiState.birthdate),
-                        onChange = { onValueChange?.invoke(TextFieldType.BIRTHDATE, it) }
+                        onChange = { onValueChange?.invoke(TextFieldType.BIRTHDATE, it) },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -213,7 +220,7 @@ fun UserCard(
                         label = stringResource(id = R.string.user_card_fav_animes),
                         options = editUiState.animeCatalog.map { it.name },
                         selected = editUiState.selectedAnimes.map { it.name },
-                        onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) }
+                        onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) },
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -222,7 +229,7 @@ fun UserCard(
                         label = stringResource(id = R.string.user_card_fav_games),
                         options = editUiState.gameCatalog.map { it.name },
                         selected = editUiState.selectedGames.map { it.name },
-                        onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) }
+                        onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) },
                     )
 
                     Spacer(modifier = Modifier.height(64.dp))
@@ -231,7 +238,8 @@ fun UserCard(
                         photoUrls = user.photos.map { it.url },
                         onLongPressOnImage = { url ->
                             setFullscreenImageUrl(url)
-                        })
+                        },
+                    )
 
                     Column(modifier = Modifier.padding(16.dp)) {
                         MiraiLinkText(
@@ -251,10 +259,11 @@ fun UserCard(
                         Gender.fromRealValue(user.gender)?.let { genderEnum ->
                             Spacer(modifier = Modifier.height(8.dp))
                             MiraiLinkText(
-                                text = stringResource(
-                                    R.string.gender_presentation,
-                                    genderEnum.localizedLabel()
-                                ),
+                                text =
+                                    stringResource(
+                                        R.string.gender_presentation,
+                                        genderEnum.localizedLabel(),
+                                    ),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontStyle = FontStyle.Italic,
                             )
@@ -274,14 +283,16 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(16.dp))
                         MiraiLinkText(
                             text = stringResource(id = R.string.user_card_fav_animes),
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                         user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
                             TagsSection(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp),
-                                tags = animes.map { it.name })
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp),
+                                tags = animes.map { it.name },
+                            )
                         } ?: MiraiLinkText(
                             text = stringResource(id = R.string.user_card_fav_animes_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -291,18 +302,20 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(16.dp))
                         MiraiLinkText(
                             text = stringResource(id = R.string.user_card_fav_games),
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                         user.games.takeIf { it.isNotEmpty() }?.let { games ->
                             TagsSection(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp),
-                                tags = games.map { it.name })
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp),
+                                tags = games.map { it.name },
+                            )
                         } ?: MiraiLinkText(
                             text = stringResource(id = R.string.user_card_fav_games_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle
+                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -312,12 +325,13 @@ fun UserCard(
             }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (editUiState != null && editUiState.isEditing) {
                     MiraiLinkButton(
@@ -326,14 +340,15 @@ fun UserCard(
                         content = {
                             Icon(
                                 Icons.Default.Edit,
-                                contentDescription = stringResource(R.string.save)
+                                contentDescription = stringResource(R.string.save),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             MiraiLinkText(
                                 text = stringResource(id = R.string.save),
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimary,
                             )
-                        })
+                        },
+                    )
                 } else if (isPreviewMode) {
                     MiraiLinkButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -343,13 +358,15 @@ fun UserCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         MiraiLinkText(
                             text = stringResource(id = R.string.edit),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 } else {
                     MiraiLinkOutlinedButton(
-                        modifier = Modifier
-                            .size(64.dp),
+                        modifier =
+                            Modifier
+                                .size(64.dp)
+                                .testTag("discardBtn"),
                         onClick = { onDislike?.invoke() },
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Blue),
                         shape = CircleShape,
@@ -358,7 +375,7 @@ fun UserCard(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = stringResource(R.string.discard),
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
 
@@ -366,8 +383,10 @@ fun UserCard(
 
                     if (canUndo) {
                         MiraiLinkOutlinedButton(
-                            modifier = Modifier
-                                .size(64.dp),
+                            modifier =
+                                Modifier
+                                    .size(64.dp)
+                                    .testTag("returnSwipeBtn"),
                             onClick = { onGoBackToLast?.invoke() },
                             colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Yellow),
                             shape = CircleShape,
@@ -376,7 +395,7 @@ fun UserCard(
                             Icon(
                                 Icons.Default.Refresh,
                                 contentDescription = stringResource(R.string.comeback),
-                                tint = Color.Black
+                                tint = Color.Black,
                             )
                         }
 
@@ -384,8 +403,10 @@ fun UserCard(
                     }
 
                     MiraiLinkOutlinedButton(
-                        modifier = Modifier
-                            .size(64.dp),
+                        modifier =
+                            Modifier
+                                .size(64.dp)
+                                .testTag("likeBtn"),
                         onClick = { onLike?.invoke() },
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Red),
                         shape = CircleShape,
@@ -394,7 +415,7 @@ fun UserCard(
                         Icon(
                             Icons.Default.Favorite,
                             contentDescription = stringResource(R.string.like),
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
                 }
@@ -407,54 +428,57 @@ fun UserCard(
 @Composable
 fun UserCardPreview() {
     UserCard(
-        user = UserViewEntry(
-            id = "1",
-            username = "FeryaelJustice",
-            nickname = "Feryael Justice",
-            bio = "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
-            phoneNumber = "604892842",
-            animes = listOf(
-                AnimeViewEntry(
-                    id = "1",
-                    name = "Naruto",
-                    imageUrl = null,
-                ),
-                AnimeViewEntry(
-                    id = "2",
-                    name = "One Punch Man",
-                    imageUrl = null,
-                ),
-                AnimeViewEntry(
-                    id = "3",
-                    name = "Dragon Ball Z",
-                    imageUrl = null,
-                )
+        user =
+            UserViewEntry(
+                id = "1",
+                username = "FeryaelJustice",
+                nickname = "Feryael Justice",
+                bio = "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
+                phoneNumber = "604892842",
+                animes =
+                    listOf(
+                        AnimeViewEntry(
+                            id = "1",
+                            name = "Naruto",
+                            imageUrl = null,
+                        ),
+                        AnimeViewEntry(
+                            id = "2",
+                            name = "One Punch Man",
+                            imageUrl = null,
+                        ),
+                        AnimeViewEntry(
+                            id = "3",
+                            name = "Dragon Ball Z",
+                            imageUrl = null,
+                        ),
+                    ),
+                games =
+                    listOf(
+                        GameViewEntry(
+                            id = "1",
+                            name = "Final Fantasy VII",
+                            imageUrl = null,
+                        ),
+                        GameViewEntry(
+                            id = "2",
+                            name = "Soul Calibur V",
+                            imageUrl = null,
+                        ),
+                        GameViewEntry(
+                            id = "3",
+                            name = "The Legend of Zelda: Breath of the Wild",
+                            imageUrl = null,
+                        ),
+                    ),
+                email = "adj@jormail.com",
+                gender = "Mujer",
+                birthdate = "23-12",
             ),
-            games = listOf(
-                GameViewEntry(
-                    id = "1",
-                    name = "Final Fantasy VII",
-                    imageUrl = null,
-                ),
-                GameViewEntry(
-                    id = "2",
-                    name = "Soul Calibur V",
-                    imageUrl = null,
-                ),
-                GameViewEntry(
-                    id = "3",
-                    name = "The Legend of Zelda: Breath of the Wild",
-                    imageUrl = null,
-                )
-            ),
-            email = "adj@jormail.com",
-            gender = "Mujer",
-            birthdate = "23-12"
-        ),
         isPreviewMode = true,
         onLike = {},
         onDislike = {},
         onEdit = {},
-        onSave = {}
+        onSave = {},
     )
 }
