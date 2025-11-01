@@ -1,41 +1,67 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datastore.MiraiLinkPrefs
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class OnboardingRepositoryImplTest {
 
-    private lateinit var miraiLinkPrefs: MiraiLinkPrefs
-    private lateinit var repository: OnboardingRepositoryImpl
+    private lateinit var onboardingRepository: OnboardingRepositoryImpl
+    private val miraiLinkPrefs: MiraiLinkPrefs = mockk()
 
     @Before
     fun setUp() {
-        miraiLinkPrefs = mockk()
-        repository = OnboardingRepositoryImpl(miraiLinkPrefs)
+        onboardingRepository = OnboardingRepositoryImpl(miraiLinkPrefs)
     }
 
     @Test
-    fun `checkOnboardingIsCompleted returns value from prefs`() = runBlocking {
+    fun `checkOnboardingIsCompleted returns success when prefs returns true`() = runTest {
         // Given
-        val expectedValue = true
-        coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns expectedValue
+        coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns true
 
         // When
-        val result = repository.checkOnboardingIsCompleted()
+        val result = onboardingRepository.checkOnboardingIsCompleted()
 
         // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(expectedValue, (result as MiraiLinkResult.Success).data)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        assertThat((result as MiraiLinkResult.Success).data).isTrue()
+    }
+
+    @Test
+    fun `checkOnboardingIsCompleted returns success when prefs returns false`() = runTest {
+        // Given
+        coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns false
+
+        // When
+        val result = onboardingRepository.checkOnboardingIsCompleted()
+
+        // Then
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        assertThat((result as MiraiLinkResult.Success).data).isFalse()
+    }
+
+    @Test
+    fun `checkOnboardingIsCompleted returns error when prefs throws exception`() = runTest {
+        // Given
+        val exception = RuntimeException("A wild error appears!")
+        coEvery { miraiLinkPrefs.isOnboardingCompleted() } throws exception
+
+        // When
+        val result = onboardingRepository.checkOnboardingIsCompleted()
+
+        // Then
+        assertThat(result).isInstanceOf(MiraiLinkResult.Error::class.java)
+        val error = result as MiraiLinkResult.Error
+        assertThat(error.exception).isEqualTo(exception)
     }
 }

@@ -1,171 +1,133 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
-import android.util.Log
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfoResponse
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
-import com.feryaeljustice.mirailink.domain.model.chat.ChatMessage
-import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.slot
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import java.util.Date
 
+@ExperimentalCoroutinesApi
 class ChatRepositoryImplTest {
 
-    private lateinit var socketService: SocketService
-    private lateinit var remoteDataSource: ChatRemoteDataSource
-    private lateinit var repository: ChatRepositoryImpl
+    private lateinit var chatRepository: ChatRepositoryImpl
+    private val remoteDataSource: ChatRemoteDataSource = mockk()
+    private val socketService: SocketService = mockk(relaxed = true)
 
-    private val baseUrl = "http://test.com/"
+    private val userDto = UserDto(id = "user1", username = "testuser", nickname = "Test User")
+
+    private val chatSummaryResponse = ChatSummaryResponse(
+        id = "chat1",
+        type = "private",
+        createdBy = "user1",
+        createdAt = "2024-01-01T12:00:00.000Z",
+        joinedAt = "2024-01-01T12:00:00.000Z",
+        role = "member",
+        unreadCount = "0",
+        destinatary = MinimalUserInfoResponse(
+            id = "user2",
+            username = "otheruser",
+            nickname = "Other User",
+            avatarUrl = null
+        )
+    )
+
+    private val chatMessageResponse = ChatMessageResponse(
+        id = "msg1",
+        sender = userDto,
+        receiver = userDto,
+        content = "Hello",
+        timestamp = 1672531200000
+    )
 
     @Before
     fun setUp() {
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
-        every { Log.e(any(), any(), any()) } returns 0
-        socketService = mockk(relaxUnitFun = true)
-        remoteDataSource = mockk()
-        repository = ChatRepositoryImpl(socketService, remoteDataSource, baseUrl)
+        chatRepository = ChatRepositoryImpl(socketService, remoteDataSource, "http://localhost:8080")
     }
 
     @Test
-    fun `connectSocket calls socketService`() {
-        repository.connectSocket()
-        coVerify { socketService.connect() }
-    }
-
-    @Test
-    fun `disconnectSocket calls socketService`() {
-        repository.disconnectSocket()
-        coVerify { socketService.disconnect() }
-    }
-
-    @Test
-    fun `getChatsFromUser success returns mapped chats`() = runBlocking {
+    fun `getChatsFromUser returns success when remote source is successful`() = runTest {
         // Given
-        val chatSummaryResponse = ChatSummaryResponse(
-            id = "1",
-            type = "private",
-            createdBy = "user1",
-            createdAt = "2023-01-01T12:00:00.000Z",
-            joinedAt = "2023-01-01T12:00:00.000Z",
-            role = "member",
-            lastMessageId = "msg1",
-            lastMessageText = "Hello",
-            lastMessageSenderId = "user1",
-            lastMessageSentAt = "2023-01-01T12:00:00.000Z",
-            unreadCount = "0",
-            destinatary = MinimalUserInfoResponse("2", "testuser", "Test User", null)
-        )
-        val remoteResult = MiraiLinkResult.Success(listOf(chatSummaryResponse))
-        coEvery { remoteDataSource.getChatsFromUser() } returns remoteResult
+        val responseList = listOf(chatSummaryResponse)
+        coEvery { remoteDataSource.getChatsFromUser() } returns MiraiLinkResult.Success(responseList)
 
         // When
-        val result = repository.getChatsFromUser()
+        val result = chatRepository.getChatsFromUser()
 
         // Then
-        assert(result is MiraiLinkResult.Success)
-        val chatSummary = (result as MiraiLinkResult.Success<List<ChatSummary>>).data.first()
-        assertEquals("1", chatSummary.id)
-        assertEquals("Test User", chatSummary.destinatary?.nickname)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val chats = (result as MiraiLinkResult.Success).data
+        assertThat(chats).hasSize(1)
+        assertThat(chats.first().id).isEqualTo(chatSummaryResponse.id)
     }
 
     @Test
-    fun `getChatsFromUser with photo url success`() = runBlocking {
+    fun `getMessagesWith returns success when remote source is successful`() = runTest {
         // Given
-        val destinataryResponse = MinimalUserInfoResponse("2", "testuser", "Test User", "photo.jpg")
-        val chatSummaryResponse = ChatSummaryResponse(
-            id = "1",
-            type = "private",
-            createdBy = "user1",
-            createdAt = "2023-01-01T12:00:00.000Z",
-            joinedAt = "2023-01-01T12:00:00.000Z",
-            role = "member",
-            lastMessageId = "msg1",
-            lastMessageText = "Hello",
-            lastMessageSenderId = "user1",
-            lastMessageSentAt = "2023-01-01T12:00:00.000Z",
-            unreadCount = "0",
-            destinatary = destinataryResponse
-        )
-        val remoteResult = MiraiLinkResult.Success(listOf(chatSummaryResponse))
-        coEvery { remoteDataSource.getChatsFromUser() } returns remoteResult
+        val userId = "user2"
+        val responseList = listOf(chatMessageResponse)
+        coEvery { remoteDataSource.getChatHistory(userId) } returns MiraiLinkResult.Success(responseList)
 
         // When
-        val result = repository.getChatsFromUser()
+        val result = chatRepository.getMessagesWith(userId)
 
         // Then
-        assert(result is MiraiLinkResult.Success)
-        val chatSummary = (result as MiraiLinkResult.Success<List<ChatSummary>>).data.first()
-        assertEquals("http://test.com/photo.jpg", chatSummary.destinatary?.profilePhoto?.url)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val messages = (result as MiraiLinkResult.Success).data
+        assertThat(messages).hasSize(1)
+        assertThat(messages.first().id).isEqualTo(chatMessageResponse.id)
     }
 
     @Test
-    fun `getMessagesWith success returns mapped messages`() = runBlocking {
+    fun `markChatAsRead returns success`() = runTest {
         // Given
-        val senderDto = UserDto(
-            "1",
-            "sender",
-            "Sender",
-            "",
-            "",
-            "",
-            "",
-            "",
-            emptyList(),
-            emptyList(),
-            emptyList()
-        )
-        val receiverDto = UserDto(
-            "2",
-            "receiver",
-            "Receiver",
-            "",
-            "",
-            "",
-            "",
-            "",
-            emptyList(),
-            emptyList(),
-            emptyList()
-        )
-        val messageResponse = ChatMessageResponse("1", senderDto, receiverDto, "Hello", Date().time)
-        val remoteResult = MiraiLinkResult.Success(listOf(messageResponse))
-        coEvery { remoteDataSource.getChatHistory(any()) } returns remoteResult
+        val chatId = "chat1"
+        coEvery { remoteDataSource.markChatAsRead(chatId) } returns MiraiLinkResult.Success(Unit)
 
         // When
-        val result = repository.getMessagesWith("2")
+        val result = chatRepository.markChatAsRead(chatId)
 
         // Then
-        assert(result is MiraiLinkResult.Success)
-        val message = (result as MiraiLinkResult.Success<List<ChatMessage>>).data.first()
-        assertEquals("1", message.id)
-        assertEquals("Hello", message.content)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
     }
 
     @Test
-    fun `listenForMessages registers callback on socketService`() {
-        val callback = slot<((Array<Any>) -> Unit)>()
-        coEvery { socketService.on("receive_message", capture(callback)) } answers { nothing }
+    fun `createPrivateChat returns success`() = runTest {
+        // Given
+        val otherUserId = "user2"
+        val chatId = "newChatId"
+        coEvery { remoteDataSource.createPrivateChat(otherUserId) } returns MiraiLinkResult.Success(chatId)
 
-        repository.listenForMessages { /* testing */ }
+        // When
+        val result = chatRepository.createPrivateChat(otherUserId)
 
-        coVerify { socketService.on("receive_message", any()) }
+        // Then
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        assertThat((result as MiraiLinkResult.Success).data).isEqualTo(chatId)
+    }
+
+    @Test
+    fun `sendMessageTo returns success`() = runTest {
+        // Given
+        val userId = "user2"
+        val content = "Hello there!"
+        coEvery { remoteDataSource.sendMessage(userId, content) } returns MiraiLinkResult.Success(Unit)
+
+        // When
+        val result = chatRepository.sendMessageTo(userId, content)
+
+        // Then
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
     }
 }

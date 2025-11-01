@@ -1,63 +1,91 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.AnimeDto
 import com.feryaeljustice.mirailink.data.model.GameDto
-import com.feryaeljustice.mirailink.domain.model.catalog.Anime
-import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class CatalogRepositoryImplTest {
 
-    private lateinit var remoteDataSource: CatalogRemoteDataSource
-    private lateinit var repository: CatalogRepositoryImpl
+    private lateinit var catalogRepository: CatalogRepositoryImpl
+    private val remoteDataSource: CatalogRemoteDataSource = mockk()
+
+    private val animeDto = AnimeDto(id = "1", name = "Anime Test", imageUrl = null)
+    private val gameDto = GameDto(id = "1", name = "Game Test", imageUrl = null)
 
     @Before
     fun setUp() {
-        remoteDataSource = mockk()
-        repository = CatalogRepositoryImpl(remoteDataSource)
+        catalogRepository = CatalogRepositoryImpl(remoteDataSource)
     }
 
     @Test
-    fun `getAnimes success returns mapped animes`() = runBlocking {
+    fun `getAnimes returns success when remote data source is successful`() = runTest {
         // Given
-        val animeDto = AnimeDto("1", "Anime Title", "")
-        val remoteResult = MiraiLinkResult.Success(listOf(animeDto))
-        coEvery { remoteDataSource.getAnimes() } returns remoteResult
+        val animeDtoList = listOf(animeDto)
+        val successResult = MiraiLinkResult.Success(animeDtoList)
+        coEvery { remoteDataSource.getAnimes() } returns successResult
 
         // When
-        val result = repository.getAnimes()
+        val result = catalogRepository.getAnimes()
 
         // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val anime = (result as MiraiLinkResult.Success<List<Anime>>).data.first()
-        assertEquals("Anime Title", anime.name)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val animes = (result as MiraiLinkResult.Success).data
+        assertThat(animes).hasSize(1)
+        assertThat(animes.first().id).isEqualTo(animeDto.id)
     }
 
     @Test
-    fun `getGames success returns mapped games`() = runBlocking {
+    fun `getAnimes returns error when remote data source fails`() = runTest {
         // Given
-        val gameDto = GameDto("1", "Game Title", "")
-        val remoteResult = MiraiLinkResult.Success(listOf(gameDto))
-        coEvery { remoteDataSource.getGames() } returns remoteResult
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { remoteDataSource.getAnimes() } returns errorResult
 
         // When
-        val result = repository.getGames()
+        val result = catalogRepository.getAnimes()
 
         // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val game = (result as MiraiLinkResult.Success<List<Game>>).data.first()
-        assertEquals("Game Title", game.name)
+        assertThat(result).isEqualTo(errorResult)
+    }
+
+    @Test
+    fun `getGames returns success when remote data source is successful`() = runTest {
+        // Given
+        val gameDtoList = listOf(gameDto)
+        val successResult = MiraiLinkResult.Success(gameDtoList)
+        coEvery { remoteDataSource.getGames() } returns successResult
+
+        // When
+        val result = catalogRepository.getGames()
+
+        // Then
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val games = (result as MiraiLinkResult.Success).data
+        assertThat(games).hasSize(1)
+        assertThat(games.first().id).isEqualTo(gameDto.id)
+    }
+
+    @Test
+    fun `getGames returns error when remote data source fails`() = runTest {
+        // Given
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { remoteDataSource.getGames() } returns errorResult
+
+        // When
+        val result = catalogRepository.getGames()
+
+        // Then
+        assertThat(result).isEqualTo(errorResult)
     }
 }

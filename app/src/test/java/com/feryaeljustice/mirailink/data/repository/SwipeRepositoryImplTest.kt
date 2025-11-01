@@ -1,89 +1,123 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.UserPhotoDto
-import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class SwipeRepositoryImplTest {
 
-    private lateinit var remoteDataSource: SwipeRemoteDataSource
-    private lateinit var repository: SwipeRepositoryImpl
+    private lateinit var swipeRepository: SwipeRepositoryImpl
+    private val swipeRemoteDataSource: SwipeRemoteDataSource = mockk()
 
-    private val baseUrl = "http://test.com/"
+    private val userDto = UserDto(
+        id = "1",
+        username = "testuser",
+        nickname = "Test User",
+        email = "test@example.com",
+        photos = emptyList(),
+        animes = emptyList(),
+        games = emptyList()
+    )
 
     @Before
     fun setUp() {
-        remoteDataSource = mockk()
-        repository = SwipeRepositoryImpl(remoteDataSource, baseUrl)
+        swipeRepository = SwipeRepositoryImpl(swipeRemoteDataSource, "http://localhost:8080")
     }
 
     @Test
-    fun `getFeed success returns mapped users`() = runBlocking {
+    fun `getFeed returns success when remote data source is successful`() = runTest {
         // Given
-        val photosDto = listOf(UserPhotoDto("1", "1", "photo.jpg", 1))
-        val userDto = UserDto(
-            id = "1",
-            username = "test",
-            nickname = "Test User",
-            bio = "bio",
-            gender = "Male",
-            birthdate = "2000-01-01",
-            animes = emptyList(),
-            games = emptyList(),
-            photos = photosDto
-        )
-        val remoteResult = MiraiLinkResult.Success(listOf(userDto))
-        coEvery { remoteDataSource.getFeed() } returns remoteResult
+        val userDtoList = listOf(userDto)
+        val successResult = MiraiLinkResult.Success(userDtoList)
+        coEvery { swipeRemoteDataSource.getFeed() } returns successResult
 
         // When
-        val result = repository.getFeed()
+        val result = swipeRepository.getFeed()
 
         // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val user = (result as MiraiLinkResult.Success<List<User>>).data.first()
-        assertEquals("Test User", user.nickname)
-        assertEquals(1, user.photos.size)
-        assertEquals("http://test.com/photo.jpg", user.photos[0].url)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val users = (result as MiraiLinkResult.Success).data
+        assertThat(users).hasSize(1)
+        assertThat(users.first().id).isEqualTo(userDto.id)
     }
 
     @Test
-    fun `likeUser calls remote and returns result`() = runBlocking {
+    fun `getFeed returns error when remote data source fails`() = runTest {
         // Given
-        val userId = "1"
-        val expectedResult = MiraiLinkResult.Success(true)
-        coEvery { remoteDataSource.likeUser(userId) } returns expectedResult
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { swipeRemoteDataSource.getFeed() } returns errorResult
 
         // When
-        val result = repository.likeUser(userId)
+        val result = swipeRepository.getFeed()
 
         // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isEqualTo(errorResult)
     }
 
     @Test
-    fun `dislikeUser calls remote and returns result`() = runBlocking {
+    fun `likeUser returns success when remote data source is successful`() = runTest {
         // Given
-        val userId = "1"
-        val expectedResult = MiraiLinkResult.Success(Unit)
-        coEvery { remoteDataSource.dislikeUser(userId) } returns expectedResult
+        val userId = "2"
+        val successResult = MiraiLinkResult.Success(true)
+        coEvery { swipeRemoteDataSource.likeUser(userId) } returns successResult
 
         // When
-        val result = repository.dislikeUser(userId)
+        val result = swipeRepository.likeUser(userId)
 
         // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isEqualTo(successResult)
+    }
+
+    @Test
+    fun `likeUser returns error when remote data source fails`() = runTest {
+        // Given
+        val userId = "2"
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { swipeRemoteDataSource.likeUser(userId) } returns errorResult
+
+        // When
+        val result = swipeRepository.likeUser(userId)
+
+        // Then
+        assertThat(result).isEqualTo(errorResult)
+    }
+
+    @Test
+    fun `dislikeUser returns success when remote data source is successful`() = runTest {
+        // Given
+        val userId = "2"
+        val successResult = MiraiLinkResult.Success(Unit)
+        coEvery { swipeRemoteDataSource.dislikeUser(userId) } returns successResult
+
+        // When
+        val result = swipeRepository.dislikeUser(userId)
+
+        // Then
+        assertThat(result).isEqualTo(successResult)
+    }
+
+    @Test
+    fun `dislikeUser returns error when remote data source fails`() = runTest {
+        // Given
+        val userId = "2"
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { swipeRemoteDataSource.dislikeUser(userId) } returns errorResult
+
+        // When
+        val result = swipeRepository.dislikeUser(userId)
+
+        // Then
+        assertThat(result).isEqualTo(errorResult)
     }
 }

@@ -1,53 +1,60 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.AppConfigRemoteDataSource
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class AppConfigRepositoryImplTest {
 
-    private val remote: AppConfigRemoteDataSource = mockk()
-    private val repository = AppConfigRepositoryImpl(remote)
+    private lateinit var appConfigRepository: AppConfigRepositoryImpl
+    private val appConfigRemoteDataSource: AppConfigRemoteDataSource = mockk()
 
-    @Test
-    fun `getVersion returns success`() = runBlocking {
-        // Given
-        val appVersionInfo = AppVersionInfo(
-            platform = "Android",
-            minVersionCode = 1,
-            latestVersionCode = 2,
-            message = "Update available",
-            playStoreUrl = "http://play.store.url"
-        )
-        val expectedResult = MiraiLinkResult.Success(appVersionInfo)
-        coEvery { remote.getVersion() } returns expectedResult
-
-        // When
-        val result = repository.getVersion()
-
-        // Then
-        assertEquals(expectedResult, result)
+    @Before
+    fun setUp() {
+        appConfigRepository = AppConfigRepositoryImpl(appConfigRemoteDataSource)
     }
 
     @Test
-    fun `getVersion returns error`() = runBlocking {
+    fun `getVersion returns success when remote data source is successful`() = runTest {
         // Given
-        val expectedResult = MiraiLinkResult.Error("error")
-        coEvery { remote.getVersion() } returns expectedResult
+        val appVersionInfo = AppVersionInfo(
+            platform = "android",
+            minVersionCode = 1,
+            latestVersionCode = 2,
+            message = "Update available",
+            playStoreUrl = "https://play.google.com"
+        )
+        val successResult = MiraiLinkResult.Success(appVersionInfo)
+        coEvery { appConfigRemoteDataSource.getVersion() } returns successResult
 
         // When
-        val result = repository.getVersion()
+        val result = appConfigRepository.getVersion()
 
         // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isEqualTo(successResult)
+    }
+
+    @Test
+    fun `getVersion returns error when remote data source fails`() = runTest {
+        // Given
+        val errorResult = MiraiLinkResult.Error(message = "An error occurred")
+        coEvery { appConfigRemoteDataSource.getVersion() } returns errorResult
+
+        // When
+        val result = appConfigRepository.getVersion()
+
+        // Then
+        assertThat(result).isEqualTo(errorResult)
     }
 }

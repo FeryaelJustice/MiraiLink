@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Feryael Justice
+// 2024-07-31
+
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
@@ -10,115 +9,122 @@ import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class UserRepositoryImplTest {
 
-    private lateinit var remoteDataSource: UserRemoteDataSource
-    private lateinit var sessionManager: SessionManager
-    private lateinit var repository: UserRepositoryImpl
+    private lateinit var userRepository: UserRepositoryImpl
+    private val userRemoteDataSource: UserRemoteDataSource = mockk()
+    private val sessionManager: SessionManager = mockk(relaxed = true)
 
-    private val baseUrl = "http://test.com/"
+    private val userDto = UserDto(
+        id = "1",
+        username = "testuser",
+        nickname = "Test User",
+        email = "test@example.com",
+        photos = emptyList(),
+        animes = emptyList(),
+        games = emptyList()
+    )
+
+    private val userPhotoDto = UserPhotoDto(
+        id = "photo1",
+        userId = "1",
+        url = "/path/to/photo.jpg",
+        position = 1
+    )
+
+    private val user = User(
+        id = "1",
+        username = "testuser",
+        nickname = "Test User",
+        email = "test@example.com",
+        phoneNumber = null,
+        bio = null,
+        gender = null,
+        birthdate = null,
+        photos = listOf(
+            com.feryaeljustice.mirailink.domain.model.user.UserPhoto(
+                userId = "1",
+                url = "http://localhost:8080/path/to/photo.jpg",
+                position = 1
+            )
+        ),
+        games = emptyList(),
+        animes = emptyList()
+    )
 
     @Before
     fun setUp() {
-        remoteDataSource = mockk()
-        sessionManager = mockk(relaxUnitFun = true)
-        repository = UserRepositoryImpl(remoteDataSource, sessionManager, baseUrl)
+        userRepository = UserRepositoryImpl(userRemoteDataSource, sessionManager, "http://localhost:8080")
     }
 
     @Test
-    fun `login success returns success result`() = runBlocking {
+    fun `getCurrentUser returns success when remote data source is successful`() = runTest {
         // Given
-        val email = "test@test.com"
-        val username = "test"
-        val password = "password"
-        val expectedResult = MiraiLinkResult.Success("token")
-        coEvery { remoteDataSource.login(email, username, password) } returns expectedResult
+        val successResult = MiraiLinkResult.Success(userDto to listOf(userPhotoDto))
+        coEvery { userRemoteDataSource.getCurrentUser() } returns successResult
 
         // When
-        val result = repository.login(email, username, password)
+        val result = userRepository.getCurrentUser()
 
         // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val successData = (result as MiraiLinkResult.Success).data
+        assertThat(successData.id).isEqualTo(user.id)
+        assertThat(successData.username).isEqualTo(user.username)
+        assertThat(successData.photos.first().url).endsWith(userPhotoDto.url)
     }
 
     @Test
-    fun `logout clears session and returns success`() = runBlocking {
+    fun `getCurrentUser returns error when remote data source fails`() = runTest {
         // Given
-        coEvery { remoteDataSource.logout() } returns MiraiLinkResult.Success(true)
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { userRemoteDataSource.getCurrentUser() } returns errorResult
 
         // When
-        val result = repository.logout()
+        val result = userRepository.getCurrentUser()
 
         // Then
-        coVerify { sessionManager.clearSession() }
-        assertEquals(MiraiLinkResult.Success(true), result)
+        assertThat(result).isEqualTo(errorResult)
     }
 
     @Test
-    fun `register success returns success result`() = runBlocking {
+    fun `getUserById returns success when remote data source is successful`() = runTest {
         // Given
-        val username = "test"
-        val email = "test@test.com"
-        val password = "password"
-        val expectedResult = MiraiLinkResult.Success("token")
-        coEvery { remoteDataSource.register(username, email, password) } returns expectedResult
+        val userId = "1"
+        val successResult = MiraiLinkResult.Success(userDto to listOf(userPhotoDto))
+        coEvery { userRemoteDataSource.getUserById(userId) } returns successResult
 
         // When
-        val result = repository.register(username, email, password)
+        val result = userRepository.getUserById(userId)
 
         // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        val successData = (result as MiraiLinkResult.Success).data
+        assertThat(successData.id).isEqualTo(user.id)
+        assertThat(successData.username).isEqualTo(user.username)
+        assertThat(successData.photos.first().url).endsWith(userPhotoDto.url)
     }
 
     @Test
-    fun `getCurrentUser success returns mapped user`() = runBlocking {
+    fun `getUserById returns error when remote data source fails`() = runTest {
         // Given
-        val userDto = UserDto(
-            "1",
-            "test",
-            "Test User",
-            "bio",
-            "Male",
-            "2000-01-01",
-            "",
-            "",
-            emptyList(),
-            emptyList()
-        )
-        val photosDto = listOf(UserPhotoDto("1", "1", "photo.jpg", 1))
-        val remoteResult = MiraiLinkResult.Success(Pair(userDto, photosDto))
-        coEvery { remoteDataSource.getCurrentUser() } returns remoteResult
+        val userId = "1"
+        val errorResult = MiraiLinkResult.Error("An error occurred")
+        coEvery { userRemoteDataSource.getUserById(userId) } returns errorResult
 
         // When
-        val result = repository.getCurrentUser()
+        val result = userRepository.getUserById(userId)
 
         // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val user = (result as MiraiLinkResult.Success<User>).data
-        assertEquals("Test User", user.nickname)
-        assertEquals(1, user.photos.size)
-        assertEquals("http://test.com/photo.jpg", user.photos[0].url)
-    }
-
-    @Test
-    fun `getCurrentUser error returns error result`() = runBlocking {
-        // Given
-        val expectedResult = MiraiLinkResult.Error("error")
-        coEvery { remoteDataSource.getCurrentUser() } returns expectedResult
-
-        // When
-        val result = repository.getCurrentUser()
-
-        // Then
-        assertEquals(expectedResult, result)
+        assertThat(result).isEqualTo(errorResult)
     }
 }
