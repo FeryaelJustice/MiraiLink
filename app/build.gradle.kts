@@ -1,5 +1,5 @@
-// Feryael Justice
-// 2024-07-28
+// Author: Feryael Justice
+// Date: 2024-07-29
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -32,7 +32,7 @@ android {
         versionCode = 17
         versionName = "1.1.6"
 
-        testInstrumentationRunner = "com.feryaeljustice.mirailink.HiltTestRunner"
+        testInstrumentationRunner = "com.feryaeljustice.mirailink.CustomHiltTestRunner"
     }
 
     // Cargar keystore.properties

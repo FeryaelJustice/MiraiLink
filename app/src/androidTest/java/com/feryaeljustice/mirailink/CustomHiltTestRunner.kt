@@ -1,3 +1,6 @@
+// Author: Feryael Justice
+// Date: 2024-07-29
+
 package com.feryaeljustice.mirailink
 
 import android.app.Application
@@ -5,11 +8,7 @@ import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltTestApplication
 
-/**
- * Custom test runner for Hilt instrumentation tests.
- * Configured in app/build.gradle.kts as testInstrumentationRunner.
- */
-class HiltTestRunner : AndroidJUnitRunner() {
+class CustomHiltTestRunner : AndroidJUnitRunner() {
     override fun newApplication(
         cl: ClassLoader?,
         className: String?,
