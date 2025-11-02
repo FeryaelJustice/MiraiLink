@@ -130,4 +130,8 @@
     <string name="gender_female">Female</string>
     <string name="gender_other">Other</string>
     <string name="gender_presentation">Genre: %1$s</string>
+    <string name="notifications_rationale_title">Don\'t miss a thing!</string>
+    <string name="notifications_rationale_text">To receive alerts for new messages and matches on MiraiLink, we need your permission to send notifications. Don\'t worry, you can disable them later in settings!</string>
+    <string name="notifications_rationale_btn_confirm">Understood, Continue</string>
+    <string name="notifications_rationale_btn_dismiss">Not now</string>
 </resources>

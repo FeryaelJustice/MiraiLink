@@ -27,4 +27,6 @@ data class UserDto(
     val games: List<GameDto> = emptyList(),
     @SerialName("photos")
     val photos: List<UserPhotoDto> = emptyList(),
+    @SerialName("fcm_token")
+    val fcmToken: String = "",
 )

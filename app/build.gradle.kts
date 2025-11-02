@@ -6,8 +6,8 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-
     alias(libs.plugins.kotlin.android)
+
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlinx.parcelize)
@@ -211,6 +211,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.messaging)
 
     // Google Ads
     implementation(libs.play.services.ads)

@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.data.model.request.auth.PasswordResetConfirm
 import com.feryaeljustice.mirailink.data.model.request.auth.RegisterRequest
 import com.feryaeljustice.mirailink.data.model.request.generic.ByIdRequest
 import com.feryaeljustice.mirailink.data.model.request.generic.EmailRequest
+import com.feryaeljustice.mirailink.data.model.request.notifications.SaveFCMUserRequest
 import com.feryaeljustice.mirailink.data.model.request.verification.VerificationConfirmRequest
 import com.feryaeljustice.mirailink.data.model.request.verification.VerificationRequest
 import com.feryaeljustice.mirailink.data.model.response.auth.AutologinResponse
@@ -34,28 +35,40 @@ interface UserApiService {
     suspend fun autologin(): AutologinResponse
 
     @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): LoginResponse
+    suspend fun login(
+        @Body request: LoginRequest,
+    ): LoginResponse
 
     @POST("auth/logout")
     suspend fun logout(): LogoutResponse
 
     @POST("auth/register")
-    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+    suspend fun register(
+        @Body request: RegisterRequest,
+    ): RegisterResponse
 
     @POST("auth/password/request-reset")
-    suspend fun requestPasswordReset(@Body body: EmailRequest): BasicResponse
+    suspend fun requestPasswordReset(
+        @Body body: EmailRequest,
+    ): BasicResponse
 
     @POST("auth/password/confirm-reset")
-    suspend fun confirmPasswordReset(@Body body: PasswordResetConfirmRequest): BasicResponse
+    suspend fun confirmPasswordReset(
+        @Body body: PasswordResetConfirmRequest,
+    ): BasicResponse
 
     @GET("auth/verification/check")
     suspend fun checkIsVerified(): CheckIsVerifiedResponse
 
     @POST("auth/verification/request")
-    suspend fun requestVerificationCode(@Body body: VerificationRequest): BasicResponse
+    suspend fun requestVerificationCode(
+        @Body body: VerificationRequest,
+    ): BasicResponse
 
     @POST("auth/verification/confirm")
-    suspend fun confirmVerificationCode(@Body body: VerificationConfirmRequest): BasicResponse
+    suspend fun confirmVerificationCode(
+        @Body body: VerificationConfirmRequest,
+    ): BasicResponse
 
     @GET("user")
     suspend fun getCurrentUser(): UserDto
@@ -65,21 +78,25 @@ interface UserApiService {
 
     @DELETE("user/photo/{position}")
     suspend fun deleteUserPhoto(
-        @Path("position") position: Int
+        @Path("position") position: Int,
     ): Response<Unit>
 
     @GET("user/photos")
-    suspend fun getUserPhotos(@Query("userId") userId: String): List<UserPhotoDto>
+    suspend fun getUserPhotos(
+        @Query("userId") userId: String,
+    ): List<UserPhotoDto>
 
     @Multipart
     @POST("user/photos")
     suspend fun uploadUserPhoto(
         @Part photo: MultipartBody.Part,
-        @Part("position") position: RequestBody
+        @Part("position") position: RequestBody,
     ): UploadPhotoResponse
 
     @POST("user/byId")
-    suspend fun getUserById(@Body request: ByIdRequest): UserDto
+    suspend fun getUserById(
+        @Body request: ByIdRequest,
+    ): UserDto
 
     @Multipart
     @PUT("user")
@@ -96,4 +113,9 @@ interface UserApiService {
         @Part photo_2: MultipartBody.Part? = null,
         @Part photo_3: MultipartBody.Part? = null,
     ): Response<Unit>
+
+    @POST("user/fcm")
+    suspend fun saveUserFcm(
+        @Body body: SaveFCMUserRequest,
+    ): BasicResponse
 }

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">MiraiLink</string>
 
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+
     <!-- Bottom Nav Bar -->
     <string name="nav_home">Inicio</string>
     <string name="nav_messages">Mensajes</string>
@@ -131,4 +133,8 @@
     <string name="gender_female">Mujer</string>
     <string name="gender_other">Otro</string>
     <string name="gender_presentation">Género: %1$s</string>
+    <string name="notifications_rationale_title">¡No te pierdas nada!</string>
+    <string name="notifications_rationale_text">Para recibir alertas de nuevos mensajes y \'matches\' en MiraiLink, necesitamos tu permiso para enviar notificaciones. ¡No te preocupes, puedes desactivarlas después en ajustes!</string>
+    <string name="notifications_rationale_btn_confirm">Entendido, Continuar</string>
+    <string name="notifications_rationale_btn_dismiss">Ahora no</string>
 </resources>

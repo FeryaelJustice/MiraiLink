@@ -17,4 +17,5 @@ data class User(
     val photos: List<UserPhoto> = emptyList(),
     val games: List<Game>,
     val animes: List<Anime>,
+    val fcmToken: String? = "",
 )
