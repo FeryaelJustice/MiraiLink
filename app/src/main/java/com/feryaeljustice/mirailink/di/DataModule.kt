@@ -26,6 +26,7 @@ import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
+import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,37 +39,39 @@ import javax.inject.Singleton
 object DataModule {
     @Provides
     @Singleton
+    fun provideCredentialHelper(
+        @ApplicationContext context: Context,
+    ): CredentialHelper = CredentialHelper(context = context)
+
+    @Provides
+    @Singleton
     fun provideSessionManager(
         @SessionDataStore dataStore: DataStore<Session>,
-    ): SessionManager = SessionManager(
-        dataStore = dataStore,
-    )
+    ): SessionManager =
+        SessionManager(
+            dataStore = dataStore,
+        )
 
     @Provides
     @Singleton
     fun provideMiraiLinkPrefs(
-        @PrefsDataStore dataStore: DataStore<AppPrefs>
+        @PrefsDataStore dataStore: DataStore<AppPrefs>,
     ): MiraiLinkPrefs = MiraiLinkPrefs(dataStore = dataStore)
 
     @Provides
     @Singleton
-    fun provideAppConfigRemoteDataSource(
-        api: AppConfigApiService
-    ): AppConfigRemoteDataSource =
-        AppConfigRemoteDataSource(api)
+    fun provideAppConfigRemoteDataSource(api: AppConfigApiService): AppConfigRemoteDataSource = AppConfigRemoteDataSource(api)
 
     @Provides
     @Singleton
     fun provideUserRemoteDataSource(
         api: UserApiService,
-        @ApplicationContext context: Context
-    ): UserRemoteDataSource =
-        UserRemoteDataSource(api, context)
+        @ApplicationContext context: Context,
+    ): UserRemoteDataSource = UserRemoteDataSource(api, context)
 
     @Provides
     @Singleton
-    fun provideUsersRemoteDataSource(usersApi: UsersApiService): UsersRemoteDataSource =
-        UsersRemoteDataSource(usersApi)
+    fun provideUsersRemoteDataSource(usersApi: UsersApiService): UsersRemoteDataSource = UsersRemoteDataSource(usersApi)
 
     @Provides
     @Singleton
@@ -77,31 +80,25 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideSwipeRemoteDatasource(swipeApi: SwipeApiService): SwipeRemoteDataSource =
-        SwipeRemoteDataSource(swipeApi)
+    fun provideSwipeRemoteDatasource(swipeApi: SwipeApiService): SwipeRemoteDataSource = SwipeRemoteDataSource(swipeApi)
 
     @Provides
     @Singleton
-    fun provideChatRemoteDatasource(chatApi: ChatApiService): ChatRemoteDataSource =
-        ChatRemoteDataSource(chatApi)
+    fun provideChatRemoteDatasource(chatApi: ChatApiService): ChatRemoteDataSource = ChatRemoteDataSource(chatApi)
 
     @Provides
     @Singleton
-    fun provideMatchRemoteDatasource(matchApi: MatchApiService): MatchRemoteDataSource =
-        MatchRemoteDataSource(matchApi)
+    fun provideMatchRemoteDatasource(matchApi: MatchApiService): MatchRemoteDataSource = MatchRemoteDataSource(matchApi)
 
     @Provides
     @Singleton
-    fun provideCatalogRemoteDatasource(catalogApi: CatalogApiService): CatalogRemoteDataSource =
-        CatalogRemoteDataSource(catalogApi)
+    fun provideCatalogRemoteDatasource(catalogApi: CatalogApiService): CatalogRemoteDataSource = CatalogRemoteDataSource(catalogApi)
 
     @Provides
     @Singleton
-    fun provideReportRemoteDatasource(reportApi: ReportApiService): ReportRemoteDataSource =
-        ReportRemoteDataSource(reportApi)
+    fun provideReportRemoteDatasource(reportApi: ReportApiService): ReportRemoteDataSource = ReportRemoteDataSource(reportApi)
 
     @Provides
     @Singleton
-    fun provideFeedbackRemoteDatasource(feedbackApi: FeedbackApiService): FeedbackRemoteDatasource =
-        FeedbackRemoteDatasource(feedbackApi)
+    fun provideFeedbackRemoteDatasource(feedbackApi: FeedbackApiService): FeedbackRemoteDatasource = FeedbackRemoteDatasource(feedbackApi)
 }

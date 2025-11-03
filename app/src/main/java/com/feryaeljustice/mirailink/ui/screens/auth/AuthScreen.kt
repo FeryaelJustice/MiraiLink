@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.util.isEmailValid
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -63,25 +64,28 @@ fun AuthScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val userId by viewModel.userId.collectAsState()
     val showTwoFactorLastStepDialog by viewModel.showTwoFactorLastStepDialog.collectAsState()
     val twoFactorLastStepIsLoading by viewModel.twoFactorLastStepDialogIsLoading.collectAsState()
     val twoFactorCode by viewModel.twoFactorCode.collectAsState()
+    val loginByUsername by viewModel.loginByUsername.collectAsState()
 
     var isLogin by remember { mutableStateOf(true) }
-    var loginByUsername by remember { mutableStateOf(true) }
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+    val usernameError by viewModel.usernameError.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
+    val confirmPasswordError by viewModel.confirmPasswordError.collectAsState()
+    val usernameErrorString = mapErrorToString(usernameError)
+    val emailErrorString = mapErrorToString(emailError)
+    val passwordErrorString = mapErrorToString(passwordError)
+    val confirmPasswordErrorString = mapErrorToString(confirmPasswordError)
 
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -92,11 +96,6 @@ fun AuthScreen(
         password = ""
         confirmPassword = ""
         passwordVisible = false
-
-        usernameError = null
-        emailError = null
-        passwordError = null
-        confirmPasswordError = null
     }
 
     LaunchedEffect(Unit) {
@@ -107,6 +106,15 @@ fun AuthScreen(
         sessionViewModel.hideTopBarSettingsIcon()
         sessionViewModel.disableBars()
         focusRequester.requestFocus()
+
+        viewModel.autofillCredentials { savedEmailOrUsername, savedPassword ->
+            if (savedEmailOrUsername.isEmailValid()) {
+                email = savedEmailOrUsername
+            } else {
+                username = savedEmailOrUsername
+            }
+            password = savedPassword
+        }
     }
 
     if (showTwoFactorLastStepDialog) {
@@ -120,80 +128,93 @@ fun AuthScreen(
                 viewModel.confirmTwoFactorDiag { userId, token ->
                     sessionViewModel.saveSession(token, userId)
                 }
-            }
+            },
         )
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ).verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.End,
         ) {
             MiraiLinkTextButton(
-                modifier = Modifier
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .focusRequester(focusRequester),
                 onClick = {
                     isLogin = !isLogin
                     viewModel.resetScreenVMState()
                     resetAuthUiState()
                 },
-                text = if (isLogin) stringResource(R.string.auth_screen_register) else stringResource(
-                    R.string.auth_screen_login
-                ),
+                text =
+                    if (isLogin) {
+                        stringResource(R.string.auth_screen_register)
+                    } else {
+                        stringResource(
+                            R.string.auth_screen_login,
+                        )
+                    },
             )
         }
 
         MiraiLinkOutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
             value = if (loginByUsername && isLogin) username else email,
             onValueChange = {
                 if (loginByUsername && isLogin) {
                     username = it
-                    usernameError = null
+                    viewModel.resetUsernameError()
                 } else {
                     email = it
-                    emailError = null
+                    viewModel.resetEmailError()
                 }
             },
             maxLines = 1,
-            label = if (loginByUsername && isLogin) stringResource(R.string.auth_screen_text_field_username) else stringResource(
-                R.string.auth_screen_text_field_email
-            ),
+            label =
+                if (loginByUsername && isLogin) {
+                    stringResource(R.string.auth_screen_text_field_username)
+                } else {
+                    stringResource(
+                        R.string.auth_screen_text_field_email,
+                    )
+                },
             isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
-            supportingText = if (loginByUsername && isLogin) usernameError else emailError,
+            supportingText = if (loginByUsername && isLogin) usernameErrorString else emailErrorString,
             trailingIcon = {
                 if (isLogin) {
                     val icon =
                         if (loginByUsername) R.drawable.ic_user else R.drawable.ic_email
-                    IconButton(onClick = { loginByUsername = !loginByUsername }) {
+                    IconButton(onClick = { viewModel.toggleLoginBy() }) {
                         Icon(painter = painterResource(id = icon), contentDescription = null)
                     }
                 } else {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_email),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                ),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
         )
 
@@ -201,28 +222,30 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             MiraiLinkOutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = null
+                    viewModel.resetUsernameError()
                 },
                 maxLines = 1,
                 label = stringResource(R.string.auth_screen_text_field_username),
                 isError = usernameError != null,
-                supportingText = usernameError,
+                supportingText = usernameErrorString,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_user),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                    ),
                 keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
             )
         }
@@ -230,13 +253,14 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         MiraiLinkOutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
             value = password,
             onValueChange = {
                 password = it
-                passwordError = null
+                viewModel.resetPasswordError()
             },
             maxLines = 1,
             label = stringResource(R.string.auth_screen_text_field_password),
@@ -249,31 +273,40 @@ fun AuthScreen(
                 }
             },
             isError = passwordError != null,
-            supportingText = passwordError,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = if (isLogin) ImeAction.Done else ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Next) },
-                onDone = {
-                    focusManager.clearFocus()
-                    viewModel.login(email, username, password, onSaveSession = { userId, token ->
-                        sessionViewModel.saveSession(token, userId)
-                    })
-                }),
+            supportingText = passwordErrorString,
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = if (isLogin) ImeAction.Done else ImeAction.Next,
+                ),
+            keyboardActions =
+                KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) },
+                    onDone = {
+                        focusManager.clearFocus()
+                        viewModel.login(
+                            email,
+                            username,
+                            password,
+                            onSaveSession = { userId, token ->
+                                sessionViewModel.saveSession(token, userId)
+                            },
+                        )
+                    },
+                ),
         )
 
         if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
             MiraiLinkOutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                 value = confirmPassword,
                 onValueChange = {
                     confirmPassword = it
-                    confirmPasswordError = null
+                    viewModel.resetConfirmPasswordError()
                 },
                 maxLines = 1,
                 label = stringResource(R.string.auth_screen_text_field_repeat_password),
@@ -286,22 +319,24 @@ fun AuthScreen(
                     }
                 },
                 isError = confirmPasswordError != null,
-                supportingText = confirmPasswordError,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = {
-                    focusManager.clearFocus()
-                    viewModel.register(
-                        username,
-                        email,
-                        password,
-                        onSaveSession = { userId, token ->
-                            sessionViewModel.saveSession(token, userId)
-                        }
-                    )
-                }),
+                supportingText = confirmPasswordErrorString,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done,
+                    ),
+                keyboardActions =
+                    KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        viewModel.register(
+                            username,
+                            email,
+                            password,
+                            onSaveSession = { userId, token ->
+                                sessionViewModel.saveSession(token, userId)
+                            },
+                        )
+                    }),
             )
         }
 
@@ -309,11 +344,12 @@ fun AuthScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.End,
         ) {
             MiraiLinkTextButton(
-                modifier = Modifier
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .focusRequester(focusRequester),
                 onClick = {
                     onRequestPasswordReset(email)
                 },
@@ -324,57 +360,57 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         MiraiLinkButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
             onClick = {
-                var valid = true
+                // VALIDACIONES AUTH PREVIAS
+                if (!viewModel.validateFields(
+                        isLogin = isLogin,
+                        email = email,
+                        username = username,
+                        password = password,
+                        confirmPassword = confirmPassword,
+                    )
+                ) {
+                    return@MiraiLinkButton
+                }
+
+                // ACCION AUTH
                 if (isLogin) {
-                    if (loginByUsername && username.length < 4) {
-                        usernameError = context.getString(R.string.must_have_less_than, 4)
-                        valid = false
-                    }
-                    if (!loginByUsername && (email.length < 5 || !email.contains("@"))) {
-                        emailError =
-                            context.getString(R.string.must_have_less_than_and_contain, 5, '@')
-                        valid = false
-                    }
+                    viewModel.login(
+                        email,
+                        username,
+                        password,
+                        onSaveSession = { userId, token ->
+                            sessionViewModel.saveSession(token, userId)
+                        },
+                    )
                 } else {
-                    if (confirmPassword != password) {
-                        confirmPasswordError = context.getString(R.string.passwords_do_not_match)
-                        valid = false
-                    }
+                    viewModel.register(
+                        username,
+                        email,
+                        password,
+                        onSaveSession = { userId, token ->
+                            sessionViewModel.saveSession(token, userId)
+                        },
+                    )
                 }
-                if (password.length < 4) {
-                    passwordError = context.getString(R.string.must_have_less_than, 4)
-                    valid = false
-                }
-
-                if (!valid) return@MiraiLinkButton
-
-                if (isLogin) viewModel.login(
-                    email,
-                    username,
-                    password,
-                    onSaveSession = { userId, token ->
-                        sessionViewModel.saveSession(token, userId)
-                    })
-                else viewModel.register(
-                    username,
-                    email,
-                    password,
-                    onSaveSession = { userId, token ->
-                        sessionViewModel.saveSession(token, userId)
-                    })
             },
             content = {
                 MiraiLinkText(
-                    text = if (isLogin) stringResource(R.string.auth_screen_login) else stringResource(
-                        R.string.auth_screen_register
-                    ),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    text =
+                        if (isLogin) {
+                            stringResource(R.string.auth_screen_login)
+                        } else {
+                            stringResource(
+                                R.string.auth_screen_register,
+                            )
+                        },
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
-            }
+            },
         )
 
         when (state) {
@@ -398,6 +434,25 @@ fun AuthScreen(
             }
 
             AuthUiState.Idle -> Unit
+        }
+    }
+}
+
+@Composable
+private fun mapErrorToString(error: AuthViewModel.AuthFieldError?): String? {
+    val context = LocalContext.current
+    return when (error) {
+        is AuthViewModel.AuthFieldError.MinLength ->
+            context.getString(
+                R.string.must_have_less_than,
+                error.min,
+            )
+
+        is AuthViewModel.AuthFieldError.InvalidEmail -> context.getString(R.string.invalid_email)
+        is AuthViewModel.AuthFieldError.PasswordsDoNotMatch -> context.getString(R.string.passwords_do_not_match)
+        // is AuthFieldError.InvalidPassword -> context.getString(R.string.password_format_error)
+        else -> {
+            null
         }
     }
 }

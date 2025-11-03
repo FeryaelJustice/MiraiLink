@@ -136,4 +136,6 @@
     <string name="notifications_rationale_btn_dismiss">Not now</string>
     <string name="you">You</string>
     <string name="contact">Contact</string>
+    <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one digit</string>
+    <string name="invalid_email">Invalid email</string>
 </resources>

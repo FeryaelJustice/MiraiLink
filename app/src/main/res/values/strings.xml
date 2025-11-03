@@ -139,4 +139,6 @@
     <string name="notifications_rationale_btn_dismiss">Ahora no</string>
     <string name="you">Tú</string>
     <string name="contact">Contacto</string>
+    <string name="password_must_contain_at_least_one_letter_and_one_number">La contraseña debe contener almenos una letra y un dígito</string>
+    <string name="invalid_email">Email inválido</string>
 </resources>

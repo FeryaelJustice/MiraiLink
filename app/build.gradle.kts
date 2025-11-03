@@ -217,4 +217,8 @@ dependencies {
     implementation(libs.play.services.ads)
     // UMP (consent)
     implementation(libs.google.ump)
+
+    // Androidx Credentials
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.playservices.auth) // Compatibilidad Android 13 a abajo
 }

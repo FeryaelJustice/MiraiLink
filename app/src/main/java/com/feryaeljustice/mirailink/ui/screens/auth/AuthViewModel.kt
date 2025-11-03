@@ -10,11 +10,15 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
+import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.isEmailValid
+import com.feryaeljustice.mirailink.domain.util.isPasswordValid
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,6 +34,7 @@ class AuthViewModel
         private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
         private val analytics: AnalyticsTracker,
         private val crash: CrashReporter,
+        private val credentialHelper: CredentialHelper,
         @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         sealed class AuthUiState {
@@ -49,8 +54,52 @@ class AuthViewModel
             ) : AuthUiState()
         }
 
+        // Sealed class para representar errores de validación de campos de autenticación.
+        sealed class AuthFieldError {
+            data class MinLength(
+                val min: Int,
+            ) : AuthFieldError()
+
+            object InvalidEmail : AuthFieldError()
+
+            object InvalidPassword : AuthFieldError()
+
+            object PasswordsDoNotMatch : AuthFieldError()
+        }
+
         private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
         val state = _state.asStateFlow()
+
+        private val _loginByUsername = MutableStateFlow(true)
+        val loginByUsername = _loginByUsername.asStateFlow()
+
+        private val _usernameError = MutableStateFlow<AuthFieldError?>(null)
+        val usernameError: StateFlow<AuthFieldError?> = _usernameError.asStateFlow()
+
+        fun resetUsernameError() {
+            _usernameError.value = null
+        }
+
+        private val _emailError = MutableStateFlow<AuthFieldError?>(null)
+        val emailError: StateFlow<AuthFieldError?> = _emailError.asStateFlow()
+
+        fun resetEmailError() {
+            _emailError.value = null
+        }
+
+        private val _passwordError = MutableStateFlow<AuthFieldError?>(null)
+        val passwordError: StateFlow<AuthFieldError?> = _passwordError.asStateFlow()
+
+        fun resetPasswordError() {
+            _passwordError.value = null
+        }
+
+        private val _confirmPasswordError = MutableStateFlow<AuthFieldError?>(null)
+        val confirmPasswordError: StateFlow<AuthFieldError?> = _confirmPasswordError.asStateFlow()
+
+        fun resetConfirmPasswordError() {
+            _confirmPasswordError.value = null
+        }
 
         private val _loginToken = MutableStateFlow<String?>(null)
 //    val loginToken = _loginToken.asStateFlow()
@@ -65,6 +114,18 @@ class AuthViewModel
         private val _twoFactorCode = MutableStateFlow("")
         val twoFactorCode = _twoFactorCode.asStateFlow()
 
+        fun autofillCredentials(onFound: (String, String) -> Unit) {
+            viewModelScope.launch {
+                credentialHelper.getSavedPasswordCredential()?.let {
+                    onFound(it.first, it.second)
+                }
+            }
+        }
+
+        fun toggleLoginBy() {
+            _loginByUsername.value = !_loginByUsername.value
+        }
+
         fun login(
             email: String,
             username: String,
@@ -73,6 +134,13 @@ class AuthViewModel
         ) {
             _state.value = AuthUiState.Loading
             viewModelScope.launch {
+                if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
+                    credentialHelper.savePasswordCredential(
+                        email = email.ifBlank { username },
+                        password = password,
+                    )
+                }
+
                 val result =
                     withContext(ioDispatcher) {
                         loginUseCase.get()(email, username, password)
@@ -99,6 +167,13 @@ class AuthViewModel
                 handleAuthResult(result)
             }*/
             viewModelScope.launch {
+                if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
+                    credentialHelper.savePasswordCredential(
+                        email = email.ifBlank { username },
+                        password = password,
+                    )
+                }
+
                 val result =
                     withContext(ioDispatcher) {
                         registerUseCase.get()(username, email, password)
@@ -240,5 +315,61 @@ class AuthViewModel
         fun onLoginError(e: Throwable) {
             crash.recordNonFatal(e)
             analytics.logEvent("login_error")
+        }
+
+        // Función principal para validar los campos, ahora sin conocer el Context.
+        fun validateFields(
+            isLogin: Boolean,
+            username: String,
+            email: String,
+            password: String,
+            confirmPassword: String = "", // Opcional, solo para registro
+        ): Boolean {
+            // Reseteamos errores previos
+            _usernameError.value = null
+            _emailError.value = null
+            _passwordError.value = null
+            _confirmPasswordError.value = null
+
+            var isValid = true
+
+            // Lógica de Registro
+            if (!isLogin) {
+                if (username.length < 4) {
+                    _usernameError.value = AuthFieldError.MinLength(4)
+                    isValid = false
+                }
+                if (!email.isEmailValid()) {
+                    _emailError.value = AuthFieldError.InvalidEmail
+                    isValid = false
+                }
+                if (confirmPassword != password) {
+                    _confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
+                    isValid = false
+                }
+            }
+            // Lógica de Login
+            else {
+                if (_loginByUsername.value) {
+                    if (username.length < 4) {
+                        _usernameError.value = AuthFieldError.MinLength(4)
+                        isValid = false
+                    }
+                } else { // Login con email
+                    if (!email.isEmailValid()) {
+                        _emailError.value = AuthFieldError.InvalidEmail
+                        isValid = false
+                    }
+                }
+            }
+
+            // Validaciones comunes
+            if (!password.isPasswordValid()) {
+                _passwordError.value =
+                    AuthFieldError.MinLength(4) // Cuando se pase a usar el regex en el ispasswordvalid, aqui poner el InvalidPassword
+                isValid = false
+            }
+
+            return isValid
         }
     }

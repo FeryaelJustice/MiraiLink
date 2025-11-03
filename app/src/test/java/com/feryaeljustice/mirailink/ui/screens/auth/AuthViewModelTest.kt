@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
+import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import dagger.Lazy
@@ -40,6 +41,7 @@ class AuthViewModelTest {
         mockk()
     private val analytics: AnalyticsTracker = mockk(relaxed = true)
     private val crash: CrashReporter = mockk(relaxed = true)
+    private val credentialHelper: CredentialHelper = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -54,6 +56,7 @@ class AuthViewModelTest {
                 loginVerifyTwoFactorLastStepUseCase,
                 analytics,
                 crash,
+                credentialHelper,
                 mainCoroutineRule.testDispatcher,
             )
     }
