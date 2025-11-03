@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-07-29
+// Date: 2025-11-05
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -18,6 +18,8 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.screenshot)
+
+    // alias(libs.plugins.kotzilla)
 }
 
 android {
@@ -29,8 +31,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "1.2.0"
+        versionCode = 19
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.CustomHiltTestRunner"
     }
@@ -106,6 +108,7 @@ android {
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
 
+@Suppress("ktlint:standard:no-consecutive-comments")
 dependencies {
 
     // Core
@@ -221,4 +224,26 @@ dependencies {
     // Androidx Credentials
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.playservices.auth) // Compatibilidad Android 13 a abajo
+
+    // Koin
+/*    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.core.coroutines)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.compose.navigation)
+    implementation(libs.koin.annotations)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.koin.android.test)
+    ksp(libs.koin.ksp.compiler)*/
+
+    // Kotzilla
+/*    implementation(libs.kotzilla.sdk.compose)
+    implementation(libs.kotzilla.sdk.android)*/
 }
+
+/*
+kotzilla {
+    composeInstrumentation = true
+}
+*/

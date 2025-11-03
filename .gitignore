@@ -17,3 +17,4 @@ local.properties
 keystore.properties
 app/build
 app/release
+app/kotzilla.json

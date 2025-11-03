@@ -1,11 +1,14 @@
 package com.feryaeljustice.mirailink.ui
 
+import android.app.NotificationManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
+import com.feryaeljustice.mirailink.notification.createNotificationChannel
+import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.google.firebase.Firebase
 import com.google.firebase.messaging.messaging
@@ -31,6 +34,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        createNotificationChannel(
+            notificationManager = getSystemService(NotificationManager::class.java),
+            channelId = FcmService.NOTIFICATION_CHANNEL_ID,
+            channelName = FcmService.NOTIFICATION_CHANNEL_NAME,
+            channelDescription = FcmService.NOTIFICATION_CHANNEL_DESCRIPTION,
+        )
         newToken()
 
         setContent {
