@@ -13,16 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.feryaeljustice.mirailink.BuildConfig
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
 
 @Composable
 fun SplashScreen(
     viewModel: SplashScreenViewModel,
-    sessionViewModel: GlobalSessionViewModel,
-    onInitialNavigation: (InitialNavigationAction) -> Unit
+    miraiLinkSession: GlobalMiraiLinkSession,
+    onInitialNavigation: (InitialNavigationAction) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val updateDiagInfo by viewModel.updateDiagInfo.collectAsState()
@@ -32,8 +32,8 @@ fun SplashScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        sessionViewModel.hideBars()
-        sessionViewModel.disableBars()
+        miraiLinkSession.hideBars()
+        miraiLinkSession.disableBars()
     }
 
     // 1. Chequeo: si hay bloqueador de versión, mostramos ForceUpdateGate y no navegamos
@@ -47,7 +47,7 @@ fun SplashScreen(
                 val playStoreUrl =
                     "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
                 context.openPlayStore(playStoreUrl)
-            }
+            },
         )
         return // Salimos para no seguir evaluando navegación
     }

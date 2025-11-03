@@ -1,14 +1,11 @@
-package com.feryaeljustice.mirailink.ui.state
+package com.feryaeljustice.mirailink.state
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
-import com.feryaeljustice.mirailink.di.IoDispatcher
+import com.feryaeljustice.mirailink.di.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,30 +23,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-// ViewModel to manage the global session state (like login events, topbar...)
-@HiltViewModel
-class GlobalSessionViewModel
+class GlobalMiraiLinkSession
     @Inject
     constructor(
         private val sessionManager: SessionManager,
         private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
-        @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    ) : ViewModel() {
+        @param:ApplicationScope
+        private val appScope: CoroutineScope,
+    ) {
     /*    private val _isInitialized = MutableStateFlow(false)
         val isInitialized: StateFlow<Boolean> = _isInitialized*/
         val isAuthenticated: StateFlow<Boolean> =
             sessionManager.isAuthenticatedFlow
                 .distinctUntilChanged()
                 .stateIn(
-                    scope = viewModelScope,
+                    scope = appScope,
                     started = SharingStarted.WhileSubscribed(5_000),
                     initialValue = runBlocking { sessionManager.isAuthenticatedFlow.first() },
                 )
+
+        fun currentAuth(): Boolean = isAuthenticated.value
+
         val isVerified: StateFlow<Boolean> =
             sessionManager.isVerifiedFlow
                 .distinctUntilChanged()
                 .stateIn(
-                    scope = viewModelScope,
+                    scope = appScope,
                     started = SharingStarted.WhileSubscribed(5_000),
                     initialValue = runBlocking { sessionManager.isVerifiedFlow.first() },
                 )
@@ -64,17 +63,17 @@ class GlobalSessionViewModel
         private val _topBarConfig = MutableStateFlow(TopBarConfig())
         val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
 
-        fun clearSession() = viewModelScope.launch { sessionManager.clearSession() }
+        fun clearSession() = appScope.launch { sessionManager.clearSession() }
 
         fun saveSession(
             token: String,
             userId: String,
-        ) = viewModelScope.launch { sessionManager.saveSession(token, userId) }
+        ) = appScope.launch { sessionManager.saveSession(token, userId) }
 
-        fun saveIsVerified(verified: Boolean) = viewModelScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
+        fun saveIsVerified(verified: Boolean) = appScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
 
         init {
-            viewModelScope.launch {
+            appScope.launch {
                 sessionManager.userIdFlow.distinctUntilChanged().collectLatest { curUserId ->
                     _currentUserId.value = curUserId
 
@@ -162,7 +161,7 @@ class GlobalSessionViewModel
         fun startObservingHasProfilePicture(userId: String) {
             if (observeHasProfilePictureJob?.isActive == true) return
             observeHasProfilePictureJob =
-                viewModelScope.launch(ioDispatcher) {
+                appScope.launch {
                     var backoff = 10_000L
                     while (isActive) {
                         val old = _hasProfilePicture.value

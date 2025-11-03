@@ -10,12 +10,15 @@ import androidx.core.app.Person
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -26,6 +29,9 @@ class FcmService : FirebaseMessagingService() {
 
     @Inject
     lateinit var applicationScope: CoroutineScope
+
+    @Inject
+    lateinit var globalMiraiLinkSession: GlobalMiraiLinkSession
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "notification_fcm"
@@ -43,7 +49,25 @@ class FcmService : FirebaseMessagingService() {
         super.onNewToken(token)
         Log.i("FCM", "Tenemos nuevo token desde el FirebaseMessaginService: $token")
         applicationScope.launch {
-            saveNotificationFCMUseCase(fcm = token)
+            // 1) Snapshot inmediato del StateFlow
+            val snapshot = globalMiraiLinkSession.currentAuth()
+
+            // 2) Si no está autenticado, espera como mucho 1.5s a que el Flow emita TRUE
+            val authed =
+                if (snapshot) {
+                    true
+                } else {
+                    withTimeoutOrNull(1_500) {
+                        globalMiraiLinkSession.isAuthenticated.first { it }
+                    } ?: false
+                }
+
+            if (authed) {
+                saveNotificationFCMUseCase(fcm = token)
+            } else {
+                // opcional: guardar el token en local para enviarlo cuando haya login al back
+                // pendingRepo.save(token)
+            }
         }
     }
 

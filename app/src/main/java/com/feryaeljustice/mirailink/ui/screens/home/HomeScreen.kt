@@ -21,10 +21,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
@@ -32,7 +32,7 @@ import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -41,9 +41,9 @@ fun HomeScreen(
     val canUndo = viewModel.canUndo()
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.enableBars()
-        sessionViewModel.showTopBarSettingsIcon()
+        miraiLinkSession.showBars()
+        miraiLinkSession.enableBars()
+        miraiLinkSession.showTopBarSettingsIcon()
     }
 
     PullToRefreshBox(

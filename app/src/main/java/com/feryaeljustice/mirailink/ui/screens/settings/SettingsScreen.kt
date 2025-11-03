@@ -35,18 +35,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     goToFeedbackScreen: () -> Unit,
     goToConfigureTwoFactorScreen: () -> Unit,
     showToast: (String, Int) -> Unit,
@@ -66,20 +66,20 @@ fun SettingsScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.enableBars()
-        sessionViewModel.hideTopBarSettingsIcon()
+        miraiLinkSession.showBars()
+        miraiLinkSession.enableBars()
+        miraiLinkSession.hideTopBarSettingsIcon()
     }
 
     LaunchedEffect(Unit) {
         viewModel.logoutSuccess.collect { success ->
-            if (success) sessionViewModel.clearSession()
+            if (success) miraiLinkSession.clearSession()
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.deleteSuccess.collect { success ->
-            if (success) sessionViewModel.clearSession()
+            if (success) miraiLinkSession.clearSession()
         }
     }
 
@@ -93,7 +93,7 @@ fun SettingsScreen(
                 viewModel.deleteAccount {
                     showToast(
                         context.getString(R.string.delete_account_done),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     )
                 }
             },
@@ -102,7 +102,7 @@ fun SettingsScreen(
             cancelText = stringResource(R.string.cancel),
             containerColor = MaterialTheme.colorScheme.surface,
             textColor = MaterialTheme.colorScheme.onSurface,
-            buttonTextColor = MaterialTheme.colorScheme.onPrimary
+            buttonTextColor = MaterialTheme.colorScheme.onPrimary,
         )
     }
 
@@ -121,50 +121,51 @@ fun SettingsScreen(
             cancelText = stringResource(R.string.cancel),
             containerColor = MaterialTheme.colorScheme.surface,
             textColor = MaterialTheme.colorScheme.onSurface,
-            buttonTextColor = MaterialTheme.colorScheme.onPrimary
+            buttonTextColor = MaterialTheme.colorScheme.onPrimary,
         )
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Image(
             painter = painterResource(id = R.drawable.logomirailink),
             contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),
-            modifier = Modifier
-                .size(240.dp)
-                .padding(8.dp)
+            modifier =
+                Modifier
+                    .size(240.dp)
+                    .padding(8.dp),
         )
         Spacer(modifier = Modifier.weight(0.25f))
         MiraiLinkButton(onClick = { actualGoToFeedbackScreen() }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.settings_screen_txt_give_feedback),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
         MiraiLinkButton(onClick = { actualGoToConfigureTwoFactorScreen() }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.configure_two_factor),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
         MiraiLinkButton(onClick = { showLogoutDialog = true }, content = {
             MiraiLinkText(
                 text = stringResource(R.string.logout),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         })
         Spacer(modifier = Modifier.height(16.dp))
@@ -173,16 +174,17 @@ fun SettingsScreen(
             text = stringResource(R.string.delete_account),
             isTransparentBackground = false,
             containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError
+            contentColor = MaterialTheme.colorScheme.onError,
         )
         Spacer(modifier = Modifier.weight(1.75f))
 
         Row(
-            modifier = Modifier
-                .padding(bottom = 24.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier =
+                Modifier
+                    .padding(bottom = 24.dp)
+                    .align(Alignment.CenterHorizontally),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             MiraiLinkTextButton(
                 text = stringResource(R.string.privacy_policy),
@@ -193,7 +195,7 @@ fun SettingsScreen(
                 onLongClick = {
                     copyToClipBoard(deepLinkPrivacyPolicyUrl)
                 },
-                isTransparentBackground = true
+                isTransparentBackground = true,
             )
         }
     }

@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +28,6 @@ import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun MiraiLinkAppRoot() {
     val systemIsInDarkMode = isSystemInDarkTheme()
@@ -39,7 +37,7 @@ fun MiraiLinkAppRoot() {
     // --- SETUP GENERAL Y CONTEXTO ---
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val permission = Manifest.permission.POST_NOTIFICATIONS
+    val canRequestNotifications = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
 
     // ---------------------------------------------------------------------------------------------
     // 🎯 SECCIÓN DE GESTIÓN DE PERMISOS DE NOTIFICACIONES (FCM)
@@ -62,23 +60,25 @@ fun MiraiLinkAppRoot() {
         }
 
     // Lógica para determinar si pedir o explicar el permiso
-    val askNotificationPermission: () -> Unit = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                // 1. Permiso ya concedido
-                ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED -> {
-                    Log.i("FCM", "Permiso de notificación: YA otorgado.")
-                }
+    val askNotificationPermission: () -> Unit = askNotificationPermission@{
+        if (!canRequestNotifications) return@askNotificationPermission
+        when {
+            // 1. Permiso ya concedido
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.i("FCM", "Permiso de notificación: YA otorgado.")
+            }
 
-                // 2. Debemos mostrar la explicación Rationale (Rechazo temporal)
-                shouldShowRequestPermissionRationale(context as Activity, permission) -> {
-                    showNotificationRationaleDialog = true
-                }
+            // 2. Debemos mostrar la explicación Rationale (Rechazo temporal)
+            shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.POST_NOTIFICATIONS) -> {
+                showNotificationRationaleDialog = true
+            }
 
-                // 3. Pide el permiso (Primera vez o rechazo permanente)
-                else -> {
-                    requestPermissionLauncher.launch(permission)
-                }
+            // 3. Pide el permiso (Primera vez o rechazo permanente)
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
@@ -93,7 +93,7 @@ fun MiraiLinkAppRoot() {
         NotificationRationaleDialog(
             onAccept = {
                 // Si el usuario acepta la explicación, lanzamos la petición real
-                requestPermissionLauncher.launch(permission)
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             },
             onDismiss = {
                 showNotificationRationaleDialog = false

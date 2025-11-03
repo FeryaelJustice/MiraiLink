@@ -26,17 +26,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun VerificationScreen(
     viewModel: VerificationViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     userId: String,
     onFinish: () -> Unit,
 ) {
@@ -46,29 +46,29 @@ fun VerificationScreen(
     val uiState by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        sessionViewModel.hideBars()
-        sessionViewModel.disableBars()
+        miraiLinkSession.hideBars()
+        miraiLinkSession.disableBars()
 
         viewModel.checkUserIsVerified(onFinish = { isVerified ->
-            sessionViewModel.saveIsVerified(verified = isVerified)
+            miraiLinkSession.saveIsVerified(verified = isVerified)
             onFinish()
         })
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         when (uiState.step) {
             1 -> {
@@ -77,13 +77,13 @@ fun VerificationScreen(
                 MiraiLinkButton(onClick = { viewModel.requestCode(userId) }) {
                     MiraiLinkText(
                         text = stringResource(R.string.send_code),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
-                MiraiLinkButton(onClick = { sessionViewModel.clearSession() }) {
+                MiraiLinkButton(onClick = { miraiLinkSession.clearSession() }) {
                     MiraiLinkText(
                         text = stringResource(R.string.logout),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
@@ -96,18 +96,18 @@ fun VerificationScreen(
                     },
                     label = stringResource(R.string.code),
                     maxLines = 1,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 MiraiLinkButton(onClick = {
                     viewModel.confirmCode(
                         userId,
-                        onFinish = onFinish
+                        onFinish = onFinish,
                     )
                 }) {
                     MiraiLinkText(
                         text = stringResource(R.string.verify),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }

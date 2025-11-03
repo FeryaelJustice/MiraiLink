@@ -36,15 +36,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun ProfilePictureScreen(
     viewModel: ProfilePictureViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onProfileUploaded: () -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -52,46 +52,48 @@ fun ProfilePictureScreen(
 
     val currentOnProfileUploaded by rememberUpdatedState(onProfileUploaded)
 
-    val userId by sessionViewModel.currentUserId.collectAsState()
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { viewModel.uploadImage(it) }
-    }
+    val userId by miraiLinkSession.currentUserId.collectAsState()
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let { viewModel.uploadImage(it) }
+        }
     val uploadResult by viewModel.uploadResult.collectAsState()
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.disableBars()
+        miraiLinkSession.showBars()
+        miraiLinkSession.disableBars()
     }
 
     LaunchedEffect(uploadResult) {
         if (uploadResult is MiraiLinkResult.Success && !userId.isNullOrBlank()) {
             viewModel.clearResult()
-            sessionViewModel.refreshHasProfilePicture(userId!!)
+            miraiLinkSession.refreshHasProfilePicture(userId!!)
             currentOnProfileUploaded()
         }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp)
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            ),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(32.dp)
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
-            modifier = Modifier
-                .size(128.dp)
-                .clip(
-                    CircleShape
-                )
-                .background(Color.Gray),
+            modifier =
+                Modifier
+                    .size(128.dp)
+                    .clip(
+                        CircleShape,
+                    ).background(Color.Gray),
             painter = painterResource(id = R.drawable.logomirailink),
             contentDescription = stringResource(R.string.content_description_profile_picture_screen_profilepicplaceholder),
         )
@@ -101,7 +103,7 @@ fun ProfilePictureScreen(
         Button(onClick = { launcher.launch("image/*") }) {
             MiraiLinkText(
                 text = stringResource(R.string.profile_picture_screen_select_img),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
 
@@ -109,9 +111,10 @@ fun ProfilePictureScreen(
 
         MiraiLinkText(
             text = stringResource(R.string.logout),
-            modifier = Modifier.clickable(role = Role.Button, onClick = {
-                sessionViewModel.clearSession()
-            }),
+            modifier =
+                Modifier.clickable(role = Role.Button, onClick = {
+                    miraiLinkSession.clearSession()
+                }),
             fontStyle = MaterialTheme.typography.labelMedium.fontStyle,
         )
 
@@ -120,7 +123,7 @@ fun ProfilePictureScreen(
         if (uploadResult is MiraiLinkResult.Error) {
             MiraiLinkText(
                 text = stringResource(R.string.profile_picture_screen_upload_error),
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }

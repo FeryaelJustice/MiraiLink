@@ -26,10 +26,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
@@ -37,8 +37,8 @@ import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 @Composable
 fun MessagesScreen(
     viewModel: MessagesViewModel,
-    sessionViewModel: GlobalSessionViewModel,
-    onNavigateToChat: (String) -> Unit
+    miraiLinkSession: GlobalMiraiLinkSession,
+    onNavigateToChat: (String) -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -47,9 +47,9 @@ fun MessagesScreen(
     val searchQuery by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.enableBars()
-        sessionViewModel.showTopBarSettingsIcon()
+        miraiLinkSession.showBars()
+        miraiLinkSession.enableBars()
+        miraiLinkSession.showTopBarSettingsIcon()
     }
 
     PullToRefreshBox(
@@ -57,48 +57,52 @@ fun MessagesScreen(
         onRefresh = {
             viewModel.loadData()
         },
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         when (val currentState = state) {
             is MessagesViewModel.MessagesUiState.Success -> {
                 val matches = currentState.matches
                 val openChats = currentState.openChats
 
-                val filteredMatches = remember(searchQuery, matches) {
-                    matches.filter {
-                        it.username.contains(searchQuery, ignoreCase = true)
+                val filteredMatches =
+                    remember(searchQuery, matches) {
+                        matches.filter {
+                            it.username.contains(searchQuery, ignoreCase = true)
+                        }
                     }
-                }
 
-                val filteredOpenChats = remember(searchQuery, openChats) {
-                    openChats.filter {
-                        it.username.contains(searchQuery, ignoreCase = true)
+                val filteredOpenChats =
+                    remember(searchQuery, openChats) {
+                        openChats.filter {
+                            it.username.contains(searchQuery, ignoreCase = true)
+                        }
                     }
-                }
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     MatchesRow(
                         modifier = Modifier.fillMaxWidth(),
                         matches = filteredMatches,
-                        onNavigateToChat = onNavigateToChat
+                        onNavigateToChat = onNavigateToChat,
                     )
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                     ChatList(
                         modifier = Modifier.fillMaxWidth(),
                         chats = filteredOpenChats,
-                        onNavigateToChat = onNavigateToChat
+                        onNavigateToChat = onNavigateToChat,
                     )
                 }
             }
@@ -112,12 +116,13 @@ fun MessagesScreen(
                 )
             }
 
-            MessagesViewModel.MessagesUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            MessagesViewModel.MessagesUiState.Loading ->
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
 
             MessagesViewModel.MessagesUiState.Idle -> Unit
         }

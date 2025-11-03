@@ -30,7 +30,10 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.di.AppEntryPoints
 import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
@@ -59,24 +62,38 @@ import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.Conf
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
-import com.feryaeljustice.mirailink.ui.state.GlobalMiraiLinkPrefsViewModel
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 
 @Composable
-fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
+fun NavWrapper(
+    darkTheme: Boolean,
+    onThemeChange: () -> Unit,
+) {
+    // Utils
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
+
+    // Entry points
+    // Obtén el entry point una vez (memoizado)
+    val entryPoint =
+        remember(context) {
+            EntryPointAccessors
+                .fromApplication(context, AppEntryPoints::class.java)
+        }
+
+    // Global states by entry points
+    val miraiLinkPrefs = remember { entryPoint.globalPrefs() }
+    val miraiLinkSession = remember { entryPoint.globalSession() }
+
     // Nav
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val navAnalyticsVm: NavAnalyticsViewModel = hiltViewModel()
-
-    // Utils
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val clipboard = LocalClipboard.current
-    val context = LocalContext.current
 
     val showSnackbar: (String) -> Unit = { msg ->
         scope.launch {
@@ -87,32 +104,29 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
     val copyToClipBoard: (String) -> Unit = { msg ->
         scope.launch {
             clipboard.setClipEntry(
-                ClipData.newPlainText(
-                    msg,
-                    msg
-                ).toClipEntry()
+                ClipData
+                    .newPlainText(
+                        msg,
+                        msg,
+                    ).toClipEntry(),
             )
             showToast(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT)
         }
     }
 
-    // VMs globales
-    val miraiLinkPrefs = hiltViewModel<GlobalMiraiLinkPrefsViewModel>()
-    val sessionViewModel = hiltViewModel<GlobalSessionViewModel>()
-
     // Nav
     val currentDestination = navBackStackEntry?.destination
 
     // Session states
-//    val isAppSessionInitialized by sessionViewModel.isInitialized.collectAsState()
-    val isAuthenticated by sessionViewModel.isAuthenticated.collectAsState()
-    val topBarConfig by sessionViewModel.topBarConfig.collectAsState()
-    val currentUserId by sessionViewModel.currentUserId.collectAsState()
-    val hasProfilePicture by sessionViewModel.hasProfilePicture.collectAsState()
-    val isVerified by sessionViewModel.isVerified.collectAsState()
+//    val isAppSessionInitialized by miraiLinkSession.isInitialized.collectAsState()
+    val isAuthenticated by miraiLinkSession.isAuthenticated.collectAsState()
+    val topBarConfig by miraiLinkSession.topBarConfig.collectAsState()
+    val currentUserId by miraiLinkSession.currentUserId.collectAsState()
+    val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsState()
+    val isVerified by miraiLinkSession.isVerified.collectAsState()
 
     // Session events
-    val onLogout = sessionViewModel.onLogout
+    val onLogout = miraiLinkSession.onLogout
 
     // 1. Reacción a logout
     LaunchedEffect(Unit) {
@@ -168,11 +182,18 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                         showSettingsIcon = topBarConfig.showSettingsIcon,
                         title = topBarConfig.title,
                         onThemeChange = onThemeChange,
-                        layoutDirection = if (currentBackStackEntry?.hasRoute(AppScreen.AuthScreen::class) == true) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
+                        layoutDirection =
+                            if (currentBackStackEntry?.hasRoute(AppScreen.AuthScreen::class) ==
+                                true
+                            ) {
+                                TopBarLayoutDirection.COLUMN
+                            } else {
+                                TopBarLayoutDirection.ROW
+                            },
                         onNavigateHome = {
                             val isHomeRoute =
                                 currentBackStackEntry?.hasRoute(AppScreen.HomeScreen::class)
-                            if (isHomeRoute == false)
+                            if (isHomeRoute == false) {
                                 navController.navigate(AppScreen.HomeScreen) {
                                     popUpTo(AppScreen.HomeScreen) {
                                         inclusive = true // elimina duplicado si ya existía
@@ -181,6 +202,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                                         true // evita nueva instancia si ya está en el top
                                     restoreState = true // restaura el scroll/estado si aplica
                                 }
+                            }
                         },
                         onNavigateToSettings = {
                             val isSettingsRoute =
@@ -202,7 +224,7 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
                             if (topBarConfig.disableBottomBar) {
                                 showSnackbar("Bottom bar is disabled")
                             }
-                        }
+                        },
                     )
                 }
             },
@@ -212,7 +234,8 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
         ) { innerPadding ->
             AppNavHost(
                 navController = navController,
-                sessionViewModel = sessionViewModel,
+                context = context,
+                miraiLinkSession = miraiLinkSession,
                 miraiLinkPrefs = miraiLinkPrefs,
                 modifier = Modifier.padding(innerPadding),
                 showSnackbar = showSnackbar,
@@ -226,25 +249,24 @@ fun NavWrapper(darkTheme: Boolean, onThemeChange: () -> Unit) {
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    sessionViewModel: GlobalSessionViewModel,
-    miraiLinkPrefs: GlobalMiraiLinkPrefsViewModel,
+    context: Context,
+    miraiLinkSession: GlobalMiraiLinkSession,
+    miraiLinkPrefs: GlobalMiraiLinkPrefs,
     modifier: Modifier = Modifier,
     showSnackbar: (String) -> Unit = {},
     copyToClipboard: (String) -> Unit = {},
     isAuthenticated: Boolean,
 ) {
-    val context = LocalContext.current
-    LocalClipboard.current
     NavHost(
         navController = navController,
         startDestination = AppScreen.SplashScreen,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable<AppScreen.SplashScreen> {
             val splashScreenViewModel: SplashScreenViewModel = hiltViewModel()
             SplashScreen(
                 viewModel = splashScreenViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 onInitialNavigation = { action ->
                     when (action) {
                         is InitialNavigationAction.GoToAuth -> {
@@ -298,7 +320,7 @@ fun AppNavHost(
         }
         authGraph(
             navController = navController,
-            sessionViewModel = sessionViewModel,
+            miraiLinkSession = miraiLinkSession,
             onLogin = {
                 navController.navigate(ScreensSubgraphs.Main) {
                     launchSingleTop = true
@@ -314,11 +336,11 @@ fun AppNavHost(
                         inclusive = true
                     }
                 }
-            }
+            },
         )
         appGraph(
             navController = navController,
-            sessionViewModel = sessionViewModel,
+            miraiLinkSession = miraiLinkSession,
             context = context,
             showSnackbar = showSnackbar,
             copyToClipBoard = copyToClipboard,
@@ -328,7 +350,7 @@ fun AppNavHost(
 
 private fun NavGraphBuilder.authGraph(
     navController: NavHostController,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
 ) {
@@ -336,21 +358,25 @@ private fun NavGraphBuilder.authGraph(
         composable<AppScreen.AuthScreen> {
             val authViewModel: AuthViewModel = hiltViewModel()
             AuthScreen(
-                viewModel = authViewModel, sessionViewModel = sessionViewModel,
+                viewModel = authViewModel,
+                miraiLinkSession = miraiLinkSession,
                 onLogin = { _ ->
                     onLogin()
-                }, onRegister = { _ ->
+                },
+                onRegister = { _ ->
                     onRegister()
-                }, onRequestPasswordReset = { email ->
+                },
+                onRequestPasswordReset = { email ->
                     navController.navigate(AppScreen.RecoverPasswordScreen(email = email))
-                })
+                },
+            )
         }
         composable<AppScreen.RecoverPasswordScreen> { backStackEntry ->
             val recoverPasswordScreen: AppScreen.RecoverPasswordScreen = backStackEntry.toRoute()
             val recoverPasswordViewModel: RecoverPasswordViewModel = hiltViewModel()
             RecoverPasswordScreen(
                 viewModel = recoverPasswordViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 email = recoverPasswordScreen.email,
                 onConfirmedRecoverPassword = {
                     navController.navigate(AppScreen.AuthScreen) {
@@ -359,7 +385,7 @@ private fun NavGraphBuilder.authGraph(
                         }
                         launchSingleTop = true
                     }
-                }
+                },
             )
         }
     }
@@ -367,7 +393,7 @@ private fun NavGraphBuilder.authGraph(
 
 private fun NavGraphBuilder.appGraph(
     navController: NavHostController,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     context: Context,
     showSnackbar: (String) -> Unit,
     copyToClipBoard: (String) -> Unit,
@@ -377,7 +403,7 @@ private fun NavGraphBuilder.appGraph(
             val profilePictureViewModel: ProfilePictureViewModel = hiltViewModel()
             ProfilePictureScreen(
                 viewModel = profilePictureViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 onProfileUploaded = {
                     navController.navigate(AppScreen.HomeScreen) {
                         popUpTo(navController.graph.id) { inclusive = true }
@@ -386,13 +412,18 @@ private fun NavGraphBuilder.appGraph(
             )
         }
 
-        composable<AppScreen.HomeScreen>(deepLinks = listOf(navDeepLink {
-            uriPattern = deepLinkBaseUrl
-        })) {
+        composable<AppScreen.HomeScreen>(
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern = deepLinkBaseUrl
+                    },
+                ),
+        ) {
             val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
                 viewModel = homeViewModel,
-                sessionViewModel = sessionViewModel
+                miraiLinkSession = miraiLinkSession,
             )
         }
 
@@ -400,10 +431,11 @@ private fun NavGraphBuilder.appGraph(
             val messagesViewModel: MessagesViewModel = hiltViewModel()
             MessagesScreen(
                 viewModel = messagesViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 onNavigateToChat = { userId ->
                     navController.navigate(AppScreen.ChatScreen(userId = userId))
-                })
+                },
+            )
         }
 
         composable<AppScreen.ChatScreen> { backStackEntry ->
@@ -411,17 +443,17 @@ private fun NavGraphBuilder.appGraph(
             val chatViewModel: ChatViewModel = hiltViewModel()
             ChatScreen(
                 viewModel = chatViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 userId = chatScreen.userId,
                 onBackClick = {
                     navController.navigateUp()
-                }
+                },
             )
         }
 
         composable<AppScreen.ProfileScreen> {
             val profileViewModel: ProfileViewModel = hiltViewModel()
-            ProfileScreen(viewModel = profileViewModel, sessionViewModel = sessionViewModel)
+            ProfileScreen(viewModel = profileViewModel, miraiLinkSession = miraiLinkSession)
         }
 
         composable<AppScreen.VerificationScreen> { backStackEntry ->
@@ -429,7 +461,7 @@ private fun NavGraphBuilder.appGraph(
             val verificationViewModel: VerificationViewModel = hiltViewModel()
             VerificationScreen(
                 viewModel = verificationViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 userId = verificationScreen.userId,
                 onFinish = {
                     navController.navigate(AppScreen.HomeScreen) {
@@ -446,7 +478,7 @@ private fun NavGraphBuilder.appGraph(
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(
                 viewModel = settingsViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 goToFeedbackScreen = {
                     navController.navigate(AppScreen.FeedbackScreen)
                 },
@@ -456,7 +488,7 @@ private fun NavGraphBuilder.appGraph(
                 showToast = { msg, duration ->
                     showToast(context = context, message = msg, duration = duration)
                 },
-                copyToClipBoard = copyToClipBoard
+                copyToClipBoard = copyToClipBoard,
             )
         }
 
@@ -469,7 +501,7 @@ private fun NavGraphBuilder.appGraph(
                 },
                 onBackClick = {
                     navController.navigateUp()
-                }
+                },
             )
         }
 
@@ -477,11 +509,11 @@ private fun NavGraphBuilder.appGraph(
             val configureTwoFactorViewModel: ConfigureTwoFactorViewModel = hiltViewModel()
             ConfigureTwoFactorScreen(
                 viewModel = configureTwoFactorViewModel,
-                sessionViewModel = sessionViewModel,
+                miraiLinkSession = miraiLinkSession,
                 onBackClick = {
                     navController.navigateUp()
                 },
-                onShowError = { error -> if (error.isNotBlank()) showSnackbar(error) }
+                onShowError = { error -> if (error.isNotBlank()) showSnackbar(error) },
             )
         }
     }

@@ -39,6 +39,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
@@ -47,16 +48,15 @@ import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     userId: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -72,9 +72,10 @@ fun ChatScreen(
     var selectedReportReason by rememberSaveable { mutableStateOf("") }
 
     // Optimized ui
-    val reversedMessages = remember(messages) {
-        messages.reversed()
-    }
+    val reversedMessages =
+        remember(messages) {
+            messages.reversed()
+        }
 
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
@@ -83,14 +84,14 @@ fun ChatScreen(
             imageUrl = fullscreenImageUrl,
             onDismiss = { setFullscreenImageUrl(null) },
             closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
-            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img)
+            imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img),
         )
     }
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.enableBars()
-        sessionViewModel.showTopBarSettingsIcon()
+        miraiLinkSession.showBars()
+        miraiLinkSession.enableBars()
+        miraiLinkSession.showTopBarSettingsIcon()
     }
 
     LaunchedEffect(userId) {
@@ -109,15 +110,16 @@ fun ChatScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         ChatTopBar(
             modifier = Modifier,
@@ -129,12 +131,13 @@ fun ChatScreen(
             onReportClick = {
                 showReportDialog = true
             },
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
         )
         LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
             reverseLayout = true,
             state = scrollState,
         ) {
@@ -142,14 +145,15 @@ fun ChatScreen(
                 MessageItem(
                     msgContent = msg.content,
                     msgTimestamp = msg.timestamp,
-                    isOwnMessage = msg.sender.id == sender?.id
+                    isOwnMessage = msg.sender.id == sender?.id,
                 )
             }
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             MiraiLinkTextField(
                 value = input.value,
@@ -164,21 +168,22 @@ fun ChatScreen(
                             text =
                                 stringResource(
                                     R.string.chat_screen_smthg_send_msg,
-                                    it
+                                    it,
                                 ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(
-                    onSend = {
-                        if (input.value.isNotBlank()) {
-                            viewModel.sendMessage(input.value)
-                            input.value = ""
-                        }
-                    }
-                )
+                keyboardActions =
+                    KeyboardActions(
+                        onSend = {
+                            if (input.value.isNotBlank()) {
+                                viewModel.sendMessage(input.value)
+                                input.value = ""
+                            }
+                        },
+                    ),
             )
             Spacer(modifier = Modifier.width(4.dp))
 
@@ -196,7 +201,7 @@ fun ChatScreen(
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_send),
-                    contentDescription = stringResource(R.string.send)
+                    contentDescription = stringResource(R.string.send),
                 )
             }
         }
@@ -211,15 +216,16 @@ fun ChatScreen(
                                 viewModel.reportUser(userId, selectedReportReason)
                                 showReportDialog = false
                             }
-                        }, text = stringResource(R.string.report),
-                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.secondary
+                        },
+                        text = stringResource(R.string.report),
+                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.secondary,
                     )
                 },
                 dismissButton = {
                     MiraiLinkTextButton(
                         onClick = { showReportDialog = false },
                         text = stringResource(R.string.cancel),
-                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.error
+                        onTransparentBackgroundContentColor = MaterialTheme.colorScheme.error,
                     )
                 },
                 title = {
@@ -231,11 +237,18 @@ fun ChatScreen(
                             MiraiLinkTextButton(
                                 onClick = { selectedReportReason = reason },
                                 text = reason,
-                                onTransparentBackgroundContentColor = if (selectedReportReason == reason) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                                onTransparentBackgroundContentColor =
+                                    if (selectedReportReason ==
+                                        reason
+                                    ) {
+                                        MaterialTheme.colorScheme.tertiary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    },
                             )
                         }
                     }
-                }
+                },
             )
         }
     }

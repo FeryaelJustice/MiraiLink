@@ -43,20 +43,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onLogin: (String?) -> Unit,
     onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
@@ -99,12 +99,12 @@ fun AuthScreen(
     }
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showHideTopBar(true)
-        sessionViewModel.showHideBottomBar(false)
-        sessionViewModel.enableDisableTopBar(false)
-        sessionViewModel.enableDisableBottomBar(false)
-        sessionViewModel.hideTopBarSettingsIcon()
-        sessionViewModel.disableBars()
+        miraiLinkSession.showHideTopBar(true)
+        miraiLinkSession.showHideBottomBar(false)
+        miraiLinkSession.enableDisableTopBar(false)
+        miraiLinkSession.enableDisableBottomBar(false)
+        miraiLinkSession.hideTopBarSettingsIcon()
+        miraiLinkSession.disableBars()
         focusRequester.requestFocus()
 
         viewModel.autofillCredentials { savedEmailOrUsername, savedPassword ->
@@ -126,7 +126,7 @@ fun AuthScreen(
             onDismiss = viewModel::dismissTwoFactorDiag,
             onConfirm = {
                 viewModel.confirmTwoFactorDiag { userId, token ->
-                    sessionViewModel.saveSession(token, userId)
+                    miraiLinkSession.saveSession(token, userId)
                 }
             },
         )
@@ -289,7 +289,7 @@ fun AuthScreen(
                             username,
                             password,
                             onSaveSession = { userId, token ->
-                                sessionViewModel.saveSession(token, userId)
+                                miraiLinkSession.saveSession(token, userId)
                             },
                         )
                     },
@@ -333,7 +333,7 @@ fun AuthScreen(
                             email,
                             password,
                             onSaveSession = { userId, token ->
-                                sessionViewModel.saveSession(token, userId)
+                                miraiLinkSession.saveSession(token, userId)
                             },
                         )
                     }),
@@ -384,7 +384,7 @@ fun AuthScreen(
                         username,
                         password,
                         onSaveSession = { userId, token ->
-                            sessionViewModel.saveSession(token, userId)
+                            miraiLinkSession.saveSession(token, userId)
                         },
                     )
                 } else {
@@ -393,7 +393,7 @@ fun AuthScreen(
                         email,
                         password,
                         onSaveSession = { userId, token ->
-                            sessionViewModel.saveSession(token, userId)
+                            miraiLinkSession.saveSession(token, userId)
                         },
                     )
                 }

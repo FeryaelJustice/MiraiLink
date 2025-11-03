@@ -25,17 +25,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun RecoverPasswordScreen(
     viewModel: RecoverPasswordViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     email: String,
     onConfirmedRecoverPassword: () -> Unit,
 ) {
@@ -43,31 +43,31 @@ fun RecoverPasswordScreen(
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showHideTopBar(true)
-        sessionViewModel.showHideBottomBar(false)
-        sessionViewModel.enableDisableTopBar(false)
-        sessionViewModel.enableDisableBottomBar(false)
-        sessionViewModel.hideTopBarSettingsIcon()
-        sessionViewModel.disableBars()
+        miraiLinkSession.showHideTopBar(true)
+        miraiLinkSession.showHideBottomBar(false)
+        miraiLinkSession.enableDisableTopBar(false)
+        miraiLinkSession.enableDisableBottomBar(false)
+        miraiLinkSession.hideTopBarSettingsIcon()
+        miraiLinkSession.disableBars()
         viewModel.initEmail(email)
     }
 
     val uiState by viewModel.state.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         when (uiState.step) {
             1 -> {
@@ -85,7 +85,7 @@ fun RecoverPasswordScreen(
                 ) {
                     MiraiLinkText(
                         text = stringResource(R.string.send_code),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
@@ -105,18 +105,18 @@ fun RecoverPasswordScreen(
                     onValueChange = viewModel::onPasswordChanged,
                     label = stringResource(R.string.new_password),
                     maxLines = 1,
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = PasswordVisualTransformation(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 MiraiLinkButton(
                     onClick = {
                         viewModel.confirmReset(onConfirmed = onConfirmedRecoverPassword)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     MiraiLinkText(
                         text = stringResource(R.string.confirm),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }

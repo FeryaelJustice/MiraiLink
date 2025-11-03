@@ -31,23 +31,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkCard
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
 @Composable
 fun ConfigureTwoFactorScreen(
     viewModel: ConfigureTwoFactorViewModel,
-    sessionViewModel: GlobalSessionViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit,
-    onShowError: (String) -> Unit
+    onShowError: (String) -> Unit,
 ) {
-    val userID = sessionViewModel.currentUserId.collectAsState()
+    val userID = miraiLinkSession.currentUserId.collectAsState()
 
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val secondaryContainerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -97,7 +97,7 @@ fun ConfigureTwoFactorScreen(
             onDismiss = viewModel::dismissSetupTwoFactorDialog,
             onConfirm = {
                 viewModel.confirmSetupTwoFactor(userID = userID.value)
-            }
+            },
         )
     }
 
@@ -109,7 +109,7 @@ fun ConfigureTwoFactorScreen(
             onDismiss = viewModel::dismissDisableTwoFactorDialog,
             onConfirm = {
                 viewModel.confirmDisableTwoFactor(userID = userID.value)
-            }
+            },
         )
     }
 
@@ -118,15 +118,16 @@ fun ConfigureTwoFactorScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         MiraiLinkIconButton(
             onClick = {
@@ -136,56 +137,63 @@ fun ConfigureTwoFactorScreen(
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = stringResource(id = R.string.back),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             MiraiLinkCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (isTwoFactorEnabled) {
-                            Modifier.clickable(onClickLabel = stringResource(R.string.disable_two_factor)) {
-                                viewModel.launchDisableTwoFactorDialog()
-                            }
-                        } else {
-                            Modifier.clickable(onClickLabel = stringResource(R.string.configure_two_factor)) {
-                                viewModel.launchSetupTwoFactorDialog()
-                            }
-                        }
-                    ),
-                containerColor = if (isTwoFactorEnabled) secondaryContainerColor else errorContainerColor
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isTwoFactorEnabled) {
+                                Modifier.clickable(onClickLabel = stringResource(R.string.disable_two_factor)) {
+                                    viewModel.launchDisableTwoFactorDialog()
+                                }
+                            } else {
+                                Modifier.clickable(onClickLabel = stringResource(R.string.configure_two_factor)) {
+                                    viewModel.launchSetupTwoFactorDialog()
+                                }
+                            },
+                        ),
+                containerColor = if (isTwoFactorEnabled) secondaryContainerColor else errorContainerColor,
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 12.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(all = 12.dp),
                     horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     MiraiLinkBasicText(
                         text = stringResource(R.string.is_two_factor_enabled),
                         textStyle = MaterialTheme.typography.bodySmall,
-                        autoSize = TextAutoSize.StepBased(
-                            minFontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                            stepSize = 1.sp
-                        ),
+                        autoSize =
+                            TextAutoSize.StepBased(
+                                minFontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                stepSize = 1.sp,
+                            ),
                         color = { cardTextColor },
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Icon(
-                        painter = painterResource(id = if (isTwoFactorEnabled) R.drawable.ic_check_box else R.drawable.ic_indeterminate_check_box),
+                        painter =
+                            painterResource(
+                                id = if (isTwoFactorEnabled) R.drawable.ic_check_box else R.drawable.ic_indeterminate_check_box,
+                            ),
                         contentDescription = stringResource(R.string.is_two_factor_enabled),
-                        tint = if (isTwoFactorEnabled) secondaryColor else errorColor
+                        tint = if (isTwoFactorEnabled) secondaryColor else errorColor,
                     )
                 }
             }

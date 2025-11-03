@@ -34,20 +34,23 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
-import com.feryaeljustice.mirailink.ui.state.GlobalSessionViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionViewModel) {
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    miraiLinkSession: GlobalMiraiLinkSession,
+) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
@@ -91,15 +94,16 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
             } else {
                 showToast(
                     context,
-                    context.getString(R.string.need_camera_permission), Toast.LENGTH_SHORT
+                    context.getString(R.string.need_camera_permission),
+                    Toast.LENGTH_SHORT,
                 )
             }
         }
 
     LaunchedEffect(Unit) {
-        sessionViewModel.showBars()
-        sessionViewModel.enableBars()
-        sessionViewModel.showTopBarSettingsIcon()
+        miraiLinkSession.showBars()
+        miraiLinkSession.enableBars()
+        miraiLinkSession.showTopBarSettingsIcon()
 
         viewModel.editProfUiEvent.collect { event ->
             when (event) {
@@ -107,7 +111,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                     showToast(
                         context,
                         context.getString(R.string.profile_screen_profile_saved_correctly),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     )
                 }
 
@@ -125,25 +129,29 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
     }
 
     PullToRefreshBox(
-        isRefreshing = state is ProfileUiState.Loading, onRefresh = {
+        isRefreshing = state is ProfileUiState.Loading,
+        onRefresh = {
             viewModel.getCurrentUser()
-        }, modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            )
+        },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         when (state) {
             is ProfileUiState.Success -> {
                 (state as ProfileUiState.Success).user?.let { user ->
                     Box(modifier = Modifier.padding(16.dp)) {
                         UserCard(
-                            modifier = Modifier
-                                .padding(2.dp),
+                            modifier =
+                                Modifier
+                                    .padding(2.dp),
                             user = user,
                             isPreviewMode = true,
                             editUiState = editState,
@@ -164,38 +172,40 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                 Log.d("ProfileScreen", "onValueChange: $field $value")
                                 viewModel.onIntent(
                                     EditProfileIntent.UpdateTextField(
-                                        field, value
-                                    )
+                                        field,
+                                        value,
+                                    ),
                                 )
                             },
                             onTagSelected = { field, value ->
                                 Log.d(
                                     "ProfileScreen",
-                                    "onTagSelected: $field, value "
+                                    "onTagSelected: $field, value ",
                                 )
                                 viewModel.onIntent(
                                     EditProfileIntent.UpdateTags(
-                                        field, value
-                                    )
+                                        field,
+                                        value,
+                                    ),
                                 )
                             },
                             onPhotoReorder = { oldPosition, newPosition ->
                                 Log.d(
                                     "ProfileScreen",
-                                    "onPhotoReorder: $oldPosition $newPosition"
+                                    "onPhotoReorder: $oldPosition $newPosition",
                                 )
                                 viewModel.onIntent(
                                     EditProfileIntent.ReorderPhoto(
                                         oldPosition,
-                                        newPosition
-                                    )
+                                        newPosition,
+                                    ),
                                 )
                             },
                             onPhotoSlotClick = { position ->
                                 // position is the index of the photo slot
                                 Log.d(
                                     "ProfileScreen",
-                                    "onPhotoSlotClick: $position"
+                                    "onPhotoSlotClick: $position",
                                 )
                                 viewModel.onIntent(EditProfileIntent.OpenPhotoActionDialog(position))
                             },
@@ -212,7 +222,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                         onClick = {
                                             viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
                                         },
-                                        text = stringResource(R.string.update)
+                                        text = stringResource(R.string.update),
                                     )
                                 },
                                 dismissButton = {
@@ -220,14 +230,14 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                         onClick = {
                                             editState.selectedSlotForDialog?.let {
                                                 viewModel.onIntent(
-                                                    EditProfileIntent.RemovePhoto(it)
+                                                    EditProfileIntent.RemovePhoto(it),
                                                 )
                                                 viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                                             }
                                         },
-                                        text = stringResource(R.string.delete)
+                                        text = stringResource(R.string.delete),
                                     )
-                                }
+                                },
                             )
                         }
 
@@ -244,7 +254,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                             Log.d("ProfileScreen", "Chosen: Gallery")
                                             galleryLauncher.launch("image/*")
                                         },
-                                        text = stringResource(R.string.gallery)
+                                        text = stringResource(R.string.gallery),
                                     )
                                 },
                                 dismissButton = {
@@ -254,7 +264,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                             Log.d("ProfileScreen", "Chosen: Camera")
                                             if (ContextCompat.checkSelfPermission(
                                                     context,
-                                                    Manifest.permission.CAMERA
+                                                    Manifest.permission.CAMERA,
                                                 ) == PackageManager.PERMISSION_GRANTED
                                             ) {
                                                 val uri = createImageUri(context)
@@ -265,9 +275,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, sessionViewModel: GlobalSessionVi
                                                 viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                                             }
                                         },
-                                        text = stringResource(R.string.camera)
+                                        text = stringResource(R.string.camera),
                                     )
-                                }
+                                },
                             )
                         }
                     }
