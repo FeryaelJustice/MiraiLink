@@ -1,10 +1,12 @@
 package com.feryaeljustice.mirailink.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.google.firebase.Firebase
 import com.google.firebase.messaging.messaging
@@ -21,6 +23,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var applicationScope: CoroutineScope
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

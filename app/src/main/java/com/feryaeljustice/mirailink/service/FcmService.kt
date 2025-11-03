@@ -6,14 +6,27 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.ui.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class FcmService : FirebaseMessagingService() {
+    @Inject
+    lateinit var saveNotificationFCMUseCase: SaveNotificationFCMUseCase
+
+    @Inject
+    lateinit var applicationScope: CoroutineScope
+
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "notification_fcm"
         const val NOTIFICATION_CHANNEL_NAME = "FCM notification channel"
@@ -22,12 +35,16 @@ class FcmService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        Log.i("FCM", "Tenemos nuevo mensaje desde el FirebaseMessaginService: $message")
         showChatNotification(message = message)
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.i("FCM", "Tenemos nuevo token desde el FirebaseMessaginService: $token")
+        applicationScope.launch {
+            saveNotificationFCMUseCase(fcm = token)
+        }
     }
 
     private fun showChatNotification(message: RemoteMessage) {
@@ -61,22 +78,26 @@ class FcmService : FirebaseMessagingService() {
             }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_IMMUTABLE)
 
-        val msgId =
-            try {
-                messageId.toInt()
-            } catch (e: Exception) {
-                Random.nextInt(0, 1000)
-            }
+        val msgId = messageId.toIntOrNull() ?: Random.nextInt(0, 1000)
+
+        val me = Person.Builder().setName(getString(R.string.you)).build()
+        val sender = Person.Builder().setName(messageTitle ?: getString(R.string.contact)).build()
+        val style =
+            NotificationCompat.MessagingStyle(me).setConversationTitle(messageTitle).addMessage(
+                messageBody ?: "",
+                System.currentTimeMillis(),
+                sender,
+            )
 
         val notification =
             NotificationCompat
                 .Builder(this, NOTIFICATION_CHANNEL_ID)
-                .setContentTitle(messageTitle)
-                .setContentText(messageBody)
-                .setPriority(priority)
                 .setSmallIcon(icon)
+                .setStyle(style)
+                .setPriority(priority)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .build()
 
         createNotificationChannel(
