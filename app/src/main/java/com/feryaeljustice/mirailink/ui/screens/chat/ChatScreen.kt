@@ -1,3 +1,7 @@
+/**
+ * @author Feryael Justice
+ * @date 03/08/2024
+ */
 package com.feryaeljustice.mirailink.ui.screens.chat
 
 import androidx.compose.animation.AnimatedVisibility
@@ -36,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.util.formatDateSeparator
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
@@ -44,12 +49,28 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
+import com.feryaeljustice.mirailink.ui.components.chat.DateSeparator
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
+import java.time.Instant
+import java.time.ZoneId
+
+private sealed interface ChatItemModel {
+    val id: String
+}
+
+private data class MessageItemModel(val message: ChatMessageViewEntry) : ChatItemModel {
+    override val id: String = message.id
+}
+
+private data class DateSeparatorItemModel(val timestamp: Long) : ChatItemModel {
+    override val id: String = "separator-$timestamp"
+}
 
 @Composable
 fun ChatScreen(
@@ -61,7 +82,6 @@ fun ChatScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-//    val chatId by viewModel.chatId.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val sender by viewModel.sender.collectAsState()
     val receiver by viewModel.receiver.collectAsState()
@@ -71,11 +91,25 @@ fun ChatScreen(
     var showReportDialog by rememberSaveable { mutableStateOf(false) }
     var selectedReportReason by rememberSaveable { mutableStateOf("") }
 
-    // Optimized ui
-    val reversedMessages =
-        remember(messages) {
-            messages.reversed()
-        }
+    val chatItems = remember(messages) {
+        messages
+            .groupBy { message ->
+                Instant.ofEpochMilli(message.timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
+            }
+            .toSortedMap(compareByDescending { it }) // Sort dates newest to oldest
+            .flatMap { (date, messagesOnDate) ->
+                val dateSeparator = DateSeparatorItemModel(
+                    date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                )
+                val sortedMessages = messagesOnDate
+                    .sortedByDescending { it.timestamp }
+                    .map { MessageItemModel(it) }
+
+                // In a reversed list, the separator needs to come *after* the items of the day
+                // to appear *above* them visually.
+                sortedMessages + dateSeparator
+            }
+    }
 
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
@@ -111,15 +145,15 @@ fun ChatScreen(
 
     Column(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .then(
-                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                    } else {
-                        Modifier
-                    },
-                ),
+        Modifier
+            .fillMaxSize()
+            .then(
+                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         ChatTopBar(
             modifier = Modifier,
@@ -135,25 +169,37 @@ fun ChatScreen(
         )
         LazyColumn(
             modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             reverseLayout = true,
             state = scrollState,
         ) {
-            items(reversedMessages, key = { message -> message.id }) { msg ->
-                MessageItem(
-                    msgContent = msg.content,
-                    msgTimestamp = msg.timestamp,
-                    isOwnMessage = msg.sender.id == sender?.id,
-                )
+            items(
+                items = chatItems,
+                key = { it.id }
+            ) { item ->
+                when (item) {
+                    is MessageItemModel -> {
+                        MessageItem(
+                            msgContent = item.message.content,
+                            msgTimestamp = item.message.timestamp,
+                            isOwnMessage = item.message.sender.id == sender?.id,
+                        )
+                    }
+                    is DateSeparatorItemModel -> {
+                        DateSeparator(
+                            date = formatDateSeparator(item.timestamp),
+                        )
+                    }
+                }
             }
         }
         Row(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             MiraiLinkTextField(
                 value = input.value,
@@ -166,24 +212,24 @@ fun ChatScreen(
                     txt?.let {
                         MiraiLinkText(
                             text =
-                                stringResource(
-                                    R.string.chat_screen_smthg_send_msg,
-                                    it,
-                                ),
+                            stringResource(
+                                R.string.chat_screen_smthg_send_msg,
+                                it,
+                            ),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions =
-                    KeyboardActions(
-                        onSend = {
-                            if (input.value.isNotBlank()) {
-                                viewModel.sendMessage(input.value)
-                                input.value = ""
-                            }
-                        },
-                    ),
+                KeyboardActions(
+                    onSend = {
+                        if (input.value.isNotBlank()) {
+                            viewModel.sendMessage(input.value)
+                            input.value = ""
+                        }
+                    },
+                ),
             )
             Spacer(modifier = Modifier.width(4.dp))
 
@@ -238,13 +284,13 @@ fun ChatScreen(
                                 onClick = { selectedReportReason = reason },
                                 text = reason,
                                 onTransparentBackgroundContentColor =
-                                    if (selectedReportReason ==
-                                        reason
-                                    ) {
-                                        MaterialTheme.colorScheme.tertiary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface
-                                    },
+                                if (selectedReportReason ==
+                                    reason
+                                ) {
+                                    MaterialTheme.colorScheme.tertiary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
                             )
                         }
                     }

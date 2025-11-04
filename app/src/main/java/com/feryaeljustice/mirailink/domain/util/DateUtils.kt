@@ -1,3 +1,7 @@
+/**
+ * @author Feryael Justice
+ * @date 03/08/2024
+ */
 package com.feryaeljustice.mirailink.domain.util
 
 import android.util.Log
@@ -15,6 +19,7 @@ import java.time.Period
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -32,6 +37,13 @@ fun parseDate(dateString: String): Date {
 
 fun formatTimestamp(timestamp: Long): String {
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
+    return Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .format(formatter)
+}
+
+fun formatDateSeparator(timestamp: Long): String {
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
     return Instant.ofEpochMilli(timestamp)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
