@@ -1,6 +1,6 @@
 # MiraiLink
 
-MiraiLink es la app social pensada para fans del anime y los videojuegos. Combina un backend propio en ExpressJS con un cliente Android construido en Jetpack Compose, MVVM, Hilt, Version Catalog y Clean Architecture para ofrecer chat en tiempo real, matching, perfiles personalizables y almacenamiento seguro.
+MiraiLink es la app social pensada para fans del anime y los videojuegos. Combina un backend propio en ExpressJS con un cliente Android construido en Jetpack Compose, MVVM, Hilt, Version Catalog y Clean Architecture para ofrecer chat en tiempo real, matching, perfiles personalizables y almacenamiento seguro. Usa Android Credentials. Testing al completo (Unitario, Integración con Instrumentación y E2E), incluido el nuevo sistema de testing por Screenshot de Gemini.
 
 ## Stack principal
 
