@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-31
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class AppConfigRepositoryImplTest {
-
     private lateinit var appConfigRepository: AppConfigRepositoryImpl
     private val appConfigRemoteDataSource: AppConfigRemoteDataSource = mockk()
 
@@ -26,35 +25,38 @@ class AppConfigRepositoryImplTest {
     }
 
     @Test
-    fun `getVersion returns success when remote data source is successful`() = runTest {
-        // Given
-        val appVersionInfo = AppVersionInfo(
-            platform = "android",
-            minVersionCode = 1,
-            latestVersionCode = 2,
-            message = "Update available",
-            playStoreUrl = "https://play.google.com"
-        )
-        val successResult = MiraiLinkResult.Success(appVersionInfo)
-        coEvery { appConfigRemoteDataSource.getVersion() } returns successResult
+    fun `getVersion returns success when remote data source is successful`() =
+        runTest {
+            // Given
+            val appVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 1,
+                    latestVersionCode = 2,
+                    message = "Update available",
+                    playStoreUrl = "https://play.google.com",
+                )
+            val successResult = MiraiLinkResult.Success(appVersionInfo)
+            coEvery { appConfigRemoteDataSource.getVersion() } returns successResult
 
-        // When
-        val result = appConfigRepository.getVersion()
+            // When
+            val result = appConfigRepository.getVersion()
 
-        // Then
-        assertThat(result).isEqualTo(successResult)
-    }
+            // Then
+            assertThat(result).isEqualTo(successResult)
+        }
 
     @Test
-    fun `getVersion returns error when remote data source fails`() = runTest {
-        // Given
-        val errorResult = MiraiLinkResult.Error(message = "An error occurred")
-        coEvery { appConfigRemoteDataSource.getVersion() } returns errorResult
+    fun `getVersion returns error when remote data source fails`() =
+        runTest {
+            // Given
+            val errorResult = MiraiLinkResult.Error(message = "An error occurred")
+            coEvery { appConfigRemoteDataSource.getVersion() } returns errorResult
 
-        // When
-        val result = appConfigRepository.getVersion()
+            // When
+            val result = appConfigRepository.getVersion()
 
-        // Then
-        assertThat(result).isEqualTo(errorResult)
-    }
+            // Then
+            assertThat(result).isEqualTo(errorResult)
+        }
 }

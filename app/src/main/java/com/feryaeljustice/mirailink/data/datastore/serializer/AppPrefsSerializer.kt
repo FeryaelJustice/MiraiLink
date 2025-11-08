@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-28
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datastore.serializer
 
@@ -18,16 +18,20 @@ object AppPrefsSerializer : Serializer<AppPrefs> {
     override suspend fun readFrom(input: InputStream): AppPrefs {
         try {
             return Json.decodeFromString(
-                AppPrefs.serializer(), input.readBytes().decodeToString()
+                AppPrefs.serializer(),
+                input.readBytes().decodeToString(),
             )
         } catch (e: SerializationException) {
             throw CorruptionException("Cannot read proto.", e)
         }
     }
 
-    override suspend fun writeTo(t: AppPrefs, output: OutputStream) {
+    override suspend fun writeTo(
+        t: AppPrefs,
+        output: OutputStream,
+    ) {
         output.write(
-            Json.encodeToString(AppPrefs.serializer(), t).encodeToByteArray()
+            Json.encodeToString(AppPrefs.serializer(), t).encodeToByteArray(),
         )
     }
 }

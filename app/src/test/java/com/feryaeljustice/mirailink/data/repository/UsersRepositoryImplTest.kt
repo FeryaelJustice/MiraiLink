@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-31
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
@@ -17,26 +17,27 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class UsersRepositoryImplTest {
-
     private lateinit var usersRepository: UsersRepositoryImpl
     private val usersRemoteDataSource: UsersRemoteDataSource = mockk()
 
-    private val userDto = UserDto(
-        id = "1",
-        username = "testuser",
-        nickname = "Test User",
-        email = "test@example.com",
-        photos = listOf(
-            UserPhotoDto(
-                id = "photo1",
-                userId = "1",
-                url = "/path/to/photo.jpg",
-                position = 1
-            )
-        ),
-        animes = emptyList(),
-        games = emptyList()
-    )
+    private val userDto =
+        UserDto(
+            id = "1",
+            username = "testuser",
+            nickname = "Test User",
+            email = "test@example.com",
+            photos =
+                listOf(
+                    UserPhotoDto(
+                        id = "photo1",
+                        userId = "1",
+                        url = "/path/to/photo.jpg",
+                        position = 1,
+                    ),
+                ),
+            animes = emptyList(),
+            games = emptyList(),
+        )
 
     @Before
     fun setUp() {
@@ -44,34 +45,42 @@ class UsersRepositoryImplTest {
     }
 
     @Test
-    fun `getUsers returns success when remote data source is successful`() = runTest {
-        // Given
-        val userDtoList = listOf(userDto)
-        val successResult = MiraiLinkResult.Success(userDtoList)
-        coEvery { usersRemoteDataSource.getUsers() } returns successResult
+    fun `getUsers returns success when remote data source is successful`() =
+        runTest {
+            // Given
+            val userDtoList = listOf(userDto)
+            val successResult = MiraiLinkResult.Success(userDtoList)
+            coEvery { usersRemoteDataSource.getUsers() } returns successResult
 
-        // When
-        val result = usersRepository.getUsers()
+            // When
+            val result = usersRepository.getUsers()
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        val users = (result as MiraiLinkResult.Success).data
-        assertThat(users).hasSize(1)
-        assertThat(users.first().id).isEqualTo(userDto.id)
-        assertThat(users.first().username).isEqualTo(userDto.username)
-        assertThat(users.first().photos.first().url).endsWith(userDto.photos.first().url)
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            val users = (result as MiraiLinkResult.Success).data
+            assertThat(users).hasSize(1)
+            assertThat(users.first().id).isEqualTo(userDto.id)
+            assertThat(users.first().username).isEqualTo(userDto.username)
+            assertThat(
+                users
+                    .first()
+                    .photos
+                    .first()
+                    .url,
+            ).endsWith(userDto.photos.first().url)
+        }
 
     @Test
-    fun `getUsers returns error when remote data source fails`() = runTest {
-        // Given
-        val errorResult = MiraiLinkResult.Error("An error occurred")
-        coEvery { usersRemoteDataSource.getUsers() } returns errorResult
+    fun `getUsers returns error when remote data source fails`() =
+        runTest {
+            // Given
+            val errorResult = MiraiLinkResult.Error("An error occurred")
+            coEvery { usersRemoteDataSource.getUsers() } returns errorResult
 
-        // When
-        val result = usersRepository.getUsers()
+            // When
+            val result = usersRepository.getUsers()
 
-        // Then
-        assertThat(result).isEqualTo(errorResult)
-    }
+            // Then
+            assertThat(result).isEqualTo(errorResult)
+        }
 }

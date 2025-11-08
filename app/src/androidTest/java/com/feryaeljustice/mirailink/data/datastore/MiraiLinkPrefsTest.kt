@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-07-29
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datastore
 
@@ -17,7 +17,6 @@ import javax.inject.Inject
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class MiraiLinkPrefsTest {
-
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
@@ -30,21 +29,23 @@ class MiraiLinkPrefsTest {
     }
 
     @Test
-    fun markOnboardingCompleted_updatesDataStore() = runBlocking {
-        // When
-        miraiLinkPrefs.markOnboardingCompleted()
+    fun markOnboardingCompleted_updatesDataStore() =
+        runBlocking {
+            // When
+            miraiLinkPrefs.markOnboardingCompleted()
 
-        // Then
-        val prefs = miraiLinkPrefs.isOnboardingCompleted()
-        assertThat(prefs).isTrue()
-    }
+            // Then
+            val prefs = miraiLinkPrefs.isOnboardingCompleted()
+            assertThat(prefs).isTrue()
+        }
 
     @Test
-    fun isOnboardingCompleted_readsInitialValue() = runBlocking {
-        // When
-        val prefs = miraiLinkPrefs.isOnboardingCompleted()
+    fun isOnboardingCompleted_readsInitialValue() =
+        runBlocking {
+            // When
+            val prefs = miraiLinkPrefs.isOnboardingCompleted()
 
-        // Then
-        assertThat(prefs).isFalse()
-    }
+            // Then
+            assertThat(prefs).isFalse()
+        }
 }

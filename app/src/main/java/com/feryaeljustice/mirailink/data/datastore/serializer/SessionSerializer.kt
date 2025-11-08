@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-28
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datastore.serializer
 
@@ -18,16 +18,20 @@ object SessionSerializer : Serializer<Session> {
     override suspend fun readFrom(input: InputStream): Session {
         try {
             return Json.decodeFromString(
-                Session.serializer(), input.readBytes().decodeToString()
+                Session.serializer(),
+                input.readBytes().decodeToString(),
             )
         } catch (e: SerializationException) {
             throw CorruptionException("Cannot read proto.", e)
         }
     }
 
-    override suspend fun writeTo(t: Session, output: OutputStream) {
+    override suspend fun writeTo(
+        t: Session,
+        output: OutputStream,
+    ) {
         output.write(
-            Json.encodeToString(Session.serializer(), t).encodeToByteArray()
+            Json.encodeToString(Session.serializer(), t).encodeToByteArray(),
         )
     }
 }

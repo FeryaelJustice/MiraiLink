@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-31
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class FeedbackRepositoryImplTest {
-
     private lateinit var feedbackRepository: FeedbackRepositoryImpl
     private val remoteDataSource: FeedbackRemoteDatasource = mockk()
 
@@ -25,30 +24,32 @@ class FeedbackRepositoryImplTest {
     }
 
     @Test
-    fun `sendFeedback returns success when remote data source is successful`() = runTest {
-        // Given
-        val feedback = "This is a test feedback."
-        val successResult = MiraiLinkResult.Success(Unit)
-        coEvery { remoteDataSource.sendFeedback(feedback) } returns successResult
+    fun `sendFeedback returns success when remote data source is successful`() =
+        runTest {
+            // Given
+            val feedback = "This is a test feedback."
+            val successResult = MiraiLinkResult.Success(Unit)
+            coEvery { remoteDataSource.sendFeedback(feedback) } returns successResult
 
-        // When
-        val result = feedbackRepository.sendFeedback(feedback)
+            // When
+            val result = feedbackRepository.sendFeedback(feedback)
 
-        // Then
-        assertThat(result).isEqualTo(successResult)
-    }
+            // Then
+            assertThat(result).isEqualTo(successResult)
+        }
 
     @Test
-    fun `sendFeedback returns error when remote data source fails`() = runTest {
-        // Given
-        val feedback = "This is a test feedback."
-        val errorResult = MiraiLinkResult.Error("An error occurred")
-        coEvery { remoteDataSource.sendFeedback(feedback) } returns errorResult
+    fun `sendFeedback returns error when remote data source fails`() =
+        runTest {
+            // Given
+            val feedback = "This is a test feedback."
+            val errorResult = MiraiLinkResult.Error("An error occurred")
+            coEvery { remoteDataSource.sendFeedback(feedback) } returns errorResult
 
-        // When
-        val result = feedbackRepository.sendFeedback(feedback)
+            // When
+            val result = feedbackRepository.sendFeedback(feedback)
 
-        // Then
-        assertThat(result).isEqualTo(errorResult)
-    }
+            // Then
+            assertThat(result).isEqualTo(errorResult)
+        }
 }

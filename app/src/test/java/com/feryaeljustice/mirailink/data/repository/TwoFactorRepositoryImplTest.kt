@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-31
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class TwoFactorRepositoryImplTest {
-
     private lateinit var twoFactorRepository: TwoFactorRepositoryImpl
     private val remoteDataSource: TwoFactorRemoteDataSource = mockk()
 
@@ -26,74 +25,79 @@ class TwoFactorRepositoryImplTest {
     }
 
     @Test
-    fun `get2FAStatus returns success`() = runTest {
-        // Given
-        val userId = "user1"
-        coEvery { remoteDataSource.get2FAStatus(userId) } returns MiraiLinkResult.Success(true)
+    fun `get2FAStatus returns success`() =
+        runTest {
+            // Given
+            val userId = "user1"
+            coEvery { remoteDataSource.get2FAStatus(userId) } returns MiraiLinkResult.Success(true)
 
-        // When
-        val result = twoFactorRepository.get2FAStatus(userId)
+            // When
+            val result = twoFactorRepository.get2FAStatus(userId)
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        assertThat((result as MiraiLinkResult.Success).data).isTrue()
-    }
-
-    @Test
-    fun `setup2FA returns success`() = runTest {
-        // Given
-        val setupResponse = TwoFactorSetupResponse("otpauth_url", "base32_code", listOf("rec1", "rec2"))
-        coEvery { remoteDataSource.setup2FA() } returns MiraiLinkResult.Success(setupResponse)
-
-        // When
-        val result = twoFactorRepository.setup2FA()
-
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        val data = (result as MiraiLinkResult.Success).data
-        assertThat(data.otpAuthUrl).isEqualTo(setupResponse.otpAuthUrl)
-        assertThat(data.baseCode).isEqualTo(setupResponse.baseCode)
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            assertThat((result as MiraiLinkResult.Success).data).isTrue()
+        }
 
     @Test
-    fun `verify2FA returns success`() = runTest {
-        // Given
-        val code = "123456"
-        coEvery { remoteDataSource.verify2FA(code) } returns MiraiLinkResult.Success(Unit)
+    fun `setup2FA returns success`() =
+        runTest {
+            // Given
+            val setupResponse = TwoFactorSetupResponse("otpauth_url", "base32_code", listOf("rec1", "rec2"))
+            coEvery { remoteDataSource.setup2FA() } returns MiraiLinkResult.Success(setupResponse)
 
-        // When
-        val result = twoFactorRepository.verify2FA(code)
+            // When
+            val result = twoFactorRepository.setup2FA()
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-    }
-
-    @Test
-    fun `disable2FA returns success`() = runTest {
-        // Given
-        val code = "123456"
-        coEvery { remoteDataSource.disable2FA(code) } returns MiraiLinkResult.Success(Unit)
-
-        // When
-        val result = twoFactorRepository.disable2FA(code)
-
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            val data = (result as MiraiLinkResult.Success).data
+            assertThat(data.otpAuthUrl).isEqualTo(setupResponse.otpAuthUrl)
+            assertThat(data.baseCode).isEqualTo(setupResponse.baseCode)
+        }
 
     @Test
-    fun `loginVerifyTwoFactorLastStep returns success`() = runTest {
-        // Given
-        val userId = "user1"
-        val code = "123456"
-        val token = "jwt_token"
-        coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(userId, code) } returns MiraiLinkResult.Success(token)
+    fun `verify2FA returns success`() =
+        runTest {
+            // Given
+            val code = "123456"
+            coEvery { remoteDataSource.verify2FA(code) } returns MiraiLinkResult.Success(Unit)
 
-        // When
-        val result = twoFactorRepository.loginVerifyTwoFactorLastStep(userId, code)
+            // When
+            val result = twoFactorRepository.verify2FA(code)
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        assertThat((result as MiraiLinkResult.Success).data).isEqualTo(token)
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        }
+
+    @Test
+    fun `disable2FA returns success`() =
+        runTest {
+            // Given
+            val code = "123456"
+            coEvery { remoteDataSource.disable2FA(code) } returns MiraiLinkResult.Success(Unit)
+
+            // When
+            val result = twoFactorRepository.disable2FA(code)
+
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+        }
+
+    @Test
+    fun `loginVerifyTwoFactorLastStep returns success`() =
+        runTest {
+            // Given
+            val userId = "user1"
+            val code = "123456"
+            val token = "jwt_token"
+            coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(userId, code) } returns MiraiLinkResult.Success(token)
+
+            // When
+            val result = twoFactorRepository.loginVerifyTwoFactorLastStep(userId, code)
+
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            assertThat((result as MiraiLinkResult.Success).data).isEqualTo(token)
+        }
 }

@@ -1,5 +1,5 @@
 // Feryael Justice
-// 2024-07-31
+// 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class OnboardingRepositoryImplTest {
-
     private lateinit var onboardingRepository: OnboardingRepositoryImpl
     private val miraiLinkPrefs: MiraiLinkPrefs = mockk()
 
@@ -25,43 +24,46 @@ class OnboardingRepositoryImplTest {
     }
 
     @Test
-    fun `checkOnboardingIsCompleted returns success when prefs returns true`() = runTest {
-        // Given
-        coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns true
+    fun `checkOnboardingIsCompleted returns success when prefs returns true`() =
+        runTest {
+            // Given
+            coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns true
 
-        // When
-        val result = onboardingRepository.checkOnboardingIsCompleted()
+            // When
+            val result = onboardingRepository.checkOnboardingIsCompleted()
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        assertThat((result as MiraiLinkResult.Success).data).isTrue()
-    }
-
-    @Test
-    fun `checkOnboardingIsCompleted returns success when prefs returns false`() = runTest {
-        // Given
-        coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns false
-
-        // When
-        val result = onboardingRepository.checkOnboardingIsCompleted()
-
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-        assertThat((result as MiraiLinkResult.Success).data).isFalse()
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            assertThat((result as MiraiLinkResult.Success).data).isTrue()
+        }
 
     @Test
-    fun `checkOnboardingIsCompleted returns error when prefs throws exception`() = runTest {
-        // Given
-        val exception = RuntimeException("A wild error appears!")
-        coEvery { miraiLinkPrefs.isOnboardingCompleted() } throws exception
+    fun `checkOnboardingIsCompleted returns success when prefs returns false`() =
+        runTest {
+            // Given
+            coEvery { miraiLinkPrefs.isOnboardingCompleted() } returns false
 
-        // When
-        val result = onboardingRepository.checkOnboardingIsCompleted()
+            // When
+            val result = onboardingRepository.checkOnboardingIsCompleted()
 
-        // Then
-        assertThat(result).isInstanceOf(MiraiLinkResult.Error::class.java)
-        val error = result as MiraiLinkResult.Error
-        assertThat(error.exception).isEqualTo(exception)
-    }
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
+            assertThat((result as MiraiLinkResult.Success).data).isFalse()
+        }
+
+    @Test
+    fun `checkOnboardingIsCompleted returns error when prefs throws exception`() =
+        runTest {
+            // Given
+            val exception = RuntimeException("A wild error appears!")
+            coEvery { miraiLinkPrefs.isOnboardingCompleted() } throws exception
+
+            // When
+            val result = onboardingRepository.checkOnboardingIsCompleted()
+
+            // Then
+            assertThat(result).isInstanceOf(MiraiLinkResult.Error::class.java)
+            val error = result as MiraiLinkResult.Error
+            assertThat(error.exception).isEqualTo(exception)
+        }
 }

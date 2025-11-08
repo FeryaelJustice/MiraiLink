@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-07-29
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink
 
@@ -12,8 +12,6 @@ class CustomHiltTestRunner : AndroidJUnitRunner() {
     override fun newApplication(
         cl: ClassLoader?,
         className: String?,
-        context: Context?
-    ): Application {
-        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
-    }
+        context: Context?,
+    ): Application = super.newApplication(cl, HiltTestApplication::class.java.name, context)
 }
