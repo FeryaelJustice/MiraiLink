@@ -6,16 +6,14 @@ package com.feryaeljustice.mirailink.domain.usecase.auth
 
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import javax.inject.Inject
 
-class AutologinUseCase @Inject constructor(
-    private val repository: UserRepository
+class AutologinUseCase(
+    private val repository: UserRepository,
 ) {
-    suspend operator fun invoke(): MiraiLinkResult<String> {
-        return try {
+    suspend operator fun invoke(): MiraiLinkResult<String> =
+        try {
             repository.autologin()
         } catch (e: Exception) {
             MiraiLinkResult.Error("AutologinUseCase error: ", e)
         }
-    }
 }

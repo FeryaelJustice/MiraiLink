@@ -4,58 +4,51 @@ import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFacto
 import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
-import javax.inject.Inject
 
-class TwoFactorRemoteDataSource @Inject constructor(
+class TwoFactorRemoteDataSource(
     private val api: TwoFactorApiService,
 ) {
-    suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> {
-        return try {
+    suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> =
+        try {
             val twoFactorStatus = api.getTwoFactorStatus(mapOf("userId" to userID)).enabled
             MiraiLinkResult.success(twoFactorStatus)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "get2FAStatus")
         }
-    }
 
-    suspend fun setup2FA(): MiraiLinkResult<TwoFactorSetupResponse> {
-        return try {
+    suspend fun setup2FA(): MiraiLinkResult<TwoFactorSetupResponse> =
+        try {
             val setup2FA = api.setupTwoFactor()
             MiraiLinkResult.success(setup2FA)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "setup2FA")
         }
-    }
 
-    suspend fun verify2FA(code: String): MiraiLinkResult<Unit> {
-        return try {
+    suspend fun verify2FA(code: String): MiraiLinkResult<Unit> =
+        try {
             api.verifyTwoFactor(mapOf("token" to code))
             MiraiLinkResult.success(Unit)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "verify2FA")
         }
-    }
 
-
-    suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> {
-        return try {
+    suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
+        try {
             api.disableTwoFactor(mapOf("code" to codeOrRecoveryCode))
             MiraiLinkResult.success(Unit)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "disable2FA")
         }
-    }
 
     suspend fun loginVerifyTwoFactorLastStep(
         userId: String,
-        code: String
-    ): MiraiLinkResult<String> {
-        return try {
+        code: String,
+    ): MiraiLinkResult<String> =
+        try {
             val response =
                 api.loginVerifyTwoFactorLastStep(mapOf("userId" to userId, "code" to code))
             MiraiLinkResult.success(response.message)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "TwoFactorRemoteDataSource", "setup2FA")
         }
-    }
 }

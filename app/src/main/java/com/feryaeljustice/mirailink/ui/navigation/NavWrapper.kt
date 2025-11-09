@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -30,7 +29,6 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.feryaeljustice.mirailink.R
-import com.feryaeljustice.mirailink.di.AppEntryPoints
 import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -64,8 +62,9 @@ import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
-import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun NavWrapper(
@@ -79,21 +78,13 @@ fun NavWrapper(
     val clipboard = LocalClipboard.current
 
     // Entry points
-    // Obtén el entry point una vez (memoizado)
-    val entryPoint =
-        remember(context) {
-            EntryPointAccessors
-                .fromApplication(context, AppEntryPoints::class.java)
-        }
-
-    // Global states by entry points
-    val miraiLinkPrefs = remember { entryPoint.globalPrefs() }
-    val miraiLinkSession = remember { entryPoint.globalSession() }
+    val miraiLinkPrefs: GlobalMiraiLinkPrefs = koinInject()
+    val miraiLinkSession: GlobalMiraiLinkSession = koinInject()
 
     // Nav
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val navAnalyticsVm: NavAnalyticsViewModel = hiltViewModel()
+    val navAnalyticsVm: NavAnalyticsViewModel = koinViewModel()
 
     val showSnackbar: (String) -> Unit = { msg ->
         scope.launch {
@@ -263,7 +254,7 @@ fun AppNavHost(
         modifier = modifier,
     ) {
         composable<AppScreen.SplashScreen> {
-            val splashScreenViewModel: SplashScreenViewModel = hiltViewModel()
+            val splashScreenViewModel: SplashScreenViewModel = koinViewModel()
             SplashScreen(
                 viewModel = splashScreenViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -356,7 +347,7 @@ private fun NavGraphBuilder.authGraph(
 ) {
     navigation<ScreensSubgraphs.Auth>(startDestination = AppScreen.AuthScreen) {
         composable<AppScreen.AuthScreen> {
-            val authViewModel: AuthViewModel = hiltViewModel()
+            val authViewModel: AuthViewModel = koinViewModel()
             AuthScreen(
                 viewModel = authViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -373,7 +364,7 @@ private fun NavGraphBuilder.authGraph(
         }
         composable<AppScreen.RecoverPasswordScreen> { backStackEntry ->
             val recoverPasswordScreen: AppScreen.RecoverPasswordScreen = backStackEntry.toRoute()
-            val recoverPasswordViewModel: RecoverPasswordViewModel = hiltViewModel()
+            val recoverPasswordViewModel: RecoverPasswordViewModel = koinViewModel()
             RecoverPasswordScreen(
                 viewModel = recoverPasswordViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -400,7 +391,7 @@ private fun NavGraphBuilder.appGraph(
 ) {
     navigation<ScreensSubgraphs.Main>(startDestination = AppScreen.HomeScreen) {
         composable<AppScreen.ProfilePictureScreen> {
-            val profilePictureViewModel: ProfilePictureViewModel = hiltViewModel()
+            val profilePictureViewModel: ProfilePictureViewModel = koinViewModel()
             ProfilePictureScreen(
                 viewModel = profilePictureViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -420,7 +411,7 @@ private fun NavGraphBuilder.appGraph(
                     },
                 ),
         ) {
-            val homeViewModel: HomeViewModel = hiltViewModel()
+            val homeViewModel: HomeViewModel = koinViewModel()
             HomeScreen(
                 viewModel = homeViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -428,7 +419,7 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.MessagesScreen> {
-            val messagesViewModel: MessagesViewModel = hiltViewModel()
+            val messagesViewModel: MessagesViewModel = koinViewModel()
             MessagesScreen(
                 viewModel = messagesViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -440,7 +431,7 @@ private fun NavGraphBuilder.appGraph(
 
         composable<AppScreen.ChatScreen> { backStackEntry ->
             val chatScreen: AppScreen.ChatScreen = backStackEntry.toRoute()
-            val chatViewModel: ChatViewModel = hiltViewModel()
+            val chatViewModel: ChatViewModel = koinViewModel()
             ChatScreen(
                 viewModel = chatViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -452,13 +443,13 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.ProfileScreen> {
-            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val profileViewModel: ProfileViewModel = koinViewModel()
             ProfileScreen(viewModel = profileViewModel, miraiLinkSession = miraiLinkSession)
         }
 
         composable<AppScreen.VerificationScreen> { backStackEntry ->
             val verificationScreen: AppScreen.VerificationScreen = backStackEntry.toRoute()
-            val verificationViewModel: VerificationViewModel = hiltViewModel()
+            val verificationViewModel: VerificationViewModel = koinViewModel()
             VerificationScreen(
                 viewModel = verificationViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -475,7 +466,7 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.SettingsScreen> {
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val settingsViewModel: SettingsViewModel = koinViewModel()
             SettingsScreen(
                 viewModel = settingsViewModel,
                 miraiLinkSession = miraiLinkSession,
@@ -493,7 +484,7 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.FeedbackScreen> {
-            val feedbackViewModel: FeedbackViewModel = hiltViewModel()
+            val feedbackViewModel: FeedbackViewModel = koinViewModel()
             FeedbackScreen(
                 viewModel = feedbackViewModel,
                 showToast = { msg, duration ->
@@ -506,7 +497,7 @@ private fun NavGraphBuilder.appGraph(
         }
 
         composable<AppScreen.ConfigureTwoFactorScreen> {
-            val configureTwoFactorViewModel: ConfigureTwoFactorViewModel = hiltViewModel()
+            val configureTwoFactorViewModel: ConfigureTwoFactorViewModel = koinViewModel()
             ConfigureTwoFactorScreen(
                 viewModel = configureTwoFactorViewModel,
                 miraiLinkSession = miraiLinkSession,

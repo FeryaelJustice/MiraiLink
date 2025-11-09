@@ -8,78 +8,74 @@ import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrl
-import javax.inject.Inject
-import javax.inject.Named
 
-class ChatRepositoryImpl @Inject constructor(
+class ChatRepositoryImpl(
     private val socketService: SocketService,
     private val remote: ChatRemoteDataSource,
-    @param:Named("BaseUrl") private val baseUrl: String,
+    private val baseUrl: String,
 ) : ChatRepository {
-
     override fun connectSocket() = socketService.connect()
 
     override fun disconnectSocket() = socketService.disconnect()
 
-    override suspend fun getChatsFromUser(): MiraiLinkResult<List<ChatSummary>> {
-        return when (val result = remote.getChatsFromUser()) {
+    override suspend fun getChatsFromUser(): MiraiLinkResult<List<ChatSummary>> =
+        when (val result = remote.getChatsFromUser()) {
             is MiraiLinkResult.Success -> {
-                val chatSummaries = result.data.map { chatSummary ->
-                    val domain = chatSummary.toDomain()
-                    val updatedDestinatary = domain.destinatary?.copy(
-                        profilePhoto = domain.destinatary.profilePhoto?.copy(
-                            url = resolvePhotoUrl(
-                                baseUrl,
-                                domain.destinatary.profilePhoto.url
+                val chatSummaries =
+                    result.data.map { chatSummary ->
+                        val domain = chatSummary.toDomain()
+                        val updatedDestinatary =
+                            domain.destinatary?.copy(
+                                profilePhoto =
+                                    domain.destinatary.profilePhoto?.copy(
+                                        url =
+                                            resolvePhotoUrl(
+                                                baseUrl,
+                                                domain.destinatary.profilePhoto.url,
+                                            ),
+                                    ),
                             )
-                        )
-                    )
-                    domain.copy(destinatary = updatedDestinatary)
-                }
+                        domain.copy(destinatary = updatedDestinatary)
+                    }
                 MiraiLinkResult.Success(chatSummaries)
             }
 
             is MiraiLinkResult.Error -> result
         }
-    }
 
-    override suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit> {
-        return remote.markChatAsRead(chatId)
-    }
+    override suspend fun markChatAsRead(chatId: String): MiraiLinkResult<Unit> = remote.markChatAsRead(chatId)
 
-    override suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> {
-        return remote.createPrivateChat(otherUserId)
-    }
+    override suspend fun createPrivateChat(otherUserId: String): MiraiLinkResult<String> = remote.createPrivateChat(otherUserId)
 
     override suspend fun createGroupChat(
         name: String,
-        userIds: List<String>
-    ): MiraiLinkResult<String> {
-        return remote.createGroupChat(name, userIds)
-    }
+        userIds: List<String>,
+    ): MiraiLinkResult<String> = remote.createGroupChat(name, userIds)
 
-    override suspend fun sendMessageTo(userId: String, content: String): MiraiLinkResult<Unit> {
-        return when (val result = remote.sendMessage(userId, content)) {
+    override suspend fun sendMessageTo(
+        userId: String,
+        content: String,
+    ): MiraiLinkResult<Unit> =
+        when (val result = remote.sendMessage(userId, content)) {
             is MiraiLinkResult.Success -> {
                 MiraiLinkResult.Success(Unit)
             }
 
             is MiraiLinkResult.Error -> result
         }
-    }
 
-    override suspend fun getMessagesWith(userId: String): MiraiLinkResult<List<ChatMessage>> {
-        return when (val result = remote.getChatHistory(userId)) {
+    override suspend fun getMessagesWith(userId: String): MiraiLinkResult<List<ChatMessage>> =
+        when (val result = remote.getChatHistory(userId)) {
             is MiraiLinkResult.Success -> {
-                val messages = result.data.distinctBy { it.id }.map { message ->
-                    message.toDomain()
-                }
+                val messages =
+                    result.data.distinctBy { it.id }.map { message ->
+                        message.toDomain()
+                    }
                 MiraiLinkResult.Success(messages)
             }
 
             is MiraiLinkResult.Error -> result
         }
-    }
 
     override fun listenForMessages(callback: (String) -> Unit) {
         socketService.on("receive_message") { args ->

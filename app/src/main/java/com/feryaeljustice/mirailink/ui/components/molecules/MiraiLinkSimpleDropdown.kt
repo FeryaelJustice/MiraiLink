@@ -2,9 +2,9 @@ package com.feryaeljustice.mirailink.ui.components.molecules
 
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +21,13 @@ fun <T> MiraiLinkSimpleDropdown(
     options: List<T>,
     selected: T?,
     onSelected: (T) -> Unit,
-    itemLabel: (T) -> String = { it.toString() } // cómo mostrar cada opción
+    itemLabel: (T) -> String = { it.toString() }, // cómo mostrar cada opción
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onExpandedChange = { expanded = !expanded },
     ) {
         OutlinedTextField(
             value = selected?.let(itemLabel) ?: "",
@@ -35,11 +35,11 @@ fun <T> MiraiLinkSimpleDropdown(
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true)
+            modifier = Modifier.menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true),
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
@@ -47,7 +47,7 @@ fun <T> MiraiLinkSimpleDropdown(
                     onClick = {
                         onSelected(option)
                         expanded = false
-                    }
+                    },
                 )
             }
         }

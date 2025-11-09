@@ -5,24 +5,23 @@ import com.feryaeljustice.mirailink.data.model.GameDto
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
-import javax.inject.Inject
 
-class CatalogRemoteDataSource @Inject constructor(private val api: CatalogApiService) {
-    suspend fun getAnimes(): MiraiLinkResult<List<AnimeDto>> {
-        return try {
+class CatalogRemoteDataSource(
+    private val api: CatalogApiService,
+) {
+    suspend fun getAnimes(): MiraiLinkResult<List<AnimeDto>> =
+        try {
             val response = api.getAllAnimes()
             MiraiLinkResult.Success(response)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "CatalogRemoteDataSource", "getAnimes")
         }
-    }
 
-    suspend fun getGames(): MiraiLinkResult<List<GameDto>> {
-        return try {
+    suspend fun getGames(): MiraiLinkResult<List<GameDto>> =
+        try {
             val response = api.getAllGames()
             MiraiLinkResult.Success(response)
         } catch (e: Throwable) {
             parseMiraiLinkHttpError(e, "CatalogRemoteDataSource", "getAnimes")
         }
-    }
 }

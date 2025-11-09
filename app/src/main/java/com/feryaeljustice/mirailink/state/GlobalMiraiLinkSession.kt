@@ -1,7 +1,6 @@
 package com.feryaeljustice.mirailink.state
 
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
-import com.feryaeljustice.mirailink.di.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
@@ -21,135 +20,131 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
-class GlobalMiraiLinkSession
-    @Inject
-    constructor(
-        private val sessionManager: SessionManager,
-        private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
-        @param:ApplicationScope
-        private val appScope: CoroutineScope,
-    ) {
+class GlobalMiraiLinkSession(
+    private val sessionManager: SessionManager,
+    private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
+    private val appScope: CoroutineScope,
+) {
     /*    private val _isInitialized = MutableStateFlow(false)
         val isInitialized: StateFlow<Boolean> = _isInitialized*/
-        val isAuthenticated: StateFlow<Boolean> =
-            sessionManager.isAuthenticatedFlow
-                .distinctUntilChanged()
-                .stateIn(
-                    scope = appScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = runBlocking { sessionManager.isAuthenticatedFlow.first() },
-                )
+    val isAuthenticated: StateFlow<Boolean> =
+        sessionManager.isAuthenticatedFlow
+            .distinctUntilChanged()
+            .stateIn(
+                scope = appScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = runBlocking { sessionManager.isAuthenticatedFlow.first() },
+            )
 
-        fun currentAuth(): Boolean = isAuthenticated.value
+    fun currentAuth(): Boolean = isAuthenticated.value
 
-        val isVerified: StateFlow<Boolean> =
-            sessionManager.isVerifiedFlow
-                .distinctUntilChanged()
-                .stateIn(
-                    scope = appScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = runBlocking { sessionManager.isVerifiedFlow.first() },
-                )
-        val onLogout: SharedFlow<Unit> = sessionManager.onLogout
-        private val _currentUserId = MutableStateFlow<String?>(null)
-        val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
-        private val _hasProfilePicture = MutableStateFlow<Boolean?>(null)
-        val hasProfilePicture: StateFlow<Boolean?> = _hasProfilePicture.asStateFlow()
-        private var observeHasProfilePictureJob: Job? = null
+    val isVerified: StateFlow<Boolean> =
+        sessionManager.isVerifiedFlow
+            .distinctUntilChanged()
+            .stateIn(
+                scope = appScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = runBlocking { sessionManager.isVerifiedFlow.first() },
+            )
+    val onLogout: SharedFlow<Unit> = sessionManager.onLogout
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
+    private val _hasProfilePicture = MutableStateFlow<Boolean?>(null)
+    val hasProfilePicture: StateFlow<Boolean?> = _hasProfilePicture.asStateFlow()
+    private var observeHasProfilePictureJob: Job? = null
 
-        // UI TopBarConfig
-        private val _topBarConfig = MutableStateFlow(TopBarConfig())
-        val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
+    // UI TopBarConfig
+    private val _topBarConfig = MutableStateFlow(TopBarConfig())
+    val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
 
-        fun clearSession() = appScope.launch { sessionManager.clearSession() }
+    fun clearSession() = appScope.launch { sessionManager.clearSession() }
 
-        fun saveSession(
-            token: String,
-            userId: String,
-        ) = appScope.launch { sessionManager.saveSession(token, userId) }
+    fun saveSession(
+        token: String,
+        userId: String,
+    ) = appScope.launch { sessionManager.saveSession(token, userId) }
 
-        fun saveIsVerified(verified: Boolean) = appScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
+    fun saveIsVerified(verified: Boolean) = appScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
 
-        init {
-            appScope.launch {
-                sessionManager.userIdFlow.distinctUntilChanged().collectLatest { curUserId ->
-                    _currentUserId.value = curUserId
+    init {
+        appScope.launch {
+            sessionManager.userIdFlow.distinctUntilChanged().collectLatest { curUserId ->
+                _currentUserId.value = curUserId
 
-                    if (!curUserId.isNullOrBlank()) {
-                        startObservingHasProfilePicture(curUserId)
-                    } else {
-                        stopObservingHasProfilePicture()
-                    }
+                if (!curUserId.isNullOrBlank()) {
+                    startObservingHasProfilePicture(curUserId)
+                } else {
+                    stopObservingHasProfilePicture()
+                }
 
                 /* if (!_isInitialized.value) {
                      _isInitialized.value = true
                  }*/
-                }
             }
         }
+    }
 
-        // Métodos para actualizar el estado de la UI
-        fun disableBars() {
-            _topBarConfig.update {
-                it.copy(
-                    disableTopBar = true,
-                    disableBottomBar = true,
-                )
-            }
+    // Métodos para actualizar el estado de la UI
+    fun disableBars() {
+        _topBarConfig.update {
+            it.copy(
+                disableTopBar = true,
+                disableBottomBar = true,
+            )
         }
+    }
 
-        fun enableBars() {
-            _topBarConfig.update {
-                it.copy(
-                    disableTopBar = false,
-                    disableBottomBar = false,
-                )
-            }
+    fun enableBars() {
+        _topBarConfig.update {
+            it.copy(
+                disableTopBar = false,
+                disableBottomBar = false,
+            )
         }
+    }
 
-        fun hideBars() {
-            _topBarConfig.update {
-                it.copy(
-                    showTopBar = false,
-                    showBottomBar = false,
-                )
-            }
+    fun hideBars() {
+        _topBarConfig.update {
+            it.copy(
+                showTopBar = false,
+                showBottomBar = false,
+            )
         }
+    }
 
-        fun showBars() {
-            _topBarConfig.update {
-                it.copy(
-                    showTopBar = true,
-                    showBottomBar = true,
-                )
-            }
+    fun showBars() {
+        _topBarConfig.update {
+            it.copy(
+                showTopBar = true,
+                showBottomBar = true,
+            )
         }
+    }
 
-        fun showHideTopBar(show: Boolean) {
-            _topBarConfig.update { it.copy(showTopBar = show) }
-        }
+    fun showHideTopBar(show: Boolean) {
+        _topBarConfig.update { it.copy(showTopBar = show) }
+    }
 
-        fun showHideBottomBar(show: Boolean) {
-            _topBarConfig.update { it.copy(showBottomBar = show) }
-        }
+    fun showHideBottomBar(show: Boolean) {
+        _topBarConfig.update { it.copy(showBottomBar = show) }
+    }
 
-        fun enableDisableTopBar(enable: Boolean) {
-            _topBarConfig.update { it.copy(disableTopBar = enable) }
-        }
+    fun enableDisableTopBar(enable: Boolean) {
+        _topBarConfig.update { it.copy(disableTopBar = enable) }
+    }
 
-        fun enableDisableBottomBar(enable: Boolean) {
-            _topBarConfig.update { it.copy(disableBottomBar = enable) }
-        }
+    fun enableDisableBottomBar(enable: Boolean) {
+        _topBarConfig.update { it.copy(disableBottomBar = enable) }
+    }
 
-        fun hideTopBarSettingsIcon() {
-            _topBarConfig.update { it.copy(showSettingsIcon = false) }
-        }
+    fun hideTopBarSettingsIcon() {
+        _topBarConfig.update { it.copy(showSettingsIcon = false) }
+    }
 
-        fun showTopBarSettingsIcon() {
-            _topBarConfig.update { it.copy(showSettingsIcon = true) }
-        }
+    fun showTopBarSettingsIcon() {
+        _topBarConfig.update { it.copy(showSettingsIcon = true) }
+    }
 
     /*    private suspend fun saveUserId(userId: String?) {
             userId?.let {
@@ -158,38 +153,38 @@ class GlobalMiraiLinkSession
             }
         }*/
 
-        fun startObservingHasProfilePicture(userId: String) {
-            if (observeHasProfilePictureJob?.isActive == true) return
-            observeHasProfilePictureJob =
-                appScope.launch {
-                    var backoff = 10_000L
-                    while (isActive) {
-                        val old = _hasProfilePicture.value
-                        when (val r = checkProfilePictureUseCase(userId)) {
-                            is MiraiLinkResult.Success -> {
-                                val new = r.data
-                                if (new != old) _hasProfilePicture.value = new
-                                backoff = 10_000L // reset
-                            }
-
-                            is MiraiLinkResult.Error -> {
-                                backoff = (backoff * 2).coerceAtMost(120_000L)
-                            }
+    fun startObservingHasProfilePicture(userId: String) {
+        if (observeHasProfilePictureJob?.isActive == true) return
+        observeHasProfilePictureJob =
+            appScope.launch {
+                var backoff = 10_000L
+                while (isActive) {
+                    val old = _hasProfilePicture.value
+                    when (val r = checkProfilePictureUseCase(userId)) {
+                        is MiraiLinkResult.Success -> {
+                            val new = r.data
+                            if (new != old) _hasProfilePicture.value = new
+                            backoff = 10_000L // reset
                         }
-                        delay(backoff)
+
+                        is MiraiLinkResult.Error -> {
+                            backoff = (backoff * 2).coerceAtMost(120_000L)
+                        }
                     }
+                    delay(backoff)
                 }
-        }
-
-        fun stopObservingHasProfilePicture() {
-            observeHasProfilePictureJob?.cancel()
-        }
-
-        // Aparte del job
-        suspend fun refreshHasProfilePicture(userId: String) {
-            when (val result = checkProfilePictureUseCase(userId)) {
-                is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
-                is MiraiLinkResult.Error -> {}
             }
+    }
+
+    fun stopObservingHasProfilePicture() {
+        observeHasProfilePictureJob?.cancel()
+    }
+
+    // Aparte del job
+    suspend fun refreshHasProfilePicture(userId: String) {
+        when (val result = checkProfilePictureUseCase(userId)) {
+            is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
+            is MiraiLinkResult.Error -> {}
         }
     }
+}

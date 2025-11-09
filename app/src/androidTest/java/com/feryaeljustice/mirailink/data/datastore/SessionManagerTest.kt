@@ -6,7 +6,6 @@ package com.feryaeljustice.mirailink.data.datastore
 import androidx.datastore.core.DataStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.feryaeljustice.mirailink.data.model.local.datastore.Session
-import com.feryaeljustice.mirailink.di.SessionDataStore
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

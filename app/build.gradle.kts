@@ -226,16 +226,17 @@ dependencies {
     implementation(libs.androidx.credentials.playservices.auth) // Compatibilidad Android 13 a abajo
 
     // Koin
-/*    implementation(project.dependencies.platform(libs.koin.bom))
-    implementation(libs.koin.core.coroutines)
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.core.coroutines)
     implementation(libs.koin.androidx.compose.navigation)
     implementation(libs.koin.annotations)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.koin.android.test)
-    ksp(libs.koin.ksp.compiler)*/
+    ksp(libs.koin.ksp.compiler)
 
     // Kotzilla
 /*    implementation(libs.kotzilla.sdk.compose)

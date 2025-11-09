@@ -7,48 +7,53 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
-import javax.inject.Inject
 
-class AuthInterceptor @Inject constructor(
-    private val sessionManager: SessionManager
+class AuthInterceptor(
+    private val sessionManager: SessionManager,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = runBlocking { sessionManager.getCurrentToken() }
         Log.d("AuthInterceptor", "Token: $token")
 
-        val request = chain.request().newBuilder().apply {
-            if (!token.isNullOrEmpty()) {
-                addHeader("Authorization", "Bearer $token")
-            }
-        }.build()
+        val request =
+            chain
+                .request()
+                .newBuilder()
+                .apply {
+                    if (!token.isNullOrEmpty()) {
+                        addHeader("Authorization", "Bearer $token")
+                    }
+                }.build()
 
         val response = chain.proceed(request)
         val rawBody = response.body
         val responseContent = rawBody.string()
 
-        val isVerified = try {
-            if (responseContent.trim()?.startsWith("{") == true) {
-                val json = JSONObject(responseContent)
-                json.optBoolean("verified", true)
-            } else {
+        val isVerified =
+            try {
+                if (responseContent.trim()?.startsWith("{") == true) {
+                    val json = JSONObject(responseContent)
+                    json.optBoolean("verified", true)
+                } else {
+                    true
+                }
+            } catch (e: Exception) {
+                Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
                 true
             }
-        } catch (e: Exception) {
-            Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
-            true
-        }
 
-        val shouldLogout = try {
-            if (responseContent.trim().startsWith("{")) {
-                val json = JSONObject(responseContent)
-                json.optBoolean("shouldLogout", false)
-            } else {
+        val shouldLogout =
+            try {
+                if (responseContent.trim().startsWith("{")) {
+                    val json = JSONObject(responseContent)
+                    json.optBoolean("shouldLogout", false)
+                } else {
+                    true
+                }
+            } catch (e: Exception) {
+                Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
                 true
             }
-        } catch (e: Exception) {
-            Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
-            true
-        }
 
         if (!isVerified) {
             runBlocking {

@@ -11,22 +11,14 @@ import com.feryaeljustice.mirailink.data.datastore.crypto.SecretKeyProvider
 import com.feryaeljustice.mirailink.data.datastore.serializer.EncryptedJsonSerializer
 import com.feryaeljustice.mirailink.data.model.local.datastore.AppPrefs
 import com.feryaeljustice.mirailink.data.model.local.datastore.Session
-import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
-@Module
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [DataStoreModule::class],
-)
 object TestDataStoreModule {
     private const val TEST_PREFS_NAME = "mirailink_prefs_test"
     private const val TEST_SESSION_PREFS_NAME = "session_prefs_test"

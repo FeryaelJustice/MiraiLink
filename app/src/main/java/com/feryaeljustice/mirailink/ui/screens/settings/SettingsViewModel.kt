@@ -2,70 +2,64 @@ package com.feryaeljustice.mirailink.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.di.IoDispatcher
-import com.feryaeljustice.mirailink.di.MainDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class SettingsViewModel
-    @Inject
-    constructor(
-        private val logoutUseCase: Lazy<LogoutUseCase>,
-        private val deleteAccountUseCase: Lazy<DeleteAccountUseCase>,
-        @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-        @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    ) : ViewModel() {
-        private val _logoutSuccess = MutableSharedFlow<Boolean>()
-        val logoutSuccess = _logoutSuccess.asSharedFlow()
+@KoinViewModel
+class SettingsViewModel(
+    private val logoutUseCase: LogoutUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val mainDispatcher: CoroutineDispatcher,
+) : ViewModel() {
+    private val _logoutSuccess = MutableSharedFlow<Boolean>()
+    val logoutSuccess = _logoutSuccess.asSharedFlow()
 
-        private val _deleteSuccess = MutableSharedFlow<Boolean>()
-        val deleteSuccess = _deleteSuccess.asSharedFlow()
+    private val _deleteSuccess = MutableSharedFlow<Boolean>()
+    val deleteSuccess = _deleteSuccess.asSharedFlow()
 
-        fun logout(onFinish: () -> Unit) {
-            viewModelScope.launch(ioDispatcher) {
-                when (logoutUseCase.get()()) {
-                    is MiraiLinkResult.Success -> {
-                        withContext(mainDispatcher) {
-                            _logoutSuccess.emit(true)
-                            onFinish()
-                        }
-                    }
-
-                    is MiraiLinkResult.Error -> {
-                        withContext(mainDispatcher) {
-                            _logoutSuccess.emit(false)
-                        }
+    fun logout(onFinish: () -> Unit) {
+        viewModelScope.launch(ioDispatcher) {
+            when (logoutUseCase()) {
+                is MiraiLinkResult.Success -> {
+                    withContext(mainDispatcher) {
+                        _logoutSuccess.emit(true)
+                        onFinish()
                     }
                 }
-            }
-        }
 
-        fun deleteAccount(onFinish: () -> Unit) {
-            viewModelScope.launch(ioDispatcher) {
-                when (deleteAccountUseCase.get()()) {
-                    is MiraiLinkResult.Success -> {
-                        withContext(mainDispatcher) {
-                            _deleteSuccess.emit(true)
-                            onFinish()
-                        }
-                    }
-
-                    is MiraiLinkResult.Error -> {
-                        withContext(mainDispatcher) {
-                            _deleteSuccess.emit(false)
-                        }
+                is MiraiLinkResult.Error -> {
+                    withContext(mainDispatcher) {
+                        _logoutSuccess.emit(false)
                     }
                 }
             }
         }
     }
+
+    fun deleteAccount(onFinish: () -> Unit) {
+        viewModelScope.launch(ioDispatcher) {
+            when (deleteAccountUseCase()) {
+                is MiraiLinkResult.Success -> {
+                    withContext(mainDispatcher) {
+                        _deleteSuccess.emit(true)
+                        onFinish()
+                    }
+                }
+
+                is MiraiLinkResult.Error -> {
+                    withContext(mainDispatcher) {
+                        _deleteSuccess.emit(false)
+                    }
+                }
+            }
+        }
+    }
+}

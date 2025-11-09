@@ -3,10 +3,9 @@ package com.feryaeljustice.mirailink.domain.usecase.users
 import android.net.Uri
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import javax.inject.Inject
 
-class UpdateUserProfileUseCase @Inject constructor(
-    private val repository: UserRepository
+class UpdateUserProfileUseCase(
+    private val repository: UserRepository,
 ) {
     suspend operator fun invoke(
         nickname: String,
@@ -16,9 +15,9 @@ class UpdateUserProfileUseCase @Inject constructor(
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,
-        existingPhotoUrls: List<String?>
-    ): MiraiLinkResult<Unit> {
-        return repository.updateProfile(
+        existingPhotoUrls: List<String?>,
+    ): MiraiLinkResult<Unit> =
+        repository.updateProfile(
             nickname = nickname,
             bio = bio,
             gender = gender,
@@ -26,7 +25,6 @@ class UpdateUserProfileUseCase @Inject constructor(
             animesJson = animesJson,
             gamesJson = gamesJson,
             photoUris = photoUris,
-            existingPhotoUrls = existingPhotoUrls
+            existingPhotoUrls = existingPhotoUrls,
         )
-    }
 }

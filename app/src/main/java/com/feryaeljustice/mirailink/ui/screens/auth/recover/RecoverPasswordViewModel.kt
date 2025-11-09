@@ -2,83 +2,78 @@ package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class RecoverPasswordViewModel
-    @Inject
-    constructor(
-        private val requestResetUseCase: Lazy<RequestPasswordResetUseCase>,
-        private val confirmResetUseCase: Lazy<ConfirmPasswordResetUseCase>,
-        @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    ) : ViewModel() {
-        data class PasswordResetState(
-            val step: Int = 1,
-            val email: String = "",
-            val token: String = "",
-            val newPassword: String = "",
-            val error: String? = null,
-        )
+@KoinViewModel
+class RecoverPasswordViewModel(
+    private val requestResetUseCase: RequestPasswordResetUseCase,
+    private val confirmResetUseCase: ConfirmPasswordResetUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
+) : ViewModel() {
+    data class PasswordResetState(
+        val step: Int = 1,
+        val email: String = "",
+        val token: String = "",
+        val newPassword: String = "",
+        val error: String? = null,
+    )
 
-        private val _state = MutableStateFlow(PasswordResetState())
-        val state = _state.asStateFlow()
+    private val _state = MutableStateFlow(PasswordResetState())
+    val state = _state.asStateFlow()
 
-        fun initEmail(initialEmail: String) = _state.update { it.copy(email = initialEmail) }
+    fun initEmail(initialEmail: String) = _state.update { it.copy(email = initialEmail) }
 
-        fun onEmailChanged(email: String) {
-            _state.update { it.copy(email = email, error = null) }
-        }
+    fun onEmailChanged(email: String) {
+        _state.update { it.copy(email = email, error = null) }
+    }
 
-        fun onTokenChanged(token: String) {
-            _state.update { it.copy(token = token, error = null) }
-        }
+    fun onTokenChanged(token: String) {
+        _state.update { it.copy(token = token, error = null) }
+    }
 
-        fun onPasswordChanged(password: String) {
-            _state.update { it.copy(newPassword = password, error = null) }
-        }
+    fun onPasswordChanged(password: String) {
+        _state.update { it.copy(newPassword = password, error = null) }
+    }
 
-        fun requestReset() =
-            viewModelScope.launch {
-                val email = state.value.email
-                val result =
-                    withContext(ioDispatcher) {
-                        requestResetUseCase.get()(email)
-                    }
-
-                when (result) {
-                    is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
-                    is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+    fun requestReset() =
+        viewModelScope.launch {
+            val email = state.value.email
+            val result =
+                withContext(ioDispatcher) {
+                    requestResetUseCase(email)
                 }
+
+            when (result) {
+                is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
+                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
             }
+        }
 
-        fun confirmReset(onConfirmed: () -> Unit) =
-            viewModelScope.launch {
-                val s = state.value
+    fun confirmReset(onConfirmed: () -> Unit) =
+        viewModelScope.launch {
+            val s = state.value
 
-                val result =
-                    withContext(ioDispatcher) {
-                        confirmResetUseCase.get()(s.email, s.token, s.newPassword)
-                    }
+            val result =
+                withContext(ioDispatcher) {
+                    confirmResetUseCase(s.email, s.token, s.newPassword)
+                }
 
-                when (result) {
-                    is MiraiLinkResult.Success -> {
-                        resetState()
-                        onConfirmed()
-                    }
+            when (result) {
+                is MiraiLinkResult.Success -> {
+                    resetState()
+                    onConfirmed()
+                }
 
-                    is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
             }
         }
 

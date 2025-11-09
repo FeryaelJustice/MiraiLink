@@ -6,27 +6,24 @@ import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
-import javax.inject.Inject
-import javax.inject.Named
 
-class UsersRepositoryImpl @Inject constructor(
+class UsersRepositoryImpl(
     private val remote: UsersRemoteDataSource,
-    @param:Named("BaseUrl") private val baseUrl: String,
+    private val baseUrl: String,
 ) : UsersRepository {
-    override suspend fun getUsers(): MiraiLinkResult<List<User>> {
-        return when (val result = remote.getUsers()) {
+    override suspend fun getUsers(): MiraiLinkResult<List<User>> =
+        when (val result = remote.getUsers()) {
             is MiraiLinkResult.Success -> {
-                val users = result.data.map { userDto ->
-                    val user = userDto.toDomain()
+                val users =
+                    result.data.map { userDto ->
+                        val user = userDto.toDomain()
 
-                    val orderedPhotos = resolvePhotoUrls(baseUrl, user.photos)
-                    user.copy(photos = orderedPhotos)
-                }
+                        val orderedPhotos = resolvePhotoUrls(baseUrl, user.photos)
+                        user.copy(photos = orderedPhotos)
+                    }
                 MiraiLinkResult.Success(users)
             }
 
             is MiraiLinkResult.Error -> result
         }
-    }
-
 }

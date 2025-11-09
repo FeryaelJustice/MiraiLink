@@ -1,4 +1,7 @@
-package com.feryaeljustice.mirailink.di
+// Author: Feryael Justice
+// Date: 2024-08-01
+
+package com.feryaeljustice.mirailink.di.koin
 
 import com.feryaeljustice.mirailink.data.repository.AppConfigRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.CatalogRepositoryImpl
@@ -11,6 +14,7 @@ import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.TwoFactorRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseUrl
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
@@ -22,56 +26,19 @@ import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-    @Binds
-    @Singleton
-    abstract fun bindAppConfigRepository(impl: AppConfigRepositoryImpl): AppConfigRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindOnboardingRepository(impl: OnboardingRepositoryImpl): OnboardingRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindUsersRepository(impl: UsersRepositoryImpl): UsersRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindTwoFactorRepository(impl: TwoFactorRepositoryImpl): TwoFactorRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindSwipeRepository(impl: SwipeRepositoryImpl): SwipeRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindChatRepository(impl: ChatRepositoryImpl): ChatRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindMatchRepository(impl: MatchRepositoryImpl): MatchRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindCatalogRepository(impl: CatalogRepositoryImpl): CatalogRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindReportRepository(impl: ReportRepositoryImpl): ReportRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindFeedbackRepository(impl: FeedbackRepositoryImpl): FeedbackRepository
-}
+val repositoryModule =
+    module {
+        single<AppConfigRepository> { AppConfigRepositoryImpl(get()) }
+        single<CatalogRepository> { CatalogRepositoryImpl(get()) }
+        single<ChatRepository> { ChatRepositoryImpl(get(), get(), get(BaseUrl)) }
+        single<FeedbackRepository> { FeedbackRepositoryImpl(get()) }
+        single<MatchRepository> { MatchRepositoryImpl(get(), get(BaseUrl)) }
+        single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
+        single<ReportRepository> { ReportRepositoryImpl(get()) }
+        single<SwipeRepository> { SwipeRepositoryImpl(get(), get(BaseUrl)) }
+        single<TwoFactorRepository> { TwoFactorRepositoryImpl(get()) }
+        single<UserRepository> { UserRepositoryImpl(get(), get(), get(BaseUrl)) }
+        single<UsersRepository> { UsersRepositoryImpl(get(), get(BaseUrl)) }
+    }

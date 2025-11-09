@@ -3,9 +3,8 @@ package com.feryaeljustice.mirailink.data.remote.socket
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
-import javax.inject.Inject
 
-class SocketService @Inject constructor() {
+class SocketService {
     private var socket: Socket? = null
 
     fun initSocket(serverUrl: String) {
@@ -21,11 +20,17 @@ class SocketService @Inject constructor() {
         socket?.disconnect()
     }
 
-    fun on(event: String, callback: (args: Array<Any>) -> Unit) {
+    fun on(
+        event: String,
+        callback: (args: Array<Any>) -> Unit,
+    ) {
         socket?.on(event) { args -> callback(args) }
     }
 
-    fun emit(event: String, data: JSONObject) {
+    fun emit(
+        event: String,
+        data: JSONObject,
+    ) {
         socket?.emit(event, data)
     }
 

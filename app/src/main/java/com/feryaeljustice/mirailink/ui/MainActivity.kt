@@ -6,29 +6,25 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.google.firebase.Firebase
 import com.google.firebase.messaging.messaging
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var saveNotificationFCMUseCase: SaveNotificationFCMUseCase
+    val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
 
-    @Inject
-    lateinit var applicationScope: CoroutineScope
+    val applicationScope: CoroutineScope by inject(qualifier = ApplicationScope)
 
-    @Inject
-    lateinit var globalMiraiLinkSession: GlobalMiraiLinkSession
+    val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

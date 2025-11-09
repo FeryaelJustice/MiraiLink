@@ -2,90 +2,85 @@ package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.di.IoDispatcher
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import org.koin.android.annotation.KoinViewModel
 
-@HiltViewModel
-class VerificationViewModel
-    @Inject
-    constructor(
-        private val checkIsVerifiedUseCase: Lazy<CheckIsVerifiedUseCase>,
-        private val requestCodeUseCase: Lazy<RequestVerificationCodeUseCase>,
-        private val confirmCodeUseCase: Lazy<ConfirmVerificationCodeUseCase>,
-        @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    ) : ViewModel() {
-        data class VerificationState(
-            val step: Int = 1,
-            val token: String = "",
-            val error: String? = null,
-        )
+@KoinViewModel
+class VerificationViewModel(
+    private val checkIsVerifiedUseCase: CheckIsVerifiedUseCase,
+    private val requestCodeUseCase: RequestVerificationCodeUseCase,
+    private val confirmCodeUseCase: ConfirmVerificationCodeUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
+) : ViewModel() {
+    data class VerificationState(
+        val step: Int = 1,
+        val token: String = "",
+        val error: String? = null,
+    )
 
-        private val _state = MutableStateFlow(VerificationState())
-        val state = _state.asStateFlow()
+    private val _state = MutableStateFlow(VerificationState())
+    val state = _state.asStateFlow()
 
-        fun onTokenChanged(token: String) {
-            _state.update { it.copy(token = token, error = null) }
-        }
+    fun onTokenChanged(token: String) {
+        _state.update { it.copy(token = token, error = null) }
+    }
 
-        fun checkUserIsVerified(onFinish: (isVerified: Boolean) -> Unit) =
-            viewModelScope.launch {
-                val result =
-                    withContext(ioDispatcher) {
-                        checkIsVerifiedUseCase.get()()
-                    }
-
-                when (result) {
-                    is MiraiLinkResult.Success -> {
-                        onFinish(result.data)
-                        if (result.data) {
-                            resetState()
-                        }
-                    }
-
-                    is MiraiLinkResult.Error -> {
-                        _state.update { it.copy(error = result.message) }
-                    }
-                }
-            }
-
-        fun requestCode(userId: String) =
-            viewModelScope.launch {
-                val result =
-                    withContext(ioDispatcher) {
-                        requestCodeUseCase.get()(userId, "email")
-                    }
-
-                when (result) {
-                    is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
-                    is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
-                }
-            }
-
-        fun confirmCode(
-            userId: String,
-            onFinish: () -> Unit,
-        ) = viewModelScope.launch {
+    fun checkUserIsVerified(onFinish: (isVerified: Boolean) -> Unit) =
+        viewModelScope.launch {
             val result =
                 withContext(ioDispatcher) {
-                    confirmCodeUseCase.get()(userId, _state.value.token, "email")
+                    checkIsVerifiedUseCase()
                 }
 
             when (result) {
                 is MiraiLinkResult.Success -> {
-                    resetState()
-                    onFinish()
+                    onFinish(result.data)
+                    if (result.data) {
+                        resetState()
+                    }
+                }
+
+                is MiraiLinkResult.Error -> {
+                    _state.update { it.copy(error = result.message) }
+                }
+            }
+        }
+
+    fun requestCode(userId: String) =
+        viewModelScope.launch {
+            val result =
+                withContext(ioDispatcher) {
+                    requestCodeUseCase(userId, "email")
+                }
+
+            when (result) {
+                is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
+                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+            }
+        }
+
+    fun confirmCode(
+        userId: String,
+        onFinish: () -> Unit,
+    ) = viewModelScope.launch {
+        val result =
+            withContext(ioDispatcher) {
+                confirmCodeUseCase(userId, _state.value.token, "email")
+            }
+
+        when (result) {
+            is MiraiLinkResult.Success -> {
+                resetState()
+                onFinish()
             }
 
             is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }

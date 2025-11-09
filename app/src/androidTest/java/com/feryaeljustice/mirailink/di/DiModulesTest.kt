@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-08
+// Date: 2024-08-02
 
 package com.feryaeljustice.mirailink.di
 
@@ -31,6 +31,8 @@ import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
 import com.feryaeljustice.mirailink.data.remote.interceptor.AuthInterceptor
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
+import com.feryaeljustice.mirailink.di.koin.createKoinTestRule
+import com.feryaeljustice.mirailink.di.koin.testDataStoreModule
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
@@ -47,268 +49,105 @@ import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.util.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.junit.Assert.assertNotNull
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import org.koin.core.qualifier.named
 import retrofit2.Retrofit
-import javax.inject.Inject
-import javax.inject.Named
 
-@HiltAndroidTest
-class DiModulesTest {
+class DiModulesTest : KoinComponent {
+
     @get:Rule
-    var hiltRule = HiltAndroidRule(this)
-
-    @Inject
-    lateinit var secretKeyProvider: SecretKeyProvider
-
-    @Inject
-    lateinit var json: Json
-
-    @Inject
-    lateinit var appConfigApiService: AppConfigApiService
-
-    @Inject
-    lateinit var userApiService: UserApiService
-
-    @Inject
-    lateinit var usersApiService: UsersApiService
-
-    @Inject
-    lateinit var twoFactorApiService: TwoFactorApiService
-
-    @Inject
-    lateinit var swipeApiService: SwipeApiService
-
-    @Inject
-    lateinit var chatApiService: ChatApiService
-
-    @Inject
-    lateinit var matchApiService: MatchApiService
-
-    @Inject
-    lateinit var catalogApiService: CatalogApiService
-
-    @Inject
-    lateinit var reportApiService: ReportApiService
-
-    @Inject
-    lateinit var feedbackApiService: FeedbackApiService
-
-    @Inject
-    lateinit var okHttpClient: OkHttpClient
-
-    @Inject
-    lateinit var retrofit: Retrofit
-
-    @Inject
-    lateinit var authInterceptor: AuthInterceptor
-
-    @Inject
-    @Named("BaseUrl")
-    lateinit var baseUrl: String
-
-    @Inject
-    @Named("BaseApiUrl")
-    lateinit var baseApiUrl: String
-
-    @Inject
-    @IoDispatcher
-    lateinit var ioDispatcher: CoroutineDispatcher
-
-    @Inject
-    @MainDispatcher
-    lateinit var mainDispatcher: CoroutineDispatcher
-
-    @Inject
-    @PrefsDataStore
-    lateinit var prefsDataStore: DataStore<AppPrefs>
-
-    @Inject
-    @SessionDataStore
-    lateinit var sessionDataStore: DataStore<Session>
-
-    @Inject
-    lateinit var appConfigRepository: AppConfigRepository
-
-    @Inject
-    lateinit var onboardingRepository: OnboardingRepository
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    @Inject
-    lateinit var usersRepository: UsersRepository
-
-    @Inject
-    lateinit var twoFactorRepository: TwoFactorRepository
-
-    @Inject
-    lateinit var swipeRepository: SwipeRepository
-
-    @Inject
-    lateinit var chatRepository: ChatRepository
-
-    @Inject
-    lateinit var matchRepository: MatchRepository
-
-    @Inject
-    lateinit var catalogRepository: CatalogRepository
-
-    @Inject
-    lateinit var reportRepository: ReportRepository
-
-    @Inject
-    lateinit var feedbackRepository: FeedbackRepository
-
-    @Inject
-    lateinit var socketService: SocketService
-
-    @Inject
-    lateinit var logger: Logger
-
-    @Inject
-    lateinit var sessionManager: SessionManager
-
-    @Inject
-    lateinit var miraiLinkPrefs: MiraiLinkPrefs
-
-    @Inject
-    lateinit var appConfigRemoteDataSource: AppConfigRemoteDataSource
-
-    @Inject
-    lateinit var userRemoteDataSource: UserRemoteDataSource
-
-    @Inject
-    lateinit var usersRemoteDataSource: UsersRemoteDataSource
-
-    @Inject
-    lateinit var twoFactorRemoteDataSource: TwoFactorRemoteDataSource
-
-    @Inject
-    lateinit var swipeRemoteDataSource: SwipeRemoteDataSource
-
-    @Inject
-    lateinit var chatRemoteDataSource: ChatRemoteDataSource
-
-    @Inject
-    lateinit var matchRemoteDataSource: MatchRemoteDataSource
-
-    @Inject
-    lateinit var catalogRemoteDataSource: CatalogRemoteDataSource
-
-    @Inject
-    lateinit var reportRemoteDataSource: ReportRemoteDataSource
-
-    @Inject
-    lateinit var feedbackRemoteDatasource: FeedbackRemoteDatasource
-
-    @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    @Inject
-    lateinit var firebaseCrashlytics: FirebaseCrashlytics
-
-    @Inject
-    lateinit var analyticsTracker: AnalyticsTracker
-
-    @Inject
-    lateinit var crashReporter: CrashReporter
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
+    val koinTestRule = createKoinTestRule(listOf(testDataStoreModule))
 
     @Test
     fun testCryptoModuleInjections() {
-        assertNotNull(secretKeyProvider)
-        assertNotNull(json)
+        assertNotNull(get<SecretKeyProvider>())
+        assertNotNull(get<Json>())
     }
 
     @Test
     fun testNetworkModuleInjections() {
-        assertNotNull(appConfigApiService)
-        assertNotNull(userApiService)
-        assertNotNull(usersApiService)
-        assertNotNull(twoFactorApiService)
-        assertNotNull(swipeApiService)
-        assertNotNull(chatApiService)
-        assertNotNull(matchApiService)
-        assertNotNull(catalogApiService)
-        assertNotNull(reportApiService)
-        assertNotNull(feedbackApiService)
-        assertNotNull(okHttpClient)
-        assertNotNull(retrofit)
-        assertNotNull(authInterceptor)
-        assertNotNull(baseUrl)
-        assertNotNull(baseApiUrl)
+        assertNotNull(get<AppConfigApiService>())
+        assertNotNull(get<UserApiService>())
+        assertNotNull(get<UsersApiService>())
+        assertNotNull(get<TwoFactorApiService>())
+        assertNotNull(get<SwipeApiService>())
+        assertNotNull(get<ChatApiService>())
+        assertNotNull(get<MatchApiService>())
+        assertNotNull(get<CatalogApiService>())
+        assertNotNull(get<ReportApiService>())
+        assertNotNull(get<FeedbackApiService>())
+        assertNotNull(get<OkHttpClient>())
+        assertNotNull(get<Retrofit>())
+        assertNotNull(get<AuthInterceptor>())
+        assertNotNull(get<String>(named("BaseUrl")))
+        assertNotNull(get<String>(named("BaseApiUrl")))
     }
 
     @Test
     fun testDispatchersModuleInjections() {
-        assertNotNull(ioDispatcher)
-        assertNotNull(mainDispatcher)
+        assertNotNull(get<CoroutineDispatcher>(named("IoDispatcher")))
+        assertNotNull(get<CoroutineDispatcher>(named("MainDispatcher")))
     }
 
     @Test
     fun testDataStoreModuleInjections() {
-        assertNotNull(prefsDataStore)
-        assertNotNull(sessionDataStore)
+        assertNotNull(get<DataStore<AppPrefs>>(named("PrefsDataStore")))
+        assertNotNull(get<DataStore<Session>>(named("SessionDataStore")))
     }
 
     @Test
     fun testRepositoryModuleInjections() {
-        assertNotNull(appConfigRepository)
-        assertNotNull(onboardingRepository)
-        assertNotNull(userRepository)
-        assertNotNull(usersRepository)
-        assertNotNull(twoFactorRepository)
-        assertNotNull(swipeRepository)
-        assertNotNull(chatRepository)
-        assertNotNull(matchRepository)
-        assertNotNull(catalogRepository)
-        assertNotNull(reportRepository)
-        assertNotNull(feedbackRepository)
+        assertNotNull(get<AppConfigRepository>())
+        assertNotNull(get<OnboardingRepository>())
+        assertNotNull(get<UserRepository>())
+        assertNotNull(get<UsersRepository>())
+        assertNotNull(get<TwoFactorRepository>())
+        assertNotNull(get<SwipeRepository>())
+        assertNotNull(get<ChatRepository>())
+        assertNotNull(get<MatchRepository>())
+        assertNotNull(get<CatalogRepository>())
+        assertNotNull(get<ReportRepository>())
+        assertNotNull(get<FeedbackRepository>())
     }
 
     @Test
     fun testSocketModuleInjections() {
-        assertNotNull(socketService)
+        assertNotNull(get<SocketService>())
     }
 
     @Test
     fun testLoggerModuleInjections() {
-        assertNotNull(logger)
+        assertNotNull(get<Logger>())
     }
 
     @Test
     fun testDataModuleInjections() {
-        assertNotNull(sessionManager)
-        assertNotNull(miraiLinkPrefs)
-        assertNotNull(appConfigRemoteDataSource)
-        assertNotNull(userRemoteDataSource)
-        assertNotNull(usersRemoteDataSource)
-        assertNotNull(twoFactorRemoteDataSource)
-        assertNotNull(swipeRemoteDataSource)
-        assertNotNull(chatRemoteDataSource)
-        assertNotNull(matchRemoteDataSource)
-        assertNotNull(catalogRemoteDataSource)
-        assertNotNull(reportRemoteDataSource)
-        assertNotNull(feedbackRemoteDatasource)
+        assertNotNull(get<SessionManager>())
+        assertNotNull(get<MiraiLinkPrefs>())
+        assertNotNull(get<AppConfigRemoteDataSource>())
+        assertNotNull(get<UserRemoteDataSource>())
+        assertNotNull(get<UsersRemoteDataSource>())
+        assertNotNull(get<TwoFactorRemoteDataSource>())
+        assertNotNull(get<SwipeRemoteDataSource>())
+        assertNotNull(get<ChatRemoteDataSource>())
+        assertNotNull(get<MatchRemoteDataSource>())
+        assertNotNull(get<CatalogRemoteDataSource>())
+        assertNotNull(get<ReportRemoteDataSource>())
+        assertNotNull(get<FeedbackRemoteDatasource>())
     }
 
     @Test
     fun testTelemetryModuleInjections() {
-        assertNotNull(firebaseAnalytics)
-        assertNotNull(firebaseCrashlytics)
-        assertNotNull(analyticsTracker)
-        assertNotNull(crashReporter)
+        assertNotNull(get<FirebaseAnalytics>())
+        assertNotNull(get<FirebaseCrashlytics>())
+        assertNotNull(get<AnalyticsTracker>())
+        assertNotNull(get<CrashReporter>())
     }
 }

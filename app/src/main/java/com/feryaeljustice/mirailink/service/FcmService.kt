@@ -14,24 +14,17 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 import kotlin.random.Random
 
-@AndroidEntryPoint
 class FcmService : FirebaseMessagingService() {
-    @Inject
-    lateinit var saveNotificationFCMUseCase: SaveNotificationFCMUseCase
-
-    @Inject
-    lateinit var applicationScope: CoroutineScope
-
-    @Inject
-    lateinit var globalMiraiLinkSession: GlobalMiraiLinkSession
+    val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
+    val applicationScope: CoroutineScope by inject()
+    val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "notification_fcm"

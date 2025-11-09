@@ -7,14 +7,14 @@ package com.feryaeljustice.mirailink.domain.usecase.feed
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import javax.inject.Inject
 
-class GetFeedUseCase @Inject constructor(private val repository: SwipeRepository) {
-    suspend operator fun invoke(): MiraiLinkResult<List<User>> {
-        return try {
+class GetFeedUseCase(
+    private val repository: SwipeRepository,
+) {
+    suspend operator fun invoke(): MiraiLinkResult<List<User>> =
+        try {
             repository.getFeed()
         } catch (e: Exception) {
             MiraiLinkResult.Error("GetFeedUseCase error", e)
         }
-    }
 }

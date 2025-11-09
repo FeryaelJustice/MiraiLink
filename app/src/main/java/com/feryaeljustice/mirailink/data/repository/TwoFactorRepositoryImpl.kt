@@ -5,15 +5,14 @@ import com.feryaeljustice.mirailink.data.mappers.toTwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.model.auth.TwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import javax.inject.Inject
 
-class TwoFactorRepositoryImpl @Inject constructor(
+class TwoFactorRepositoryImpl(
     private val remote: TwoFactorRemoteDataSource,
 ) : TwoFactorRepository {
-    override suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> =
-        remote.get2FAStatus(userID)
-    override suspend fun setup2FA(): MiraiLinkResult<TwoFactorAuthInfo> {
-        return when (val result = remote.setup2FA()) {
+    override suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> = remote.get2FAStatus(userID)
+
+    override suspend fun setup2FA(): MiraiLinkResult<TwoFactorAuthInfo> =
+        when (val result = remote.setup2FA()) {
             is MiraiLinkResult.Success -> {
                 val setup2FA = result.data
                 val twoFactorInfo = setup2FA.toTwoFactorAuthInfo()
@@ -22,16 +21,13 @@ class TwoFactorRepositoryImpl @Inject constructor(
 
             is MiraiLinkResult.Error -> result
         }
-    }
 
     override suspend fun verify2FA(code: String): MiraiLinkResult<Unit> = remote.verify2FA(code)
 
-    override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
-        remote.disable2FA(codeOrRecoveryCode)
+    override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> = remote.disable2FA(codeOrRecoveryCode)
 
     override suspend fun loginVerifyTwoFactorLastStep(
         userId: String,
-        code: String
-    ): MiraiLinkResult<String> =
-        remote.loginVerifyTwoFactorLastStep(userId, code)
+        code: String,
+    ): MiraiLinkResult<String> = remote.loginVerifyTwoFactorLastStep(userId, code)
 }
