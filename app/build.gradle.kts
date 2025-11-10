@@ -19,7 +19,7 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.screenshot)
 
-    // alias(libs.plugins.kotzilla)
+//    alias(libs.plugins.kotzilla)
 }
 
 android {
@@ -239,12 +239,11 @@ dependencies {
     ksp(libs.koin.ksp.compiler)
 
     // Kotzilla
-/*    implementation(libs.kotzilla.sdk.compose)
-    implementation(libs.kotzilla.sdk.android)*/
+//    implementation(libs.kotzilla.sdk)
+//    implementation(libs.kotzilla.sdk.compose)
+//    implementation(libs.kotzilla.sdk.android)
 }
 
-/*
-kotzilla {
+/*kotzilla {
     composeInstrumentation = true
-}
-*/
+}*/
