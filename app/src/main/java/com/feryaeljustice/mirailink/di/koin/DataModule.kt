@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-07-31
+// Date: 2025-11-13
 
 package com.feryaeljustice.mirailink.di.koin
 
@@ -26,14 +26,14 @@ val dataModule = module {
     single { SessionManager(get(SessionDataStore)) }
     single { MiraiLinkPrefs(get(PrefsDataStore)) }
 
-    single { AppConfigRemoteDataSource(get()) }
-    single { UserRemoteDataSource(get(), androidContext()) }
-    single { UsersRemoteDataSource(get()) }
-    single { TwoFactorRemoteDataSource(get()) }
-    single { SwipeRemoteDataSource(get()) }
-    single { ChatRemoteDataSource(get()) }
-    single { MatchRemoteDataSource(get()) }
-    single { CatalogRemoteDataSource(get()) }
-    single { ReportRemoteDataSource(get()) }
-    single { FeedbackRemoteDatasource(get()) }
+    single(createdAtStart = true) { AppConfigRemoteDataSource(get()) }
+    single(createdAtStart = true) { UserRemoteDataSource(get(), androidContext()) }
+    single(createdAtStart = true) { UsersRemoteDataSource(get()) }
+    single(createdAtStart = true) { TwoFactorRemoteDataSource(get()) }
+    single(createdAtStart = true) { SwipeRemoteDataSource(get()) }
+    single(createdAtStart = true) { ChatRemoteDataSource(get()) }
+    single(createdAtStart = true) { MatchRemoteDataSource(get()) }
+    single(createdAtStart = true) { CatalogRemoteDataSource(get()) }
+    single(createdAtStart = true) { ReportRemoteDataSource(get()) }
+    single(createdAtStart = true) { FeedbackRemoteDatasource(get()) }
 }

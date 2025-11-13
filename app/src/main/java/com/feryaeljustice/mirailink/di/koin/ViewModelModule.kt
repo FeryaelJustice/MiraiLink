@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-08-02
+// Date: 2025-11-13
 
 package com.feryaeljustice.mirailink.di.koin
 
@@ -35,13 +35,13 @@ val viewModelModule =
         }
         viewModel {
             AuthViewModel(
-                loginUseCase = get(),
-                registerUseCase = get(),
-                getTwoFactorStatusUseCase = get(),
-                loginVerifyTwoFactorLastStepUseCase = get(),
-                analytics = get(),
-                crash = get(),
-                credentialHelper = get(),
+                loginUseCase = lazy { get() },
+                registerUseCase = lazy { get() },
+                getTwoFactorStatusUseCase = lazy { get() },
+                loginVerifyTwoFactorLastStepUseCase = lazy { get() },
+                analytics = lazy { get() },
+                crash = lazy { get() },
+                credentialHelper = lazy { get() },
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )

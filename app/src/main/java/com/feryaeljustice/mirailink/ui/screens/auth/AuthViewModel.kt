@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-05-17
+// Date: 2025-11-13
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
@@ -25,13 +25,13 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class AuthViewModel(
-    private val loginUseCase: LoginUseCase,
-    private val registerUseCase: RegisterUseCase,
-    private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase,
-    private val loginVerifyTwoFactorLastStepUseCase: LoginVerifyTwoFactorLastStepUseCase,
-    private val analytics: AnalyticsTracker,
-    private val crash: CrashReporter,
-    private val credentialHelper: CredentialHelper,
+    private val loginUseCase: Lazy<LoginUseCase>,
+    private val registerUseCase: Lazy<RegisterUseCase>,
+    private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
+    private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
+    private val analytics: Lazy<AnalyticsTracker>,
+    private val crash: Lazy<CrashReporter>,
+    private val credentialHelper: Lazy<CredentialHelper>,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
@@ -115,7 +115,7 @@ class AuthViewModel(
 
     fun autofillCredentials(onFound: (String, String) -> Unit) {
         viewModelScope.launch(ioDispatcher) {
-            credentialHelper.getSavedPasswordCredential()?.let {
+            credentialHelper.value.getSavedPasswordCredential()?.let {
                 withContext(mainDispatcher) {
                     onFound(it.first, it.second)
                 }
@@ -140,13 +140,13 @@ class AuthViewModel(
                 _state.value = AuthUiState.Loading
             }
             if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
-                credentialHelper.savePasswordCredential(
+                credentialHelper.value.savePasswordCredential(
                     email = email.ifBlank { username },
                     password = password,
                 )
             }
 
-            val result = loginUseCase(email, username, password)
+            val result = loginUseCase.value(email, username, password)
 
             handleAuthResult(result, onSaveTheSession = onSaveSession)
         }
@@ -163,13 +163,13 @@ class AuthViewModel(
                 _state.value = AuthUiState.Loading
             }
             if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
-                credentialHelper.savePasswordCredential(
+                credentialHelper.value.savePasswordCredential(
                     email = email.ifBlank { username },
                     password = password,
                 )
             }
 
-            val result = registerUseCase(username, email, password)
+            val result = registerUseCase.value(username, email, password)
             handleAuthResult(result, onSaveTheSession = onSaveSession)
         }
     }
@@ -198,7 +198,7 @@ class AuthViewModel(
                 onLoginSuccess(userId = userId)
 
                 // Check 2fa is enabled to show dialog
-                when (val twoFactorResult = getTwoFactorStatusUseCase(userID = userId)) {
+                when (val twoFactorResult = getTwoFactorStatusUseCase.value(userID = userId)) {
                     is MiraiLinkResult.Success -> {
                         val isTwoFactorEnabled = twoFactorResult.data
                         withContext(mainDispatcher) {
@@ -274,7 +274,7 @@ class AuthViewModel(
             }
             when (
                 val twoFactorLoginVerify =
-                    loginVerifyTwoFactorLastStepUseCase(
+                    loginVerifyTwoFactorLastStepUseCase.value(
                         userId = userID,
                         code = _twoFactorCode.value,
                     )
@@ -321,13 +321,13 @@ class AuthViewModel(
     }
 
     fun onLoginSuccess(userId: String) {
-        analytics.setUserId(userId)
-        analytics.logEvent("login_success")
+        analytics.value.setUserId(userId)
+        analytics.value.logEvent("login_success")
     }
 
     fun onLoginError(e: Throwable) {
-        crash.recordNonFatal(e)
-        analytics.logEvent("login_error")
+        crash.value.recordNonFatal(e)
+        analytics.value.logEvent("login_error")
     }
 
     // Función principal para validar los campos, ahora sin conocer el Context.
@@ -349,6 +349,7 @@ class AuthViewModel(
         var isValid = true
 
         // Lógica de Registro
+        @Suppress("ktlint:standard:if-else-wrapping")
         if (!isLogin) {
             if (username.length < 4) {
                 viewModelScope.launch(mainDispatcher) { _usernameError.value = AuthFieldError.MinLength(4) }
