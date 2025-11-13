@@ -1,3 +1,5 @@
+// Author: Feryael Justice
+// Date: 2024-05-17
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
@@ -31,6 +33,7 @@ class AuthViewModel(
     private val crash: CrashReporter,
     private val credentialHelper: CredentialHelper,
     private val ioDispatcher: CoroutineDispatcher,
+    private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     sealed class AuthUiState {
         object Idle : AuthUiState()
@@ -96,6 +99,7 @@ class AuthViewModel(
         _confirmPasswordError.value = null
     }
 
+    @Suppress("ktlint:standard:backing-property-naming")
     private val _loginToken = MutableStateFlow<String?>(null)
 //    val loginToken = _loginToken.asStateFlow()
 
@@ -110,15 +114,19 @@ class AuthViewModel(
     val twoFactorCode = _twoFactorCode.asStateFlow()
 
     fun autofillCredentials(onFound: (String, String) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             credentialHelper.getSavedPasswordCredential()?.let {
-                onFound(it.first, it.second)
+                withContext(mainDispatcher) {
+                    onFound(it.first, it.second)
+                }
             }
         }
     }
 
     fun toggleLoginBy() {
-        _loginByUsername.value = !_loginByUsername.value
+        viewModelScope.launch(mainDispatcher) {
+            _loginByUsername.value = !_loginByUsername.value
+        }
     }
 
     fun login(
@@ -127,8 +135,10 @@ class AuthViewModel(
         password: String,
         onSaveSession: (String, String) -> Unit,
     ) {
-        _state.value = AuthUiState.Loading
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
+            withContext(mainDispatcher) {
+                _state.value = AuthUiState.Loading
+            }
             if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
                 credentialHelper.savePasswordCredential(
                     email = email.ifBlank { username },
@@ -136,14 +146,9 @@ class AuthViewModel(
                 )
             }
 
-            val result =
-                withContext(ioDispatcher) {
-                    loginUseCase(email, username, password)
-                }
+            val result = loginUseCase(email, username, password)
 
-            handleAuthResult(result, onSaveTheSession = { userId, token ->
-                onSaveSession(userId, token)
-            })
+            handleAuthResult(result, onSaveTheSession = onSaveSession)
         }
     }
 
@@ -153,15 +158,10 @@ class AuthViewModel(
         password: String,
         onSaveSession: (String, String) -> Unit,
     ) {
-        _state.value = AuthUiState.Loading
-        /*    viewModelScope.launch {
-                val result = withContext(ioDispatcher) {
-                    registerUseCase.get()(username, email, password)
-                }
-
-                handleAuthResult(result)
-            }*/
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
+            withContext(mainDispatcher) {
+                _state.value = AuthUiState.Loading
+            }
             if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
                 credentialHelper.savePasswordCredential(
                     email = email.ifBlank { username },
@@ -169,17 +169,8 @@ class AuthViewModel(
                 )
             }
 
-            val result =
-                withContext(ioDispatcher) {
-                    registerUseCase(username, email, password)
-                }
-            var usId = ""
-            var tokn = ""
-            handleAuthResult(result, onSaveTheSession = { userId, token ->
-                usId = userId
-                tokn = token
-            })
-            onSaveSession(usId, tokn)
+            val result = registerUseCase(username, email, password)
+            handleAuthResult(result, onSaveTheSession = onSaveSession)
         }
     }
 
@@ -189,44 +180,57 @@ class AuthViewModel(
     ) {
         when (result) {
             is MiraiLinkResult.Success -> {
-                var usID: String? = null
+                val token = result.data
+                val userId = extractUserId(token)
 
-                _loginToken.value = result.data
-                _loginToken.value?.let { tok ->
-                    usID = extractUserId(tok)
-                    _userId.value = usID
+                withContext(mainDispatcher) {
+                    _loginToken.value = token
+                    _userId.value = userId
                 }
 
-                usID?.let { usuID ->
-                    onLoginSuccess(userId = usuID)
-                    // Check 2fa is enabled to show dialog
-                    when (
-                        val twoFactorResult =
-                            getTwoFactorStatusUseCase(userID = usuID)
-                    ) {
-                        is MiraiLinkResult.Success -> {
-                            val isTwoFactorEnabled = twoFactorResult.data
-                            _showTwoFactorLastStepDialog.value = isTwoFactorEnabled
-                            if (!isTwoFactorEnabled) {
-                                completeAuth(
-                                    userId = _userId.value,
-                                    token = _loginToken.value,
-                                    onSaveSession = onSaveTheSession,
-                                )
-                            }
-                        }
+                if (userId == null) {
+                    withContext(mainDispatcher) {
+                        _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+                    }
+                    return
+                }
 
-                        is MiraiLinkResult.Error -> {
-                            _showTwoFactorLastStepDialog.value = false
+                onLoginSuccess(userId = userId)
+
+                // Check 2fa is enabled to show dialog
+                when (val twoFactorResult = getTwoFactorStatusUseCase(userID = userId)) {
+                    is MiraiLinkResult.Success -> {
+                        val isTwoFactorEnabled = twoFactorResult.data
+                        withContext(mainDispatcher) {
+                            _showTwoFactorLastStepDialog.value = isTwoFactorEnabled
+                        }
+                        // completeAuth switches to Main internally
+                        if (!isTwoFactorEnabled) {
+                            completeAuth(
+                                userId = userId,
+                                token = token,
+                                onSaveSession = onSaveTheSession,
+                            )
                         }
                     }
 
-//                completeAuth(userId = userId, token = token)
+                    is MiraiLinkResult.Error -> {
+                        withContext(mainDispatcher) {
+                            _showTwoFactorLastStepDialog.value = false
+                            _state.value =
+                                AuthUiState.Error(
+                                    twoFactorResult.message,
+                                    twoFactorResult.exception,
+                                )
+                        }
+                    }
                 }
             }
 
             is MiraiLinkResult.Error -> {
-                _state.value = AuthUiState.Error(result.message, result.exception)
+                withContext(mainDispatcher) {
+                    _state.value = AuthUiState.Error(result.message, result.exception)
+                }
                 onLoginError(result.exception ?: Throwable(result.message))
             }
         }
@@ -237,31 +241,37 @@ class AuthViewModel(
         token: String?,
         onSaveSession: (String, String) -> Unit,
     ) {
-        // Do login / register (for the ui to manage)
-        if (userId == null || token == null) {
-            _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
-            return
+        viewModelScope.launch(mainDispatcher) {
+            if (userId == null || token == null) {
+                _state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+                return@launch
+            }
+            _state.value = AuthUiState.Success
+            onSaveSession(userId, token)
         }
-        _state.value = AuthUiState.Success
-        onSaveSession(userId, token)
     }
 
     // 2FA (si procede)
     fun dismissTwoFactorDiag() {
-        _showTwoFactorLastStepDialog.value = false
+        viewModelScope.launch(mainDispatcher) {
+            _showTwoFactorLastStepDialog.value = false
+        }
     }
 
     fun confirmTwoFactorDiag(onSaveTheSession: (String, String) -> Unit) {
         val userID = _userId.value
         if (userID == null) {
-            _state.value = AuthUiState.Error("No existe el ID del usuario")
+            viewModelScope.launch(mainDispatcher) { _state.value = AuthUiState.Error("No existe el ID del usuario") }
             return
         }
         if (_twoFactorCode.value.isBlank()) {
-            _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío")
+            viewModelScope.launch(mainDispatcher) { _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío") }
             return
         }
         viewModelScope.launch(ioDispatcher) {
+            withContext(mainDispatcher) {
+                _twoFactorLastStepDialogIsLoading.value = true
+            }
             when (
                 val twoFactorLoginVerify =
                     loginVerifyTwoFactorLastStepUseCase(
@@ -270,36 +280,44 @@ class AuthViewModel(
                     )
             ) {
                 is MiraiLinkResult.Error -> {
-                    resetTwoFaDiag()
-                    _state.value = AuthUiState.Error(twoFactorLoginVerify.message)
+                    withContext(mainDispatcher) {
+                        resetTwoFaDiag()
+                        _state.value = AuthUiState.Error(twoFactorLoginVerify.message)
+                    }
                 }
 
                 is MiraiLinkResult.Success -> {
-                    resetTwoFaDiag()
-                    completeAuth(
-                        userId = userID,
-                        token = _loginToken.value,
-                        onSaveSession = onSaveTheSession,
-                    )
+                    withContext(mainDispatcher) {
+                        resetTwoFaDiag()
+                        completeAuth(
+                            userId = userID,
+                            token = _loginToken.value,
+                            onSaveSession = onSaveTheSession,
+                        )
+                    }
                 }
             }
         }
     }
 
     fun onCodeChangeTwoFactorDiag(code: String) {
-        _twoFactorCode.value = code
+        viewModelScope.launch(mainDispatcher) {
+            _twoFactorCode.value = code
+        }
     }
 
     fun resetScreenVMState() {
-        _state.value = AuthUiState.Idle
-//        _loginToken.value = null
-//        _userId.value = null
+        viewModelScope.launch(mainDispatcher) {
+            _state.value = AuthUiState.Idle
+        }
     }
 
     fun resetTwoFaDiag() {
-        _showTwoFactorLastStepDialog.value = false
-        _twoFactorCode.value = ""
-        _twoFactorLastStepDialogIsLoading.value = false
+        viewModelScope.launch(mainDispatcher) {
+            _showTwoFactorLastStepDialog.value = false
+            _twoFactorCode.value = ""
+            _twoFactorLastStepDialogIsLoading.value = false
+        }
     }
 
     fun onLoginSuccess(userId: String) {
@@ -321,25 +339,27 @@ class AuthViewModel(
         confirmPassword: String = "", // Opcional, solo para registro
     ): Boolean {
         // Reseteamos errores previos
-        _usernameError.value = null
-        _emailError.value = null
-        _passwordError.value = null
-        _confirmPasswordError.value = null
+        viewModelScope.launch(mainDispatcher) {
+            _usernameError.value = null
+            _emailError.value = null
+            _passwordError.value = null
+            _confirmPasswordError.value = null
+        }
 
         var isValid = true
 
         // Lógica de Registro
         if (!isLogin) {
             if (username.length < 4) {
-                _usernameError.value = AuthFieldError.MinLength(4)
+                viewModelScope.launch(mainDispatcher) { _usernameError.value = AuthFieldError.MinLength(4) }
                 isValid = false
             }
             if (!email.isEmailValid()) {
-                _emailError.value = AuthFieldError.InvalidEmail
+                viewModelScope.launch(mainDispatcher) { _emailError.value = AuthFieldError.InvalidEmail }
                 isValid = false
             }
             if (confirmPassword != password) {
-                _confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
+                viewModelScope.launch(mainDispatcher) { _confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch }
                 isValid = false
             }
         }
@@ -347,12 +367,12 @@ class AuthViewModel(
         else {
             if (_loginByUsername.value) {
                 if (username.length < 4) {
-                    _usernameError.value = AuthFieldError.MinLength(4)
+                    viewModelScope.launch(mainDispatcher) { _usernameError.value = AuthFieldError.MinLength(4) }
                     isValid = false
                 }
             } else { // Login con email
                 if (!email.isEmailValid()) {
-                    _emailError.value = AuthFieldError.InvalidEmail
+                    viewModelScope.launch(mainDispatcher) { _emailError.value = AuthFieldError.InvalidEmail }
                     isValid = false
                 }
             }
@@ -360,8 +380,10 @@ class AuthViewModel(
 
         // Validaciones comunes
         if (!password.isPasswordValid()) {
-            _passwordError.value =
-                AuthFieldError.MinLength(4) // Cuando se pase a usar el regex en el ispasswordvalid, aqui poner el InvalidPassword
+            viewModelScope.launch(mainDispatcher) {
+                _passwordError.value =
+                    AuthFieldError.MinLength(4)
+            } // Cuando se pase a usar el regex en el ispasswordvalid, aqui poner el InvalidPassword
             isValid = false
         }
 

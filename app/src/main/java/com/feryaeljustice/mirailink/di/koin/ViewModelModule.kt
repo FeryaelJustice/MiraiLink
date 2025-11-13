@@ -43,6 +43,7 @@ val viewModelModule =
                 crash = get(),
                 credentialHelper = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                mainDispatcher = get(qualifier = MainDispatcher),
             )
         }
         viewModel {

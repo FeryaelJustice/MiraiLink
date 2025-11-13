@@ -16,12 +16,12 @@ import com.feryaeljustice.mirailink.di.koin.socketModule
 import com.feryaeljustice.mirailink.di.koin.telemetryModule
 import com.feryaeljustice.mirailink.di.koin.useCaseModule
 import com.feryaeljustice.mirailink.di.koin.viewModelModule
+import io.kotzilla.sdk.analytics.koin.analytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.KoinAppDeclaration
-// import io.kotzilla.sdk.analytics.koin.analytics
 
 class MiraiLinkApp : Application() {
     override fun onCreate() {
@@ -29,7 +29,7 @@ class MiraiLinkApp : Application() {
         initKoin {
             androidContext(this@MiraiLinkApp)
             androidLogger(Level.DEBUG)
-//            analytics()
+            analytics()
         }
     }
 

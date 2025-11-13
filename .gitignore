@@ -18,3 +18,4 @@ keystore.properties
 app/build
 app/release
 app/kotzilla.json
+/app/src/main/assets/kotzilla.key

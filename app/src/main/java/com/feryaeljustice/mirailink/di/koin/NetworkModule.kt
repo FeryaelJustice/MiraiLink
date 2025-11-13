@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-07-31
+// Date: 2025-11-13
 
 package com.feryaeljustice.mirailink.di.koin
 
@@ -32,7 +32,7 @@ val networkModule = module {
 
     single { AuthInterceptor(get<SessionManager>()) }
 
-    single {
+    single(createdAtStart = true) {
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
@@ -44,7 +44,7 @@ val networkModule = module {
             .build()
     }
 
-    single {
+    single(createdAtStart = true) {
         Retrofit.Builder()
             .baseUrl(get<String>(BaseApiUrl))
             .client(get<OkHttpClient>())
@@ -52,14 +52,14 @@ val networkModule = module {
             .build()
     }
 
-    single { get<Retrofit>().create(AppConfigApiService::class.java) }
-    single { get<Retrofit>().create(UserApiService::class.java) }
-    single { get<Retrofit>().create(UsersApiService::class.java) }
-    single { get<Retrofit>().create(TwoFactorApiService::class.java) }
-    single { get<Retrofit>().create(SwipeApiService::class.java) }
-    single { get<Retrofit>().create(ChatApiService::class.java) }
-    single { get<Retrofit>().create(MatchApiService::class.java) }
-    single { get<Retrofit>().create(CatalogApiService::class.java) }
-    single { get<Retrofit>().create(ReportApiService::class.java) }
-    single { get<Retrofit>().create(FeedbackApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(AppConfigApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(UserApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(UsersApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(TwoFactorApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(SwipeApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(ChatApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(MatchApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(CatalogApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(ReportApiService::class.java) }
+    single(createdAtStart = true) { get<Retrofit>().create(FeedbackApiService::class.java) }
 }

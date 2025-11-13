@@ -1,6 +1,6 @@
 [versions]
 adaptive = "1.2.0"
-agp = "8.13.0"
+agp = "8.13.1"
 activityCompose = "1.11.0"
 appcompat = "1.7.1"
 composeBom = "2025.11.00"
@@ -18,7 +18,7 @@ kotlinx-serialization = "1.9.0"
 koinBom = "4.1.1"
 koinAnnotations = "2.3.1"
 koinKspCompiler = "2.3.1"
-#kotzilla = "1.3.1-RC1"
+kotzilla = "1.3.1"
 ksp = "2.3.2"
 lifecycleRuntimeKtx = "2.9.4"
 navigationCompose = "2.9.6"
@@ -30,7 +30,7 @@ securityCrypto = "1.1.0"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
 uiTextGoogleFonts = "1.9.4"
-zxingCore = "3.5.3"
+zxingCore = "3.5.4"
 materialIconsCore = "1.7.8"
 firebase-bom = "34.5.0"
 google-services = "4.4.4"
@@ -184,7 +184,7 @@ koin-android-test = { module = "io.insert-koin:koin-android-test" }
 
 # Kotzilla
 #kotzilla-sdk = { group = "io.kotzilla", name = "kotzilla-sdk", version.ref = "kotzilla" }
-#kotzilla-sdk-compose = { group = "io.kotzilla", name = "kotzilla-sdk-compose", version.ref = "kotzilla" }
+kotzilla-sdk-compose = { group = "io.kotzilla", name = "kotzilla-sdk-compose", version.ref = "kotzilla" }
 #kotzilla-sdk-android = { group = "io.kotzilla", name = "kotzilla-sdk-android", version.ref = "kotzilla" }
 
 [plugins]
@@ -193,7 +193,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-#kotzilla = { id = "io.kotzilla.kotzilla-plugin", version.ref = "kotzilla" }
+kotzilla = { id = "io.kotzilla.kotzilla-plugin", version.ref = "kotzilla" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
