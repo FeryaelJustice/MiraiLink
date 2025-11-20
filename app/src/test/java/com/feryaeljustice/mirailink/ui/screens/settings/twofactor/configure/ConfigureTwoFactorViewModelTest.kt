@@ -17,17 +17,34 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class ConfigureTwoFactorViewModelTest {
+class ConfigureTwoFactorViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val setupTwoFactorUseCase: SetupTwoFactorUseCase by inject()
+    private val verifyTwoFactorUseCase: VerifyTwoFactorUseCase by inject()
+    private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase by inject()
+    private val disableTwoFactorUseCase: DisableTwoFactorUseCase by inject()
+
     private lateinit var viewModel: ConfigureTwoFactorViewModel
-    private val setupTwoFactorUseCase: SetupTwoFactorUseCase = mockk()
-    private val verifyTwoFactorUseCase: VerifyTwoFactorUseCase = mockk()
-    private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase = mockk()
-    private val disableTwoFactorUseCase: DisableTwoFactorUseCase = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<SetupTwoFactorUseCase>() }
+                single { mockk<VerifyTwoFactorUseCase>() }
+                single { mockk<GetTwoFactorStatusUseCase>() }
+                single { mockk<DisableTwoFactorUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {

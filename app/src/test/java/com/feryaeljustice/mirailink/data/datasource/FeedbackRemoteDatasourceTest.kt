@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datasource
 
@@ -14,20 +14,32 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class FeedbackRemoteDatasourceTest : UnitTest() {
 
-    private lateinit var feedbackApiService: FeedbackApiService
-    private lateinit var feedbackRemoteDatasource: FeedbackRemoteDatasource
+    private val feedbackApiService: FeedbackApiService by inject()
+    private val feedbackRemoteDatasource: FeedbackRemoteDatasource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<FeedbackApiService>() }
+                single { FeedbackRemoteDatasource(get()) }
+            },
+        )
+    }
 
     @Before
     override fun setUp() {
         super.setUp()
-        feedbackApiService = mockk()
-        feedbackRemoteDatasource = FeedbackRemoteDatasource(feedbackApiService)
     }
 
     @Test

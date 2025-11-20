@@ -1,7 +1,4 @@
-// Author: Feryael Justice
-// Date: 2024-08-02
-
-package com.feryaeljustice.mirailink.di
+package com.feryaeljustice.mirailink.di.koin
 
 import androidx.datastore.core.DataStore
 import com.feryaeljustice.mirailink.data.datasource.AppConfigRemoteDataSource
@@ -31,8 +28,6 @@ import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
 import com.feryaeljustice.mirailink.data.remote.interceptor.AuthInterceptor
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
-import com.feryaeljustice.mirailink.di.koin.createKoinTestRule
-import com.feryaeljustice.mirailink.di.koin.testDataStoreModule
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
@@ -52,8 +47,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
-import org.junit.Assert.assertNotNull
-import org.junit.Rule
+import org.junit.Assert
 import org.junit.Test
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -61,93 +55,89 @@ import org.koin.core.qualifier.named
 import retrofit2.Retrofit
 
 class DiModulesTest : KoinComponent {
-
-    @get:Rule
-    val koinTestRule = createKoinTestRule(listOf(testDataStoreModule))
-
     @Test
     fun testCryptoModuleInjections() {
-        assertNotNull(get<SecretKeyProvider>())
-        assertNotNull(get<Json>())
+        Assert.assertNotNull(get<SecretKeyProvider>())
+        Assert.assertNotNull(get<Json>())
     }
 
     @Test
     fun testNetworkModuleInjections() {
-        assertNotNull(get<AppConfigApiService>())
-        assertNotNull(get<UserApiService>())
-        assertNotNull(get<UsersApiService>())
-        assertNotNull(get<TwoFactorApiService>())
-        assertNotNull(get<SwipeApiService>())
-        assertNotNull(get<ChatApiService>())
-        assertNotNull(get<MatchApiService>())
-        assertNotNull(get<CatalogApiService>())
-        assertNotNull(get<ReportApiService>())
-        assertNotNull(get<FeedbackApiService>())
-        assertNotNull(get<OkHttpClient>())
-        assertNotNull(get<Retrofit>())
-        assertNotNull(get<AuthInterceptor>())
-        assertNotNull(get<String>(named("BaseUrl")))
-        assertNotNull(get<String>(named("BaseApiUrl")))
+        Assert.assertNotNull(get<AppConfigApiService>())
+        Assert.assertNotNull(get<UserApiService>())
+        Assert.assertNotNull(get<UsersApiService>())
+        Assert.assertNotNull(get<TwoFactorApiService>())
+        Assert.assertNotNull(get<SwipeApiService>())
+        Assert.assertNotNull(get<ChatApiService>())
+        Assert.assertNotNull(get<MatchApiService>())
+        Assert.assertNotNull(get<CatalogApiService>())
+        Assert.assertNotNull(get<ReportApiService>())
+        Assert.assertNotNull(get<FeedbackApiService>())
+        Assert.assertNotNull(get<OkHttpClient>())
+        Assert.assertNotNull(get<Retrofit>())
+        Assert.assertNotNull(get<AuthInterceptor>())
+        Assert.assertNotNull(get<String>(named("BaseUrl")))
+        Assert.assertNotNull(get<String>(named("BaseApiUrl")))
     }
 
     @Test
     fun testDispatchersModuleInjections() {
-        assertNotNull(get<CoroutineDispatcher>(named("IoDispatcher")))
-        assertNotNull(get<CoroutineDispatcher>(named("MainDispatcher")))
+        Assert.assertNotNull(get<CoroutineDispatcher>(named("IoDispatcher")))
+        Assert.assertNotNull(get<CoroutineDispatcher>(named("MainDispatcher")))
     }
 
     @Test
     fun testDataStoreModuleInjections() {
-        assertNotNull(get<DataStore<AppPrefs>>(named("PrefsDataStore")))
-        assertNotNull(get<DataStore<Session>>(named("SessionDataStore")))
+        Assert.assertNotNull(get<DataStore<AppPrefs>>(named("PrefsDataStore")))
+        Assert.assertNotNull(get<DataStore<Session>>(named("SessionDataStore")))
     }
 
     @Test
     fun testRepositoryModuleInjections() {
-        assertNotNull(get<AppConfigRepository>())
-        assertNotNull(get<OnboardingRepository>())
-        assertNotNull(get<UserRepository>())
-        assertNotNull(get<UsersRepository>())
-        assertNotNull(get<TwoFactorRepository>())
-        assertNotNull(get<SwipeRepository>())
-        assertNotNull(get<ChatRepository>())
-        assertNotNull(get<MatchRepository>())
-        assertNotNull(get<CatalogRepository>())
-        assertNotNull(get<ReportRepository>())
-        assertNotNull(get<FeedbackRepository>())
+        Assert.assertNotNull(get<AppConfigRepository>())
+        Assert.assertNotNull(get<OnboardingRepository>())
+        Assert.assertNotNull(get<UserRepository>())
+        Assert.assertNotNull(get<UsersRepository>())
+        Assert.assertNotNull(get<TwoFactorRepository>())
+        Assert.assertNotNull(get<SwipeRepository>())
+        Assert.assertNotNull(get<ChatRepository>())
+        Assert.assertNotNull(get<MatchRepository>())
+        Assert.assertNotNull(get<CatalogRepository>())
+        Assert.assertNotNull(get<ReportRepository>())
+        Assert.assertNotNull(get<FeedbackRepository>())
     }
 
     @Test
     fun testSocketModuleInjections() {
-        assertNotNull(get<SocketService>())
+        Assert.assertNotNull(get<SocketService>())
     }
 
     @Test
     fun testLoggerModuleInjections() {
-        assertNotNull(get<Logger>())
+        Assert.assertNotNull(get<Logger>())
     }
 
     @Test
     fun testDataModuleInjections() {
-        assertNotNull(get<SessionManager>())
-        assertNotNull(get<MiraiLinkPrefs>())
-        assertNotNull(get<AppConfigRemoteDataSource>())
-        assertNotNull(get<UserRemoteDataSource>())
-        assertNotNull(get<UsersRemoteDataSource>())
-        assertNotNull(get<TwoFactorRemoteDataSource>())
-        assertNotNull(get<SwipeRemoteDataSource>())
-        assertNotNull(get<ChatRemoteDataSource>())
-        assertNotNull(get<MatchRemoteDataSource>())
-        assertNotNull(get<CatalogRemoteDataSource>())
-        assertNotNull(get<ReportRemoteDataSource>())
-        assertNotNull(get<FeedbackRemoteDatasource>())
+        Assert.assertNotNull(get<SessionManager>())
+        Assert.assertNotNull(get<MiraiLinkPrefs>())
+        Assert.assertNotNull(get<AppConfigRemoteDataSource>())
+        Assert.assertNotNull(get<UserRemoteDataSource>())
+        Assert.assertNotNull(get<UsersRemoteDataSource>())
+        Assert.assertNotNull(get<TwoFactorRemoteDataSource>())
+        Assert.assertNotNull(get<SwipeRemoteDataSource>())
+        Assert.assertNotNull(get<ChatRemoteDataSource>())
+        Assert.assertNotNull(get<MatchRemoteDataSource>())
+        Assert.assertNotNull(get<CatalogRemoteDataSource>())
+        Assert.assertNotNull(get<ReportRemoteDataSource>())
+        Assert.assertNotNull(get<FeedbackRemoteDatasource>())
     }
 
     @Test
     fun testTelemetryModuleInjections() {
-        assertNotNull(get<FirebaseAnalytics>())
-        assertNotNull(get<FirebaseCrashlytics>())
-        assertNotNull(get<AnalyticsTracker>())
-        assertNotNull(get<CrashReporter>())
+        Assert.assertNotNull(get<FirebaseAnalytics>())
+        Assert.assertNotNull(get<FirebaseCrashlytics>())
+        Assert.assertNotNull(get<AnalyticsTracker>())
+        Assert.assertNotNull(get<CrashReporter>())
     }
 }

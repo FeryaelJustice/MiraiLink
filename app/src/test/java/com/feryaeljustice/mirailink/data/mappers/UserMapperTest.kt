@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.AnimeDto
@@ -15,8 +14,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.koin.test.KoinTest
 
-class UserMapperTest {
+class UserMapperTest : KoinTest {
 
     @Test
     fun `UserDto maps to User domain model correctly`() {

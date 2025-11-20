@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2024-08-02
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.di.koin
 
@@ -18,5 +18,6 @@ val dispatchersModule =
         single<CoroutineDispatcher>(IoDispatcher) { Dispatchers.IO }
         single<CoroutineDispatcher>(DefaultDispatcher) { Dispatchers.Default }
         single<CoroutineDispatcher>(MainDispatcher) { Dispatchers.Main }
-        single(ApplicationScope) { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(IoDispatcher)) }
+        single(ApplicationScope) { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(DefaultDispatcher)) }
+        single { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(IoDispatcher)) }
     }

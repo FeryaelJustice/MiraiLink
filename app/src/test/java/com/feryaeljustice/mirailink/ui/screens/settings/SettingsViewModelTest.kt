@@ -8,7 +8,6 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,15 +16,30 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class SettingsViewModelTest {
+class SettingsViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val logoutUseCase: LogoutUseCase by inject()
+    private val deleteAccountUseCase: DeleteAccountUseCase by inject()
+
     private lateinit var viewModel: SettingsViewModel
-    private val logoutUseCase: Lazy<LogoutUseCase> = mockk()
-    private val deleteAccountUseCase: Lazy<DeleteAccountUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<LogoutUseCase>() }
+                single { mockk<DeleteAccountUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
@@ -41,7 +55,7 @@ class SettingsViewModelTest {
     @Test
     fun `logout success`() =
         runTest {
-            coEvery { logoutUseCase.get().invoke() } returns MiraiLinkResult.Success(Unit)
+            coEvery { logoutUseCase.invoke() } returns MiraiLinkResult.Success(Unit)
 
             var onFinishCalled = false
             viewModel.logout { onFinishCalled = true }
@@ -56,7 +70,7 @@ class SettingsViewModelTest {
     @Test
     fun `logout failure`() =
         runTest {
-            coEvery { logoutUseCase.get().invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { logoutUseCase.invoke() } returns MiraiLinkResult.Error("Error")
 
             var onFinishCalled = false
             viewModel.logout { onFinishCalled = true }
@@ -71,7 +85,7 @@ class SettingsViewModelTest {
     @Test
     fun `delete account success`() =
         runTest {
-            coEvery { deleteAccountUseCase.get().invoke() } returns MiraiLinkResult.Success(Unit)
+            coEvery { deleteAccountUseCase.invoke() } returns MiraiLinkResult.Success(Unit)
 
             var onFinishCalled = false
             viewModel.deleteAccount { onFinishCalled = true }
@@ -86,7 +100,7 @@ class SettingsViewModelTest {
     @Test
     fun `delete account failure`() =
         runTest {
-            coEvery { deleteAccountUseCase.get().invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { deleteAccountUseCase.invoke() } returns MiraiLinkResult.Error("Error")
 
             var onFinishCalled = false
             viewModel.deleteAccount { onFinishCalled = true }

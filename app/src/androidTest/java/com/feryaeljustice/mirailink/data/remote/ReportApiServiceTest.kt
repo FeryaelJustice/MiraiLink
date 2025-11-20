@@ -1,5 +1,5 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.remote
 
@@ -7,8 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.feryaeljustice.mirailink.data.model.request.report.ReportUserRequest
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -20,41 +18,39 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import retrofit2.Retrofit
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ReportApiServiceTest {
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+class ReportApiServiceTest : KoinTest {
+    private val mockWebServer: MockWebServer by inject()
+    private val reportApiService: ReportApiService by inject()
 
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var reportApiService: ReportApiService
-    private val json = Json { ignoreUnknownKeys = true }
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { MockWebServer() }
+                single {
+                    val client = OkHttpClient.Builder().build()
+                    val json = Json { ignoreUnknownKeys = true }
+                    Retrofit.Builder()
+                        .baseUrl(get<MockWebServer>().url("/"))
+                        .client(client)
+                        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                        .build()
+                }
+                single { get<Retrofit>().create(ReportApiService::class.java) }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
-        mockWebServer = MockWebServer()
         mockWebServer.start()
-
-        hiltRule.inject()
-
-        val okHttp =
-            OkHttpClient
-                .Builder()
-                .build()
-
-        val retrofit =
-            Retrofit
-                .Builder()
-                .baseUrl(mockWebServer.url("/"))
-                .client(okHttp)
-                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-                .build()
-
-        reportApiService =
-            retrofit
-                .create(ReportApiService::class.java)
     }
 
     @After
@@ -66,12 +62,12 @@ class ReportApiServiceTest {
     fun reportUser_returnsSuccess() =
         runBlocking {
             // Given
-            val mockResponse = MockResponse().setResponseCode(204) // No content
+            val mockResponse = MockResponse().setResponseCode(200)
             mockWebServer.enqueue(mockResponse)
-            val reportUserRequest = ReportUserRequest(reportedUser = "user-to-report", reason = "Spam")
+            val reportRequest = ReportUserRequest("user123", "Spam")
 
             // When
-            val response = reportApiService.reportUser(reportUserRequest)
+            val response = reportApiService.reportUser(reportRequest)
 
             // Then
             assertThat(response.isSuccessful).isTrue()

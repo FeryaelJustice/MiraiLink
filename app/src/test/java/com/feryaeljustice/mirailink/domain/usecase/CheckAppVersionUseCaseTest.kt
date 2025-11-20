@@ -1,11 +1,14 @@
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.domain.usecase
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
-import io.mockk.impl.annotations.RelaxedMockK
-import io.mockk.junit4.MockKRule
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -14,21 +17,29 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class CheckAppVersionUseCaseTest {
+class CheckAppVersionUseCaseTest : UnitTest() {
+
+    private val checkAppVersionUseCase: CheckAppVersionUseCase by inject()
+    private val repo: AppConfigRepository by inject()
 
     @get:Rule
-    val mockkRule = MockKRule(this)
-
-    @RelaxedMockK
-    private lateinit var repo: AppConfigRepository
-
-    private lateinit var checkAppVersionUseCase: CheckAppVersionUseCase
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<AppConfigRepository>() }
+                single { CheckAppVersionUseCase(get()) }
+            },
+        )
+    }
 
     @Before
-    fun onBefore() {
-        checkAppVersionUseCase = CheckAppVersionUseCase(repo)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test
@@ -40,7 +51,7 @@ class CheckAppVersionUseCaseTest {
             minVersionCode = 5,
             latestVersionCode = 10,
             message = "Update required!",
-            playStoreUrl = "url"
+            playStoreUrl = "url",
         )
         coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
@@ -65,7 +76,7 @@ class CheckAppVersionUseCaseTest {
                 minVersionCode = 5,
                 latestVersionCode = 10,
                 message = "Update available",
-                playStoreUrl = "url"
+                playStoreUrl = "url",
             )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
@@ -90,7 +101,7 @@ class CheckAppVersionUseCaseTest {
                 minVersionCode = 5,
                 latestVersionCode = 10,
                 message = "App is up to date",
-                playStoreUrl = "url"
+                playStoreUrl = "url",
             )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
@@ -114,7 +125,7 @@ class CheckAppVersionUseCaseTest {
                 minVersionCode = 5,
                 latestVersionCode = 10,
                 message = "App is up to date",
-                playStoreUrl = "url"
+                playStoreUrl = "url",
             )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
@@ -151,7 +162,7 @@ class CheckAppVersionUseCaseTest {
             minVersionCode = 5,
             latestVersionCode = 10,
             message = null,
-            playStoreUrl = "url"
+            playStoreUrl = "url",
         )
         coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 

@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
@@ -9,7 +8,6 @@ import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCode
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,16 +15,32 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class VerificationViewModelTest {
+class VerificationViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val checkIsVerifiedUseCase: CheckIsVerifiedUseCase by inject()
+    private val requestVerificationCodeUseCase: RequestVerificationCodeUseCase by inject()
+    private val confirmVerificationCodeUseCase: ConfirmVerificationCodeUseCase by inject()
+
     private lateinit var viewModel: VerificationViewModel
-    private val checkIsVerifiedUseCase: Lazy<CheckIsVerifiedUseCase> = mockk()
-    private val requestVerificationCodeUseCase: Lazy<RequestVerificationCodeUseCase> = mockk()
-    private val confirmVerificationCodeUseCase: Lazy<ConfirmVerificationCodeUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<CheckIsVerifiedUseCase>() }
+                single { mockk<RequestVerificationCodeUseCase>() }
+                single { mockk<ConfirmVerificationCodeUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
@@ -42,7 +56,7 @@ class VerificationViewModelTest {
     @Test
     fun `user is already verified`() =
         runTest {
-            coEvery { checkIsVerifiedUseCase.get().invoke() } returns MiraiLinkResult.Success(true)
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(true)
 
             var isVerified = false
             viewModel.checkUserIsVerified { isVerified = it }
@@ -57,7 +71,7 @@ class VerificationViewModelTest {
         runTest {
             val userId = "userId"
             coEvery {
-                requestVerificationCodeUseCase.get().invoke(userId, "email")
+                requestVerificationCodeUseCase.invoke(userId, "email")
             } returns MiraiLinkResult.Success("Success")
 
             viewModel.requestCode(userId)
@@ -73,7 +87,7 @@ class VerificationViewModelTest {
             val userId = "userId"
             val token = "token"
             coEvery {
-                confirmVerificationCodeUseCase.get().invoke(userId, token, "email")
+                confirmVerificationCodeUseCase.invoke(userId, token, "email")
             } returns MiraiLinkResult.Success("Success")
 
             viewModel.onTokenChanged(token)
@@ -93,7 +107,7 @@ class VerificationViewModelTest {
             val token = "token"
             val errorMessage = "Error message"
             coEvery {
-                confirmVerificationCodeUseCase.get().invoke(userId, token, "email")
+                confirmVerificationCodeUseCase.invoke(userId, token, "email")
             } returns MiraiLinkResult.Error(errorMessage)
 
             viewModel.onTokenChanged(token)

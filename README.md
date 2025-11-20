@@ -1,13 +1,17 @@
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 # MiraiLink
 
-MiraiLink es la app social pensada para fans del anime y los videojuegos. Combina un backend propio en ExpressJS con un cliente Android construido en Jetpack Compose, MVVM, Hilt, Version Catalog y Clean Architecture para ofrecer chat en tiempo real, matching, perfiles personalizables y almacenamiento seguro. Usa Android Credentials. Testing al completo (Unitario, Integración con Instrumentación y E2E), incluido el nuevo sistema de testing por Screenshot de Gemini.
+MiraiLink es la app social pensada para fans del anime y los videojuegos. Combina un backend propio en ExpressJS con un cliente Android construido en Jetpack Compose, MVVM, Koin, Version Catalog y Clean Architecture para ofrecer chat en tiempo real, matching, perfiles personalizables y almacenamiento seguro. Usa Android Credentials. Testing al completo (Unitario, Integración con Instrumentación y E2E), incluido el nuevo sistema de testing por Screenshot de Gemini y el testing de journeys con Kotzilla.
 
 ## Stack principal
 
 - Kotlin 2.2 con Jetpack Compose (Material 3, navegación declarativa, diseño atómico)
 - Arquitectura modular por capas: Data / Domain / UI + módulos de inyección de dependencias
-- Hilt para DI, Socket.IO para chat, Retrofit + OkHttp para REST, DataStore cifrado para preferencias
+- Koin para DI, Socket.IO para chat, Retrofit + OkHttp para REST, DataStore cifrado para preferencias
 - Firebase (Analytics y Crashlytics), Google Mobile Ads, Kotlinx Serialization, Coil
+- Kotzilla para testing de journeys y captura de screenshots
 
 ## Arquitectura y estructura de carpetas
 
@@ -18,7 +22,7 @@ La base del repositorio sigue Clean Architecture con una separación clara de re
 | `app/src/main/java/com/feryaeljustice/mirailink/data/`   | Implementación de la capa de datos (datasources remotos/locales, repositorios concretos, mapeadores, utilidades de red y telemetría). |
 | `app/src/main/java/com/feryaeljustice/mirailink/domain/` | Capa de dominio con modelos de negocio, contratos de repositorios y casos de uso.                                                     |
 | `app/src/main/java/com/feryaeljustice/mirailink/ui/`     | Presentación con pantallas Compose, componentes reutilizables (Atoms, Molecules, Organisms), ViewModels y flujo de navegación.        |
-| `app/src/main/java/com/feryaeljustice/mirailink/di/`     | Módulos Hilt que vinculan interfaces de dominio con implementaciones de datos y gestores del ciclo de vida.                           |
+| `app/src/main/java/com/feryaeljustice/mirailink/di/`     | Módulos Koin que vinculan interfaces de dominio con implementaciones de datos y gestores del ciclo de vida.                           |
 | `app/src/main/res/`                                      | Recursos Android (temas, strings, íconos, layouts XML puntuales si fueran necesarios).                                                |
 | `gradle/libs.versions.toml`                              | Catálogo centralizado de versiones (AGP 8.13.0, Kotlin 2.2.20, Compose BOM 2025.09.01, etc.).                                         |
 | `build.gradle.kts` y `app/build.gradle.kts`              | Configuración de Gradle, plugins y dependencias.                                                                                      |
@@ -63,8 +67,8 @@ En macOS/Linux utiliza `./gradlew` con los mismos tasks. También puedes ejecuta
 
 ## Pruebas y calidad
 
-- **Unit tests**: `.\gradlew.bat testDebugUnitTest` valida casos de uso, ViewModels y mappers con dobles de prueba.
-- **Instrumented tests**: `.\gradlew.bat connectedDebugAndroidTest` ejecuta pruebas sobre un dispositivo/emulador conectado.
+- **Unit tests**: `.\gradlew.bat testDebugUnitTest` valida casos de uso, ViewModels y mappers con dobles de prueba. Se usa KoinTest para la inyección de dependencias en tests.
+- **Instrumented tests**: `.\gradlew.bat connectedDebugAndroidTest` ejecuta pruebas sobre un dispositivo/emulador conectado. Se usa KoinTest para la inyección de dependencias en tests.
 - **Lint y chequeos estáticos**: `.\gradlew.bat lintDebug` revisa estilo, accesibilidad y buenas prácticas en Compose.
 - **Builds adicionales**: `.\gradlew.bat assembleRelease` (requiere `keystore.properties`) y `.\gradlew.bat bundleRelease` para generar el AAB de distribución.
 

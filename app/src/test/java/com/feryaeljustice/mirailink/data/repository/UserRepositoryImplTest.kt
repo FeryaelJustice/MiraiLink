@@ -1,12 +1,14 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
@@ -15,13 +17,29 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class UserRepositoryImplTest {
-    private lateinit var userRepository: UserRepositoryImpl
-    private val userRemoteDataSource: UserRemoteDataSource = mockk()
-    private val sessionManager: SessionManager = mockk(relaxed = true)
+class UserRepositoryImplTest : UnitTest() {
+    private val userRepository: UserRepositoryImpl by inject()
+    private val userRemoteDataSource: UserRemoteDataSource by inject()
+    private val sessionManager: SessionManager by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<UserRemoteDataSource>() }
+                single { mockk<SessionManager>(relaxed = true) }
+                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                single { UserRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
+            },
+        )
+    }
 
     private val userDto =
         UserDto(
@@ -53,20 +71,20 @@ class UserRepositoryImplTest {
             gender = null,
             birthdate = null,
             photos =
-                listOf(
-                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto(
-                        userId = "1",
-                        url = "http://localhost:8080/path/to/photo.jpg",
-                        position = 1,
-                    ),
+            listOf(
+                com.feryaeljustice.mirailink.domain.model.user.UserPhoto(
+                    userId = "1",
+                    url = "http://localhost:8080/path/to/photo.jpg",
+                    position = 1,
                 ),
+            ),
             games = emptyList(),
             animes = emptyList(),
         )
 
     @Before
-    fun setUp() {
-        userRepository = UserRepositoryImpl(userRemoteDataSource, sessionManager, "http://localhost:8080")
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

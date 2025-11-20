@@ -1,12 +1,13 @@
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.domain.util
 
-import android.util.Patterns
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.constants.URL_REGEX
 
 // Pre-compile the regex for better performance on repeated calls.
-private val EMAIL_REGEX = Patterns.EMAIL_ADDRESS.toRegex()
-private val PHONE_REGEX = Patterns.PHONE.toRegex()
+private val EMAIL_REGEX = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+".toRegex()
 
 fun String.isValidUrl(): Boolean = this.trim().matches(URL_REGEX) && this.isNotBlank() && this.isSafeSqlInput()
 
@@ -22,7 +23,7 @@ fun String.isEmailValid(): Boolean = EMAIL_REGEX.matches(this) && this.isSafeSql
 /**
  * Validates if the string is a well-formed phone address.
  */
-fun String.isPhoneNumberValid(): Boolean = PHONE_REGEX.matches(this) && this.isSafeSqlInput()
+fun String.isPhoneNumberValid(): Boolean = this.isNotBlank() && this.isSafeSqlInput()
 
 fun String.isPasswordValid(): Boolean {
     /*

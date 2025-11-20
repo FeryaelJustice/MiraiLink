@@ -10,7 +10,6 @@ import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -19,17 +18,34 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class HomeViewModelTest {
+class HomeViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val getFeedUseCase: GetFeedUseCase by inject()
+    private val likeUserUseCase: LikeUserUseCase by inject()
+    private val dislikeUserUseCase: DislikeUserUseCase by inject()
+    private val getCurrentUserUseCase: GetCurrentUserUseCase by inject()
+
     private lateinit var viewModel: HomeViewModel
-    private val getFeedUseCase: Lazy<GetFeedUseCase> = mockk()
-    private val likeUserUseCase: Lazy<LikeUserUseCase> = mockk()
-    private val dislikeUserUseCase: Lazy<DislikeUserUseCase> = mockk()
-    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<GetFeedUseCase>() }
+                single { mockk<LikeUserUseCase>() }
+                single { mockk<DislikeUserUseCase>() }
+                single { mockk<GetCurrentUserUseCase>() }
+            },
+        )
+    }
 
     private val user1 =
         User(
@@ -62,8 +78,8 @@ class HomeViewModelTest {
 
     @Before
     fun setUp() {
-        coEvery { getCurrentUserUseCase.get().invoke() } returns MiraiLinkResult.Success(user1)
-        coEvery { getFeedUseCase.get().invoke() } returns
+        coEvery { getCurrentUserUseCase.invoke() } returns MiraiLinkResult.Success(user1)
+        coEvery { getFeedUseCase.invoke() } returns
             MiraiLinkResult.Success(
                 listOf(
                     user1,
@@ -93,12 +109,12 @@ class HomeViewModelTest {
     @Test
     fun `swipe right calls like use case`() =
         runTest {
-            coEvery { likeUserUseCase.get().invoke("1") } returns MiraiLinkResult.Success(true)
+            coEvery { likeUserUseCase.invoke("1") } returns MiraiLinkResult.Success(true)
 
             viewModel.swipeRight()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { likeUserUseCase.get().invoke("1") }
+            coVerify { likeUserUseCase.invoke("1") }
             val state = viewModel.state.value
             assert(state is HomeViewModel.HomeUiState.Success)
             assert((state as HomeViewModel.HomeUiState.Success).visibleUsers.first().id == "2")
@@ -107,12 +123,12 @@ class HomeViewModelTest {
     @Test
     fun `swipe left calls dislike use case`() =
         runTest {
-            coEvery { dislikeUserUseCase.get().invoke("1") } returns MiraiLinkResult.Success(Unit)
+            coEvery { dislikeUserUseCase.invoke("1") } returns MiraiLinkResult.Success(Unit)
 
             viewModel.swipeLeft()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { dislikeUserUseCase.get().invoke("1") }
+            coVerify { dislikeUserUseCase.invoke("1") }
             val state = viewModel.state.value
             assert(state is HomeViewModel.HomeUiState.Success)
             assert((state as HomeViewModel.HomeUiState.Success).visibleUsers.first().id == "2")
@@ -121,7 +137,7 @@ class HomeViewModelTest {
     @Test
     fun `undo swipe restores user`() =
         runTest {
-            coEvery { dislikeUserUseCase.get().invoke("1") } returns MiraiLinkResult.Success(Unit)
+            coEvery { dislikeUserUseCase.invoke("1") } returns MiraiLinkResult.Success(Unit)
             viewModel.swipeLeft()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 

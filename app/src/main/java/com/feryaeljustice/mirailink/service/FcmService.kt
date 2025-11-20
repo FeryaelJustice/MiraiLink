@@ -1,3 +1,6 @@
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.service
 
 import android.app.NotificationManager
@@ -18,13 +21,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.koin.android.ext.android.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.random.Random
 
-class FcmService : FirebaseMessagingService() {
-    val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
-    val applicationScope: CoroutineScope by inject()
-    val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
+class FcmService : FirebaseMessagingService(), KoinComponent {
+    private val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
+    private val applicationScope: CoroutineScope by inject()
+    private val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "notification_fcm"

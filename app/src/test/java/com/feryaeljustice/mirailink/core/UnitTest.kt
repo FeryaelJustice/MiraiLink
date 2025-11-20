@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.core
 
@@ -11,10 +11,10 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.koin.test.KoinTest
 
 @ExperimentalCoroutinesApi
-open class UnitTest {
-
+open class UnitTest : KoinTest {
     private lateinit var testDispatcher: TestDispatcher
 
     @Before

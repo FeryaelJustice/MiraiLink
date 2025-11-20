@@ -1,8 +1,9 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.AppConfigRemoteDataSource
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -12,16 +13,30 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class AppConfigRepositoryImplTest {
-    private lateinit var appConfigRepository: AppConfigRepositoryImpl
-    private val appConfigRemoteDataSource: AppConfigRemoteDataSource = mockk()
+class AppConfigRepositoryImplTest : UnitTest() {
+    private val appConfigRepository: AppConfigRepositoryImpl by inject()
+    private val appConfigRemoteDataSource: AppConfigRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<AppConfigRemoteDataSource>() }
+                single { AppConfigRepositoryImpl(get()) }
+            },
+        )
+    }
 
     @Before
-    fun setUp() {
-        appConfigRepository = AppConfigRepositoryImpl(appConfigRemoteDataSource)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

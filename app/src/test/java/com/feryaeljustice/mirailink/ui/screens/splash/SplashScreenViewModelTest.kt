@@ -10,24 +10,38 @@ import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsC
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class SplashScreenViewModelTest {
+class SplashScreenViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
-    private val checkAppVersionUseCase: CheckAppVersionUseCase = mockk()
-    private val autologinUseCase: Lazy<AutologinUseCase> = mockk()
-    private val checkOnboardingIsCompletedUseCase: Lazy<CheckOnboardingIsCompleted> = mockk()
+    private val checkAppVersionUseCase: CheckAppVersionUseCase by inject()
+    private val autologinUseCase: AutologinUseCase by inject()
+    private val checkOnboardingIsCompletedUseCase: CheckOnboardingIsCompleted by inject()
 
     private lateinit var viewModel: SplashScreenViewModel
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<CheckAppVersionUseCase>() }
+                single { mockk<AutologinUseCase>() }
+                single { mockk<CheckOnboardingIsCompleted>() }
+            },
+        )
+    }
 
     @Test
     fun `when onboarding is not completed, navigate to onboarding`() =
@@ -42,9 +56,9 @@ class SplashScreenViewModelTest {
                     ),
                 )
             coEvery {
-                checkOnboardingIsCompletedUseCase.get().invoke()
+                checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(false)
-            coEvery { autologinUseCase.get().invoke() } returns MiraiLinkResult.Error("")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error("")
 
             viewModel =
                 SplashScreenViewModel(
@@ -74,9 +88,9 @@ class SplashScreenViewModelTest {
                     ),
                 )
             coEvery {
-                checkOnboardingIsCompletedUseCase.get().invoke()
+                checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(true)
-            coEvery { autologinUseCase.get().invoke() } returns MiraiLinkResult.Success("token")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Success("token")
 
             viewModel =
                 SplashScreenViewModel(
@@ -106,9 +120,9 @@ class SplashScreenViewModelTest {
                     ),
                 )
             coEvery {
-                checkOnboardingIsCompletedUseCase.get().invoke()
+                checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(true)
-            coEvery { autologinUseCase.get().invoke() } returns MiraiLinkResult.Error("")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error("")
 
             viewModel =
                 SplashScreenViewModel(
@@ -138,9 +152,9 @@ class SplashScreenViewModelTest {
                     ),
                 )
             coEvery {
-                checkOnboardingIsCompletedUseCase.get().invoke()
+                checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(true)
-            coEvery { autologinUseCase.get().invoke() } returns MiraiLinkResult.Success("token")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Success("token")
 
             viewModel =
                 SplashScreenViewModel(

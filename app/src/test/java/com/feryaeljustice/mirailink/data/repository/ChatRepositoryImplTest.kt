@@ -1,14 +1,16 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.ChatRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfoResponse
 import com.feryaeljustice.mirailink.data.remote.socket.SocketService
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
@@ -16,13 +18,29 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class ChatRepositoryImplTest {
-    private lateinit var chatRepository: ChatRepositoryImpl
-    private val remoteDataSource: ChatRemoteDataSource = mockk()
-    private val socketService: SocketService = mockk(relaxed = true)
+class ChatRepositoryImplTest : UnitTest() {
+    private val chatRepository: ChatRepositoryImpl by inject()
+    private val remoteDataSource: ChatRemoteDataSource by inject()
+    private val socketService: SocketService by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<ChatRemoteDataSource>() }
+                single { mockk<SocketService>(relaxed = true) }
+                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                single { ChatRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
+            },
+        )
+    }
 
     private val userDto = UserDto(id = "user1", username = "testuser", nickname = "Test User")
 
@@ -36,12 +54,12 @@ class ChatRepositoryImplTest {
             role = "member",
             unreadCount = "0",
             destinatary =
-                MinimalUserInfoResponse(
-                    id = "user2",
-                    username = "otheruser",
-                    nickname = "Other User",
-                    avatarUrl = null,
-                ),
+            MinimalUserInfoResponse(
+                id = "user2",
+                username = "otheruser",
+                nickname = "Other User",
+                avatarUrl = null,
+            ),
         )
 
     private val chatMessageResponse =
@@ -54,8 +72,8 @@ class ChatRepositoryImplTest {
         )
 
     @Before
-    fun setUp() {
-        chatRepository = ChatRepositoryImpl(socketService, remoteDataSource, "http://localhost:8080")
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

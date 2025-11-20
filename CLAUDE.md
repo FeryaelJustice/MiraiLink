@@ -1,7 +1,6 @@
-<!--
-Author: Feryael Justice
-Date: 2025-11-08
--->
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 # CLAUDE.md
 
 ## Project Overview
@@ -24,7 +23,7 @@ As an AI assistant, your primary role is to understand the project's structure a
 ### Making Changes
 
 - **Targeted modifications**: When asked to modify a file, apply the changes precisely as requested. Always confirm the file path and the exact changes required.
-- **Follow code style**: Adhere to the existing Kotlin and Jetpack Compose conventions. Use Hilt for dependency injection and follow the Atomic Design pattern for UI components.
+- **Follow code style**: Adhere to the existing Kotlin and Jetpack Compose conventions. Use Koin for dependency injection and follow the Atomic Design pattern for UI components.
 - **Create new features**: When adding a new feature, follow the steps outlined in the "Common Tasks" section. Create files in the appropriate directories and follow the established data flow.
 
 ### Validation and Testing

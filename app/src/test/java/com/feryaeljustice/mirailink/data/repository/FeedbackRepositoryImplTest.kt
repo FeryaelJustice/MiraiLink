@@ -1,8 +1,9 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.FeedbackRemoteDatasource
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
@@ -11,16 +12,30 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class FeedbackRepositoryImplTest {
-    private lateinit var feedbackRepository: FeedbackRepositoryImpl
-    private val remoteDataSource: FeedbackRemoteDatasource = mockk()
+class FeedbackRepositoryImplTest : UnitTest() {
+    private val feedbackRepository: FeedbackRepositoryImpl by inject()
+    private val remoteDataSource: FeedbackRemoteDatasource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<FeedbackRemoteDatasource>() }
+                single { FeedbackRepositoryImpl(get()) }
+            },
+        )
+    }
 
     @Before
-    fun setUp() {
-        feedbackRepository = FeedbackRepositoryImpl(remoteDataSource)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

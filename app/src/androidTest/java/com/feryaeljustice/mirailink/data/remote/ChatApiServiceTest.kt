@@ -1,8 +1,9 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.remote
 
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.request.chat.ChatRequest
@@ -11,59 +12,59 @@ import com.feryaeljustice.mirailink.data.model.response.chat.ChatIdResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatMessageResponse
 import com.feryaeljustice.mirailink.data.model.response.chat.ChatSummaryResponse
 import com.feryaeljustice.mirailink.data.model.response.user.MinimalUserInfoResponse
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
+import com.feryaeljustice.mirailink.di.koin.cryptoModule
+import com.feryaeljustice.mirailink.di.koin.dataModule
+import com.feryaeljustice.mirailink.di.koin.dataStoreModule
+import com.feryaeljustice.mirailink.di.koin.dispatchersModule
+import com.feryaeljustice.mirailink.di.koin.networkModule
+import com.feryaeljustice.mirailink.di.koin.repositoryModule
+import com.feryaeljustice.mirailink.di.koin.serializationModule
 import com.google.common.truth.Truth.assertThat
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import retrofit2.Retrofit
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ChatApiServiceTest {
+class ChatApiServiceTest : KoinTest {
+    private val mockWebServer: MockWebServer by inject()
+    private val chatApiService: ChatApiService by inject()
+    private val json: Json by inject()
+
     @get:Rule
-    var hiltRule = HiltAndroidRule(this)
-
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var chatApiService: ChatApiService
-    private val json = Json { ignoreUnknownKeys = true }
-
-    @Before
-    fun setUp() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        hiltRule.inject()
-
-        val okHttp =
-            OkHttpClient
-                .Builder()
-                .build()
-
-        val retrofit =
-            Retrofit
-                .Builder()
-                .baseUrl(mockWebServer.url("/"))
-                .client(okHttp)
-                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-                .build()
-
-        chatApiService = retrofit.create(ChatApiService::class.java)
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            androidContext(ApplicationProvider.getApplicationContext())
+            modules(
+                networkModule,
+                dataModule,
+                dataStoreModule,
+                dispatchersModule,
+                repositoryModule,
+                serializationModule,
+                cryptoModule,
+                module {
+                    single { MockWebServer() }
+                    single(Qualifiers.BaseApiUrl) { get<MockWebServer>().url("/").toString() }
+                },
+            )
+        }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
+        stopKoin()
     }
 
     @Test
@@ -88,7 +89,7 @@ class ChatApiServiceTest {
             val mockResponse =
                 MockResponse()
                     .setResponseCode(200)
-                    .setBody(Json.encodeToString(listOf(chatSummary)))
+                    .setBody(json.encodeToString(listOf(chatSummary)))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -128,7 +129,7 @@ class ChatApiServiceTest {
             val mockResponse =
                 MockResponse()
                     .setResponseCode(201)
-                    .setBody(Json.encodeToString(expectedResponse))
+                    .setBody(json.encodeToString(expectedResponse))
             mockWebServer.enqueue(mockResponse)
             val requestBody = mapOf("destinataryId" to "user2")
 
@@ -151,7 +152,7 @@ class ChatApiServiceTest {
             val mockResponse =
                 MockResponse()
                     .setResponseCode(201)
-                    .setBody(Json.encodeToString(expectedResponse))
+                    .setBody(json.encodeToString(expectedResponse))
             mockWebServer.enqueue(mockResponse)
 
             val requestBody =
@@ -202,7 +203,7 @@ class ChatApiServiceTest {
             val mockResponse =
                 MockResponse()
                     .setResponseCode(200)
-                    .setBody(Json.encodeToString(chatHistory))
+                    .setBody(json.encodeToString(chatHistory))
             mockWebServer.enqueue(mockResponse)
 
             // When

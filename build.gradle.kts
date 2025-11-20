@@ -11,5 +11,4 @@ plugins {
 
     // 3. Plugins de Generación de Código
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.hiltAndroid) apply false
 }

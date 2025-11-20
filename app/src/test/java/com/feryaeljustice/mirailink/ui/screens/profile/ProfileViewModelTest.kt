@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @date 24/07/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.ui.screens.profile
 
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
@@ -15,7 +14,6 @@ import com.feryaeljustice.mirailink.domain.util.Logger
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,19 +21,38 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class ProfileViewModelTest {
+class ProfileViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val getCurrentUserUseCase: GetCurrentUserUseCase by inject()
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase by inject()
+    private val deleteUserPhotoUseCase: DeleteUserPhotoUseCase by inject()
+    private val getAnimesUseCase: GetAnimesUseCase by inject()
+    private val getGamesUseCase: GetGamesUseCase by inject()
+    private val logger: Logger by inject()
+
     private lateinit var viewModel: ProfileViewModel
-    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase> = mockk()
-    private val updateUserProfileUseCase: Lazy<UpdateUserProfileUseCase> = mockk()
-    private val deleteUserPhotoUseCase: Lazy<DeleteUserPhotoUseCase> = mockk()
-    private val getAnimesUseCase: Lazy<GetAnimesUseCase> = mockk()
-    private val getGamesUseCase: Lazy<GetGamesUseCase> = mockk()
-    private val logger: Logger = mockk(relaxed = true)
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<GetCurrentUserUseCase>() }
+                single { mockk<UpdateUserProfileUseCase>() }
+                single { mockk<DeleteUserPhotoUseCase>() }
+                single { mockk<GetAnimesUseCase>() }
+                single { mockk<GetGamesUseCase>() }
+                single { mockk<Logger>(relaxed = true) }
+            },
+        )
+    }
 
     private val user =
         User(
@@ -54,7 +71,7 @@ class ProfileViewModelTest {
 
     @Before
     fun setUp() {
-        coEvery { getCurrentUserUseCase.get().invoke() } returns MiraiLinkResult.Success(user)
+        coEvery { getCurrentUserUseCase.invoke() } returns MiraiLinkResult.Success(user)
 
         viewModel =
             ProfileViewModel(
@@ -80,8 +97,8 @@ class ProfileViewModelTest {
     @Test
     fun `initialize edit mode`() =
         runTest {
-            coEvery { getAnimesUseCase.get().invoke() } returns MiraiLinkResult.Success(emptyList())
-            coEvery { getGamesUseCase.get().invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
             viewModel.onIntent(EditProfileIntent.Initialize(user.toUserViewEntry()))
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -93,14 +110,13 @@ class ProfileViewModelTest {
     @Test
     fun `save profile success`() =
         runTest {
-            coEvery { getAnimesUseCase.get().invoke() } returns MiraiLinkResult.Success(emptyList())
-            coEvery { getGamesUseCase.get().invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
             viewModel.onIntent(EditProfileIntent.Initialize(user.toUserViewEntry()))
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             coEvery {
                 updateUserProfileUseCase
-                    .get()
                     .invoke(any(), any(), any(), any(), any(), any(), any(), any())
             } returns
                 MiraiLinkResult.Success(Unit)
@@ -114,7 +130,7 @@ class ProfileViewModelTest {
     @Test
     fun `remove photo success`() =
         runTest {
-            coEvery { deleteUserPhotoUseCase.get().invoke(1) } returns MiraiLinkResult.Success(Unit)
+            coEvery { deleteUserPhotoUseCase.invoke(1) } returns MiraiLinkResult.Success(Unit)
 
             viewModel.onIntent(EditProfileIntent.RemovePhoto(0))
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()

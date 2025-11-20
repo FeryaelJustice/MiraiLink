@@ -1,10 +1,12 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
@@ -12,12 +14,27 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class SwipeRepositoryImplTest {
-    private lateinit var swipeRepository: SwipeRepositoryImpl
-    private val swipeRemoteDataSource: SwipeRemoteDataSource = mockk()
+class SwipeRepositoryImplTest : UnitTest() {
+    private val swipeRepository: SwipeRepositoryImpl by inject()
+    private val swipeRemoteDataSource: SwipeRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<SwipeRemoteDataSource>() }
+                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                single { SwipeRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
+            },
+        )
+    }
 
     private val userDto =
         UserDto(
@@ -31,8 +48,8 @@ class SwipeRepositoryImplTest {
         )
 
     @Before
-    fun setUp() {
-        swipeRepository = SwipeRepositoryImpl(swipeRemoteDataSource, "http://localhost:8080")
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

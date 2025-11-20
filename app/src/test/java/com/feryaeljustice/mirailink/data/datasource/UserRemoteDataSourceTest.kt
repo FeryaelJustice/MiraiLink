@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datasource
 
@@ -24,21 +24,33 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class UserRemoteDataSourceTest : UnitTest() {
 
-    private lateinit var userApiService: UserApiService
-    private lateinit var context: Context
-    private lateinit var userRemoteDataSource: UserRemoteDataSource
+    private val userApiService: UserApiService by inject()
+    private val context: Context by inject()
+    private val userRemoteDataSource: UserRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<UserApiService>() }
+                single { mockk<Context>(relaxed = true) }
+                single { UserRemoteDataSource(get(), get()) }
+            },
+        )
+    }
 
     @Before
     override fun setUp() {
         super.setUp()
-        userApiService = mockk()
-        context = mockk(relaxed = true)
-        userRemoteDataSource = UserRemoteDataSource(userApiService, context)
     }
 
     @Test

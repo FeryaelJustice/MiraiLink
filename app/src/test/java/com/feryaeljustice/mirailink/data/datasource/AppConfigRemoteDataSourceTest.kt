@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datasource
 
@@ -16,19 +16,31 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class AppConfigRemoteDataSourceTest : UnitTest() {
 
-    private lateinit var appConfigApiService: AppConfigApiService
-    private lateinit var appConfigRemoteDataSource: AppConfigRemoteDataSource
+    private val appConfigApiService: AppConfigApiService by inject()
+    private val appConfigRemoteDataSource: AppConfigRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<AppConfigApiService>() }
+                single { AppConfigRemoteDataSource(get()) }
+            },
+        )
+    }
 
     @Before
     override fun setUp() {
         super.setUp()
-        appConfigApiService = mockk()
-        appConfigRemoteDataSource = AppConfigRemoteDataSource(appConfigApiService)
     }
 
     @Test
@@ -39,7 +51,7 @@ class AppConfigRemoteDataSourceTest : UnitTest() {
             minVersionCode = 1,
             latestVersionCode = 2,
             message = "Update available",
-            playStoreUrl = "url"
+            playStoreUrl = "url",
         )
         coEvery { appConfigApiService.getAndroidAppVersion() } returns appVersionInfoDto
 

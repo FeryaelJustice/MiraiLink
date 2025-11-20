@@ -1,14 +1,12 @@
-/**
- * @author Feryael Justice
- * @since 1/11/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,15 +14,30 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class RecoverPasswordViewModelTest {
+class RecoverPasswordViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val requestPasswordResetUseCase: RequestPasswordResetUseCase by inject()
+    private val confirmPasswordResetUseCase: ConfirmPasswordResetUseCase by inject()
+
     private lateinit var viewModel: RecoverPasswordViewModel
-    private val requestPasswordResetUseCase: Lazy<RequestPasswordResetUseCase> = mockk()
-    private val confirmPasswordResetUseCase: Lazy<ConfirmPasswordResetUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<RequestPasswordResetUseCase>() }
+                single { mockk<ConfirmPasswordResetUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
@@ -41,7 +54,7 @@ class RecoverPasswordViewModelTest {
         runTest {
             val email = "test@test.com"
             coEvery {
-                requestPasswordResetUseCase.get().invoke(email)
+                requestPasswordResetUseCase.invoke(email)
             } returns MiraiLinkResult.Success("token")
 
             viewModel.onEmailChanged(email)
@@ -58,7 +71,7 @@ class RecoverPasswordViewModelTest {
             val email = "test@test.com"
             val errorMessage = "Error message"
             coEvery {
-                requestPasswordResetUseCase.get().invoke(email)
+                requestPasswordResetUseCase.invoke(email)
             } returns MiraiLinkResult.Error(errorMessage)
 
             viewModel.onEmailChanged(email)
@@ -76,7 +89,7 @@ class RecoverPasswordViewModelTest {
             val token = "token"
             val newPassword = "newPassword"
             coEvery {
-                confirmPasswordResetUseCase.get().invoke(email, token, newPassword)
+                confirmPasswordResetUseCase.invoke(email, token, newPassword)
             } returns MiraiLinkResult.Success("Success")
 
             viewModel.onEmailChanged(email)
@@ -99,7 +112,7 @@ class RecoverPasswordViewModelTest {
             val newPassword = "newPassword"
             val errorMessage = "Error message"
             coEvery {
-                confirmPasswordResetUseCase.get().invoke(email, token, newPassword)
+                confirmPasswordResetUseCase.invoke(email, token, newPassword)
             } returns MiraiLinkResult.Error(errorMessage)
 
             viewModel.onEmailChanged(email)

@@ -5,34 +5,75 @@ package com.feryaeljustice.mirailink.data.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.feryaeljustice.mirailink.data.model.local.datastore.Session
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
+import com.feryaeljustice.mirailink.di.koin.dataStoreTestModule
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 import org.junit.runner.RunWith
-import javax.inject.Inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
+import org.koin.test.get
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class SessionManagerTest {
+class SessionManagerTest : KoinTest {
+    private lateinit var dataStore: DataStore<Session>
+    private lateinit var sessionManager: SessionManager
+
     @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+    val koinTestRule =
+        object : TestWatcher() {
+            override fun starting(description: Description) {
+                stopKoin()
 
-    @Inject
-    @SessionDataStore
-    lateinit var dataStore: DataStore<Session>
+                startKoin {
+                    androidContext(
+                        InstrumentationRegistry
+                            .getInstrumentation()
+                            .targetContext
+                            .applicationContext,
+                    )
+                    modules(dataStoreTestModule)
+                }
+            }
 
-    @Inject
-    lateinit var sessionManager: SessionManager
+            override fun finished(description: Description) {
+                stopKoin()
+
+                // Limpiar archivos de test
+                val context =
+                    InstrumentationRegistry
+                        .getInstrumentation()
+                        .targetContext
+                        .applicationContext
+
+                context.cacheDir
+                    .listFiles { file ->
+                        file.name.startsWith("test_app_prefs_") ||
+                            file.name.startsWith("test_session_")
+                    }?.forEach { it.delete() }
+            }
+        }
 
     @Before
-    fun setUp() {
-        hiltRule.inject()
+    fun setup() {
+        dataStore = get(qualifier = Qualifiers.SessionDataStore)
+        sessionManager = get()
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
     }
 
     @Test

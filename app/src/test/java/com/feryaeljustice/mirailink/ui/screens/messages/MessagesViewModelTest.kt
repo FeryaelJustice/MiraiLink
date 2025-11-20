@@ -8,17 +8,9 @@ import com.feryaeljustice.mirailink.domain.enums.ChatType
 import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
-import com.feryaeljustice.mirailink.domain.usecase.chat.ConnectSocketUseCase
-import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase
-import com.feryaeljustice.mirailink.domain.usecase.chat.CreatePrivateChatUseCase
-import com.feryaeljustice.mirailink.domain.usecase.chat.DisconnectSocketUseCase
-import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatsFromUser
-import com.feryaeljustice.mirailink.domain.usecase.chat.ListenForMessagesUseCase
-import com.feryaeljustice.mirailink.domain.usecase.chat.SendMessageUseCase
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,17 +18,47 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import java.util.Date
 
 @ExperimentalCoroutinesApi
-class MessagesViewModelTest {
+class MessagesViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val getMatchesUseCase: GetMatchesUseCase by inject()
+    private val chatUseCases: ChatUseCases by inject()
+
     private lateinit var viewModel: MessagesViewModel
-    private val getMatchesUseCase: Lazy<GetMatchesUseCase> = mockk()
-    private val chatUseCases: Lazy<ChatUseCases> = mockk()
-    private val getChatsFromUser: GetChatsFromUser = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<GetMatchesUseCase>() }
+                single {
+                    mockk<ChatUseCases> {
+                        coEvery { getChatsFromUser.invoke() } returns
+                            MiraiLinkResult.Success(
+                                listOf(
+                                    ChatSummary(
+                                        "1",
+                                        ChatType.PRIVATE,
+                                        "",
+                                        Date(),
+                                        Date(),
+                                        ChatRole.MEMBER,
+                                    ),
+                                ),
+                            )
+                    }
+                }
+            },
+        )
+    }
 
     private val user =
         User(
@@ -52,33 +74,10 @@ class MessagesViewModelTest {
             emptyList(),
             emptyList(),
         )
-    private val chatSummary =
-        ChatSummary("1", ChatType.PRIVATE, "", Date(), Date(), ChatRole.MEMBER)
 
     @Before
     fun setUp() {
-        val connectSocketUseCase = mockk<ConnectSocketUseCase>()
-        val disconnectSocketUseCase = mockk<DisconnectSocketUseCase>()
-        val createPrivateChatUseCase = mockk<CreatePrivateChatUseCase>()
-        val createGroupChatUseCase = mockk<CreateGroupChatUseCase>()
-        val sendMessageUseCase = mockk<SendMessageUseCase>()
-        val listenForMessagesUseCase = mockk<ListenForMessagesUseCase>()
-
-        val useCases =
-            ChatUseCases(
-                connect = connectSocketUseCase,
-                disconnect = disconnectSocketUseCase,
-                getChatsFromUser = getChatsFromUser,
-                createPrivateChatUseCase = createPrivateChatUseCase,
-                createGroupChatUseCase = createGroupChatUseCase,
-                sendMessage = sendMessageUseCase,
-                listenMessages = listenForMessagesUseCase,
-            )
-
-        coEvery { chatUseCases.get() } returns useCases
-        coEvery { getChatsFromUser.invoke() } returns MiraiLinkResult.Success(listOf(chatSummary))
-        coEvery { getMatchesUseCase.get().invoke() } returns MiraiLinkResult.Success(listOf(user))
-
+        coEvery { getMatchesUseCase.invoke() } returns MiraiLinkResult.Success(listOf(user))
         viewModel =
             MessagesViewModel(getMatchesUseCase, chatUseCases, mainCoroutineRule.testDispatcher)
         mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -98,7 +97,7 @@ class MessagesViewModelTest {
     @Test
     fun `load matches error`() =
         runTest {
-            coEvery { getMatchesUseCase.get().invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { getMatchesUseCase.invoke() } returns MiraiLinkResult.Error("Error")
 
             viewModel.loadMatches()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -110,7 +109,7 @@ class MessagesViewModelTest {
     @Test
     fun `load chats error`() =
         runTest {
-            coEvery { getChatsFromUser.invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { chatUseCases.getChatsFromUser.invoke() } returns MiraiLinkResult.Error("Error")
 
             viewModel.loadChats()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()

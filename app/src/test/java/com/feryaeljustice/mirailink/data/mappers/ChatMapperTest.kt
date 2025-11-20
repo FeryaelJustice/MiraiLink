@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.UserDto
@@ -14,10 +13,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.koin.test.KoinTest
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class ChatMapperTest {
+class ChatMapperTest : KoinTest {
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 

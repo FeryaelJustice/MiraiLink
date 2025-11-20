@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-05
+// Date: 2025-11-08
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -13,7 +13,6 @@ plugins {
     alias(libs.plugins.kotlinx.parcelize)
 
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hiltAndroid)
 
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
@@ -34,7 +33,7 @@ android {
         versionCode = 20
         versionName = "1.4.0"
 
-        testInstrumentationRunner = "com.feryaeljustice.mirailink.CustomHiltTestRunner"
+        testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
 
     // Cargar keystore.properties
@@ -146,7 +145,6 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.hilt.android.testing)
     testImplementation(libs.androidx.arch.core.testing)
 
     // Testing - Instrumentation Tests
@@ -155,14 +153,15 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.koin.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.turbine)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.androidx.test.uiautomator)
+    androidTestImplementation(libs.koin.test.junit4)
 
     // Screenshot testing
     screenshotTestImplementation(libs.screenshot.validation.api)
@@ -185,11 +184,8 @@ dependencies {
     // Jetpack Security
     implementation(libs.androidx.security.crypto)
 
-    // Navigation & Hilt
-    implementation(libs.hilt.android)
+    // Navigation
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.hilt.navigation)
-    ksp(libs.hilt.compiler)
 
     // Coil (images)
     implementation(platform(libs.coil.bom))
@@ -226,7 +222,7 @@ dependencies {
     implementation(libs.androidx.credentials.playservices.auth) // Compatibilidad Android 13 a abajo
 
     // Koin
-    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)

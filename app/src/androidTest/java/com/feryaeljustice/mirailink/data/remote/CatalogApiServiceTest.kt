@@ -1,76 +1,75 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.remote
 
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.feryaeljustice.mirailink.data.model.AnimeDto
-import com.feryaeljustice.mirailink.data.model.GameDto
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseApiUrl
+import com.feryaeljustice.mirailink.di.koin.cryptoModule
+import com.feryaeljustice.mirailink.di.koin.dataModule
+import com.feryaeljustice.mirailink.di.koin.dataStoreModule
+import com.feryaeljustice.mirailink.di.koin.dispatchersModule
+import com.feryaeljustice.mirailink.di.koin.networkModule
+import com.feryaeljustice.mirailink.di.koin.repositoryModule
+import com.feryaeljustice.mirailink.di.koin.serializationModule
 import com.google.common.truth.Truth.assertThat
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import retrofit2.Retrofit
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class CatalogApiServiceTest {
+class CatalogApiServiceTest : KoinTest {
+    private val catalogApiService: CatalogApiService by inject()
+    private val mockWebServer: MockWebServer by inject()
+    private val json: Json by inject()
+
     @get:Rule
-    var hiltRule = HiltAndroidRule(this)
-
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var catalogApiService: CatalogApiService
-    private val json = Json { ignoreUnknownKeys = true }
-
-    @Before
-    fun setUp() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        hiltRule.inject()
-
-        val okHttp = OkHttpClient.Builder().build()
-
-        val retrofit =
-            Retrofit
-                .Builder()
-                .baseUrl(mockWebServer.url("/"))
-                .client(okHttp)
-                .addConverterFactory(
-                    json.asConverterFactory("application/json".toMediaType()),
-                ).build()
-
-        catalogApiService =
-            retrofit
-                .create(CatalogApiService::class.java)
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            androidContext(ApplicationProvider.getApplicationContext())
+            modules(
+                networkModule,
+                dataModule,
+                dataStoreModule,
+                dispatchersModule,
+                repositoryModule,
+                serializationModule,
+                cryptoModule,
+                module {
+                    single { MockWebServer() }
+                    single(qualifier = BaseApiUrl) { get<MockWebServer>().url("/").toString() }
+                },
+            )
+        }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
+        stopKoin()
     }
 
     @Test
     fun getAllAnimes_returnsSuccess() =
         runBlocking {
             // Given
-            val animes = listOf(AnimeDto(id = "1", name = "Anime 1", imageUrl = "url"))
+            val animeList = listOf(AnimeDto("1", "Naruto", "url"))
             val mockResponse =
                 MockResponse()
                     .setResponseCode(200)
-                    .setBody(json.encodeToString(animes))
-
+                    .setBody(json.encodeToString(animeList))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -80,9 +79,8 @@ class CatalogApiServiceTest {
             assertThat(response).isNotNull()
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("1")
-
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/catalog/animes")
+            assertThat(request.path).isEqualTo("catalog/animes")
             assertThat(request.method).isEqualTo("GET")
         }
 
@@ -90,12 +88,11 @@ class CatalogApiServiceTest {
     fun getAllGames_returnsSuccess() =
         runBlocking {
             // Given
-            val games = listOf(GameDto(id = "1", name = "Game 1", imageUrl = "url"))
+            val gamesList = listOf(AnimeDto("1", "League of Legends", "url"))
             val mockResponse =
                 MockResponse()
                     .setResponseCode(200)
-                    .setBody(json.encodeToString(games))
-
+                    .setBody(json.encodeToString(gamesList))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -105,9 +102,8 @@ class CatalogApiServiceTest {
             assertThat(response).isNotNull()
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("1")
-
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/catalog/games")
+            assertThat(request.path).isEqualTo("catalog/games")
             assertThat(request.method).isEqualTo("GET")
         }
 }

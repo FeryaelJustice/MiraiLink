@@ -1,3 +1,6 @@
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 # WARP.md
 
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
@@ -42,7 +45,7 @@ The project follows **Clean Architecture** with three main layers:
 ## Key Technologies
 
 - **UI**: Jetpack Compose with Material 3
-- **DI**: Hilt (Dagger)
+- **DI**: Koin
 - **Networking**: Retrofit + OkHttp with custom auth interceptor
 - **Real-time**: Socket.IO for chat functionality
 - **Storage**: Encrypted DataStore with AES-GCM encryption
@@ -50,6 +53,7 @@ The project follows **Clean Architecture** with three main layers:
 - **Analytics**: Firebase Analytics and Crashlytics
 - **Monetization**: Google Ads integration
 - **Security**: Two-factor authentication, encrypted local storage
+- **Testing**: Koin for testing, Kotzilla for journey testing
 
 ## Common Development Commands
 

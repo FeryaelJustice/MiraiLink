@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
@@ -9,8 +8,9 @@ import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFacto
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.koin.test.KoinTest
 
-class TwoFactorAuthMapperTest {
+class TwoFactorAuthMapperTest : KoinTest {
 
     @Test
     fun `TwoFactorSetupResponse maps to TwoFactorAuthInfo correctly`() {

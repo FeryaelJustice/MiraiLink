@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datasource
 
@@ -21,12 +21,26 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class SwipeRemoteDataSourceTest : UnitTest() {
-    private lateinit var swipeApiService: SwipeApiService
-    private lateinit var swipeRemoteDataSource: SwipeRemoteDataSource
+    private val swipeApiService: SwipeApiService by inject()
+    private val swipeRemoteDataSource: SwipeRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<SwipeApiService>() }
+                single { SwipeRemoteDataSource(get()) }
+            },
+        )
+    }
 
     @Before
     override fun setUp() {
@@ -36,9 +50,6 @@ class SwipeRemoteDataSourceTest : UnitTest() {
         every { Log.e(any(), any()) } returns 0
         every { Log.e(any(), any(), any()) } returns 0
         every { Log.d(any(), any()) } returns 0
-
-        swipeApiService = mockk()
-        swipeRemoteDataSource = SwipeRemoteDataSource(swipeApiService)
     }
 
     @Test

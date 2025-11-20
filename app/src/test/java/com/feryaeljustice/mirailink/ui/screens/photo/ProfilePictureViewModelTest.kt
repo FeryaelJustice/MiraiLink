@@ -7,7 +7,6 @@ import android.net.Uri
 import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,14 +14,28 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class ProfilePictureViewModelTest {
+class ProfilePictureViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val uploadUserPhotoUseCase: UploadUserPhotoUseCase by inject()
+
     private lateinit var viewModel: ProfilePictureViewModel
-    private val uploadUserPhotoUseCase: Lazy<UploadUserPhotoUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<UploadUserPhotoUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
@@ -36,7 +49,7 @@ class ProfilePictureViewModelTest {
             val uri = mockk<Uri>()
             val imageUrl = "http://example.com/image.jpg"
 
-            coEvery { uploadUserPhotoUseCase.get().invoke(uri) } returns
+            coEvery { uploadUserPhotoUseCase.invoke(uri) } returns
                 MiraiLinkResult.Success(
                     imageUrl,
                 )
@@ -55,7 +68,7 @@ class ProfilePictureViewModelTest {
             val uri = mockk<Uri>()
             val errorMessage = "Upload failed"
 
-            coEvery { uploadUserPhotoUseCase.get().invoke(uri) } returns
+            coEvery { uploadUserPhotoUseCase.invoke(uri) } returns
                 MiraiLinkResult.Error(
                     errorMessage,
                 )

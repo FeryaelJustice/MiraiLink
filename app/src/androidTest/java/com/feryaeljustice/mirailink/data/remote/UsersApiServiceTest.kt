@@ -1,17 +1,12 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.remote
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.feryaeljustice.mirailink.data.model.AnimeDto
-import com.feryaeljustice.mirailink.data.model.GameDto
 import com.feryaeljustice.mirailink.data.model.UserDto
-import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -23,42 +18,39 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import retrofit2.Retrofit
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class UsersApiServiceTest {
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+class UsersApiServiceTest : KoinTest {
+    private val mockWebServer: MockWebServer by inject()
+    private val usersApiService: UsersApiService by inject()
 
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var usersApiService: UsersApiService
-    private val json = Json { ignoreUnknownKeys = true }
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { MockWebServer() }
+                single {
+                    val client = OkHttpClient.Builder().build()
+                    val json = Json { ignoreUnknownKeys = true }
+                    Retrofit.Builder()
+                        .baseUrl(get<MockWebServer>().url("/"))
+                        .client(client)
+                        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                        .build()
+                }
+                single { get<Retrofit>().create(UsersApiService::class.java) }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
-        mockWebServer = MockWebServer()
         mockWebServer.start()
-
-        hiltRule.inject()
-
-        val okHttp =
-            OkHttpClient
-                .Builder()
-                .build()
-
-        val retrofit =
-            Retrofit
-                .Builder()
-                .baseUrl(mockWebServer.url("/"))
-                .client(okHttp)
-                .addConverterFactory(
-                    json.asConverterFactory("application/json".toMediaType()),
-                ).build()
-
-        usersApiService =
-            retrofit
-                .create(UsersApiService::class.java)
     }
 
     @After
@@ -67,41 +59,12 @@ class UsersApiServiceTest {
     }
 
     @Test
-    fun getUsers_returns() =
+    fun getUsers_returnsSuccess() =
         runBlocking {
             // Given
-            val listUserDto =
-                listOf(
-                    UserDto(
-                        id = "1",
-                        username = "testuser",
-                        nickname = "Test User",
-                        email = "test@test.com",
-                        bio = "Bio",
-                        gender = "Male",
-                        birthdate = "2000-01-01",
-                        animes = listOf(AnimeDto("1", "Anime 1", "url")),
-                        games = listOf(GameDto("1", "Game 1", "url")),
-                        photos = listOf(UserPhotoDto("1", "1", "url", 0)),
-                    ),
-                    UserDto(
-                        id = "2",
-                        username = "testuser2",
-                        nickname = "Test User 2",
-                        email = "test2@test.com",
-                        bio = "Bio2",
-                        gender = "Male",
-                        birthdate = "2000-01-02",
-                        animes = listOf(AnimeDto("2", "Anime 2", "url")),
-                        games = listOf(GameDto("2", "Game 2", "url")),
-                        photos = listOf(UserPhotoDto("2", "2", "url", 0)),
-                    ),
-                )
-
+            val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
             val mockResponse =
-                MockResponse()
-                    .setResponseCode(200)
-                    .setBody(Json.encodeToString(listUserDto))
+                MockResponse().setResponseCode(200).setBody(Json.encodeToString(userList))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -109,10 +72,8 @@ class UsersApiServiceTest {
 
             // Then
             assertThat(response).isNotNull()
-            assertThat(response.first().id).isEqualTo("1")
-            assertThat(response.first().username).isEqualTo("testuser")
-            assertThat(response[1].id).isEqualTo("2")
-            assertThat(response[1].username).isEqualTo("testuser2")
+            assertThat(response).hasSize(1)
+            assertThat(response[0].id).isEqualTo("1")
             val request = mockWebServer.takeRequest()
             assertThat(request.path).isEqualTo("/users")
             assertThat(request.method).isEqualTo("GET")

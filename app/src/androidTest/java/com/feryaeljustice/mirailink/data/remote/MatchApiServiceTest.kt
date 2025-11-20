@@ -1,5 +1,5 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.remote
 
@@ -9,8 +9,6 @@ import com.feryaeljustice.mirailink.data.model.request.match.MarkMatchAsSeenRequ
 import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,40 +20,39 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import retrofit2.Retrofit
 
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class MatchApiServiceTest {
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+class MatchApiServiceTest : KoinTest {
+    private val mockWebServer: MockWebServer by inject()
+    private val matchApiService: MatchApiService by inject()
 
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var matchApiService: MatchApiService
-    private val json = Json { ignoreUnknownKeys = true }
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { MockWebServer() }
+                single {
+                    val client = OkHttpClient.Builder().build()
+                    val json = Json { ignoreUnknownKeys = true }
+                    Retrofit.Builder()
+                        .baseUrl(get<MockWebServer>().url("/"))
+                        .client(client)
+                        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                        .build()
+                }
+                single { get<Retrofit>().create(MatchApiService::class.java) }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
-        mockWebServer = MockWebServer()
         mockWebServer.start()
-
-        hiltRule.inject()
-
-        val okHttp =
-            OkHttpClient
-                .Builder()
-                .build()
-
-        val retrofit =
-            Retrofit
-                .Builder()
-                .baseUrl(mockWebServer.url("/"))
-                .client(okHttp)
-                .addConverterFactory(
-                    json.asConverterFactory("application/json".toMediaType()),
-                ).build()
-
-        matchApiService = retrofit.create(MatchApiService::class.java)
     }
 
     @After
@@ -67,11 +64,9 @@ class MatchApiServiceTest {
     fun getMatches_returnsSuccess() =
         runBlocking {
             // Given
-            val users = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
+            val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
             val mockResponse =
-                MockResponse()
-                    .setResponseCode(200)
-                    .setBody(Json.encodeToString(users))
+                MockResponse().setResponseCode(200).setBody(Json.encodeToString(userList))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -82,7 +77,7 @@ class MatchApiServiceTest {
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("1")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/match")
+            assertThat(request.path).isEqualTo("/matches")
             assertThat(request.method).isEqualTo("GET")
         }
 
@@ -90,11 +85,9 @@ class MatchApiServiceTest {
     fun getUnseenMatches_returnsSuccess() =
         runBlocking {
             // Given
-            val users = listOf(UserDto(id = "2", username = "testuser2", nickname = "Test User 2"))
+            val userList = listOf(UserDto(id = "2", username = "unseenuser", nickname = "Unseen User"))
             val mockResponse =
-                MockResponse()
-                    .setResponseCode(200)
-                    .setBody(Json.encodeToString(users))
+                MockResponse().setResponseCode(200).setBody(Json.encodeToString(userList))
             mockWebServer.enqueue(mockResponse)
 
             // When
@@ -105,7 +98,7 @@ class MatchApiServiceTest {
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("2")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/match/unseen")
+            assertThat(request.path).isEqualTo("/matches/unseen")
             assertThat(request.method).isEqualTo("GET")
         }
 
@@ -113,22 +106,19 @@ class MatchApiServiceTest {
     fun markMatchAsSeen_returnsSuccess() =
         runBlocking {
             // Given
-            val expectedResponse = BasicResponse(message = "Matches marked as seen")
-            val mockResponse =
-                MockResponse()
-                    .setResponseCode(200)
-                    .setBody(Json.encodeToString(expectedResponse))
+            val matchIds = listOf("1", "2")
+            val requestBody = MarkMatchAsSeenRequest(matchIds)
+            val mockResponse = MockResponse().setResponseCode(200).setBody(Json.encodeToString(BasicResponse("Success")))
             mockWebServer.enqueue(mockResponse)
-            val requestBody = MarkMatchAsSeenRequest(listOf("1", "2"))
 
             // When
             val response = matchApiService.markMatchAsSeen(requestBody)
 
             // Then
             assertThat(response).isNotNull()
-            assertThat(response.message).isEqualTo("Matches marked as seen")
+            assertThat(response.message).isEqualTo("Success")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/match/mark-seen")
+            assertThat(request.path).isEqualTo("/matches/seen")
             assertThat(request.method).isEqualTo("POST")
         }
 }

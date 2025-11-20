@@ -1,8 +1,9 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.AnimeDto
 import com.feryaeljustice.mirailink.data.model.GameDto
@@ -13,19 +14,33 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class CatalogRepositoryImplTest {
-    private lateinit var catalogRepository: CatalogRepositoryImpl
-    private val remoteDataSource: CatalogRemoteDataSource = mockk()
+class CatalogRepositoryImplTest : UnitTest() {
+    private val catalogRepository: CatalogRepositoryImpl by inject()
+    private val remoteDataSource: CatalogRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<CatalogRemoteDataSource>() }
+                single { CatalogRepositoryImpl(get()) }
+            },
+        )
+    }
 
     private val animeDto = AnimeDto(id = "1", name = "Anime Test", imageUrl = null)
     private val gameDto = GameDto(id = "1", name = "Game Test", imageUrl = null)
 
     @Before
-    fun setUp() {
-        catalogRepository = CatalogRepositoryImpl(remoteDataSource)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

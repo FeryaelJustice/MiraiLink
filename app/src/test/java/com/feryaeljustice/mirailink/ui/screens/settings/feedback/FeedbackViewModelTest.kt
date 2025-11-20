@@ -6,7 +6,6 @@ package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,14 +13,28 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class FeedbackViewModelTest {
+class FeedbackViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
+    private val sendFeedbackUseCase: SendFeedbackUseCase by inject()
+
     private lateinit var viewModel: FeedbackViewModel
-    private val sendFeedbackUseCase: Lazy<SendFeedbackUseCase> = mockk()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<SendFeedbackUseCase>() }
+            },
+        )
+    }
 
     @Before
     fun setUp() {
@@ -32,7 +45,7 @@ class FeedbackViewModelTest {
     fun `send feedback success`() =
         runTest {
             val feedback = "This is a test feedback."
-            coEvery { sendFeedbackUseCase.get().invoke(feedback) } returns
+            coEvery { sendFeedbackUseCase.invoke(feedback) } returns
                 MiraiLinkResult.Success(
                     Unit,
                 )
@@ -57,7 +70,7 @@ class FeedbackViewModelTest {
         runTest {
             val feedback = "This is a test feedback."
             val errorMessage = "Error message"
-            coEvery { sendFeedbackUseCase.get().invoke(feedback) } returns
+            coEvery { sendFeedbackUseCase.invoke(feedback) } returns
                 MiraiLinkResult.Error(
                     errorMessage,
                 )

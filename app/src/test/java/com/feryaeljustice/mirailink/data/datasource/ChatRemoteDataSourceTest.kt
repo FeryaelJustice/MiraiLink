@@ -1,5 +1,5 @@
 // Author: Feryael Justice
-// Date: 2025-11-01
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.datasource
 
@@ -22,21 +22,33 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class ChatRemoteDataSourceTest : UnitTest() {
 
-    private lateinit var chatApiService: ChatApiService
-    private lateinit var chatRemoteDataSource: ChatRemoteDataSource
+    private val chatApiService: ChatApiService by inject()
+    private val chatRemoteDataSource: ChatRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<ChatApiService>() }
+                single { ChatRemoteDataSource(get()) }
+            },
+        )
+    }
 
     @Before
     override fun setUp() {
         super.setUp()
-        chatApiService = mockk()
-        chatRemoteDataSource = ChatRemoteDataSource(chatApiService)
     }
 
     @Test

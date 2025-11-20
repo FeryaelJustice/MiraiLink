@@ -12,6 +12,7 @@ import com.feryaeljustice.mirailink.di.koin.dispatchersModule
 import com.feryaeljustice.mirailink.di.koin.loggerModule
 import com.feryaeljustice.mirailink.di.koin.networkModule
 import com.feryaeljustice.mirailink.di.koin.repositoryModule
+import com.feryaeljustice.mirailink.di.koin.serializationModule
 import com.feryaeljustice.mirailink.di.koin.socketModule
 import com.feryaeljustice.mirailink.di.koin.telemetryModule
 import com.feryaeljustice.mirailink.di.koin.useCaseModule
@@ -45,6 +46,7 @@ class MiraiLinkApp : Application() {
                 loggerModule,
                 networkModule,
                 repositoryModule,
+                serializationModule,
                 socketModule,
                 telemetryModule,
                 useCaseModule,

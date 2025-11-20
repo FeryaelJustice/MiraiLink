@@ -1,11 +1,13 @@
-// Feryael Justice
-// 2025-11-08
+// Author: Feryael Justice
+// Date: 2025-11-08
 
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
+import com.feryaeljustice.mirailink.di.koin.Qualifiers
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
@@ -13,12 +15,27 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class MatchRepositoryImplTest {
-    private lateinit var matchRepository: MatchRepositoryImpl
-    private val matchRemoteDataSource: MatchRemoteDataSource = mockk()
+class MatchRepositoryImplTest : UnitTest() {
+    private val matchRepository: MatchRepositoryImpl by inject()
+    private val matchRemoteDataSource: MatchRemoteDataSource by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<MatchRemoteDataSource>() }
+                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                single { MatchRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
+            },
+        )
+    }
 
     private val userDto =
         UserDto(
@@ -27,21 +44,21 @@ class MatchRepositoryImplTest {
             nickname = "Test User",
             email = "test@example.com",
             photos =
-                listOf(
-                    UserPhotoDto(
-                        id = "photo1",
-                        userId = "1",
-                        url = "/path/to/photo.jpg",
-                        position = 1,
-                    ),
+            listOf(
+                UserPhotoDto(
+                    id = "photo1",
+                    userId = "1",
+                    url = "/path/to/photo.jpg",
+                    position = 1,
                 ),
+            ),
             animes = emptyList(),
             games = emptyList(),
         )
 
     @Before
-    fun setUp() {
-        matchRepository = MatchRepositoryImpl(matchRemoteDataSource, "http://localhost:8080")
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test

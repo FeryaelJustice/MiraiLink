@@ -1,7 +1,6 @@
-/**
- * @author Feryael Justice
- * @date 01/08/2024
- */
+// Author: Feryael Justice
+// Date: 2025-11-08
+
 package com.feryaeljustice.mirailink.ui.screens.chat
 
 import com.feryaeljustice.mirailink.domain.model.user.User
@@ -16,7 +15,6 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.Logger
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
-import dagger.Lazy
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,25 +23,46 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
-class ChatViewModelTest {
+class ChatViewModelTest : KoinTest {
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
-    // Mocks
-    private val createPrivateChatUseCase: Lazy<CreatePrivateChatUseCase> = mockk()
-    private val createGroupChatUseCase: Lazy<CreateGroupChatUseCase> = mockk()
-    private val getChatMessagesUseCase: Lazy<GetChatMessagesUseCase> = mockk()
-    private val markChatAsReadUseCase: Lazy<MarkChatAsReadUseCase> = mockk()
-    private val sendMessageUseCase: Lazy<SendMessageUseCase> = mockk()
-    private val getCurrentUserUseCase: Lazy<GetCurrentUserUseCase> = mockk()
-    private val getUserByIdUseCase: Lazy<GetUserByIdUseCase> = mockk()
-    private val reportUseCase: Lazy<ReportUseCase> = mockk()
-    private val logger: Logger = mockk(relaxed = true)
+    // Injected Mocks
+    private val createPrivateChatUseCase: CreatePrivateChatUseCase by inject()
+    private val createGroupChatUseCase: CreateGroupChatUseCase by inject()
+    private val getChatMessagesUseCase: GetChatMessagesUseCase by inject()
+    private val markChatAsReadUseCase: MarkChatAsReadUseCase by inject()
+    private val sendMessageUseCase: SendMessageUseCase by inject()
+    private val getCurrentUserUseCase: GetCurrentUserUseCase by inject()
+    private val getUserByIdUseCase: GetUserByIdUseCase by inject()
+    private val reportUseCase: ReportUseCase by inject()
+    private val logger: Logger by inject()
 
     // ViewModel
     private lateinit var viewModel: ChatViewModel
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            module {
+                single { mockk<CreatePrivateChatUseCase>() }
+                single { mockk<CreateGroupChatUseCase>() }
+                single { mockk<GetChatMessagesUseCase>() }
+                single { mockk<MarkChatAsReadUseCase>() }
+                single { mockk<SendMessageUseCase>() }
+                single { mockk<GetCurrentUserUseCase>() }
+                single { mockk<GetUserByIdUseCase>() }
+                single { mockk<ReportUseCase>() }
+                single { mockk<Logger>(relaxed = true) }
+            },
+        )
+    }
 
     // Test Data
     private val sender =
@@ -101,16 +120,16 @@ class ChatViewModelTest {
 
     private fun prepareInitializedChatMocks() {
         coEvery {
-            createPrivateChatUseCase.get().invoke(receiverId)
+            createPrivateChatUseCase.invoke(receiverId)
         } returns MiraiLinkResult.Success(chatId)
-        coEvery { getCurrentUserUseCase.get().invoke() } returns MiraiLinkResult.Success(sender)
-        coEvery { getUserByIdUseCase.get().invoke(receiverId) } returns
+        coEvery { getCurrentUserUseCase.invoke() } returns MiraiLinkResult.Success(sender)
+        coEvery { getUserByIdUseCase.invoke(receiverId) } returns
             MiraiLinkResult.Success(
                 receiver,
             )
-        coEvery { markChatAsReadUseCase.get().invoke(chatId) } returns MiraiLinkResult.Success(Unit)
+        coEvery { markChatAsReadUseCase.invoke(chatId) } returns MiraiLinkResult.Success(Unit)
         // da igual lo que devuelva, pero que no falle
-        coEvery { getChatMessagesUseCase.get().invoke(any()) } returns
+        coEvery { getChatMessagesUseCase.invoke(any()) } returns
             MiraiLinkResult.Success(
                 emptyList(),
             )
@@ -167,7 +186,7 @@ class ChatViewModelTest {
 
             // mock para enviar mensaje
             coEvery {
-                sendMessageUseCase.get().invoke(receiverId, message)
+                sendMessageUseCase.invoke(receiverId, message)
             } returns MiraiLinkResult.Success(Unit)
 
             // Act
