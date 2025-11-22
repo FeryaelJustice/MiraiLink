@@ -19,7 +19,10 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.navigation.AppScreen
 import com.feryaeljustice.mirailink.ui.navigation.BottomNavItem
+import com.skydoves.compose.stability.runtime.TraceRecomposition
 
+@Suppress("ParamsComparedByRef")
+@TraceRecomposition
 @Composable
 fun MiraiLinkBottomBar(
     modifier: Modifier = Modifier,

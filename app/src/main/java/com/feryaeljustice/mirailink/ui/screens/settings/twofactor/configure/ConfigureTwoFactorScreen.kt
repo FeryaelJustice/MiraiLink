@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -178,13 +177,11 @@ fun ConfigureTwoFactorScreen(
                     MiraiLinkBasicText(
                         text = stringResource(R.string.is_two_factor_enabled),
                         textStyle = MaterialTheme.typography.bodySmall,
-                        autoSize =
-                            TextAutoSize.StepBased(
-                                minFontSize = MaterialTheme.typography.bodySmall.fontSize,
-                                maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                stepSize = 1.sp,
-                            ),
-                        color = { cardTextColor },
+                        autoSizeEnabled = true,
+                        autoSizeMin = MaterialTheme.typography.bodySmall.fontSize,
+                        autoSizeMax = MaterialTheme.typography.bodyLarge.fontSize,
+                        autoSizeStep = 1.sp,
+                        color = cardTextColor,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Icon(

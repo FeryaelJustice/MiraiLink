@@ -19,6 +19,8 @@ plugins {
     alias(libs.plugins.screenshot)
 
     alias(libs.plugins.kotzilla)
+
+    alias(libs.plugins.stability.analyzer)
 }
 
 android {
@@ -102,6 +104,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
         }
+    }
+
+    lint {
+        disable.add("ktlint:standard:function-naming")
     }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true

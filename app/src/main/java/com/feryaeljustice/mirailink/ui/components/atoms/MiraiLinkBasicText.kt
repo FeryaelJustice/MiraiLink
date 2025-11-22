@@ -4,10 +4,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun MiraiLinkBasicText(
@@ -19,9 +21,23 @@ fun MiraiLinkBasicText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    color: ColorProducer? = null,
-    autoSize: TextAutoSize? = null
+    color: Color? = null,
+    autoSizeEnabled: Boolean = false,
+    autoSizeMin: TextUnit = 12.sp,
+    autoSizeMax: TextUnit = 112.sp,
+    autoSizeStep: TextUnit = 0.25.sp,
 ) {
+    val autoSize =
+        if (autoSizeEnabled) {
+            TextAutoSize.StepBased(
+                minFontSize = autoSizeMin,
+                maxFontSize = autoSizeMax,
+                stepSize = autoSizeStep,
+            )
+        } else {
+            null
+        }
+
     BasicText(
         text = text,
         modifier = modifier,
@@ -31,7 +47,7 @@ fun MiraiLinkBasicText(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        color = color,
-        autoSize = autoSize
+        color = color?.let { color -> { color } },
+        autoSize = autoSize,
     )
 }

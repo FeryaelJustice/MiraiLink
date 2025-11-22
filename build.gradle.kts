@@ -11,4 +11,7 @@ plugins {
 
     // 3. Plugins de Generación de Código
     alias(libs.plugins.ksp) apply false
+
+    // 4. Plugins de Análisis de Código
+    alias(libs.plugins.stability.analyzer) apply false
 }
