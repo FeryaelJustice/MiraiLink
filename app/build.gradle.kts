@@ -32,8 +32,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 20
-        versionName = "1.4.0"
+        versionCode = 22
+        versionName = "1.4.2"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
@@ -180,7 +180,7 @@ dependencies {
     // KotlinX Serialization
     implementation(libs.kotlinx.serialization.json)
     // Serialization Converter for Retrofit
-    implementation(libs.retrofit.converter.serialization)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
 
     // Datastore
     implementation(libs.androidx.datastore.preferences)

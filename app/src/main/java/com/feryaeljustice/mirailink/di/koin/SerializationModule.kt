@@ -10,6 +10,7 @@ val serializationModule =
     module {
         single {
             Json {
+                prettyPrint = true
                 ignoreUnknownKeys = true
                 encodeDefaults = true
             }

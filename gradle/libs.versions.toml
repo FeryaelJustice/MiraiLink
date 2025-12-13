@@ -27,6 +27,7 @@ screenshot = "0.0.1-alpha12"
 securityCrypto = "1.1.0"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
+squareupKotlinxSerializationRetrofitConverter = "3.0.0"
 uiTextGoogleFonts = "1.10.0"
 zxingCore = "3.5.4"
 materialIconsCore = "1.7.8"
@@ -126,7 +127,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 # API Consuming: Retrofit
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofit-converter-serialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "squareupKotlinxSerializationRetrofitConverter" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 
