@@ -40,3 +40,15 @@
 # Ktor engines (si usas el engine okhttp o el "native" de Kotzilla)
 -keep class io.ktor.** { *; }
 -dontwarn io.ktor.**
+
+# Koin core
+-keep class org.koin.** { *; }
+-dontwarn org.koin.**
+
+# Koin annotations / KSP generated
+-keep class **_Factory { *; }
+-keep class **_Module { *; }
+-keep class **_Impl { *; }
+
+# ViewModels con Koin
+-keep class * extends androidx.lifecycle.ViewModel { *; }

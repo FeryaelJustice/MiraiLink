@@ -30,15 +30,15 @@ import org.koin.dsl.module
 
 val repositoryModule =
     module {
-        single<AppConfigRepository>(createdAtStart = true) { AppConfigRepositoryImpl(get()) }
-        single<CatalogRepository>(createdAtStart = true) { CatalogRepositoryImpl(get()) }
-        single<ChatRepository>(createdAtStart = true) { ChatRepositoryImpl(get(), get(), get(BaseUrl)) }
-        single<FeedbackRepository>(createdAtStart = true) { FeedbackRepositoryImpl(get()) }
-        single<MatchRepository>(createdAtStart = true) { MatchRepositoryImpl(get(), get(BaseUrl)) }
-        single<OnboardingRepository>(createdAtStart = true) { OnboardingRepositoryImpl(get()) }
-        single<ReportRepository>(createdAtStart = true) { ReportRepositoryImpl(get()) }
-        single<SwipeRepository>(createdAtStart = true) { SwipeRepositoryImpl(get(), get(BaseUrl)) }
-        single<TwoFactorRepository>(createdAtStart = true) { TwoFactorRepositoryImpl(get()) }
-        single<UserRepository>(createdAtStart = true) { UserRepositoryImpl(get(), get(), get(BaseUrl)) }
-        single<UsersRepository>(createdAtStart = true) { UsersRepositoryImpl(get(), get(BaseUrl)) }
+        single<AppConfigRepository> { AppConfigRepositoryImpl(get()) }
+        single<CatalogRepository> { CatalogRepositoryImpl(get()) }
+        single<ChatRepository> { ChatRepositoryImpl(get(), get(), get(BaseUrl)) }
+        single<FeedbackRepository> { FeedbackRepositoryImpl(get()) }
+        single<MatchRepository> { MatchRepositoryImpl(get(), get(BaseUrl)) }
+        single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
+        single<ReportRepository> { ReportRepositoryImpl(get()) }
+        single<SwipeRepository> { SwipeRepositoryImpl(get(), get(BaseUrl)) }
+        single<TwoFactorRepository> { TwoFactorRepositoryImpl(get()) }
+        single<UserRepository> { UserRepositoryImpl(get(), get(), get(BaseUrl)) }
+        single<UsersRepository> { UsersRepositoryImpl(get(), get(BaseUrl)) }
     }

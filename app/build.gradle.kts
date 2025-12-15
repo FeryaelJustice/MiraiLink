@@ -1,6 +1,7 @@
 // Author: Feryael Justice
 // Date: 2025-11-08
 
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -32,8 +33,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 22
-        versionName = "1.4.2"
+        versionCode = 24
+        versionName = "1.5.1"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
@@ -70,6 +71,9 @@ android {
 //            signingConfig = signingConfigs.getByName("debug")
             buildConfigField("String", "TEST_USER", keystoreProperties["TEST_USER"] as String)
             buildConfigField("String", "TEST_PASS", keystoreProperties["TEST_PASS"] as String)
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
         }
 
         getByName("release") {
@@ -80,6 +84,9 @@ android {
                 "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
         }
     }
     compileOptions {

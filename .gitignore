@@ -19,3 +19,6 @@ app/build
 app/release
 app/kotzilla.json
 /app/src/main/assets/kotzilla.key
+mirailink-keystore.jks
+app-release.apk
+app-release.aab

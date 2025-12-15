@@ -61,14 +61,14 @@ val networkModule =
                 .build()
         }
 
-        single(createdAtStart = true) { get<Retrofit>().create(AppConfigApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(UserApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(UsersApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(TwoFactorApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(SwipeApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(ChatApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(MatchApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(CatalogApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(ReportApiService::class.java) }
-        single(createdAtStart = true) { get<Retrofit>().create(FeedbackApiService::class.java) }
+        single { get<Retrofit>().create(AppConfigApiService::class.java) }
+        single { get<Retrofit>().create(UserApiService::class.java) }
+        single { get<Retrofit>().create(UsersApiService::class.java) }
+        single { get<Retrofit>().create(TwoFactorApiService::class.java) }
+        single { get<Retrofit>().create(SwipeApiService::class.java) }
+        single { get<Retrofit>().create(ChatApiService::class.java) }
+        single { get<Retrofit>().create(MatchApiService::class.java) }
+        single { get<Retrofit>().create(CatalogApiService::class.java) }
+        single { get<Retrofit>().create(ReportApiService::class.java) }
+        single { get<Retrofit>().create(FeedbackApiService::class.java) }
     }
