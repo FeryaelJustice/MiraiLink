@@ -21,19 +21,20 @@ import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-val dataModule = module {
-    single { CredentialHelper(androidContext()) }
-    single { SessionManager(get(SessionDataStore)) }
-    single { MiraiLinkPrefs(get(PrefsDataStore)) }
+val dataModule =
+    module {
+        single { CredentialHelper(androidContext()) }
+        single { SessionManager(get(SessionDataStore)) }
+        single { MiraiLinkPrefs(get(PrefsDataStore)) }
 
-    single(createdAtStart = true) { AppConfigRemoteDataSource(get()) }
-    single(createdAtStart = true) { UserRemoteDataSource(get(), androidContext()) }
-    single(createdAtStart = true) { UsersRemoteDataSource(get()) }
-    single(createdAtStart = true) { TwoFactorRemoteDataSource(get()) }
-    single(createdAtStart = true) { SwipeRemoteDataSource(get()) }
-    single(createdAtStart = true) { ChatRemoteDataSource(get()) }
-    single(createdAtStart = true) { MatchRemoteDataSource(get()) }
-    single(createdAtStart = true) { CatalogRemoteDataSource(get()) }
-    single(createdAtStart = true) { ReportRemoteDataSource(get()) }
-    single(createdAtStart = true) { FeedbackRemoteDatasource(get()) }
-}
+        single { AppConfigRemoteDataSource(get()) }
+        single { UserRemoteDataSource(get(), androidContext()) }
+        single { UsersRemoteDataSource(get()) }
+        single { TwoFactorRemoteDataSource(get()) }
+        single { SwipeRemoteDataSource(get()) }
+        single { ChatRemoteDataSource(get()) }
+        single { MatchRemoteDataSource(get()) }
+        single { CatalogRemoteDataSource(get()) }
+        single { ReportRemoteDataSource(get()) }
+        single { FeedbackRemoteDatasource(get()) }
+    }

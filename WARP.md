@@ -40,7 +40,7 @@ The project follows **Clean Architecture** with three main layers:
   - **Atoms**: Basic UI elements (buttons, text fields, cards)
   - **Molecules**: Combinations of atoms (gender selector, date picker)
   - **Organisms**: Complex components (user cards, chat lists)
-- **Navigation**: Navigation setup and screen definitions
+- **Navigation**: Navigation setup and screen definitions (navigation 3)
 
 ## Key Technologies
 

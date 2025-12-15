@@ -138,4 +138,5 @@
     <string name="contact">Contact</string>
     <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one digit</string>
     <string name="invalid_email">Invalid email</string>
+    <string name="version_app">Version: %1$s</string>
 </resources>

@@ -191,7 +191,9 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     // Navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
     // Coil (images)
     implementation(platform(libs.coil.bom))
@@ -233,7 +235,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.core.coroutines)
-    implementation(libs.koin.androidx.compose.navigation)
+    // implementation(libs.koin.androidx.compose.navigation)
     implementation(libs.koin.annotations)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)

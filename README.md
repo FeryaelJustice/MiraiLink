@@ -8,6 +8,7 @@ MiraiLink es la app social pensada para fans del anime y los videojuegos. Combin
 ## Stack principal
 
 - Kotlin 2.2 con Jetpack Compose (Material 3, navegación declarativa, diseño atómico)
+- Navigation 3 (navegación optimizada para compose)
 - Arquitectura modular por capas: Data / Domain / UI + módulos de inyección de dependencias
 - Koin para DI, Socket.IO para chat, Retrofit + OkHttp para REST, DataStore cifrado para preferencias
 - Firebase (Analytics y Crashlytics), Google Mobile Ads, Kotlinx Serialization, Coil

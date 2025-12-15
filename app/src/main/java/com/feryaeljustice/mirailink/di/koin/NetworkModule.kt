@@ -3,6 +3,7 @@
 
 package com.feryaeljustice.mirailink.di.koin
 
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.data.remote.AppConfigApiService
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
@@ -33,21 +34,25 @@ val networkModule =
 
         single { AuthInterceptor(get<SessionManager>()) }
 
-        single(createdAtStart = true) {
+        single {
             OkHttpClient
                 .Builder()
-                .addInterceptor(
-                    HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.BODY
-                    },
-                ).addInterceptor(get<AuthInterceptor>())
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .build()
+                .apply {
+                    if (BuildConfig.DEBUG) {
+                        addInterceptor(
+                            HttpLoggingInterceptor().apply {
+                                level = HttpLoggingInterceptor.Level.BODY
+                            },
+                        )
+                    }
+                    addInterceptor(get<AuthInterceptor>())
+                    connectTimeout(10, TimeUnit.SECONDS)
+                    readTimeout(10, TimeUnit.SECONDS)
+                    writeTimeout(10, TimeUnit.SECONDS)
+                }.build()
         }
 
-        single(createdAtStart = true) {
+        single {
             Retrofit
                 .Builder()
                 .baseUrl(get<String>(BaseApiUrl))

@@ -43,7 +43,7 @@ As an AI assistant, your primary role is to understand the project's structure a
 
 ### Data Flow
 
-1.  **UI (`screens`)**: Triggers actions in the ViewModel.
+1.  **UI (`screens`)**: Triggers actions in the ViewModel (uses Navigation 3).
 2.  **ViewModel**: Calls a `usecase` from the `domain` layer.
 3.  **UseCase**: Orchestrates one or more `repository` calls.
 4.  **Repository (`data` layer)**: Fetches data from a `datasource` (remote or local).

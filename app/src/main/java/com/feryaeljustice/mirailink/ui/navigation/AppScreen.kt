@@ -1,57 +1,86 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class ScreensSubgraphs {
+sealed class ScreensSubgraphs : NavKey {
     @Serializable
+    @SerialName("sg_auth")
     data object Auth : ScreensSubgraphs()
 
     @Serializable
+    @SerialName("sg_main")
     data object Main : ScreensSubgraphs()
 }
 
 @Serializable
-sealed class AppScreen {
+sealed class AppScreen : NavKey {
     @Serializable
+    @SerialName("splash")
     object SplashScreen : AppScreen()
 
     @Serializable
+    @SerialName("onboarding")
     object OnboardingScreen : AppScreen()
 
     @Serializable
+    @SerialName("auth")
     data object AuthScreen : AppScreen()
 
     @Serializable
-    data class RecoverPasswordScreen(val email: String = "") : AppScreen()
+    @SerialName("recover_password")
+    data class RecoverPasswordScreen(
+        val email: String = "",
+    ) : AppScreen()
 
     @Serializable
-    data class VerificationScreen(val userId: String = "") : AppScreen()
+    @SerialName("verification")
+    data class VerificationScreen(
+        val userId: String = "",
+    ) : AppScreen()
 
     @Serializable
+    @SerialName("profile_picture")
     data object ProfilePictureScreen : AppScreen()
 
     @Serializable
+    @SerialName("home")
     data object HomeScreen : AppScreen()
 
     @Serializable
+    @SerialName("messages")
     data object MessagesScreen : AppScreen()
 
     @Serializable
-    data class ChatScreen(val userId: String) : AppScreen()
+    @SerialName("chat")
+    data class ChatScreen(
+        val userId: String,
+    ) : AppScreen()
 
     @Serializable
+    @SerialName("settings")
     data object SettingsScreen : AppScreen()
 
     @Serializable
+    @SerialName("profile")
     data object ProfileScreen : AppScreen()
 
     @Serializable
+    @SerialName("feedback")
     object FeedbackScreen : AppScreen()
 
     @Serializable
+    @SerialName("configure_2fa")
     object ConfigureTwoFactorScreen : AppScreen()
 }
+
+private fun AppScreen.topLevelTab(): AppScreen =
+    when (this) {
+        is AppScreen.ChatScreen -> AppScreen.MessagesScreen
+        else -> this
+    }
 
 /*
 val AppScreen.route: String

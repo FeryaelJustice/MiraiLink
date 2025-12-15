@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -196,6 +197,19 @@ fun SettingsScreen(
                     copyToClipBoard(deepLinkPrivacyPolicyUrl)
                 },
                 isTransparentBackground = true,
+            )
+        }
+        Row(
+            modifier =
+                Modifier
+                    .padding(bottom = 24.dp)
+                    .align(Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MiraiLinkText(
+                text = stringResource(R.string.version_app, BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }

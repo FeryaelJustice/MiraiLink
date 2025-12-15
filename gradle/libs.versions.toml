@@ -20,6 +20,8 @@ kotzilla = "1.4.1"
 ksp = "2.3.2"
 lifecycleRuntimeKtx = "2.10.0"
 navigationCompose = "2.9.6"
+nav3Core = "1.0.0"
+lifecycleViewmodelNav3 = "2.10.0-rc01"
 okhttp = "5.3.2"
 playServicesAds = "24.9.0"
 retrofit = "3.0.0"
@@ -97,8 +99,15 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-foundation-compose = { module = "androidx.compose.foundation:foundation", version.ref = "foundationCompose" }
+
+# Navigation 3
+# Core Navigation 3 libraries
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+
+# Add-on libraries (only add if you need them)
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 
 # Tooling
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -165,7 +174,7 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
-koin-androidx-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation" }
+# koin-androidx-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation3" }
 koin-core-coroutines = { module = "io.insert-koin:koin-core-coroutines" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinKspCompiler" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinAnnotations" }

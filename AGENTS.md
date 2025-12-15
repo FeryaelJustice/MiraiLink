@@ -83,7 +83,7 @@ app/src/main/java/com/feryaeljustice/mirailink/
 ├── ui/             # Presentation layer
 │   ├── screens/    # Compose screens + ViewModels
 │   ├── components/ # Reusable UI components
-│   └── navigation/ # Navigation setup
+│   └── navigation/ # Navigation 3 setup
 └── di/             # Hilt dependency injection modules
 ```
 
