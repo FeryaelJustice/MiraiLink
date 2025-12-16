@@ -167,6 +167,11 @@ class AuthViewModel(
                     email = email.ifBlank { username },
                     password = password,
                 )
+            } else {
+                withContext(mainDispatcher) {
+                    _state.value = AuthUiState.Error("User/Email and Password fields are mandatory")
+                }
+                return@launch
             }
 
             val result = registerUseCase.value(username, email, password)
@@ -261,11 +266,15 @@ class AuthViewModel(
     fun confirmTwoFactorDiag(onSaveTheSession: (String, String) -> Unit) {
         val userID = _userId.value
         if (userID == null) {
-            viewModelScope.launch(mainDispatcher) { _state.value = AuthUiState.Error("No existe el ID del usuario") }
+            viewModelScope.launch(mainDispatcher) {
+                _state.value = AuthUiState.Error("No existe el ID del usuario")
+            }
             return
         }
         if (_twoFactorCode.value.isBlank()) {
-            viewModelScope.launch(mainDispatcher) { _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío") }
+            viewModelScope.launch(mainDispatcher) {
+                _state.value = AuthUiState.Error("El código de dos factores no puede estar vacío")
+            }
             return
         }
         viewModelScope.launch(ioDispatcher) {
@@ -348,39 +357,51 @@ class AuthViewModel(
 
         var isValid = true
 
-        // Lógica de Registro
-        @Suppress("ktlint:standard:if-else-wrapping")
-        if (!isLogin) {
-            if (username.length < 4) {
-                viewModelScope.launch(mainDispatcher) { _usernameError.value = AuthFieldError.MinLength(4) }
-                isValid = false
-            }
-            if (!email.isEmailValid()) {
-                viewModelScope.launch(mainDispatcher) { _emailError.value = AuthFieldError.InvalidEmail }
-                isValid = false
-            }
-            if (confirmPassword != password) {
-                viewModelScope.launch(mainDispatcher) { _confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch }
-                isValid = false
-            }
-        }
-        // Lógica de Login
-        else {
-            if (_loginByUsername.value) {
-                if (username.length < 4) {
-                    viewModelScope.launch(mainDispatcher) { _usernameError.value = AuthFieldError.MinLength(4) }
+        if (username.isBlank() || email.isBlank() || password.isBlank()) {
+            // Lógica de Registro
+            @Suppress("ktlint:standard:if-else-wrapping")
+            if (!isLogin) {
+                if (username.length < 4 || email.isBlank()) {
+                    viewModelScope.launch(mainDispatcher) {
+                        _usernameError.value = AuthFieldError.MinLength(4)
+                    }
                     isValid = false
                 }
-            } else { // Login con email
-                if (!email.isEmailValid()) {
-                    viewModelScope.launch(mainDispatcher) { _emailError.value = AuthFieldError.InvalidEmail }
+                if (!email.isEmailValid() || email.isBlank()) {
+                    viewModelScope.launch(mainDispatcher) {
+                        _emailError.value = AuthFieldError.InvalidEmail
+                    }
                     isValid = false
+                }
+                if (confirmPassword != password) {
+                    viewModelScope.launch(mainDispatcher) {
+                        _confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
+                    }
+                    isValid = false
+                }
+            }
+            // Lógica de Login
+            else {
+                if (_loginByUsername.value) {
+                    if (username.isBlank() || username.length < 4) {
+                        viewModelScope.launch(mainDispatcher) {
+                            _usernameError.value = AuthFieldError.MinLength(4)
+                        }
+                        isValid = false
+                    }
+                } else { // Login con email
+                    if (!email.isEmailValid() || email.isBlank()) {
+                        viewModelScope.launch(mainDispatcher) {
+                            _emailError.value = AuthFieldError.InvalidEmail
+                        }
+                        isValid = false
+                    }
                 }
             }
         }
 
         // Validaciones comunes
-        if (!password.isPasswordValid()) {
+        if (!password.isPasswordValid() || password.isBlank()) {
             viewModelScope.launch(mainDispatcher) {
                 _passwordError.value =
                     AuthFieldError.MinLength(4)

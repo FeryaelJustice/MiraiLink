@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,6 +52,7 @@ import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel,
@@ -433,26 +433,33 @@ fun AuthScreen(
                 CircularProgressIndicator()
             }
 
-            AuthUiState.Idle -> Unit
+            AuthUiState.Idle -> {
+                Unit
+            }
         }
     }
 }
 
 @Composable
-private fun mapErrorToString(error: AuthViewModel.AuthFieldError?): String? {
-    val context = LocalContext.current
-    return when (error) {
-        is AuthViewModel.AuthFieldError.MinLength ->
-            context.getString(
+private fun mapErrorToString(error: AuthViewModel.AuthFieldError?): String? =
+    when (error) {
+        is AuthViewModel.AuthFieldError.MinLength -> {
+            stringResource(
                 R.string.must_have_less_than,
                 error.min,
             )
+        }
 
-        is AuthViewModel.AuthFieldError.InvalidEmail -> context.getString(R.string.invalid_email)
-        is AuthViewModel.AuthFieldError.PasswordsDoNotMatch -> context.getString(R.string.passwords_do_not_match)
+        is AuthViewModel.AuthFieldError.InvalidEmail -> {
+            stringResource(R.string.invalid_email)
+        }
+
+        is AuthViewModel.AuthFieldError.PasswordsDoNotMatch -> {
+            stringResource(R.string.passwords_do_not_match)
+        }
+
         // is AuthFieldError.InvalidPassword -> context.getString(R.string.password_format_error)
         else -> {
             null
         }
     }
-}

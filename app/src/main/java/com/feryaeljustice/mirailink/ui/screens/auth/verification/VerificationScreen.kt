@@ -33,6 +33,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun VerificationScreen(
     viewModel: VerificationViewModel,
