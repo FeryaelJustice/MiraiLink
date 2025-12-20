@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename")
+
 package com.feryaeljustice.mirailink.domain.core
 
 import android.util.Base64
@@ -27,8 +29,9 @@ fun rememberInitializedStateFlow(
 object JwtUtils {
     fun extractUserId(token: String): String? {
         return try {
-            val payload = token.split(".").getOrNull(1)
-                ?: return null
+            val payload =
+                token.split(".").getOrNull(1)
+                    ?: return null
 
             val decoded = String(Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP))
             val json = JSONObject(decoded)
