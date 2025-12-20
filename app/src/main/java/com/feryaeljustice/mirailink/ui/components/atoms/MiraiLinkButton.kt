@@ -8,25 +8,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkButton(
-    modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     disabledContainerColor: Color = MaterialTheme.colorScheme.primary,
     disabledContentColor: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit),
 ) {
     Button(
         modifier = modifier,
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor.copy(alpha = 0.12f),
-            disabledContentColor = disabledContentColor.copy(alpha = 0.38f)
-        ),
-        content = content
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = disabledContainerColor.copy(alpha = 0.12f),
+                disabledContentColor = disabledContentColor.copy(alpha = 0.38f),
+            ),
+        content = content,
     )
 }

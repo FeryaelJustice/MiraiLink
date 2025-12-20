@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.home
 
 import com.feryaeljustice.mirailink.domain.model.user.User
@@ -36,16 +33,17 @@ class HomeViewModelTest : KoinTest {
     private lateinit var viewModel: HomeViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<GetFeedUseCase>() }
-                single { mockk<LikeUserUseCase>() }
-                single { mockk<DislikeUserUseCase>() }
-                single { mockk<GetCurrentUserUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<GetFeedUseCase>() }
+                    single { mockk<LikeUserUseCase>() }
+                    single { mockk<DislikeUserUseCase>() }
+                    single { mockk<GetCurrentUserUseCase>() }
+                },
+            )
+        }
 
     private val user1 =
         User(

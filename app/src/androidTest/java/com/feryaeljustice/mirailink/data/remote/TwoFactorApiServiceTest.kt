@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.remote
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -8,7 +5,6 @@ import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFacto
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorStatusResponse
 import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.google.common.truth.Truth.assertThat
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -25,6 +21,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @RunWith(AndroidJUnit4::class)
 class TwoFactorApiServiceTest : KoinTest {
@@ -32,23 +29,25 @@ class TwoFactorApiServiceTest : KoinTest {
     private val twoFactorApiService: TwoFactorApiService by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { MockWebServer() }
-                single {
-                    val client = OkHttpClient.Builder().build()
-                    val json = Json { ignoreUnknownKeys = true }
-                    Retrofit.Builder()
-                        .baseUrl(get<MockWebServer>().url("/"))
-                        .client(client)
-                        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-                        .build()
-                }
-                single { get<Retrofit>().create(TwoFactorApiService::class.java) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { MockWebServer() }
+                    single {
+                        val client = OkHttpClient.Builder().build()
+                        val json = Json { ignoreUnknownKeys = true }
+                        Retrofit
+                            .Builder()
+                            .baseUrl(get<MockWebServer>().url("/"))
+                            .client(client)
+                            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                            .build()
+                    }
+                    single { get<Retrofit>().create(TwoFactorApiService::class.java) }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

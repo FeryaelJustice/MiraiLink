@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.profile
 
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
@@ -41,18 +38,19 @@ class ProfileViewModelTest : KoinTest {
     private lateinit var viewModel: ProfileViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<GetCurrentUserUseCase>() }
-                single { mockk<UpdateUserProfileUseCase>() }
-                single { mockk<DeleteUserPhotoUseCase>() }
-                single { mockk<GetAnimesUseCase>() }
-                single { mockk<GetGamesUseCase>() }
-                single { mockk<Logger>(relaxed = true) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<GetCurrentUserUseCase>() }
+                    single { mockk<UpdateUserProfileUseCase>() }
+                    single { mockk<DeleteUserPhotoUseCase>() }
+                    single { mockk<GetAnimesUseCase>() }
+                    single { mockk<GetGamesUseCase>() }
+                    single { mockk<Logger>(relaxed = true) }
+                },
+            )
+        }
 
     private val user =
         User(

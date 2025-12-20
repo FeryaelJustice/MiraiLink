@@ -10,11 +10,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
 
+@Suppress("EffectKeys")
 @Composable
 fun Modifier.debounceClickable(
+    onClick: () -> Unit,
     enabled: Boolean = true,
-    debounceTime: Long = 600L, // milisegundos
-    onClick: () -> Unit
+    debounceTime: Long = 600L,
 ): Modifier {
     var isClickable by remember { mutableStateOf(true) }
 
@@ -28,6 +29,6 @@ fun Modifier.debounceClickable(
             if (!isClickable) return@clickable
             isClickable = false
             onClick()
-        }
+        },
     )
 }

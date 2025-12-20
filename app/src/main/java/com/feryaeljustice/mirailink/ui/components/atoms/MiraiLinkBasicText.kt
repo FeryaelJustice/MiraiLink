@@ -11,10 +11,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkBasicText(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = TextStyle.Default,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Visible,

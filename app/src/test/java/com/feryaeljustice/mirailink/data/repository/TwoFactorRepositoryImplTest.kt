@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -25,14 +22,15 @@ class TwoFactorRepositoryImplTest : UnitTest() {
     private val remoteDataSource: TwoFactorRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<TwoFactorRemoteDataSource>() }
-                single { TwoFactorRepositoryImpl(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<TwoFactorRemoteDataSource>() }
+                    single { TwoFactorRepositoryImpl(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {

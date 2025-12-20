@@ -14,27 +14,30 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun HashtagChip(
-    modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
-    onClick: (() -> Unit)? = null
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
-    val backgroundColor = if (selected) {
-        MaterialTheme.colorScheme.surfaceVariant
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val backgroundColor =
+        if (selected) {
+            MaterialTheme.colorScheme.surfaceVariant
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
 
     val textColor = MaterialTheme.colorScheme.onSurface
 
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(backgroundColor)
-            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(backgroundColor)
+                .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         MiraiLinkText(
             text = text,
@@ -43,24 +46,24 @@ fun HashtagChip(
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun TagsSection(
-    modifier: Modifier = Modifier,
     tags: List<String>,
-    onTagClick: (String) -> Unit = {}
+    modifier: Modifier = Modifier,
+    onTagClick: (String) -> Unit = {},
 ) {
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         tags.forEach { tag ->
             HashtagChip(
                 text = tag,
                 selected = false,
-                onClick = { onTagClick(tag) }
+                onClick = { onTagClick(tag) },
             )
         }
     }
 }
-

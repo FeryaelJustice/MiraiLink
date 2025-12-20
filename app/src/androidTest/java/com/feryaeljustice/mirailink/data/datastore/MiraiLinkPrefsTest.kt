@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datastore
 
 import androidx.test.ext.junit.runners.AndroidJUnit4

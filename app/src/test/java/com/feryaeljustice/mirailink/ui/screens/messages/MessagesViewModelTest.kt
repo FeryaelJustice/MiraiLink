@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.messages
 
 import com.feryaeljustice.mirailink.domain.enums.ChatRole
@@ -35,30 +32,31 @@ class MessagesViewModelTest : KoinTest {
     private lateinit var viewModel: MessagesViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<GetMatchesUseCase>() }
-                single {
-                    mockk<ChatUseCases> {
-                        coEvery { getChatsFromUser.invoke() } returns
-                            MiraiLinkResult.Success(
-                                listOf(
-                                    ChatSummary(
-                                        "1",
-                                        ChatType.PRIVATE,
-                                        "",
-                                        Date(),
-                                        Date(),
-                                        ChatRole.MEMBER,
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<GetMatchesUseCase>() }
+                    single {
+                        mockk<ChatUseCases> {
+                            coEvery { getChatsFromUser.invoke() } returns
+                                MiraiLinkResult.Success(
+                                    listOf(
+                                        ChatSummary(
+                                            "1",
+                                            ChatType.PRIVATE,
+                                            "",
+                                            Date(),
+                                            Date(),
+                                            ChatRole.MEMBER,
+                                        ),
                                     ),
-                                ),
-                            )
+                                )
+                        }
                     }
-                }
-            },
-        )
-    }
+                },
+            )
+        }
 
     private val user =
         User(

@@ -1,5 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-13
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.ViewModel

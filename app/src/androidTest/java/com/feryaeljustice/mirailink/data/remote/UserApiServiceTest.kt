@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.remote
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,7 +7,6 @@ import com.feryaeljustice.mirailink.data.model.request.auth.RegisterRequest
 import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.RegisterResponse
 import com.google.common.truth.Truth.assertThat
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -27,6 +23,7 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @RunWith(AndroidJUnit4::class)
 class UserApiServiceTest : KoinTest {
@@ -34,23 +31,25 @@ class UserApiServiceTest : KoinTest {
     private val userApiService: UserApiService by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { MockWebServer() }
-                single {
-                    val client = OkHttpClient.Builder().build()
-                    val json = Json { ignoreUnknownKeys = true }
-                    Retrofit.Builder()
-                        .baseUrl(get<MockWebServer>().url("/"))
-                        .client(client)
-                        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-                        .build()
-                }
-                single { get<Retrofit>().create(UserApiService::class.java) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { MockWebServer() }
+                    single {
+                        val client = OkHttpClient.Builder().build()
+                        val json = Json { ignoreUnknownKeys = true }
+                        Retrofit
+                            .Builder()
+                            .baseUrl(get<MockWebServer>().url("/"))
+                            .client(client)
+                            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                            .build()
+                    }
+                    single { get<Retrofit>().create(UserApiService::class.java) }
+                },
+            )
+        }
 
     @Before
     fun setUp() {
@@ -67,7 +66,8 @@ class UserApiServiceTest : KoinTest {
         runBlocking {
             // Given
             val response = LoginResponse("token")
-            val mockResponse = MockResponse().setResponseCode(200).setBody(Json.encodeToString(response))
+            val mockResponse =
+                MockResponse().setResponseCode(200).setBody(Json.encodeToString(response))
             mockWebServer.enqueue(mockResponse)
             val loginRequest = LoginRequest("test@test.com", "testuser", "password")
 
@@ -87,7 +87,8 @@ class UserApiServiceTest : KoinTest {
         runBlocking {
             // Given
             val response = RegisterResponse("User created", "token")
-            val mockResponse = MockResponse().setResponseCode(201).setBody(Json.encodeToString(response))
+            val mockResponse =
+                MockResponse().setResponseCode(201).setBody(Json.encodeToString(response))
             mockWebServer.enqueue(mockResponse)
             val registerRequest = RegisterRequest("testuser", "test@test.com", "password")
 
@@ -106,8 +107,22 @@ class UserApiServiceTest : KoinTest {
     fun getCurrentUser_returnsSuccess() =
         runBlocking {
             // Given
-            val user = UserDto("1", "testuser", "Test User", "test@test.com", null, null, null, null, emptyList(), emptyList(), emptyList())
-            val mockResponse = MockResponse().setResponseCode(200).setBody(Json.encodeToString(user))
+            val user =
+                UserDto(
+                    "1",
+                    "testuser",
+                    "Test User",
+                    "test@test.com",
+                    null,
+                    null,
+                    null,
+                    null,
+                    emptyList(),
+                    emptyList(),
+                    emptyList(),
+                )
+            val mockResponse =
+                MockResponse().setResponseCode(200).setBody(Json.encodeToString(user))
             mockWebServer.enqueue(mockResponse)
 
             // When

@@ -47,7 +47,9 @@
                 <data android:scheme="https" />
                 <data android:host="mirailink.xyz" />
                 <data android:host="www.mirailink.xyz" />
-                <data android:pathPrefix="/" />
+                <data android:pathPrefix="/verification" />
+                <data android:pathPrefix="/recover_password" />
+                <data android:pathPrefix="/login" />
             </intent-filter>
         </activity>
 

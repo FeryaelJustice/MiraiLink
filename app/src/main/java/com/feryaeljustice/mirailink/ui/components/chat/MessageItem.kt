@@ -18,31 +18,34 @@ import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.domain.util.formatTimestamp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MessageItem(
+    isOwnMessage: Boolean,
+    modifier: Modifier = Modifier,
     msgContent: String = "",
     msgTimestamp: Long = 0,
-    isOwnMessage: Boolean
 ) {
     val style = getMessageStyle(isOwnMessage)
     val timeText = remember(msgTimestamp) { formatTimestamp(msgTimestamp) }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        contentAlignment = style.alignment
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+        contentAlignment = style.alignment,
     ) {
         Column(
-            modifier = Modifier
-                .widthIn(max = 300.dp)
-                .background(
-                    color = style.backgroundColor,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp),
-            horizontalAlignment = style.horizontalAlignment
+            modifier =
+                Modifier
+                    .widthIn(max = 300.dp)
+                    .background(
+                        color = style.backgroundColor,
+                        shape = RoundedCornerShape(12.dp),
+                    ).padding(12.dp),
+            horizontalAlignment = style.horizontalAlignment,
         ) {
             MiraiLinkText(
                 text = msgContent,
@@ -62,24 +65,23 @@ private data class MessageStyle(
     val alignment: Alignment,
     val horizontalAlignment: Alignment.Horizontal,
     val backgroundColor: Color,
-    val textColor: Color
+    val textColor: Color,
 )
 
 @Composable
-private fun getMessageStyle(isOwnMessage: Boolean): MessageStyle {
-    return if (isOwnMessage) {
+private fun getMessageStyle(isOwnMessage: Boolean): MessageStyle =
+    if (isOwnMessage) {
         MessageStyle(
             alignment = Alignment.CenterEnd,
             horizontalAlignment = Alignment.End,
             backgroundColor = MaterialTheme.colorScheme.primary,
-            textColor = MaterialTheme.colorScheme.onPrimary
+            textColor = MaterialTheme.colorScheme.onPrimary,
         )
     } else {
         MessageStyle(
             alignment = Alignment.CenterStart,
             horizontalAlignment = Alignment.Start,
             backgroundColor = MaterialTheme.colorScheme.tertiary,
-            textColor = MaterialTheme.colorScheme.onTertiary
+            textColor = MaterialTheme.colorScheme.onTertiary,
         )
     }
-}

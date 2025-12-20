@@ -21,7 +21,6 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -44,18 +44,21 @@ import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val state by viewModel.state.collectAsState()
-    val editState by viewModel.editState.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val editState by viewModel.editState.collectAsStateWithLifecycle()
 
     // Galería
     val galleryLauncher =
@@ -84,6 +87,7 @@ fun ProfileScreen(
             }
         }
 
+    val needsCameraPermissionText = stringResource(R.string.need_camera_permission)
     // Permiso de cámara
     val cameraPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -94,12 +98,13 @@ fun ProfileScreen(
             } else {
                 showToast(
                     context,
-                    context.getString(R.string.need_camera_permission),
+                    needsCameraPermissionText,
                     Toast.LENGTH_SHORT,
                 )
             }
         }
 
+    val profileSavedSuccessfullyText = stringResource(R.string.profile_screen_profile_saved_correctly)
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
         miraiLinkSession.enableBars()
@@ -110,7 +115,7 @@ fun ProfileScreen(
                 EditProfileUiEvent.ProfileSavedSuccessfully -> {
                     showToast(
                         context,
-                        context.getString(R.string.profile_screen_profile_saved_correctly),
+                        profileSavedSuccessfullyText,
                         Toast.LENGTH_SHORT,
                     )
                 }
@@ -134,7 +139,7 @@ fun ProfileScreen(
             viewModel.getCurrentUser()
         },
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {
@@ -144,9 +149,9 @@ fun ProfileScreen(
                     },
                 ),
     ) {
-        when (state) {
+        when (val currentState = state) {
             is ProfileUiState.Success -> {
-                (state as ProfileUiState.Success).user?.let { user ->
+                currentState.user?.let { user ->
                     Box(modifier = Modifier.padding(16.dp)) {
                         UserCard(
                             modifier =
@@ -177,10 +182,10 @@ fun ProfileScreen(
                                     ),
                                 )
                             },
-                            onTagSelected = { field, value ->
+                            onTagSelect = { field, value ->
                                 Log.d(
                                     "ProfileScreen",
-                                    "onTagSelected: $field, value ",
+                                    "onTagSelect: $field, value ",
                                 )
                                 viewModel.onIntent(
                                     EditProfileIntent.UpdateTags(
@@ -285,9 +290,8 @@ fun ProfileScreen(
             }
 
             is ProfileUiState.Error -> {
-                val error = state as ProfileUiState.Error
                 MiraiLinkText(
-                    text = error.message,
+                    text = currentState.message,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -299,7 +303,7 @@ fun ProfileScreen(
                 }
             }
 
-            ProfileUiState.Idle -> Unit
+            ProfileUiState.Idle -> {}
         }
     }
 }

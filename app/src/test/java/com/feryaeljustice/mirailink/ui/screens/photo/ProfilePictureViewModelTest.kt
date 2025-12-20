@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.photo
 
 import android.net.Uri
@@ -29,13 +26,14 @@ class ProfilePictureViewModelTest : KoinTest {
     private lateinit var viewModel: ProfilePictureViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<UploadUserPhotoUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<UploadUserPhotoUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

@@ -1,10 +1,8 @@
 package com.feryaeljustice.mirailink.ui.components.media
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +26,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -39,12 +36,13 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.viewentries.media.PhotoSlotViewEntry
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun EditablePhotoGrid(
-    modifier: Modifier = Modifier,
     photos: List<PhotoSlotViewEntry>,
     onSlotClick: ((Int) -> Unit)?,
-    onPhotoReorder: ((Int, Int) -> Unit)?
+    onPhotoReorder: ((Int, Int) -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     val currentSlotClick by rememberUpdatedState(newValue = onSlotClick)
     val currentPhotoReorder by rememberUpdatedState(newValue = onPhotoReorder)
@@ -57,37 +55,40 @@ fun EditablePhotoGrid(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         for (row in 0 until rows) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 for (col in 0 until cols) {
                     val index = row * cols + col
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.outline,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .pointerInput(Unit) {
-                                detectDragGestures(
-                                    onDragStart = { draggedIndex = index },
-                                    onDragEnd = { draggedIndex = null; dragOffset = Offset.Zero },
-                                    onDragCancel = {
-                                        draggedIndex = null; dragOffset = Offset.Zero
-                                    },
-                                    onDrag = { change, _ ->
-                                        dragOffset = change.position
-                                    }
-                                )
-                            }
-                            .clickableWithNoRipple { currentSlotClick?.invoke(index) }
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    RoundedCornerShape(8.dp),
+                                ).pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDragStart = { draggedIndex = index },
+                                        onDragEnd = {
+                                            draggedIndex = null
+                                            dragOffset = Offset.Zero
+                                        },
+                                        onDragCancel = {
+                                            draggedIndex = null
+                                            dragOffset = Offset.Zero
+                                        },
+                                        onDrag = { change, _ ->
+                                            dragOffset = change.position
+                                        },
+                                    )
+                                }.clickableWithNoRipple { currentSlotClick?.invoke(index) },
                     ) {
                         val slot = photos.getOrNull(index)
 
@@ -97,7 +98,7 @@ fun EditablePhotoGrid(
                                 model = slot.uri,
                                 contentDescription = stringResource(R.string.content_description_editable_photo_grid_user_photo),
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             )
                         } else if (slot?.url != null) {
                             // Imagen existente del backend (remota)
@@ -105,25 +106,27 @@ fun EditablePhotoGrid(
                                 model = slot.url,
                                 contentDescription = stringResource(R.string.content_description_editable_photo_grid_user_photo),
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Face,
                                 contentDescription = stringResource(R.string.content_description_editable_photo_grid_add_photo),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .align(Alignment.Center)
+                                modifier =
+                                    Modifier
+                                        .size(32.dp)
+                                        .align(Alignment.Center),
                             )
                         }
 
                         // Sombra cuando se está arrastrando
                         if (draggedIndex == index) {
                             Surface(
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .background(Color.Black.copy(alpha = 0.25f))
+                                modifier =
+                                    Modifier
+                                        .matchParentSize()
+                                        .background(Color.Black.copy(alpha = 0.25f)),
                             ) {}
                         }
                     }
@@ -143,19 +146,11 @@ fun EditablePhotoGrid(
     }
 }
 
-// Utilidad para detectar clic sin ripple
-@SuppressLint("UnnecessaryComposedModifier")
-@Composable
-fun Modifier.clickableWithNoRipple(onClick: () -> Unit): Modifier = composed {
-    this.then(
-        Modifier.pointerInput(Unit) {
-            detectTapGestures(onTap = { onClick() })
-        }
-    )
-}
-
 // Cálculo de índice desde offset
-private fun getSlotIndexFromOffset(offset: Offset, gridSize: Int): Int? {
+private fun getSlotIndexFromOffset(
+    offset: Offset,
+    gridSize: Int,
+): Int? {
     val cellSizePx = 300f // Ajustar según UI real
     val col = (offset.x / cellSizePx).toInt()
     val row = (offset.y / cellSizePx).toInt()

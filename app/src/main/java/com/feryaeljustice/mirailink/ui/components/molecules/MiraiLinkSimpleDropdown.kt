@@ -14,18 +14,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> MiraiLinkSimpleDropdown(
     label: String,
     options: List<T>,
     selected: T?,
-    onSelected: (T) -> Unit,
-    itemLabel: (T) -> String = { it.toString() }, // cómo mostrar cada opción
+    onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    itemLabel: (T) -> String = { it.toString() },
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
     ) {
@@ -45,7 +48,7 @@ fun <T> MiraiLinkSimpleDropdown(
                 DropdownMenuItem(
                     text = { Text(itemLabel(option)) },
                     onClick = {
-                        onSelected(option)
+                        onSelect(option)
                         expanded = false
                     },
                 )

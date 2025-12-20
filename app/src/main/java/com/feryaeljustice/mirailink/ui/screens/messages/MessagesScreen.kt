@@ -18,7 +18,6 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,24 +25,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesScreen(
-    viewModel: MessagesViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToChat: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: MessagesViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val searchQuery by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -58,7 +61,7 @@ fun MessagesScreen(
             viewModel.loadData()
         },
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {
@@ -108,23 +111,23 @@ fun MessagesScreen(
             }
 
             is MessagesViewModel.MessagesUiState.Error -> {
-                val error = state as MessagesViewModel.MessagesUiState.Error
                 MiraiLinkText(
-                    text = error.message,
+                    text = currentState.message,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
 
-            MessagesViewModel.MessagesUiState.Loading ->
+            MessagesViewModel.MessagesUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
+            }
 
-            MessagesViewModel.MessagesUiState.Idle -> Unit
+            MessagesViewModel.MessagesUiState.Idle -> {}
         }
     }
 }

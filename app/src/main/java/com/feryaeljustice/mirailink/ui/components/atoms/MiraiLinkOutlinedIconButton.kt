@@ -6,12 +6,13 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkOutlinedIconButton(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     colors: IconButtonColors = IconButtonDefaults.outlinedIconButtonColors(),
-    onClick: () -> Unit,
-    content: @Composable (() -> Unit)
+    content: @Composable (() -> Unit),
 ) {
     OutlinedIconButton(modifier = modifier, colors = colors, onClick = onClick, content = content)
 }

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import android.content.Context
@@ -32,21 +29,21 @@ import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class UserRemoteDataSourceTest : UnitTest() {
-
     private val userApiService: UserApiService by inject()
     private val context: Context by inject()
     private val userRemoteDataSource: UserRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<UserApiService>() }
-                single { mockk<Context>(relaxed = true) }
-                single { UserRemoteDataSource(get(), get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<UserApiService>() }
+                    single { mockk<Context>(relaxed = true) }
+                    single { UserRemoteDataSource(get(), get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -54,101 +51,107 @@ class UserRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `autologin should return userId on success`() = runTest {
-        // Given
-        val response = AutologinResponse("user123", "Success")
-        coEvery { userApiService.autologin() } returns response
+    fun `autologin should return userId on success`() =
+        runTest {
+            // Given
+            val response = AutologinResponse("user123", "Success")
+            coEvery { userApiService.autologin() } returns response
 
-        // When
-        val result = userRemoteDataSource.autologin()
+            // When
+            val result = userRemoteDataSource.autologin()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals("user123", (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.autologin() }
-    }
-
-    @Test
-    fun `login should return token on success`() = runTest {
-        // Given
-        val request = LoginRequest("test@test.com", "testuser", "password")
-        val response = LoginResponse("token123")
-        coEvery { userApiService.login(request) } returns response
-
-        // When
-        val result = userRemoteDataSource.login(request.email, request.username, request.password)
-
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals("token123", (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.login(request) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals("user123", (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.autologin() }
+        }
 
     @Test
-    fun `logout should return true on success`() = runTest {
-        // Given
-        coEvery { userApiService.logout() } returns LogoutResponse("Success")
+    fun `login should return token on success`() =
+        runTest {
+            // Given
+            val request = LoginRequest("test@test.com", "testuser", "password")
+            val response = LoginResponse("token123")
+            coEvery { userApiService.login(request) } returns response
 
-        // When
-        val result = userRemoteDataSource.logout()
+            // When
+            val result = userRemoteDataSource.login(request.email, request.username, request.password)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(true, (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.logout() }
-    }
-
-    @Test
-    fun `register should return token on success`() = runTest {
-        // Given
-        val request = RegisterRequest("testuser", "test@test.com", "password")
-        val response = RegisterResponse("User created", "token456")
-        coEvery { userApiService.register(request) } returns response
-
-        // When
-        val result = userRemoteDataSource.register(request.username, request.email, request.password)
-
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals("token456", (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.register(request) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals("token123", (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.login(request) }
+        }
 
     @Test
-    fun `getCurrentUser should return user and photos on success`() = runTest {
-        // Given
-        val user = UserDto("1", "testuser", "Test User")
-        val photos = listOf(UserPhotoDto("p1", "1", "url", 1))
-        coEvery { userApiService.getCurrentUser() } returns user
-        coEvery { userApiService.getUserPhotos(user.id) } returns photos
+    fun `logout should return true on success`() =
+        runTest {
+            // Given
+            coEvery { userApiService.logout() } returns LogoutResponse("Success")
 
-        // When
-        val result = userRemoteDataSource.getCurrentUser()
+            // When
+            val result = userRemoteDataSource.logout()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(user to photos, (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.getCurrentUser() }
-        coVerify { userApiService.getUserPhotos(user.id) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(true, (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.logout() }
+        }
 
     @Test
-    fun `getUserById should return user and photos on success`() = runTest {
-        // Given
-        val userId = "1"
-        val request = ByIdRequest(userId)
-        val user = UserDto(userId, "testuser", "Test User")
-        val photos = listOf(UserPhotoDto("p1", userId, "url", 1))
-        coEvery { userApiService.getUserById(request) } returns user
-        coEvery { userApiService.getUserPhotos(userId) } returns photos
+    fun `register should return token on success`() =
+        runTest {
+            // Given
+            val request = RegisterRequest("testuser", "test@test.com", "password")
+            val response = RegisterResponse("User created", "token456")
+            coEvery { userApiService.register(request) } returns response
 
-        // When
-        val result = userRemoteDataSource.getUserById(userId)
+            // When
+            val result = userRemoteDataSource.register(request.username, request.email, request.password)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(user to photos, (result as MiraiLinkResult.Success).data)
-        coVerify { userApiService.getUserById(request) }
-        coVerify { userApiService.getUserPhotos(userId) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals("token456", (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.register(request) }
+        }
+
+    @Test
+    fun `getCurrentUser should return user and photos on success`() =
+        runTest {
+            // Given
+            val user = UserDto("1", "testuser", "Test User")
+            val photos = listOf(UserPhotoDto("p1", "1", "url", 1))
+            coEvery { userApiService.getCurrentUser() } returns user
+            coEvery { userApiService.getUserPhotos(user.id) } returns photos
+
+            // When
+            val result = userRemoteDataSource.getCurrentUser()
+
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(user to photos, (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.getCurrentUser() }
+            coVerify { userApiService.getUserPhotos(user.id) }
+        }
+
+    @Test
+    fun `getUserById should return user and photos on success`() =
+        runTest {
+            // Given
+            val userId = "1"
+            val request = ByIdRequest(userId)
+            val user = UserDto(userId, "testuser", "Test User")
+            val photos = listOf(UserPhotoDto("p1", userId, "url", 1))
+            coEvery { userApiService.getUserById(request) } returns user
+            coEvery { userApiService.getUserPhotos(userId) } returns photos
+
+            // When
+            val result = userRemoteDataSource.getUserById(userId)
+
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(user to photos, (result as MiraiLinkResult.Success).data)
+            coVerify { userApiService.getUserById(request) }
+            coVerify { userApiService.getUserPhotos(userId) }
+        }
 }

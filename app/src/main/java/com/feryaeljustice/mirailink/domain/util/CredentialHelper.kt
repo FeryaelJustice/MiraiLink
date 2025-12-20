@@ -35,7 +35,7 @@ class CredentialHelper(
                 val result = credentialManager.getCredential(context = context, request = request)
                 val credential = result.credential as? PasswordCredential
                 credential?.let { it.id to it.password }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

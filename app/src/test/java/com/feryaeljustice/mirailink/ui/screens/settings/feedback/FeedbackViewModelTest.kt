@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
@@ -28,13 +25,14 @@ class FeedbackViewModelTest : KoinTest {
     private lateinit var viewModel: FeedbackViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<SendFeedbackUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<SendFeedbackUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

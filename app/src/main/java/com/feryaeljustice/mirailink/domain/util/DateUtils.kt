@@ -1,7 +1,3 @@
-/**
- * @author Feryael Justice
- * @date 03/08/2024
- */
 package com.feryaeljustice.mirailink.domain.util
 
 import android.util.Log
@@ -24,8 +20,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-fun parseDate(dateString: String): Date {
-    return try {
+fun parseDate(dateString: String): Date =
+    try {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         formatter.timeZone = TimeZone.getTimeZone("UTC")
         formatter.parse(dateString)
@@ -33,18 +29,19 @@ fun parseDate(dateString: String): Date {
         Log.e("DateParsing", "Error parsing date: $dateString -> ${e.message}")
         Date()
     }
-}
 
 fun formatTimestamp(timestamp: Long): String {
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
-    return Instant.ofEpochMilli(timestamp)
+    return Instant
+        .ofEpochMilli(timestamp)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
 }
 
 fun formatDateSeparator(timestamp: Long): String {
     val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
-    return Instant.ofEpochMilli(timestamp)
+    return Instant
+        .ofEpochMilli(timestamp)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
 }
@@ -52,26 +49,30 @@ fun formatDateSeparator(timestamp: Long): String {
 object DateSerializer : KSerializer<Date> {
     // It's good practice to use a specific, consistent format, like ISO 8601.
     // Also, explicitly use UTC to avoid timezone issues.
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
+    private val dateFormat =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Date", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Date) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Date,
+    ) {
         encoder.encodeString(dateFormat.format(value))
     }
 
-    override fun deserialize(decoder: Decoder): Date {
-        return dateFormat.parse(decoder.decodeString())
+    override fun deserialize(decoder: Decoder): Date =
+        dateFormat.parse(decoder.decodeString())
             ?: throw IllegalArgumentException("Invalid date format")
-    }
 }
 
 /** De millis del DatePicker a "yyyy-MM-dd" en tu zona */
 fun millisToBackendDate(millis: Long): String =
-    Instant.ofEpochMilli(millis)
+    Instant
+        .ofEpochMilli(millis)
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
         .toString() // "yyyy-MM-dd"
@@ -81,11 +82,19 @@ fun toBackendDate(input: String): String =
     try {
         val safeInput = input.takeIf { it.isNotBlank() }
         when {
-            safeInput == null -> LocalDate.now().toString() // blank o null → hoy
+            safeInput == null -> {
+                LocalDate.now().toString()
+            }
+
+            // blank o null → hoy
             else -> {
                 try {
                     // Caso ISO con hora: "1999-06-26T22:00:00.000Z"
-                    Instant.parse(safeInput).atZone(ZoneId.systemDefault()).toLocalDate().toString()
+                    Instant
+                        .parse(safeInput)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toString()
                 } catch (_: Exception) {
                     // Caso ya "yyyy-MM-dd" (o parseable como LocalDate)
                     LocalDate.parse(safeInput).toString()
@@ -98,7 +107,8 @@ fun toBackendDate(input: String): String =
 
 /** Para inicializar el DatePicker desde "yyyy-MM-dd" */
 fun backendDateToMillis(date: String): Long =
-    LocalDate.parse(date)
+    LocalDate
+        .parse(date)
         .atStartOfDay(ZoneId.systemDefault())
         .toInstant()
         .toEpochMilli()
@@ -110,7 +120,7 @@ fun String?.toAgeOrNull(): String? {
         val today = LocalDate.now()
         val age = Period.between(birthDate, today).years
         return age.toString()
-    } catch (e: DateTimeParseException) {
+    } catch (_: DateTimeParseException) {
         null
     }
 }

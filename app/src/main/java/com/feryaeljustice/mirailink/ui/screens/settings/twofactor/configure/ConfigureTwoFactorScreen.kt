@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -29,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
@@ -38,15 +38,18 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRe
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun ConfigureTwoFactorScreen(
-    viewModel: ConfigureTwoFactorViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit,
     onShowError: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
-    val userID = miraiLinkSession.currentUserId.collectAsState()
+    val userID = miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
 
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val secondaryContainerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -59,20 +62,20 @@ fun ConfigureTwoFactorScreen(
     val actualBackClick by rememberUpdatedState(onBackClick)
     val actualOnShowError by rememberUpdatedState(onShowError)
 
-    val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsState()
+    val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
 
-    val showSetupDialog by viewModel.showSetupDialog.collectAsState()
-    val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsState()
-    val otpUrl by viewModel.otpUrl.collectAsState()
-    val base32 by viewModel.base32.collectAsState()
-    val recoveryCodes by viewModel.recoveryCodes.collectAsState()
-    val setupTwoFactorCode by viewModel.verify2FACode.collectAsState()
+    val showSetupDialog by viewModel.showSetupDialog.collectAsStateWithLifecycle()
+    val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsStateWithLifecycle()
+    val otpUrl by viewModel.otpUrl.collectAsStateWithLifecycle()
+    val base32 by viewModel.base32.collectAsStateWithLifecycle()
+    val recoveryCodes by viewModel.recoveryCodes.collectAsStateWithLifecycle()
+    val setupTwoFactorCode by viewModel.verify2FACode.collectAsStateWithLifecycle()
 
-    val showDisableTwoFactorDialog by viewModel.showDisableTwoFactorDialog.collectAsState()
-    val isDisable2FADialogLoading by viewModel.isDisable2FALoading.collectAsState()
-    val disableTwoFactorCode by viewModel.disable2FACode.collectAsState()
+    val showDisableTwoFactorDialog by viewModel.showDisableTwoFactorDialog.collectAsStateWithLifecycle()
+    val isDisable2FADialogLoading by viewModel.isDisable2FALoading.collectAsStateWithLifecycle()
+    val disableTwoFactorCode by viewModel.disable2FACode.collectAsStateWithLifecycle()
 
-    val errorMsg by viewModel.errorString.collectAsState()
+    val errorMsg by viewModel.errorString.collectAsStateWithLifecycle()
     val showError by remember(errorMsg) {
         derivedStateOf { errorMsg?.isNotBlank() ?: false }
     }
@@ -118,7 +121,7 @@ fun ConfigureTwoFactorScreen(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {

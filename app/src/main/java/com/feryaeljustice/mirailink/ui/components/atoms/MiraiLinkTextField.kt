@@ -31,22 +31,23 @@ private object NoopTextToolbar : TextToolbar {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkTextField(
-    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
     label: String = "",
     readOnly: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     isError: Boolean = false,
     supportingText: String? = "",
-    placeholder: @Composable (() -> Unit)? = null,
-    trailingIcon: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     clipboardEnabled: Boolean = true,
+    placeholder: @Composable (() -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     val content: @Composable () -> Unit = {
         TextField(

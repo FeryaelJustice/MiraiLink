@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.navigation3.runtime.NavKey
 
 class Navigator(
@@ -16,6 +18,7 @@ class Navigator(
         stack.add(route)
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun navigateUp(): Boolean {
         val stack = state.backStacks.getValue(state.topLevelRoute)
         return if (stack.size > 1) {

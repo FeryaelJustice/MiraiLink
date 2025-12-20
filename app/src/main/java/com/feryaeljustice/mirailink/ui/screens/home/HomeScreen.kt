@@ -13,13 +13,13 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -27,17 +27,20 @@ import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("ParamsComparedByRef", "ktlint:standard:function-naming", "EffectKeys")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val canUndo = viewModel.canUndo()
 
     LaunchedEffect(Unit) {
@@ -52,7 +55,7 @@ fun HomeScreen(
             viewModel.loadUsers()
         },
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .testTag("HomeRefreshBox")
                 .then(
@@ -71,7 +74,10 @@ fun HomeScreen(
                 if (visibleUsers.isNotEmpty() && index < visibleUsers.size) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         UserSwipeCardStack(
-                            modifier = Modifier.padding(16.dp).testTag("swipeHome"),
+                            modifier =
+                                Modifier
+                                    .padding(16.dp)
+                                    .testTag("swipeHome"),
                             users = visibleUsers,
                             canUndo = canUndo,
                             onSwipeLeft = { viewModel.swipeLeft() },
@@ -90,9 +96,8 @@ fun HomeScreen(
             }
 
             is HomeUiState.Error -> {
-                val error = state as HomeUiState.Error
                 MiraiLinkText(
-                    text = error.message,
+                    text = currentState.message,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -104,7 +109,7 @@ fun HomeScreen(
                 }
             }
 
-            HomeUiState.Idle -> Unit
+            HomeUiState.Idle -> {}
         }
     }
 }

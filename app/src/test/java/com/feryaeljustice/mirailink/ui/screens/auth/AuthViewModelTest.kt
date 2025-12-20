@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import com.feryaeljustice.mirailink.domain.core.JwtUtils
@@ -45,36 +42,38 @@ class AuthViewModelTest : KoinTest {
     private lateinit var viewModel: AuthViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<LoginUseCase>() }
-                single { mockk<RegisterUseCase>() }
-                single { mockk<GetTwoFactorStatusUseCase>() }
-                single { mockk<LoginVerifyTwoFactorLastStepUseCase>() }
-                single { mockk<AnalyticsTracker>(relaxed = true) }
-                single { mockk<CrashReporter>(relaxed = true) }
-                single { mockk<CredentialHelper>(relaxed = true) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<LoginUseCase>() }
+                    single { mockk<RegisterUseCase>() }
+                    single { mockk<GetTwoFactorStatusUseCase>() }
+                    single { mockk<LoginVerifyTwoFactorLastStepUseCase>() }
+                    single { mockk<AnalyticsTracker>(relaxed = true) }
+                    single { mockk<CrashReporter>(relaxed = true) }
+                    single { mockk<CredentialHelper>(relaxed = true) }
+                },
+            )
+        }
 
     @Before
     fun setUp() {
         // Mock the JwtUtils object to control the behavior of `extractUserId`
         mockkObject(JwtUtils)
 
-        viewModel = AuthViewModel(
-            lazy { loginUseCase },
-            lazy { registerUseCase },
-            lazy { getTwoFactorStatusUseCase },
-            lazy { loginVerifyTwoFactorLastStepUseCase },
-            lazy { analytics },
-            lazy { crash },
-            lazy { credentialHelper },
-            mainCoroutineRule.testDispatcher,
-            mainCoroutineRule.testDispatcherUnconfined,
-        )
+        viewModel =
+            AuthViewModel(
+                lazy { loginUseCase },
+                lazy { registerUseCase },
+                lazy { getTwoFactorStatusUseCase },
+                lazy { loginVerifyTwoFactorLastStepUseCase },
+                lazy { analytics },
+                lazy { crash },
+                lazy { credentialHelper },
+                mainCoroutineRule.testDispatcher,
+                mainCoroutineRule.testDispatcherUnconfined,
+            )
     }
 
     @After

@@ -74,18 +74,19 @@ import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun UserCard(
-    modifier: Modifier = Modifier,
     user: UserViewEntry,
+    onSave: (() -> Unit),
+    modifier: Modifier = Modifier,
     canUndo: Boolean = false,
     isPreviewMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
-    onTagSelected: ((type: TagType, newValue: List<String>) -> Unit)? = null,
+    onTagSelect: ((type: TagType, newValue: List<String>) -> Unit)? = null,
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
-    onSave: (() -> Unit),
     onLike: (() -> Unit)? = null,
     onGoBackToLast: (() -> Unit)? = null,
     onDislike: (() -> Unit)? = null,
@@ -220,7 +221,7 @@ fun UserCard(
                         label = stringResource(id = R.string.user_card_fav_animes),
                         options = editUiState.animeCatalog.map { it.name },
                         selected = editUiState.selectedAnimes.map { it.name },
-                        onSelectionChange = { onTagSelected?.invoke(TagType.ANIME, it) },
+                        onSelectionChange = { onTagSelect?.invoke(TagType.ANIME, it) },
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -229,7 +230,7 @@ fun UserCard(
                         label = stringResource(id = R.string.user_card_fav_games),
                         options = editUiState.gameCatalog.map { it.name },
                         selected = editUiState.selectedGames.map { it.name },
-                        onSelectionChange = { onTagSelected?.invoke(TagType.GAME, it) },
+                        onSelectionChange = { onTagSelect?.invoke(TagType.GAME, it) },
                     )
 
                     Spacer(modifier = Modifier.height(64.dp))
@@ -424,16 +425,18 @@ fun UserCard(
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Preview(showBackground = true)
 @Composable
-fun UserCardPreview() {
+private fun UserCardPreview() {
     UserCard(
         user =
             UserViewEntry(
                 id = "1",
                 username = "FeryaelJustice",
                 nickname = "Feryael Justice",
-                bio = "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
+                bio = @Suppress("ktlint:standard:max-line-length")
+                "Hola, soy Feryael Justice. Soy un fanático de anime y videojuegos. Me gustan los personajes y la diversidad de temas en estos juegos.",
                 phoneNumber = "604892842",
                 animes =
                     listOf(

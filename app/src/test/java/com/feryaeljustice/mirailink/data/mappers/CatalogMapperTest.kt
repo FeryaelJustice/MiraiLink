@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.AnimeDto
@@ -10,15 +7,15 @@ import org.junit.Test
 import org.koin.test.KoinTest
 
 class CatalogMapperTest : KoinTest {
-
     @Test
     fun `AnimeDto maps to Anime domain model correctly`() {
         // Given
-        val animeDto = AnimeDto(
-            id = "anime1",
-            name = "Test Anime",
-            imageUrl = "http://example.com/anime.jpg"
-        )
+        val animeDto =
+            AnimeDto(
+                id = "anime1",
+                name = "Test Anime",
+                imageUrl = "http://example.com/anime.jpg",
+            )
 
         // When
         val anime = animeDto.toDomain()
@@ -32,11 +29,12 @@ class CatalogMapperTest : KoinTest {
     @Test
     fun `GameDto maps to Game domain model correctly`() {
         // Given
-        val gameDto = GameDto(
-            id = "game1",
-            name = "Test Game",
-            imageUrl = "http://example.com/game.jpg"
-        )
+        val gameDto =
+            GameDto(
+                id = "game1",
+                name = "Test Game",
+                imageUrl = "http://example.com/game.jpg",
+            )
 
         // When
         val game = gameDto.toDomain()

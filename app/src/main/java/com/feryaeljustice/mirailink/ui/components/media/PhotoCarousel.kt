@@ -40,11 +40,12 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import kotlinx.coroutines.launch
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun PhotoCarousel(
-    modifier: Modifier = Modifier,
     photoUrls: List<String>,
-    onLongPressOnImage: (String) -> Unit
+    onLongPressOnImage: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
@@ -71,85 +72,94 @@ fun PhotoCarousel(
 //    }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(300.dp)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(300.dp),
     ) {
         HorizontalPager(
             state = pagerState,
             key = { images[it] },
-            modifier = Modifier
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .fillMaxSize(),
         ) { page ->
             val url = images[page].getFormattedUrl()
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(url)
-                    .crossfade(true)
-                    .placeholder(drawableResId = R.drawable.logomirailink)
-                    .build(),
-                contentDescription = stringResource(
-                    R.string.content_description_photo_carousel_pager_image,
-                    page + 1
-                ),
+                model =
+                    ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(url)
+                        .crossfade(true)
+                        .placeholder(drawableResId = R.drawable.logomirailink)
+                        .build(),
+                contentDescription =
+                    stringResource(
+                        R.string.content_description_photo_carousel_pager_image,
+                        page + 1,
+                    ),
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .clickable(
-                        interactionSource = pageInteractionSource,
-                        indication = LocalIndication.current
-                    ) {
-                        scope.launch {
-                            val nextPage = (pagerState.currentPage + 1) % images.size
-                            pagerState.animateScrollToPage(nextPage)
-                        }
-                    }
-                    .pointerInput(url) {
-                        detectTapGestures(
-                            onLongPress = {
-                                currentLongPressHandler(url)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .clickable(
+                            interactionSource = pageInteractionSource,
+                            indication = LocalIndication.current,
+                        ) {
+                            scope.launch {
+                                val nextPage = (pagerState.currentPage + 1) % images.size
+                                pagerState.animateScrollToPage(nextPage)
                             }
-                        )
-                    }
+                        }.pointerInput(url) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    currentLongPressHandler(url)
+                                },
+                            )
+                        },
             )
         }
 
         PagerIndicator(
             pagerState = pagerState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 12.dp),
             activeColor = Color.White,
             inactiveColor = Color.LightGray,
         )
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 private fun PagerIndicator(
-    modifier: Modifier = Modifier,
     pagerState: PagerState,
+    modifier: Modifier = Modifier,
     activeColor: Color = MaterialTheme.colorScheme.primary,
-    inactiveColor: Color = Color.LightGray
+    inactiveColor: Color = Color.LightGray,
 ) {
     val pageCount = pagerState.pageCount
     val currentPage = pagerState.currentPage
 
     Row(
-        modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        modifier =
+            modifier
+                .wrapContentHeight()
+                .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
     ) {
         repeat(pageCount) { index ->
             val color = if (index == currentPage) activeColor else inactiveColor
             Box(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .clip(CircleShape)
-                    .background(color)
-                    .size(10.dp)
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .size(10.dp),
             )
         }
     }

@@ -13,10 +13,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkText(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
     fontStyle: FontStyle? = FontStyle.Normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,
@@ -24,7 +25,7 @@ fun MiraiLinkText(
     color: Color = LocalContentColor.current,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
     maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Visible
+    overflow: TextOverflow = TextOverflow.Visible,
 ) {
     Text(
         text = text,

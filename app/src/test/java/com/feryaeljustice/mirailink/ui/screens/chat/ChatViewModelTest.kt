@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.chat
 
 import com.feryaeljustice.mirailink.domain.model.user.User
@@ -48,21 +45,22 @@ class ChatViewModelTest : KoinTest {
     private lateinit var viewModel: ChatViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<CreatePrivateChatUseCase>() }
-                single { mockk<CreateGroupChatUseCase>() }
-                single { mockk<GetChatMessagesUseCase>() }
-                single { mockk<MarkChatAsReadUseCase>() }
-                single { mockk<SendMessageUseCase>() }
-                single { mockk<GetCurrentUserUseCase>() }
-                single { mockk<GetUserByIdUseCase>() }
-                single { mockk<ReportUseCase>() }
-                single { mockk<Logger>(relaxed = true) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<CreatePrivateChatUseCase>() }
+                    single { mockk<CreateGroupChatUseCase>() }
+                    single { mockk<GetChatMessagesUseCase>() }
+                    single { mockk<MarkChatAsReadUseCase>() }
+                    single { mockk<SendMessageUseCase>() }
+                    single { mockk<GetCurrentUserUseCase>() }
+                    single { mockk<GetUserByIdUseCase>() }
+                    single { mockk<ReportUseCase>() }
+                    single { mockk<Logger>(relaxed = true) }
+                },
+            )
+        }
 
     // Test Data
     private val sender =

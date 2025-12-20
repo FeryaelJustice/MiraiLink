@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2024-07-31
-
 package com.feryaeljustice.mirailink.di.koin
 
 import com.feryaeljustice.mirailink.data.datastore.crypto.KeystoreAesGcmProvider

@@ -1,7 +1,3 @@
-/**
- * @author Feryael Justice
- * @since 29/10/2024
- */
 package com.feryaeljustice.mirailink.domain.usecase.feedback
 
 import com.feryaeljustice.mirailink.domain.repository.FeedbackRepository

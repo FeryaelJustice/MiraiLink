@@ -15,12 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun DateSeparator(date: String) {
+fun DateSeparator(
+    date: String,
+    modifier: Modifier = Modifier,
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
     ) {

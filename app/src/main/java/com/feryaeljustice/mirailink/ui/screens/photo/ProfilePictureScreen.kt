@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -34,30 +33,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("EffectKeys", "ParamsComparedByRef", "ktlint:standard:function-naming")
 @Composable
 fun ProfilePictureScreen(
-    viewModel: ProfilePictureViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
-    onProfileUploaded: () -> Unit,
+    onProfileUpload: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ProfilePictureViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val currentOnProfileUploaded by rememberUpdatedState(onProfileUploaded)
+    val currentOnProfileUpload by rememberUpdatedState(onProfileUpload)
 
-    val userId by miraiLinkSession.currentUserId.collectAsState()
+    val userId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { viewModel.uploadImage(it) }
         }
-    val uploadResult by viewModel.uploadResult.collectAsState()
+    val uploadResult by viewModel.uploadResult.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
@@ -68,13 +71,13 @@ fun ProfilePictureScreen(
         if (uploadResult is MiraiLinkResult.Success && !userId.isNullOrBlank()) {
             viewModel.clearResult()
             miraiLinkSession.refreshHasProfilePicture(userId!!)
-            currentOnProfileUploaded()
+            currentOnProfileUpload()
         }
     }
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(32.dp)
                 .then(

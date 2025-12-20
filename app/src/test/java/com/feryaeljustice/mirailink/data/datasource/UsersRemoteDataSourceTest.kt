@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -23,19 +20,19 @@ import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class UsersRemoteDataSourceTest : UnitTest() {
-
     private val usersApiService: UsersApiService by inject()
     private val usersRemoteDataSource: UsersRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<UsersApiService>() }
-                single { UsersRemoteDataSource(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<UsersApiService>() }
+                    single { UsersRemoteDataSource(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -43,17 +40,18 @@ class UsersRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `getUsers should return list of users on success`() = runTest {
-        // Given
-        val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
-        coEvery { usersApiService.getUsers() } returns userList
+    fun `getUsers should return list of users on success`() =
+        runTest {
+            // Given
+            val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
+            coEvery { usersApiService.getUsers() } returns userList
 
-        // When
-        val result = usersRemoteDataSource.getUsers()
+            // When
+            val result = usersRemoteDataSource.getUsers()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(userList, (result as MiraiLinkResult.Success).data)
-        coVerify { usersApiService.getUsers() }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(userList, (result as MiraiLinkResult.Success).data)
+            coVerify { usersApiService.getUsers() }
+        }
 }

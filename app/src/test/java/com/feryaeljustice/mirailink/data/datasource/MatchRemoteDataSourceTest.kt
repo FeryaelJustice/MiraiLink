@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -25,19 +22,19 @@ import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class MatchRemoteDataSourceTest : UnitTest() {
-
     private val matchApiService: MatchApiService by inject()
     private val matchRemoteDataSource: MatchRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<MatchApiService>() }
-                single { MatchRemoteDataSource(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<MatchApiService>() }
+                    single { MatchRemoteDataSource(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -45,48 +42,51 @@ class MatchRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `getMatches should return list of users on success`() = runTest {
-        // Given
-        val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
-        coEvery { matchApiService.getMatches() } returns userList
+    fun `getMatches should return list of users on success`() =
+        runTest {
+            // Given
+            val userList = listOf(UserDto(id = "1", username = "testuser", nickname = "Test User"))
+            coEvery { matchApiService.getMatches() } returns userList
 
-        // When
-        val result = matchRemoteDataSource.getMatches()
+            // When
+            val result = matchRemoteDataSource.getMatches()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(userList, (result as MiraiLinkResult.Success).data)
-        coVerify { matchApiService.getMatches() }
-    }
-
-    @Test
-    fun `getUnseenMatches should return list of users on success`() = runTest {
-        // Given
-        val userList = listOf(UserDto(id = "2", username = "unseenuser", nickname = "Unseen User"))
-        coEvery { matchApiService.getUnseenMatches() } returns userList
-
-        // When
-        val result = matchRemoteDataSource.getUnseenMatches()
-
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(userList, (result as MiraiLinkResult.Success).data)
-        coVerify { matchApiService.getUnseenMatches() }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(userList, (result as MiraiLinkResult.Success).data)
+            coVerify { matchApiService.getMatches() }
+        }
 
     @Test
-    fun `markMatchAsSeen should return success`() = runTest {
-        // Given
-        val matchIds = listOf("1", "2")
-        val request = MarkMatchAsSeenRequest(matchIds)
-        val response = BasicResponse("Success")
-        coEvery { matchApiService.markMatchAsSeen(request) } returns response
+    fun `getUnseenMatches should return list of users on success`() =
+        runTest {
+            // Given
+            val userList = listOf(UserDto(id = "2", username = "unseenuser", nickname = "Unseen User"))
+            coEvery { matchApiService.getUnseenMatches() } returns userList
 
-        // When
-        val result = matchRemoteDataSource.markMatchAsSeen(matchIds)
+            // When
+            val result = matchRemoteDataSource.getUnseenMatches()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        coVerify { matchApiService.markMatchAsSeen(request) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(userList, (result as MiraiLinkResult.Success).data)
+            coVerify { matchApiService.getUnseenMatches() }
+        }
+
+    @Test
+    fun `markMatchAsSeen should return success`() =
+        runTest {
+            // Given
+            val matchIds = listOf("1", "2")
+            val request = MarkMatchAsSeenRequest(matchIds)
+            val response = BasicResponse("Success")
+            coEvery { matchApiService.markMatchAsSeen(request) } returns response
+
+            // When
+            val result = matchRemoteDataSource.markMatchAsSeen(matchIds)
+
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            coVerify { matchApiService.markMatchAsSeen(request) }
+        }
 }

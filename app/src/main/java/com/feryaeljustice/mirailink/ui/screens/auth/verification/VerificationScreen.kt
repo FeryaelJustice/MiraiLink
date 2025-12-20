@@ -18,13 +18,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
@@ -32,33 +33,40 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextFie
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
-@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun VerificationScreen(
-    viewModel: VerificationViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     userId: String,
     onFinish: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: VerificationViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val uiState by viewModel.state.collectAsState()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    val currentOnFinish by rememberUpdatedState(onFinish)
+    LaunchedEffect(Unit) {
+        currentOnFinish()
+    }
 
     LaunchedEffect(Unit) {
         miraiLinkSession.hideBars()
         miraiLinkSession.disableBars()
 
-        viewModel.checkUserIsVerified(onFinish = { isVerified ->
+        viewModel.checkUserIsVerified(onFinished = { isVerified ->
             miraiLinkSession.saveIsVerified(verified = isVerified)
-            onFinish()
+            currentOnFinish()
         })
     }
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .then(

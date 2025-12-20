@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.AnimeDto
@@ -17,23 +14,23 @@ import org.junit.Test
 import org.koin.test.KoinTest
 
 class UserMapperTest : KoinTest {
-
     @Test
     fun `UserDto maps to User domain model correctly`() {
         // Given
-        val userDto = UserDto(
-            id = "user1",
-            username = "testuser",
-            nickname = "Test",
-            email = "test@test.com",
-            phoneNumber = "123456789",
-            bio = "Bio here",
-            gender = "male",
-            birthdate = "2000-01-01",
-            photos = listOf(UserPhotoDto("photo1", "user1", "url", 1)),
-            games = listOf(GameDto("game1", "Game 1", "url")),
-            animes = listOf(AnimeDto("anime1", "Anime 1", "url"))
-        )
+        val userDto =
+            UserDto(
+                id = "user1",
+                username = "testuser",
+                nickname = "Test",
+                email = "test@test.com",
+                phoneNumber = "123456789",
+                bio = "Bio here",
+                gender = "male",
+                birthdate = "2000-01-01",
+                photos = listOf(UserPhotoDto("photo1", "user1", "url", 1)),
+                games = listOf(GameDto("game1", "Game 1", "url")),
+                animes = listOf(AnimeDto("anime1", "Anime 1", "url")),
+            )
 
         // When
         val user = userDto.toDomain()
@@ -51,12 +48,13 @@ class UserMapperTest : KoinTest {
     @Test
     fun `MinimalUserInfoResponse maps to MinimalUserInfo correctly`() {
         // Given
-        val response = MinimalUserInfoResponse(
-            id = "user1",
-            username = "testuser",
-            nickname = "Test",
-            avatarUrl = "avatar_url"
-        )
+        val response =
+            MinimalUserInfoResponse(
+                id = "user1",
+                username = "testuser",
+                nickname = "Test",
+                avatarUrl = "avatar_url",
+            )
 
         // When
         val minimalUser = response.toMinimalUserInfo()
@@ -71,15 +69,16 @@ class UserMapperTest : KoinTest {
     @Test
     fun `UserDto maps to MinimalUserInfo correctly`() {
         // Given
-        val userDto = UserDto(
-            id = "user1",
-            username = "testuser",
-            nickname = "Test",
-            email = "test@test.com",
-            gender = "female",
-            birthdate = "1995-05-05",
-            photos = listOf(UserPhotoDto("photo1", "user1", "url", 1))
-        )
+        val userDto =
+            UserDto(
+                id = "user1",
+                username = "testuser",
+                nickname = "Test",
+                email = "test@test.com",
+                gender = "female",
+                birthdate = "1995-05-05",
+                photos = listOf(UserPhotoDto("photo1", "user1", "url", 1)),
+            )
 
         // When
         val minimalUser = userDto.toMinimalUserInfo()
@@ -95,19 +94,20 @@ class UserMapperTest : KoinTest {
     @Test
     fun `User domain model maps to MinimalUserInfo correctly`() {
         // Given
-        val user = User(
-            id = "user1",
-            username = "testuser",
-            nickname = "Test",
-            email = "test@test.com",
-            phoneNumber = null,
-            bio = null,
-            gender = null,
-            birthdate = null,
-            photos = listOf(UserPhoto("user1", "url", 1)),
-            games = emptyList(),
-            animes = emptyList()
-        )
+        val user =
+            User(
+                id = "user1",
+                username = "testuser",
+                nickname = "Test",
+                email = "test@test.com",
+                phoneNumber = null,
+                bio = null,
+                gender = null,
+                birthdate = null,
+                photos = listOf(UserPhoto("user1", "url", 1)),
+                games = emptyList(),
+                animes = emptyList(),
+            )
 
         // When
         val minimalUser = user.toMinimalUserInfo()
@@ -123,13 +123,14 @@ class UserMapperTest : KoinTest {
     @Test
     fun `UserDto with null profile photo maps to MinimalUserInfo correctly`() {
         // Given
-        val userDto = UserDto(
-            id = "user1",
-            username = "testuser",
-            nickname = "Test",
-            email = "test@test.com",
-            photos = emptyList()
-        )
+        val userDto =
+            UserDto(
+                id = "user1",
+                username = "testuser",
+                nickname = "Test",
+                email = "test@test.com",
+                photos = emptyList(),
+            )
 
         // When
         val minimalUser = userDto.toMinimalUserInfo()

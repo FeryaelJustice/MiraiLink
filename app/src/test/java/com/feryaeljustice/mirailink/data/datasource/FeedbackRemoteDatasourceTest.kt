@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -23,19 +20,19 @@ import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class FeedbackRemoteDatasourceTest : UnitTest() {
-
     private val feedbackApiService: FeedbackApiService by inject()
     private val feedbackRemoteDatasource: FeedbackRemoteDatasource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<FeedbackApiService>() }
-                single { FeedbackRemoteDatasource(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<FeedbackApiService>() }
+                    single { FeedbackRemoteDatasource(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -43,17 +40,18 @@ class FeedbackRemoteDatasourceTest : UnitTest() {
     }
 
     @Test
-    fun `sendFeedback should return success`() = runTest {
-        // Given
-        val feedback = "This is a test feedback."
-        val request = SendFeedbackRequest(feedback)
-        coEvery { feedbackApiService.sendFeeback(request) } returns Response.success(Unit)
+    fun `sendFeedback should return success`() =
+        runTest {
+            // Given
+            val feedback = "This is a test feedback."
+            val request = SendFeedbackRequest(feedback)
+            coEvery { feedbackApiService.sendFeeback(request) } returns Response.success(Unit)
 
-        // When
-        val result = feedbackRemoteDatasource.sendFeedback(feedback)
+            // When
+            val result = feedbackRemoteDatasource.sendFeedback(feedback)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        coVerify { feedbackApiService.sendFeeback(request) }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            coVerify { feedbackApiService.sendFeeback(request) }
+        }
 }

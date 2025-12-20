@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -13,7 +14,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
@@ -34,41 +35,31 @@ import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
-import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
-import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
-import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
-import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
-import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesScreen
-import com.feryaeljustice.mirailink.ui.screens.messages.MessagesViewModel
 import com.feryaeljustice.mirailink.ui.screens.onboarding.OnboardingScreen
 import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureScreen
-import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureViewModel
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileScreen
-import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
-import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
-import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorScreen
-import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
-import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@Suppress("ktlint:standard:function-naming")
+@Suppress("ktlint:standard:function-naming", "EffectKeys")
 @Composable
 fun NavWrapper(
     darkTheme: Boolean,
     onThemeChange: () -> Unit,
+    modifier: Modifier = Modifier,
+    navAnalyticsVm: NavAnalyticsViewModel = koinViewModel(),
 ) {
     // Utils
     val snackbarHostState = remember { SnackbarHostState() }
@@ -81,12 +72,12 @@ fun NavWrapper(
     val miraiLinkSession: GlobalMiraiLinkSession = koinInject()
 
     // Session states
-//    val isAppSessionInitialized by miraiLinkSession.isInitialized.collectAsState()
-    val isAuthenticated by miraiLinkSession.isAuthenticated.collectAsState()
-    val topBarConfig by miraiLinkSession.topBarConfig.collectAsState()
-    val currentUserId by miraiLinkSession.currentUserId.collectAsState()
-    val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsState()
-    val isVerified by miraiLinkSession.isVerified.collectAsState()
+//    val isAppSessionInitialized by miraiLinkSession.isInitialized.collectAsStateWithLifecycle()
+    val isAuthenticated by miraiLinkSession.isAuthenticated.collectAsStateWithLifecycle()
+    val topBarConfig by miraiLinkSession.topBarConfig.collectAsStateWithLifecycle()
+    val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
+    val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsStateWithLifecycle()
+    val isVerified by miraiLinkSession.isVerified.collectAsStateWithLifecycle()
 
     // Session events
     val onLogout = miraiLinkSession.onLogout
@@ -127,8 +118,6 @@ fun NavWrapper(
         )
 
     val navigator = remember { Navigator(navigationState) }
-
-    val navAnalyticsVm: NavAnalyticsViewModel = koinViewModel()
 
     // Current key (equivalente a currentDestination)
     val currentKey = navigationState.currentKey()
@@ -184,9 +173,7 @@ fun NavWrapper(
             entryProvider {
                 // Top level containers (si caes aquí, rediriges a su start real)
                 entry<AppScreen.SplashScreen> {
-                    val vm: SplashScreenViewModel = koinViewModel()
                     SplashScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         onInitialNavigation = { action ->
                             when (action) {
@@ -249,9 +236,7 @@ fun NavWrapper(
 
                 // Auth flow
                 entry<AppScreen.AuthScreen> {
-                    val vm: AuthViewModel = koinViewModel()
                     AuthScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         onLogin = {
                             navigator.resetToTopLevel(
@@ -272,9 +257,7 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.RecoverPasswordScreen> { key ->
-                    val vm: RecoverPasswordViewModel = koinViewModel()
                     RecoverPasswordScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         email = key.email,
                         onConfirmedRecoverPassword = {
@@ -286,11 +269,9 @@ fun NavWrapper(
 
                 // Main flow
                 entry<AppScreen.ProfilePictureScreen> {
-                    val vm: ProfilePictureViewModel = koinViewModel()
                     ProfilePictureScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
-                        onProfileUploaded = {
+                        onProfileUpload = {
                             navigator.resetToTopLevel(ScreensSubgraphs.Main, AppScreen.HomeScreen)
                         },
                     )
@@ -302,14 +283,11 @@ fun NavWrapper(
                         navAnalyticsVm.logDeepLink(deepLinkBaseUrl)
                     }
 
-                    val vm: HomeViewModel = koinViewModel()
-                    HomeScreen(viewModel = vm, miraiLinkSession = miraiLinkSession)
+                    HomeScreen(miraiLinkSession = miraiLinkSession)
                 }
 
                 entry<AppScreen.MessagesScreen> {
-                    val vm: MessagesViewModel = koinViewModel()
                     MessagesScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         onNavigateToChat = { userId ->
                             navigator.navigate(AppScreen.ChatScreen(userId))
@@ -318,9 +296,7 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.ChatScreen> { key ->
-                    val vm: ChatViewModel = koinViewModel()
                     ChatScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         userId = key.userId,
                         onBackClick = { navigator.goBack() },
@@ -328,14 +304,11 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.ProfileScreen> {
-                    val vm: ProfileViewModel = koinViewModel()
-                    ProfileScreen(viewModel = vm, miraiLinkSession = miraiLinkSession)
+                    ProfileScreen(miraiLinkSession = miraiLinkSession)
                 }
 
                 entry<AppScreen.VerificationScreen> { key ->
-                    val vm: VerificationViewModel = koinViewModel()
                     VerificationScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         userId = key.userId,
                         onFinish = {
@@ -345,9 +318,7 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.SettingsScreen> {
-                    val vm: SettingsViewModel = koinViewModel()
                     SettingsScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         goToFeedbackScreen = { navigator.navigate(AppScreen.FeedbackScreen) },
                         goToConfigureTwoFactorScreen = { navigator.navigate(AppScreen.ConfigureTwoFactorScreen) },
@@ -357,18 +328,14 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.FeedbackScreen> {
-                    val vm: FeedbackViewModel = koinViewModel()
                     FeedbackScreen(
-                        viewModel = vm,
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         onBackClick = { navigator.goBack() },
                     )
                 }
 
                 entry<AppScreen.ConfigureTwoFactorScreen> {
-                    val vm: ConfigureTwoFactorViewModel = koinViewModel()
                     ConfigureTwoFactorScreen(
-                        viewModel = vm,
                         miraiLinkSession = miraiLinkSession,
                         onBackClick = { navigator.goBack() },
                         onShowError = { error -> if (error.isNotBlank()) showSnackbar(error) },
@@ -378,91 +345,93 @@ fun NavWrapper(
         }
 
     // UI
-    CompositionLocalProvider(LocalShowSnackbar provides showSnackbar) {
-        Scaffold(
-            topBar = {
-                if (topBarConfig.showTopBar) {
-                    val isAuthUi =
-                        navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
-                    MiraiLinkTopBar(
-                        darkTheme = darkTheme,
-                        enabled = !topBarConfig.disableTopBar && isAuthenticated,
-                        isAuthenticated = isAuthenticated,
-                        showSettingsIcon = topBarConfig.showSettingsIcon,
-                        title = topBarConfig.title,
-                        onThemeChange = onThemeChange,
-                        layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
-                        onNavigateHome = {
-                            if (currentKey !is AppScreen.HomeScreen) {
-                                navigator.resetToTopLevel(
-                                    ScreensSubgraphs.Main,
-                                    AppScreen.HomeScreen,
-                                )
-                            }
-                        },
-                        onNavigateToSettings = {
-                            if (currentKey !is AppScreen.SettingsScreen) {
-                                navigator.navigate(AppScreen.SettingsScreen)
-                            }
-                        },
-                    )
-                }
-            },
-            bottomBar = {
-                if (topBarConfig.showBottomBar) {
-                    // Solo tiene sentido mostrarlo en Main (y cuando no estén forzadas barras off)
-                    val showBottom = navigationState.topLevelRoute == ScreensSubgraphs.Main
-                    if (showBottom) {
-                        MiraiLinkBottomBar(
-                            navigator = navigator,
-                            navState = navigationState,
-                            enabled = !topBarConfig.disableBottomBar,
-                            onDestinationClick = {
-                                if (topBarConfig.disableBottomBar) showSnackbar("Bottom bar is disabled")
+    Box(modifier = modifier) {
+        CompositionLocalProvider(LocalShowSnackbar provides showSnackbar) {
+            Scaffold(
+                topBar = {
+                    if (topBarConfig.showTopBar) {
+                        val isAuthUi =
+                            navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
+                        MiraiLinkTopBar(
+                            darkTheme = darkTheme,
+                            enabled = !topBarConfig.disableTopBar && isAuthenticated,
+                            isAuthenticated = isAuthenticated,
+                            showSettingsIcon = topBarConfig.showSettingsIcon,
+                            title = topBarConfig.title,
+                            onThemeChange = onThemeChange,
+                            layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
+                            onNavigateHome = {
+                                if (currentKey !is AppScreen.HomeScreen) {
+                                    navigator.resetToTopLevel(
+                                        ScreensSubgraphs.Main,
+                                        AppScreen.HomeScreen,
+                                    )
+                                }
+                            },
+                            onNavigateToSettings = {
+                                if (currentKey !is AppScreen.SettingsScreen) {
+                                    navigator.navigate(AppScreen.SettingsScreen)
+                                }
                             },
                         )
                     }
-                }
-            },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        ) { innerPadding ->
-            NavDisplay(
-                entries = navigationState.toEntries(entries),
-                onBack = { navigator.goBack() },
-                // Si algún día pones destinos dialog: añade metadata + esta strategy
-                sceneStrategy = remember { DialogSceneStrategy() },
-                transitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(250),
-                    ) togetherWith
-                        slideOutHorizontally(
-                            targetOffsetX = { -it },
-                            animationSpec = tween(250),
-                        )
                 },
-                popTransitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(250),
-                    ) togetherWith
-                        slideOutHorizontally(
-                            targetOffsetX = { it },
-                            animationSpec = tween(250),
-                        )
+                bottomBar = {
+                    if (topBarConfig.showBottomBar) {
+                        // Solo tiene sentido mostrarlo en Main (y cuando no estén forzadas barras off)
+                        val showBottom = navigationState.topLevelRoute == ScreensSubgraphs.Main
+                        if (showBottom) {
+                            MiraiLinkBottomBar(
+                                navigator = navigator,
+                                navState = navigationState,
+                                enabled = !topBarConfig.disableBottomBar,
+                                onDestinationClick = {
+                                    if (topBarConfig.disableBottomBar) showSnackbar("Bottom bar is disabled")
+                                },
+                            )
+                        }
+                    }
                 },
-                predictivePopTransitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(250),
-                    ) togetherWith
-                        slideOutHorizontally(
-                            targetOffsetX = { it },
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            ) { innerPadding ->
+                NavDisplay(
+                    entries = navigationState.toEntries(entries),
+                    onBack = { navigator.goBack() },
+                    // Si algún día pones destinos dialog: añade metadata + esta strategy
+                    sceneStrategy = remember { DialogSceneStrategy() },
+                    transitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
                             animationSpec = tween(250),
-                        )
-                },
-                modifier = Modifier.padding(innerPadding),
-            )
+                        ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { -it },
+                                animationSpec = tween(250),
+                            )
+                    },
+                    popTransitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(250),
+                        ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(250),
+                            )
+                    },
+                    predictivePopTransitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(250),
+                        ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(250),
+                            )
+                    },
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
         }
     }
 }

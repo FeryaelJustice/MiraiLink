@@ -14,28 +14,31 @@ import androidx.core.graphics.createBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
+@Suppress("ktlint:standard:function-naming")
 @SuppressLint("UseKtx")
 @Composable
 fun QrCodeImage(
-    modifier: Modifier = Modifier,
     content: String,
-    size: Dp = 240.dp
+    modifier: Modifier = Modifier,
+    size: Dp = 240.dp,
 ) {
-    val bitmap = remember(content) {
-        val writer = QRCodeWriter()
-        val matrix =
-            writer.encode(content, BarcodeFormat.QR_CODE, size.value.toInt(), size.value.toInt())
-        createBitmap(size.value.toInt(), size.value.toInt()).apply {
-            for (x in 0 until size.value.toInt()) {
-                for (y in 0 until size.value.toInt()) {
-                    setPixel(x, y, if (matrix[x, y]) Color.Black.toArgb() else Color.White.toArgb())
-                }
-            }
-        }.asImageBitmap()
-    }
+    val bitmap =
+        remember(content) {
+            val writer = QRCodeWriter()
+            val matrix =
+                writer.encode(content, BarcodeFormat.QR_CODE, size.value.toInt(), size.value.toInt())
+            createBitmap(size.value.toInt(), size.value.toInt())
+                .apply {
+                    for (x in 0 until size.value.toInt()) {
+                        for (y in 0 until size.value.toInt()) {
+                            setPixel(x, y, if (matrix[x, y]) Color.Black.toArgb() else Color.White.toArgb())
+                        }
+                    }
+                }.asImageBitmap()
+        }
     Image(
         bitmap = bitmap,
         contentDescription = "QR Code",
-        modifier = modifier
+        modifier = modifier,
     )
 }

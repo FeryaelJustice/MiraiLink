@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.settings
 
 import app.cash.turbine.test
@@ -32,14 +29,15 @@ class SettingsViewModelTest : KoinTest {
     private lateinit var viewModel: SettingsViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<LogoutUseCase>() }
-                single { mockk<DeleteAccountUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<LogoutUseCase>() }
+                    single { mockk<DeleteAccountUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

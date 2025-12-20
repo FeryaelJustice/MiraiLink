@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
@@ -11,15 +8,15 @@ import org.junit.Test
 import org.koin.test.KoinTest
 
 class TwoFactorAuthMapperTest : KoinTest {
-
     @Test
     fun `TwoFactorSetupResponse maps to TwoFactorAuthInfo correctly`() {
         // Given
-        val response = TwoFactorSetupResponse(
-            otpAuthUrl = "otp_url",
-            baseCode = "base_code",
-            recoveryCodes = listOf("rec_code1", "rec_code2")
-        )
+        val response =
+            TwoFactorSetupResponse(
+                otpAuthUrl = "otp_url",
+                baseCode = "base_code",
+                recoveryCodes = listOf("rec_code1", "rec_code2"),
+            )
 
         // When
         val authInfo = response.toTwoFactorAuthInfo()

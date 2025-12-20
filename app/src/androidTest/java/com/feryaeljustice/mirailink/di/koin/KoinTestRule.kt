@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2024-08-02
-
 package com.feryaeljustice.mirailink.di.koin
 
 import androidx.test.platform.app.InstrumentationRegistry

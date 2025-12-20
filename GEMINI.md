@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 # GEMINI.md
 
 ## Project Overview

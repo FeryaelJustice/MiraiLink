@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -43,15 +42,18 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     goToFeedbackScreen: () -> Unit,
     goToConfigureTwoFactorScreen: () -> Unit,
     showToast: (String, Int) -> Unit,
     copyToClipBoard: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -61,7 +63,6 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    LocalClipboard.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -84,6 +85,7 @@ fun SettingsScreen(
         }
     }
 
+    val delAccountDoneText = stringResource(R.string.delete_account_done)
     AnimatedVisibility(showDeleteDialog) {
         MiraiLinkDialog(
             title = stringResource(R.string.delete_account_confirm_title),
@@ -93,7 +95,7 @@ fun SettingsScreen(
                 showDeleteDialog = false
                 viewModel.deleteAccount {
                     showToast(
-                        context.getString(R.string.delete_account_done),
+                        delAccountDoneText,
                         Toast.LENGTH_SHORT,
                     )
                 }
@@ -107,6 +109,7 @@ fun SettingsScreen(
         )
     }
 
+    val logoutDoneText = stringResource(R.string.logout_done)
     AnimatedVisibility(showLogoutDialog) {
         MiraiLinkDialog(
             title = stringResource(R.string.logout_account_confirm_title),
@@ -114,7 +117,7 @@ fun SettingsScreen(
             onAccept = {
                 showLogoutDialog = false
                 viewModel.logout(onFinish = {
-                    showToast(context.getString(R.string.logout_done), Toast.LENGTH_SHORT)
+                    showToast(logoutDoneText, Toast.LENGTH_SHORT)
                 })
             },
             onCancel = { showLogoutDialog = false },
@@ -128,7 +131,7 @@ fun SettingsScreen(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {

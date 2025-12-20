@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import android.util.Log
@@ -33,14 +30,15 @@ class SwipeRemoteDataSourceTest : UnitTest() {
     private val swipeRemoteDataSource: SwipeRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<SwipeApiService>() }
-                single { SwipeRemoteDataSource(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<SwipeApiService>() }
+                    single { SwipeRemoteDataSource(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {

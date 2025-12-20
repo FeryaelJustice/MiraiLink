@@ -25,12 +25,13 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import com.makeappssimple.abhimanyu.composeemojipicker.ComposeEmojiPickerBottomSheetUI
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmojiPickerButton(
+    onEmojiSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
-    modifierEmojiButton: Modifier = Modifier,
-    onEmojiSelected: (String) -> Unit
+    modifierEmojiButtonModifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -53,18 +54,18 @@ fun EmojiPickerButton(
             },
         ) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 ComposeEmojiPickerBottomSheetUI(
                     onEmojiClick = { emoji ->
-                        onEmojiSelected(emoji.character)
+                        onEmojiSelect(emoji.character)
                         isModalBottomSheetVisible = false
                     },
                     onEmojiLongClick = { emoji ->
                         showToast(
                             context,
                             emoji.unicodeName.superCapitalize(),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                     },
                     searchText = searchText,
@@ -75,12 +76,12 @@ fun EmojiPickerButton(
     }
 
     MiraiLinkIconButton(
-        modifier = modifierEmojiButton,
-        onClick = { isModalBottomSheetVisible = true }
+        modifier = modifierEmojiButtonModifier,
+        onClick = { isModalBottomSheetVisible = true },
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_emoji),
-            contentDescription = stringResource(R.string.emoji)
+            contentDescription = stringResource(R.string.emoji),
         )
     }
 }

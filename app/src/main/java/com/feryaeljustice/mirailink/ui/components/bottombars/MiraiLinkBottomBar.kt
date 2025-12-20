@@ -17,15 +17,15 @@ import com.feryaeljustice.mirailink.ui.navigation.NavigationState
 import com.feryaeljustice.mirailink.ui.navigation.Navigator
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 
-@Suppress("ParamsComparedByRef")
+@Suppress("ParamsComparedByRef", "ktlint:standard:function-naming")
 @TraceRecomposition
 @Composable
 fun MiraiLinkBottomBar(
-    modifier: Modifier = Modifier,
     navigator: Navigator,
     navState: NavigationState,
-    enabled: Boolean = true,
     onDestinationClick: (BottomNavItem) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val bottomNavDestinations =
         listOf(

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -24,19 +21,19 @@ import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class CatalogRemoteDataSourceTest : UnitTest() {
-
     private val catalogApiService: CatalogApiService by inject()
     private val catalogRemoteDataSource: CatalogRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<CatalogApiService>() }
-                single { CatalogRemoteDataSource(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<CatalogApiService>() }
+                    single { CatalogRemoteDataSource(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -44,32 +41,34 @@ class CatalogRemoteDataSourceTest : UnitTest() {
     }
 
     @Test
-    fun `getAnimes should return list of animes on success`() = runTest {
-        // Given
-        val animeList = listOf(AnimeDto(id = "1", name = "Naruto", imageUrl = "url"))
-        coEvery { catalogApiService.getAllAnimes() } returns animeList
+    fun `getAnimes should return list of animes on success`() =
+        runTest {
+            // Given
+            val animeList = listOf(AnimeDto(id = "1", name = "Naruto", imageUrl = "url"))
+            coEvery { catalogApiService.getAllAnimes() } returns animeList
 
-        // When
-        val result = catalogRemoteDataSource.getAnimes()
+            // When
+            val result = catalogRemoteDataSource.getAnimes()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(animeList, (result as MiraiLinkResult.Success).data)
-        coVerify { catalogApiService.getAllAnimes() }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(animeList, (result as MiraiLinkResult.Success).data)
+            coVerify { catalogApiService.getAllAnimes() }
+        }
 
     @Test
-    fun `getGames should return list of games on success`() = runTest {
-        // Given
-        val gameList = listOf(GameDto(id = "1", name = "League of Legends", imageUrl = "url"))
-        coEvery { catalogApiService.getAllGames() } returns gameList
+    fun `getGames should return list of games on success`() =
+        runTest {
+            // Given
+            val gameList = listOf(GameDto(id = "1", name = "League of Legends", imageUrl = "url"))
+            coEvery { catalogApiService.getAllGames() } returns gameList
 
-        // When
-        val result = catalogRemoteDataSource.getGames()
+            // When
+            val result = catalogRemoteDataSource.getGames()
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(gameList, (result as MiraiLinkResult.Success).data)
-        coVerify { catalogApiService.getAllGames() }
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            assertEquals(gameList, (result as MiraiLinkResult.Success).data)
+            coVerify { catalogApiService.getAllGames() }
+        }
 }

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -26,15 +23,16 @@ class SwipeRepositoryImplTest : UnitTest() {
     private val swipeRemoteDataSource: SwipeRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<SwipeRemoteDataSource>() }
-                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
-                single { SwipeRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<SwipeRemoteDataSource>() }
+                    single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                    single { SwipeRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
+                },
+            )
+        }
 
     private val userDto =
         UserDto(

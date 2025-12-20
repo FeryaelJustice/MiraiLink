@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
@@ -30,14 +27,15 @@ class RecoverPasswordViewModelTest : KoinTest {
     private lateinit var viewModel: RecoverPasswordViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<RequestPasswordResetUseCase>() }
-                single { mockk<ConfirmPasswordResetUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<RequestPasswordResetUseCase>() }
+                    single { mockk<ConfirmPasswordResetUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.mappers
 
 import com.feryaeljustice.mirailink.data.model.UserDto
@@ -18,31 +15,32 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class ChatMapperTest : KoinTest {
-
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     @Test
     fun `ChatSummaryResponse with all fields maps correctly to ChatSummary`() {
         // Given
-        val response = ChatSummaryResponse(
-            id = "chat1",
-            type = "private",
-            createdBy = "user1",
-            createdAt = dateFormat.format(Date()),
-            joinedAt = dateFormat.format(Date()),
-            role = "member",
-            lastMessageId = "msg1",
-            lastMessageText = "Hello",
-            lastMessageSenderId = "user2",
-            lastMessageSentAt = dateFormat.format(Date()),
-            unreadCount = "5",
-            destinatary = MinimalUserInfoResponse(
-                id = "user2",
-                username = "testuser",
-                nickname = "Test",
-                avatarUrl = "url"
+        val response =
+            ChatSummaryResponse(
+                id = "chat1",
+                type = "private",
+                createdBy = "user1",
+                createdAt = dateFormat.format(Date()),
+                joinedAt = dateFormat.format(Date()),
+                role = "member",
+                lastMessageId = "msg1",
+                lastMessageText = "Hello",
+                lastMessageSenderId = "user2",
+                lastMessageSentAt = dateFormat.format(Date()),
+                unreadCount = "5",
+                destinatary =
+                    MinimalUserInfoResponse(
+                        id = "user2",
+                        username = "testuser",
+                        nickname = "Test",
+                        avatarUrl = "url",
+                    ),
             )
-        )
 
         // When
         val domain = response.toDomain()
@@ -66,20 +64,21 @@ class ChatMapperTest : KoinTest {
     @Test
     fun `ChatSummaryResponse with nullable fields maps correctly`() {
         // Given
-        val response = ChatSummaryResponse(
-            id = "chat2",
-            type = "group",
-            createdBy = "user1",
-            createdAt = dateFormat.format(Date()),
-            joinedAt = dateFormat.format(Date()),
-            role = "admin",
-            lastMessageId = null,
-            lastMessageText = null,
-            lastMessageSenderId = null,
-            lastMessageSentAt = null,
-            unreadCount = "0",
-            destinatary = null
-        )
+        val response =
+            ChatSummaryResponse(
+                id = "chat2",
+                type = "group",
+                createdBy = "user1",
+                createdAt = dateFormat.format(Date()),
+                joinedAt = dateFormat.format(Date()),
+                role = "admin",
+                lastMessageId = null,
+                lastMessageText = null,
+                lastMessageSenderId = null,
+                lastMessageSentAt = null,
+                unreadCount = "0",
+                destinatary = null,
+            )
 
         // When
         val domain = response.toDomain()
@@ -101,13 +100,14 @@ class ChatMapperTest : KoinTest {
         // Given
         val senderDto = UserDto("senderId", "sender", "Sender")
         val receiverDto = UserDto("receiverId", "receiver", "Receiver")
-        val response = ChatMessageResponse(
-            id = "msg1",
-            sender = senderDto,
-            receiver = receiverDto,
-            content = "Hi there",
-            timestamp = System.currentTimeMillis()
-        )
+        val response =
+            ChatMessageResponse(
+                id = "msg1",
+                sender = senderDto,
+                receiver = receiverDto,
+                content = "Hi there",
+                timestamp = System.currentTimeMillis(),
+            )
 
         // When
         val domain = response.toDomain()

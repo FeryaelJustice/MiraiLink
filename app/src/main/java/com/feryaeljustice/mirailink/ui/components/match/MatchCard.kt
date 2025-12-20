@@ -28,41 +28,45 @@ import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTUR
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.extensions.debounceClickable
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MatchCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     userAvatarUrl: String? = TEMPORAL_PLACEHOLDER_PICTURE_URL,
     userIsBoosted: Boolean = false,
     userUsername: String = "",
     userNickname: String = "",
-    onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .width(72.dp)
-            .debounceClickable { onClick() }
+        modifier =
+            modifier
+                .width(72.dp)
+                .debounceClickable(onClick = { onClick() }),
     ) {
         Box {
             AsyncImage(
                 model = userAvatarUrl,
                 contentDescription = stringResource(R.string.user_avatar),
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                contentScale = ContentScale.Crop
+                modifier =
+                    Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                contentScale = ContentScale.Crop,
             )
             if (userIsBoosted) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_bolt),
                     contentDescription = stringResource(R.string.boosted),
-                    modifier = Modifier
-                        .size(18.dp)
-                        .align(Alignment.TopEnd)
-                        .background(MaterialTheme.colorScheme.primary, CircleShape)
-                        .padding(2.dp),
-                    tint = Color.White
+                    modifier =
+                        Modifier
+                            .size(18.dp)
+                            .align(Alignment.TopEnd)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            .padding(2.dp),
+                    tint = Color.White,
                 )
             }
         }
@@ -73,7 +77,7 @@ fun MatchCard(
             text = userNickname.ifBlank { userUsername },
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -27,15 +24,16 @@ class MatchRepositoryImplTest : UnitTest() {
     private val matchRemoteDataSource: MatchRemoteDataSource by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<MatchRemoteDataSource>() }
-                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
-                single { MatchRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<MatchRemoteDataSource>() }
+                    single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                    single { MatchRepositoryImpl(get(), get(Qualifiers.BaseUrl)) }
+                },
+            )
+        }
 
     private val userDto =
         UserDto(
@@ -44,14 +42,14 @@ class MatchRepositoryImplTest : UnitTest() {
             nickname = "Test User",
             email = "test@example.com",
             photos =
-            listOf(
-                UserPhotoDto(
-                    id = "photo1",
-                    userId = "1",
-                    url = "/path/to/photo.jpg",
-                    position = 1,
+                listOf(
+                    UserPhotoDto(
+                        id = "photo1",
+                        userId = "1",
+                        url = "/path/to/photo.jpg",
+                        position = 1,
+                    ),
                 ),
-            ),
             animes = emptyList(),
             games = emptyList(),
         )

@@ -16,31 +16,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.backendDateToMillis
 import com.feryaeljustice.mirailink.domain.util.millisToBackendDate
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BirthdateField(
     birthdateIso: String,
-    onChange: (String) -> Unit
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val initialMillis = birthdateIso.takeIf { it.isNotBlank() }?.let { backendDateToMillis(it) }
-    val pickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialMillis
-    )
+    val pickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = initialMillis,
+        )
     var open by rememberSaveable { mutableStateOf(false) }
 
     OutlinedTextField(
+        modifier = modifier,
         value = birthdateIso,
         onValueChange = {},
         readOnly = true,
         label = { Text(stringResource(R.string.birthdate)) },
         trailingIcon = {
             IconButton(onClick = { open = true }) { Icon(Icons.Default.DateRange, null) }
-        }
+        },
     )
 
     if (open) {
@@ -58,7 +63,7 @@ fun BirthdateField(
                 TextButton(onClick = {
                     open = false
                 }) { Text(stringResource(R.string.cancel)) }
-            }
+            },
         ) {
             DatePicker(state = pickerState)
         }

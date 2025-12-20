@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.service
 
 import android.app.NotificationManager
@@ -25,7 +22,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.random.Random
 
-class FcmService : FirebaseMessagingService(), KoinComponent {
+class FcmService :
+    FirebaseMessagingService(),
+    KoinComponent {
     private val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
     private val applicationScope: CoroutineScope by inject()
     private val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.domain.usecase
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -23,19 +20,19 @@ import org.koin.test.inject
 
 @ExperimentalCoroutinesApi
 class CheckAppVersionUseCaseTest : UnitTest() {
-
     private val checkAppVersionUseCase: CheckAppVersionUseCase by inject()
     private val repo: AppConfigRepository by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<AppConfigRepository>() }
-                single { CheckAppVersionUseCase(get()) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<AppConfigRepository>() }
+                    single { CheckAppVersionUseCase(get()) }
+                },
+            )
+        }
 
     @Before
     override fun setUp() {
@@ -43,41 +40,44 @@ class CheckAppVersionUseCaseTest : UnitTest() {
     }
 
     @Test
-    fun `when current version is lower than min version, mustUpdate should be true`() = runTest {
-        // Given
-        val currentVersion = 1
-        val serverVersionInfo = AppVersionInfo(
-            platform = "android",
-            minVersionCode = 5,
-            latestVersionCode = 10,
-            message = "Update required!",
-            playStoreUrl = "url",
-        )
-        coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
+    fun `when current version is lower than min version, mustUpdate should be true`() =
+        runTest {
+            // Given
+            val currentVersion = 1
+            val serverVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 5,
+                    latestVersionCode = 10,
+                    message = "Update required!",
+                    playStoreUrl = "url",
+                )
+            coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
-        // When
-        val result = checkAppVersionUseCase(currentVersion)
+            // When
+            val result = checkAppVersionUseCase(currentVersion)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val versionCheckResult = (result as MiraiLinkResult.Success).data
-        assertTrue(versionCheckResult.mustUpdate)
-        assertFalse(versionCheckResult.shouldUpdate)
-        assertEquals("Update required!", versionCheckResult.message)
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            val versionCheckResult = (result as MiraiLinkResult.Success).data
+            assertTrue(versionCheckResult.mustUpdate)
+            assertFalse(versionCheckResult.shouldUpdate)
+            assertEquals("Update required!", versionCheckResult.message)
+        }
 
     @Test
     fun `when current version is lower than latest version but not min version, shouldUpdate should be true`() =
         runTest {
             // Given
             val currentVersion = 6
-            val serverVersionInfo = AppVersionInfo(
-                platform = "android",
-                minVersionCode = 5,
-                latestVersionCode = 10,
-                message = "Update available",
-                playStoreUrl = "url",
-            )
+            val serverVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 5,
+                    latestVersionCode = 10,
+                    message = "Update available",
+                    playStoreUrl = "url",
+                )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
             // When
@@ -96,13 +96,14 @@ class CheckAppVersionUseCaseTest : UnitTest() {
         runTest {
             // Given
             val currentVersion = 10
-            val serverVersionInfo = AppVersionInfo(
-                platform = "android",
-                minVersionCode = 5,
-                latestVersionCode = 10,
-                message = "App is up to date",
-                playStoreUrl = "url",
-            )
+            val serverVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 5,
+                    latestVersionCode = 10,
+                    message = "App is up to date",
+                    playStoreUrl = "url",
+                )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
             // When
@@ -120,13 +121,14 @@ class CheckAppVersionUseCaseTest : UnitTest() {
         runTest {
             // Given
             val currentVersion = 11
-            val serverVersionInfo = AppVersionInfo(
-                platform = "android",
-                minVersionCode = 5,
-                latestVersionCode = 10,
-                message = "App is up to date",
-                playStoreUrl = "url",
-            )
+            val serverVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 5,
+                    latestVersionCode = 10,
+                    message = "App is up to date",
+                    playStoreUrl = "url",
+                )
             coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
             // When
@@ -140,38 +142,41 @@ class CheckAppVersionUseCaseTest : UnitTest() {
         }
 
     @Test
-    fun `when repository returns error, use case should return error`() = runTest {
-        // Given
-        val errorMessage = "Network error"
-        coEvery { repo.getVersion() } returns MiraiLinkResult.Error(errorMessage)
+    fun `when repository returns error, use case should return error`() =
+        runTest {
+            // Given
+            val errorMessage = "Network error"
+            coEvery { repo.getVersion() } returns MiraiLinkResult.Error(errorMessage)
 
-        // When
-        val result = checkAppVersionUseCase(1)
+            // When
+            val result = checkAppVersionUseCase(1)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Error)
-        val error = result as MiraiLinkResult.Error
-        assertEquals(errorMessage, error.message)
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Error)
+            val error = result as MiraiLinkResult.Error
+            assertEquals(errorMessage, error.message)
+        }
 
     @Test
-    fun `when server message is null, message should be empty`() = runTest {
-        // Given
-        val serverVersionInfo = AppVersionInfo(
-            platform = "android",
-            minVersionCode = 5,
-            latestVersionCode = 10,
-            message = null,
-            playStoreUrl = "url",
-        )
-        coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
+    fun `when server message is null, message should be empty`() =
+        runTest {
+            // Given
+            val serverVersionInfo =
+                AppVersionInfo(
+                    platform = "android",
+                    minVersionCode = 5,
+                    latestVersionCode = 10,
+                    message = null,
+                    playStoreUrl = "url",
+                )
+            coEvery { repo.getVersion() } returns MiraiLinkResult.Success(serverVersionInfo)
 
-        // When
-        val result = checkAppVersionUseCase(1)
+            // When
+            val result = checkAppVersionUseCase(1)
 
-        // Then
-        assertTrue(result is MiraiLinkResult.Success)
-        val versionCheckResult = (result as MiraiLinkResult.Success).data
-        assertTrue(versionCheckResult.message.isEmpty())
-    }
+            // Then
+            assertTrue(result is MiraiLinkResult.Success)
+            val versionCheckResult = (result as MiraiLinkResult.Success).data
+            assertTrue(versionCheckResult.message.isEmpty())
+        }
 }

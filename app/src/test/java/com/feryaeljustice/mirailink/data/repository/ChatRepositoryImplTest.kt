@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -31,16 +28,17 @@ class ChatRepositoryImplTest : UnitTest() {
     private val socketService: SocketService by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<ChatRemoteDataSource>() }
-                single { mockk<SocketService>(relaxed = true) }
-                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
-                single { ChatRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<ChatRemoteDataSource>() }
+                    single { mockk<SocketService>(relaxed = true) }
+                    single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                    single { ChatRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
+                },
+            )
+        }
 
     private val userDto = UserDto(id = "user1", username = "testuser", nickname = "Test User")
 
@@ -54,12 +52,12 @@ class ChatRepositoryImplTest : UnitTest() {
             role = "member",
             unreadCount = "0",
             destinatary =
-            MinimalUserInfoResponse(
-                id = "user2",
-                username = "otheruser",
-                nickname = "Other User",
-                avatarUrl = null,
-            ),
+                MinimalUserInfoResponse(
+                    id = "user2",
+                    username = "otheruser",
+                    nickname = "Other User",
+                    avatarUrl = null,
+                ),
         )
 
     private val chatMessageResponse =

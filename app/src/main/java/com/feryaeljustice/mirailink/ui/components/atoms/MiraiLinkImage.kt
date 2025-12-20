@@ -13,45 +13,48 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkImage(
-    modifier: Modifier = Modifier,
     painterId: Int,
+    modifier: Modifier = Modifier,
     contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.None,
     hasBorder: Boolean = false,
     borderWidth: Dp = 2.dp,
     innerBorderColor: Color = Color.White,
-    outerBorderColor: Color = Color.LightGray
+    outerBorderColor: Color = Color.LightGray,
 ) {
     Image(
         painter = painterResource(id = painterId),
         contentDescription = contentDescription,
         contentScale = contentScale,
-        modifier = modifier.then(
-            if (hasBorder) {
-                Modifier.drawBehind {
-                    val strokeWidth = borderWidth.toPx()
-                    val halfStroke = strokeWidth / 2
-                    val width = size.width
-                    val height = size.height
+        modifier =
+            modifier.then(
+                if (hasBorder) {
+                    Modifier.drawBehind {
+                        val strokeWidth = borderWidth.toPx()
+                        val halfStroke = strokeWidth / 2
+                        val width = size.width
+                        val height = size.height
 
-                    drawRect(
-                        color = innerBorderColor,
-                        topLeft = Offset(halfStroke, halfStroke),
-                        size = Size(width - strokeWidth, height - strokeWidth),
-                        style = Stroke(width = strokeWidth)
-                    )
+                        drawRect(
+                            color = innerBorderColor,
+                            topLeft = Offset(halfStroke, halfStroke),
+                            size = Size(width - strokeWidth, height - strokeWidth),
+                            style = Stroke(width = strokeWidth),
+                        )
 
-                    drawRect(
-                        color = outerBorderColor,
-                        topLeft = Offset.Zero,
-                        size = Size(width, height),
-                        style = Stroke(width = strokeWidth)
-                    )
-                }
-            } else {
-                Modifier
-            })
+                        drawRect(
+                            color = outerBorderColor,
+                            topLeft = Offset.Zero,
+                            size = Size(width, height),
+                            style = Stroke(width = strokeWidth),
+                        )
+                    }
+                } else {
+                    Modifier
+                },
+            ),
     )
 }

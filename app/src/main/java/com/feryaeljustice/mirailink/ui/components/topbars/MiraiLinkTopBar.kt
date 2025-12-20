@@ -26,32 +26,40 @@ import com.feryaeljustice.mirailink.ui.components.molecules.ThemeSwitcher
 
 enum class TopBarLayoutDirection {
     ROW,
-    COLUMN
+    COLUMN,
 }
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiraiLinkTopBar(
-    modifier: Modifier = Modifier,
-    darkTheme: Boolean = false,
-    enabled: Boolean = true,
     isAuthenticated: Boolean,
-    showSettingsIcon: Boolean = true,
-    title: String? = null,
-    layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW,
     onThemeChange: () -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+    darkTheme: Boolean = false,
+    enabled: Boolean = true,
+    showSettingsIcon: Boolean = true,
+    title: String? = null,
+    layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW,
 ) {
     TopAppBar(modifier = modifier, title = {
-        val titleModifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (isAuthenticated && enabled) Modifier.clickable(
-                    onClickLabel = stringResource(
-                        R.string.navigate_home
-                    )
-                ) { if (enabled) onNavigateHome() } else Modifier)
+        val titleModifier =
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (isAuthenticated && enabled) {
+                        Modifier.clickable(
+                            onClickLabel =
+                                stringResource(
+                                    R.string.navigate_home,
+                                ),
+                        ) { if (enabled) onNavigateHome() }
+                    } else {
+                        Modifier
+                    },
+                )
 
         val commonText: @Composable () -> Unit = {
             MiraiLinkText(
@@ -65,13 +73,13 @@ fun MiraiLinkTopBar(
                 Row(
                     modifier = titleModifier,
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.Start,
                 ) {
                     MiraiLinkImage(
                         modifier = Modifier.size(40.dp),
                         painterId = R.drawable.logomirailink,
                         contentDescription = stringResource(R.string.app_name),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Fit,
                     )
                     commonText()
                 }
@@ -81,13 +89,13 @@ fun MiraiLinkTopBar(
                 Column(
                     modifier = titleModifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     MiraiLinkImage(
                         modifier = Modifier.fillMaxWidth(),
                         painterId = R.drawable.logomirailink,
                         contentDescription = stringResource(R.string.app_name),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Fit,
                     )
                     commonText()
                 }
@@ -100,7 +108,7 @@ fun MiraiLinkTopBar(
                 MiraiLinkIconButton(onClick = onNavigateToSettings) {
                     Icon(
                         Icons.Default.Settings,
-                        contentDescription = stringResource(R.string.settings)
+                        contentDescription = stringResource(R.string.settings),
                     )
                 }
             }
@@ -116,5 +124,5 @@ data class TopBarConfig(
     val disableBottomBar: Boolean = false,
     val enableAppLogoClick: Boolean = true,
     val title: String? = null,
-    val layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW // Added for consistency
+    val layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW, // Added for consistency
 )

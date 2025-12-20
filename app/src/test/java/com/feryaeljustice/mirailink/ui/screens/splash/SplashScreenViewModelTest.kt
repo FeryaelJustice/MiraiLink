@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.splash
 
 import com.feryaeljustice.mirailink.domain.model.VersionCheckResult
@@ -33,15 +30,16 @@ class SplashScreenViewModelTest : KoinTest {
     private lateinit var viewModel: SplashScreenViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<CheckAppVersionUseCase>() }
-                single { mockk<AutologinUseCase>() }
-                single { mockk<CheckOnboardingIsCompleted>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<CheckAppVersionUseCase>() }
+                    single { mockk<AutologinUseCase>() }
+                    single { mockk<CheckOnboardingIsCompleted>() }
+                },
+            )
+        }
 
     @Test
     fun `when onboarding is not completed, navigate to onboarding`() =

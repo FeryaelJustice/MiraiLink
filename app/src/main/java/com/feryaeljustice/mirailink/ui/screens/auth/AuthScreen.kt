@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -51,25 +51,27 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRe
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
-@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     onLogin: (String?) -> Unit,
     onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: AuthViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val state by viewModel.state.collectAsState()
-    val userId by viewModel.userId.collectAsState()
-    val showTwoFactorLastStepDialog by viewModel.showTwoFactorLastStepDialog.collectAsState()
-    val twoFactorLastStepIsLoading by viewModel.twoFactorLastStepDialogIsLoading.collectAsState()
-    val twoFactorCode by viewModel.twoFactorCode.collectAsState()
-    val loginByUsername by viewModel.loginByUsername.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val userId by viewModel.userId.collectAsStateWithLifecycle()
+    val showTwoFactorLastStepDialog by viewModel.showTwoFactorLastStepDialog.collectAsStateWithLifecycle()
+    val twoFactorLastStepIsLoading by viewModel.twoFactorLastStepDialogIsLoading.collectAsStateWithLifecycle()
+    val twoFactorCode by viewModel.twoFactorCode.collectAsStateWithLifecycle()
+    val loginByUsername by viewModel.loginByUsername.collectAsStateWithLifecycle()
 
     var isLogin by remember { mutableStateOf(true) }
     var username by remember { mutableStateOf("") }
@@ -78,10 +80,10 @@ fun AuthScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val usernameError by viewModel.usernameError.collectAsState()
-    val emailError by viewModel.emailError.collectAsState()
-    val passwordError by viewModel.passwordError.collectAsState()
-    val confirmPasswordError by viewModel.confirmPasswordError.collectAsState()
+    val usernameError by viewModel.usernameError.collectAsStateWithLifecycle()
+    val emailError by viewModel.emailError.collectAsStateWithLifecycle()
+    val passwordError by viewModel.passwordError.collectAsStateWithLifecycle()
+    val confirmPasswordError by viewModel.confirmPasswordError.collectAsStateWithLifecycle()
     val usernameErrorString = mapErrorToString(usernameError)
     val emailErrorString = mapErrorToString(emailError)
     val passwordErrorString = mapErrorToString(passwordError)
@@ -134,7 +136,7 @@ fun AuthScreen(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .then(
@@ -413,29 +415,25 @@ fun AuthScreen(
             },
         )
 
-        when (state) {
+        when (val currentState = state) {
             is AuthUiState.Success -> {
                 resetAuthUiState()
                 if (isLogin) onLogin(userId) else onRegister(userId)
             }
 
             is AuthUiState.Error -> {
-                val error = state as AuthUiState.Error
-                MiraiLinkText(text = error.message, color = MaterialTheme.colorScheme.error)
+                MiraiLinkText(text = currentState.message, color = MaterialTheme.colorScheme.error)
             }
 
             is AuthUiState.IsAuthenticated -> {
-                val userId = (state as AuthUiState.IsAuthenticated).userId
-                onLogin(userId)
+                onLogin(currentState.userId)
             }
 
             AuthUiState.Loading -> {
                 CircularProgressIndicator()
             }
 
-            AuthUiState.Idle -> {
-                Unit
-            }
+            AuthUiState.Idle -> {}
         }
     }
 }

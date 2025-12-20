@@ -16,15 +16,16 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextFie
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun TwoFactorPutCodeOrRecoveryCDialog(
-    modifier: Modifier = Modifier,
     code: String,
     isLoading: Boolean,
-    isDisable: Boolean = true,
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+    isDisable: Boolean = true,
 ) {
     MiraiLinkDialog(
         modifier = modifier,
@@ -36,7 +37,7 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
         title = stringResource(if (isDisable) R.string.disable_two_factor else R.string.complete_login),
         messageContent = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 MiraiLinkText(
                     text = stringResource(R.string.enter_code_from_app_or_use_recovery_code),
@@ -49,12 +50,12 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
                     placeholder = {
                         MiraiLinkText(
                             text = stringResource(R.string.code_placeholder),
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     },
                     maxLines = 1,
                     enabled = !isLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 if (isLoading) {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -62,6 +63,6 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
                     }
                 }
             }
-        }
+        },
     )
 }

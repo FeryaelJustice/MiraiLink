@@ -5,27 +5,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
+import org.koin.androidx.compose.koinViewModel
 
+@Suppress("EffectKeys", "ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun SplashScreen(
-    viewModel: SplashScreenViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     onInitialNavigation: (InitialNavigationAction) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SplashScreenViewModel = koinViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val updateDiagInfo by viewModel.updateDiagInfo.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val updateDiagInfo by viewModel.updateDiagInfo.collectAsStateWithLifecycle()
     val showUpdateDialog by remember(updateDiagInfo) {
         derivedStateOf { updateDiagInfo != null && (updateDiagInfo?.mustUpdate == true || updateDiagInfo?.shouldUpdate == true) }
     }
@@ -39,6 +42,7 @@ fun SplashScreen(
     // 1. Chequeo: si hay bloqueador de versión, mostramos ForceUpdateGate y no navegamos
     if (showUpdateDialog) {
         UpdateGate(
+            modifier = modifier,
             message = updateDiagInfo?.message,
             force = updateDiagInfo?.mustUpdate == true && updateDiagInfo?.shouldUpdate == false,
             onDismiss = viewModel::onDismissUpdateGate,
@@ -53,9 +57,9 @@ fun SplashScreen(
     }
 
     // 2. Flujo normal de splash
-    when (uiState) {
+    when (val stateUi = uiState) {
         is SplashScreenViewModel.SplashUiState.Navigate -> {
-            onInitialNavigation((uiState as SplashScreenViewModel.SplashUiState.Navigate).action)
+            onInitialNavigation(stateUi.action)
         }
 
         is SplashScreenViewModel.SplashUiState.Loading -> {

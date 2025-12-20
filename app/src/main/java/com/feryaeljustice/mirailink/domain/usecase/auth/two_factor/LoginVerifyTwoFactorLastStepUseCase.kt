@@ -1,7 +1,5 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
+@file:Suppress("ktlint:standard:package-name")
+
 package com.feryaeljustice.mirailink.domain.usecase.auth.two_factor
 
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository

@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
@@ -31,14 +31,16 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextFie
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import org.koin.compose.viewmodel.koinViewModel
 
-@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
+@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun RecoverPasswordScreen(
-    viewModel: RecoverPasswordViewModel,
     miraiLinkSession: GlobalMiraiLinkSession,
     email: String,
     onConfirmedRecoverPassword: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: RecoverPasswordViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -53,11 +55,11 @@ fun RecoverPasswordScreen(
         viewModel.initEmail(email)
     }
 
-    val uiState by viewModel.state.collectAsState()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .then(

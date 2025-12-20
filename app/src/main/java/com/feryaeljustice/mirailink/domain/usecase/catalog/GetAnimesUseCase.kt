@@ -1,7 +1,3 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
 package com.feryaeljustice.mirailink.domain.usecase.catalog
 
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime

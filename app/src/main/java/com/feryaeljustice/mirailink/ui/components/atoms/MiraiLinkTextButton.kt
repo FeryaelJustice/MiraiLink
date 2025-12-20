@@ -15,11 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkTextButton(
-    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
     isTransparentBackground: Boolean = true,
     onTransparentBackgroundContentColor: Color = MaterialTheme.colorScheme.onBackground,
@@ -28,41 +29,57 @@ fun MiraiLinkTextButton(
     disabledContainerColor: Color = MaterialTheme.colorScheme.primary,
     disabledContentColor: Color = MaterialTheme.colorScheme.primary,
     onLongClick: (() -> Unit)? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val currentOnClick by rememberUpdatedState(onClick)
     val currentOnLongClick by rememberUpdatedState(onLongClick)
 
     val backgroundColor = if (isTransparentBackground) Color.Transparent else containerColor
-    val textColor = if (isTransparentBackground) {
-        if (enabled) onTransparentBackgroundContentColor else onTransparentBackgroundContentColor.copy(
-            alpha = 0.38f
-        )
-    } else {
-        if (enabled) contentColor else disabledContentColor.copy(alpha = 0.38f)
-    }
+    val textColor =
+        if (isTransparentBackground) {
+            if (enabled) {
+                onTransparentBackgroundContentColor
+            } else {
+                onTransparentBackgroundContentColor.copy(
+                    alpha = 0.38f,
+                )
+            }
+        } else {
+            if (enabled) contentColor else disabledContentColor.copy(alpha = 0.38f)
+        }
 
-    val colors = ButtonDefaults.textButtonColors(
-        containerColor = backgroundColor,
-        contentColor = textColor,
-        disabledContainerColor = if (isTransparentBackground) Color.Transparent else disabledContainerColor.copy(
-            alpha = 0.12f
-        ),
-        disabledContentColor = if (isTransparentBackground) Color.Transparent else disabledContentColor.copy(
-            alpha = 0.38f
+    val colors =
+        ButtonDefaults.textButtonColors(
+            containerColor = backgroundColor,
+            contentColor = textColor,
+            disabledContainerColor =
+                if (isTransparentBackground) {
+                    Color.Transparent
+                } else {
+                    disabledContainerColor.copy(
+                        alpha = 0.12f,
+                    )
+                },
+            disabledContentColor =
+                if (isTransparentBackground) {
+                    Color.Transparent
+                } else {
+                    disabledContentColor.copy(
+                        alpha = 0.38f,
+                    )
+                },
         )
-    )
 
     if (onLongClick != null) {
         Surface(
-            modifier = modifier
-                .combinedClickable(
-                    onClick = currentOnClick,
-                    onLongClick = currentOnLongClick
-                )
-                .background(backgroundColor)
-                .padding(8.dp),
-            color = Color.Transparent
+            modifier =
+                Modifier
+                    .combinedClickable(
+                        onClick = currentOnClick,
+                        onLongClick = currentOnLongClick,
+                    ).background(backgroundColor)
+                    .padding(8.dp),
+            color = Color.Transparent,
         ) {
             MiraiLinkText(
                 text = text,
@@ -73,7 +90,7 @@ fun MiraiLinkTextButton(
         TextButton(
             modifier = modifier,
             onClick = currentOnClick,
-            colors = colors
+            colors = colors,
         ) {
             MiraiLinkText(
                 text = text,

@@ -33,31 +33,32 @@ import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun ChatTopBar(
+    onLongPressOnImage: (String) -> Unit,
+    onReportClick: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
-    onLongPressOnImage: (String) -> Unit,
-    onReportClick: () -> Unit,
-    onBackClick: () -> Unit
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(
-                    topStart = 4.dp,
-                    topEnd = 4.dp,
-                    bottomStart = 4.dp,
-                    bottomEnd = 4.dp
-                )
-            )
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 4.dp,
+                        bottomStart = 4.dp,
+                        bottomEnd = 4.dp,
+                    ),
+                ).padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         MiraiLinkIconButton(
             modifier = Modifier.padding(horizontal = 2.dp),
@@ -68,29 +69,32 @@ fun ChatTopBar(
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
                 contentDescription = stringResource(id = R.string.back),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(receiverUrlPhoto)
-                .crossfade(true)
-                .placeholder(drawableResId = R.drawable.logomirailink)
-                .build(),
+            model =
+                ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(receiverUrlPhoto)
+                    .crossfade(true)
+                    .placeholder(drawableResId = R.drawable.logomirailink)
+                    .build(),
             contentDescription = stringResource(R.string.chat_top_bar_user_photo),
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .pointerInput(receiverUrlPhoto) {
-                    detectTapGestures(
-                        onLongPress = {
-                            receiverUrlPhoto?.let { receiverUrl ->
-                                currentLongPressHandler(receiverUrlPhoto)
-                            }
-                        }
-                    )
-                }
+            modifier =
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .pointerInput(receiverUrlPhoto) {
+                        detectTapGestures(
+                            onLongPress = {
+                                receiverUrlPhoto?.let { _ ->
+                                    currentLongPressHandler(receiverUrlPhoto)
+                                }
+                            },
+                        )
+                    },
         )
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
@@ -102,12 +106,12 @@ fun ChatTopBar(
         Spacer(modifier = Modifier.weight(1f))
         MiraiLinkIconButton(
             onClick = onReportClick,
-            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.error)
+            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.error),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_report),
                 contentDescription = stringResource(R.string.report_user),
-                tint = MaterialTheme.colorScheme.onError
+                tint = MaterialTheme.colorScheme.onError,
             )
         }
     }

@@ -12,19 +12,21 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun ChatList(
-    modifier: Modifier = Modifier,
     chats: List<ChatPreviewViewEntry>,
-    onNavigateToChat: (String) -> Unit
+    onNavigateToChat: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(
-            PaddingValues(
-                horizontal = 16.dp,
-                vertical = 16.dp
-            )
-        )
+        modifier =
+            modifier.padding(
+                PaddingValues(
+                    horizontal = 16.dp,
+                    vertical = 16.dp,
+                ),
+            ),
     ) {
         MiraiLinkText(
             text = stringResource(R.string.chats),
@@ -48,7 +50,8 @@ fun ChatList(
                     chatLastMessage = chat.lastMessage,
                     onClick = {
                         onNavigateToChat(it)
-                    })
+                    },
+                )
             }
         }
     }

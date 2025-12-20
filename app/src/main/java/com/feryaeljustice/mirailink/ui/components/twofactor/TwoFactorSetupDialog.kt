@@ -19,9 +19,9 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.QrCodeImage
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun TwoFactorSetupDialog(
-    modifier: Modifier = Modifier,
     otpUrl: String?,
     base32: String,
     recoveryCodes: List<String>,
@@ -29,7 +29,8 @@ fun TwoFactorSetupDialog(
     isLoading: Boolean,
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     MiraiLinkDialog(
         modifier = modifier,
@@ -41,13 +42,13 @@ fun TwoFactorSetupDialog(
         title = stringResource(R.string.setup_two_factor),
         messageContent = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 otpUrl?.let {
                     QrCodeImage(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         content = it,
-                        size = 300.dp
+                        size = 300.dp,
                     )
                 }
                 MiraiLinkText(
@@ -63,7 +64,7 @@ fun TwoFactorSetupDialog(
                     },
                     maxLines = 1,
                     enabled = !isLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 MiraiLinkText(
                     text = stringResource(R.string.or_use_secret_code),
@@ -74,12 +75,12 @@ fun TwoFactorSetupDialog(
                     text = base32,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 if (recoveryCodes.isNotEmpty()) {
                     MiraiLinkText(
                         text = stringResource(R.string.recovery_codes),
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                     recoveryCodes.forEach {
                         MiraiLinkText(
@@ -95,6 +96,6 @@ fun TwoFactorSetupDialog(
                     }
                 }
             }
-        }
+        },
     )
 }

@@ -25,8 +25,10 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MessageListItem(
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     chatUserId: String? = null,
     chatAvatarUrl: String = "",
@@ -35,22 +37,23 @@ fun MessageListItem(
     chatIsBoosted: Boolean = false,
     chatLastMessage: String = "",
     chatReadsPending: Int = 0,
-    onClick: (String) -> Unit
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { chatUserId?.let { uId -> onClick(uId) } }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable { chatUserId?.let { uId -> onClick(uId) } }
+                .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = chatAvatarUrl,
             contentDescription = stringResource(R.string.user_avatar),
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
+            modifier =
+                Modifier
+                    .size(56.dp)
+                    .clip(CircleShape),
         )
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -61,7 +64,7 @@ fun MessageListItem(
                     text = chatNickname.ifBlank { chatUsername },
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 if (chatIsBoosted) {
@@ -70,7 +73,7 @@ fun MessageListItem(
                         painter = painterResource(id = R.drawable.ic_bolt),
                         contentDescription = stringResource(R.string.boosted),
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
                     )
                 }
             }
@@ -80,7 +83,7 @@ fun MessageListItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -88,8 +91,19 @@ fun MessageListItem(
             Badge(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
-                modifier = Modifier.padding(end = 8.dp)
-            ) { MiraiLinkText(text = if (chatReadsPending > 99) stringResource(R.string.more_than_ninetynine) else chatReadsPending.toString()) }
+                modifier = Modifier.padding(end = 8.dp),
+            ) {
+                MiraiLinkText(
+                    text =
+                        if (chatReadsPending >
+                            99
+                        ) {
+                            stringResource(R.string.more_than_ninetynine)
+                        } else {
+                            chatReadsPending.toString()
+                        },
+                )
+            }
         }
     }
 }

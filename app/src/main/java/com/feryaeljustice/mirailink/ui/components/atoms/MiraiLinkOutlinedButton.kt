@@ -9,14 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkOutlinedButton(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     shape: Shape = ButtonDefaults.outlinedShape,
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(),
-    onClick: () -> Unit,
-    content: @Composable (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit),
 ) {
     OutlinedButton(
         modifier = modifier,
@@ -24,6 +25,6 @@ fun MiraiLinkOutlinedButton(
         onClick = onClick,
         shape = shape,
         border = border,
-        content = content
+        content = content,
     )
 }

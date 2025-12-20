@@ -16,11 +16,12 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MatchesRow(
-    modifier: Modifier = Modifier,
     matches: List<MatchUserViewEntry>,
-    onNavigateToChat: (String) -> Unit
+    onNavigateToChat: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {
         MiraiLinkText(
@@ -38,19 +39,21 @@ fun MatchesRow(
             } else {
                 matches.forEach { user ->
                     MatchCard(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .onVisibilityChanged(callback = {
-                                Log.d("MatchesRow", "Visibility changed: ${user.username}")
-                            })
-                            .onFirstVisible(callback = {
-                                Log.d("MatchesRow", "First visible: ${user.username}")
-                            }),
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 8.dp)
+                                .onVisibilityChanged(callback = {
+                                    Log.d("MatchesRow", "Visibility changed: ${user.username}")
+                                })
+                                .onFirstVisible(callback = {
+                                    Log.d("MatchesRow", "First visible: ${user.username}")
+                                }),
                         userAvatarUrl = user.avatarUrl,
                         userIsBoosted = user.isBoosted,
                         userUsername = user.username,
                         userNickname = user.nickname,
-                        onClick = { onNavigateToChat(user.id) })
+                        onClick = { onNavigateToChat(user.id) },
+                    )
                 }
             }
         }

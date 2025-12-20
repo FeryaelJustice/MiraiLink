@@ -34,7 +34,7 @@ class VerificationViewModel(
         _state.update { it.copy(token = token, error = null) }
     }
 
-    fun checkUserIsVerified(onFinish: (isVerified: Boolean) -> Unit) =
+    fun checkUserIsVerified(onFinished: (isVerified: Boolean) -> Unit) =
         viewModelScope.launch {
             val result =
                 withContext(ioDispatcher) {
@@ -43,7 +43,7 @@ class VerificationViewModel(
 
             when (result) {
                 is MiraiLinkResult.Success -> {
-                    onFinish(result.data)
+                    onFinished(result.data)
                     if (result.data) {
                         resetState()
                     }
@@ -83,7 +83,9 @@ class VerificationViewModel(
                 onFinish()
             }
 
-            is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+            is MiraiLinkResult.Error -> {
+                _state.update { it.copy(error = result.message) }
+            }
         }
     }
 

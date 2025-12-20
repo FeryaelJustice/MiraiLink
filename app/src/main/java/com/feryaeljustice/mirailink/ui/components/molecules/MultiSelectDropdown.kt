@@ -35,27 +35,31 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MultiSelectDropdown(
-    modifier: Modifier = Modifier,
     label: String,
     options: List<String>,
     selected: List<String>,
-    onSelectionChange: (List<String>) -> Unit
+    onSelectionChange: (List<String>) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var columnSize by remember { mutableStateOf(Size.Zero) }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { layoutCoordinates ->
-                columnSize = layoutCoordinates.size.toSize()
-            }) {
-        MiraiLinkOutlinedTextField(
-            modifier = Modifier
+        modifier =
+            modifier
                 .fillMaxWidth()
-                .clickable { expanded = true },
+                .onGloballyPositioned { layoutCoordinates ->
+                    columnSize = layoutCoordinates.size.toSize()
+                },
+    ) {
+        MiraiLinkOutlinedTextField(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true },
             value = if (selected.isEmpty()) "" else selected.joinToString(", "),
             onValueChange = {},
             label = label,
@@ -64,21 +68,24 @@ fun MultiSelectDropdown(
                 Icon(
                     Icons.Default.ArrowDropDown,
                     contentDescription = stringResource(R.string.expand),
-                    modifier = Modifier.clickable {
-                        expanded = true
-                    })
+                    modifier =
+                        Modifier.clickable {
+                            expanded = true
+                        },
+                )
             },
         )
 
         // Chips debajo (más usabilidad)
         if (selected.isNotEmpty()) {
             FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 selected.forEach { tag ->
                     AssistChip(
@@ -88,9 +95,10 @@ fun MultiSelectDropdown(
                         label = { MiraiLinkText(text = tag) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.padding(end = 8.dp, bottom = 4.dp),
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
+                        colors =
+                            AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
                     )
                 }
             }
@@ -100,11 +108,13 @@ fun MultiSelectDropdown(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) {
-                    columnSize.width.toDp()
-                })
-                .fillMaxHeight(fraction = 0.6f)
+            modifier =
+                Modifier
+                    .width(
+                        with(LocalDensity.current) {
+                            columnSize.width.toDp()
+                        },
+                    ).fillMaxHeight(fraction = 0.6f),
         ) {
             options.forEach { option ->
                 val isSelected = option in selected
@@ -112,25 +122,26 @@ fun MultiSelectDropdown(
                     text = {
                         MiraiLinkText(
                             text = option,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     },
                     onClick = {
-                        val newSelection = if (isSelected) {
-                            selected - option
-                        } else {
-                            selected + option
-                        }
+                        val newSelection =
+                            if (isSelected) {
+                                selected - option
+                            } else {
+                                selected + option
+                            }
                         onSelectionChange(newSelection)
                     },
                     trailingIcon = {
                         if (isSelected) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = stringResource(R.string.selectedd)
+                                contentDescription = stringResource(R.string.selectedd),
                             )
                         }
-                    }
+                    },
                 )
             }
         }

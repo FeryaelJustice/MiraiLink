@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2024-07-31
-
 package com.feryaeljustice.mirailink.di.koin
 
 import android.content.Context
@@ -31,86 +28,92 @@ import org.koin.dsl.module
 private const val DATASTORE_PREFS_NAME = "mirailink_prefs"
 private const val DATASTORE_SESSION_PREFS_NAME = "session_prefs"
 
-val dataStoreModule = module {
-    single(PrefsDataStore) {
-        providePrefsDataStore(androidContext(), get(), get(), get(IoDispatcher))
-    }
+val dataStoreModule =
+    module {
+        single(PrefsDataStore) {
+            providePrefsDataStore(androidContext(), get(), get(), get(IoDispatcher))
+        }
 
-    single(SessionDataStore) {
-        provideSessionPrefsDataStore(androidContext(), get(), get(), get(IoDispatcher))
+        single(SessionDataStore) {
+            provideSessionPrefsDataStore(androidContext(), get(), get(), get(IoDispatcher))
+        }
     }
-}
 
 private fun providePrefsDataStore(
     context: Context,
     json: Json,
     keyProvider: SecretKeyProvider,
-    ioDispatcher: CoroutineDispatcher
-): DataStore<AppPrefs> = DataStoreFactory.create(
-    serializer = EncryptedJsonSerializer(
-        json = json,
-        kSerializer = AppPrefs.serializer(),
-        default = AppPrefs(),
-        keyProvider = keyProvider
-    ),
-    scope = CoroutineScope(ioDispatcher + SupervisorJob()),
-    produceFile = { context.dataStoreFile(DATASTORE_PREFS_NAME) }
-)
+    ioDispatcher: CoroutineDispatcher,
+): DataStore<AppPrefs> =
+    DataStoreFactory.create(
+        serializer =
+            EncryptedJsonSerializer(
+                json = json,
+                kSerializer = AppPrefs.serializer(),
+                default = AppPrefs(),
+                keyProvider = keyProvider,
+            ),
+        scope = CoroutineScope(ioDispatcher + SupervisorJob()),
+        produceFile = { context.dataStoreFile(DATASTORE_PREFS_NAME) },
+    )
 
 private fun provideSessionPrefsDataStore(
     context: Context,
     json: Json,
     keyProvider: SecretKeyProvider,
-    ioDispatcher: CoroutineDispatcher
+    ioDispatcher: CoroutineDispatcher,
 ): DataStore<Session> {
     return DataStoreFactory.create(
-        serializer = EncryptedJsonSerializer(
-            json = json,
-            kSerializer = Session.serializer(),
-            default = Session(),
-            keyProvider = keyProvider
-        ),
-        migrations = listOf(
-            object : DataMigration<Session> {
-                override suspend fun shouldMigrate(currentData: Session) = currentData == Session()
+        serializer =
+            EncryptedJsonSerializer(
+                json = json,
+                kSerializer = Session.serializer(),
+                default = Session(),
+                keyProvider = keyProvider,
+            ),
+        migrations =
+            listOf(
+                object : DataMigration<Session> {
+                    override suspend fun shouldMigrate(currentData: Session) = currentData == Session()
 
-                override suspend fun migrate(currentData: Session): Session {
-                    val sp = context.getSharedPreferences(DATASTORE_SESSION_PREFS_NAME, Context.MODE_PRIVATE)
-                    val token = sp.getString("jwt_token", "") ?: ""
-                    val userId = sp.getString("user_id", "") ?: ""
-                    val verified = sp.getBoolean("verified", false)
-                    return if (token.isBlank() || userId.isBlank()) {
-                        currentData
-                    } else {
-                        Session(token = token, userId = userId, verified = verified)
+                    override suspend fun migrate(currentData: Session): Session {
+                        val sp = context.getSharedPreferences(DATASTORE_SESSION_PREFS_NAME, Context.MODE_PRIVATE)
+                        val token = sp.getString("jwt_token", "") ?: ""
+                        val userId = sp.getString("user_id", "") ?: ""
+                        val verified = sp.getBoolean("verified", false)
+                        return if (token.isBlank() || userId.isBlank()) {
+                            currentData
+                        } else {
+                            Session(token = token, userId = userId, verified = verified)
+                        }
                     }
-                }
 
-                override suspend fun cleanUp() {}
-            },
-            object : DataMigration<Session> {
-                override suspend fun shouldMigrate(currentData: Session) = currentData == Session()
+                    override suspend fun cleanUp() {}
+                },
+                object : DataMigration<Session> {
+                    override suspend fun shouldMigrate(currentData: Session) = currentData == Session()
 
-                override suspend fun migrate(currentData: Session): Session {
-                    val oldDs: DataStore<Preferences> = PreferenceDataStoreFactory.create(
-                        scope = CoroutineScope(ioDispatcher + SupervisorJob()),
-                        produceFile = { context.preferencesDataStoreFile(DATASTORE_SESSION_PREFS_NAME) }
-                    )
-                    val prefs = oldDs.data.first()
-                    val token = prefs[stringPreferencesKey("jwt_token")] ?: ""
-                    val userId = prefs[stringPreferencesKey("user_id")] ?: ""
-                    val verified = prefs[booleanPreferencesKey("verified")] ?: false
-                    return if (token.isBlank() || userId.isBlank()) {
-                        currentData
-                    } else {
-                        Session(token = token, userId = userId, verified = verified)
+                    override suspend fun migrate(currentData: Session): Session {
+                        val oldDs: DataStore<Preferences> =
+                            PreferenceDataStoreFactory.create(
+                                scope = CoroutineScope(ioDispatcher + SupervisorJob()),
+                                produceFile = { context.preferencesDataStoreFile(DATASTORE_SESSION_PREFS_NAME) },
+                            )
+                        val prefs = oldDs.data.first()
+                        val token = prefs[stringPreferencesKey("jwt_token")] ?: ""
+                        val userId = prefs[stringPreferencesKey("user_id")] ?: ""
+                        val verified = prefs[booleanPreferencesKey("verified")] ?: false
+                        return if (token.isBlank() || userId.isBlank()) {
+                            currentData
+                        } else {
+                            Session(token = token, userId = userId, verified = verified)
+                        }
                     }
-                }
 
-                override suspend fun cleanUp() {}
-            }
-        ),
+                    override suspend fun cleanUp() {}
+                },
+            ),
         scope = CoroutineScope(ioDispatcher + SupervisorJob()),
-        produceFile = { context.dataStoreFile(DATASTORE_SESSION_PREFS_NAME) }
+        produceFile = { context.dataStoreFile(DATASTORE_SESSION_PREFS_NAME) },
     )
 }

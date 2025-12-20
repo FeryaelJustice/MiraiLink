@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,11 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.domain.util.applyTelemetryConsent
-import com.feryaeljustice.mirailink.notification.NotificationRationaleDialog
+import com.feryaeljustice.mirailink.ui.components.notifications.NotificationRationaleDialog
 import com.feryaeljustice.mirailink.ui.navigation.NavWrapper
 import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.utils.findActivity
@@ -28,8 +30,10 @@ import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Suppress("EffectKeys", "ktlint:standard:function-naming")
 @Composable
-fun MiraiLinkAppRoot() {
+fun MiraiLinkAppRoot(modifier: Modifier = Modifier) {
     val systemIsInDarkMode = isSystemInDarkTheme()
     var darkTheme by rememberSaveable { mutableStateOf(systemIsInDarkMode) }
 //    EnableTransparentStatusBar(darkMode = darkTheme)
@@ -37,7 +41,7 @@ fun MiraiLinkAppRoot() {
     // --- SETUP GENERAL Y CONTEXTO ---
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val canRequestNotifications = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
+    val canRequestNotifications = remember { true } // Before: Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
     // ---------------------------------------------------------------------------------------------
     // 🎯 SECCIÓN DE GESTIÓN DE PERMISOS DE NOTIFICACIONES (FCM)
@@ -72,7 +76,10 @@ fun MiraiLinkAppRoot() {
             }
 
             // 2. Debemos mostrar la explicación Rationale (Rechazo temporal)
-            shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.POST_NOTIFICATIONS) -> {
+            shouldShowRequestPermissionRationale(
+                context as Activity,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) -> {
                 showNotificationRationaleDialog = true
             }
 
@@ -163,7 +170,7 @@ fun MiraiLinkAppRoot() {
     // 🎨 ESTRUCTURA PRINCIPAL DE LA UI
     // ---------------------------------------------------------------------------------------------
 
-    MiraiLinkTheme(darkTheme = darkTheme) {
+    MiraiLinkTheme(darkTheme = darkTheme, modifier = modifier) {
         NavWrapper(darkTheme = darkTheme, onThemeChange = {
             darkTheme = !darkTheme
         })

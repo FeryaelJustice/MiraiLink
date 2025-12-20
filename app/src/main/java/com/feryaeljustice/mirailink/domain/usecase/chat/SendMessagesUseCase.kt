@@ -1,7 +1,5 @@
-/**
- * @author Feryael Justice
- * @since 31/10/2024
- */
+@file:Suppress("ktlint:standard:filename")
+
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository

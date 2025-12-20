@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
@@ -32,15 +29,16 @@ class VerificationViewModelTest : KoinTest {
     private lateinit var viewModel: VerificationViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<CheckIsVerifiedUseCase>() }
-                single { mockk<RequestVerificationCodeUseCase>() }
-                single { mockk<ConfirmVerificationCodeUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<CheckIsVerifiedUseCase>() }
+                    single { mockk<RequestVerificationCodeUseCase>() }
+                    single { mockk<ConfirmVerificationCodeUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

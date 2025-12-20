@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
@@ -30,16 +27,17 @@ class UserRepositoryImplTest : UnitTest() {
     private val sessionManager: SessionManager by inject()
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<UserRemoteDataSource>() }
-                single { mockk<SessionManager>(relaxed = true) }
-                single(Qualifiers.BaseUrl) { "http://localhost:8080" }
-                single { UserRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<UserRemoteDataSource>() }
+                    single { mockk<SessionManager>(relaxed = true) }
+                    single(Qualifiers.BaseUrl) { "http://localhost:8080" }
+                    single { UserRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
+                },
+            )
+        }
 
     private val userDto =
         UserDto(
@@ -71,13 +69,13 @@ class UserRepositoryImplTest : UnitTest() {
             gender = null,
             birthdate = null,
             photos =
-            listOf(
-                com.feryaeljustice.mirailink.domain.model.user.UserPhoto(
-                    userId = "1",
-                    url = "http://localhost:8080/path/to/photo.jpg",
-                    position = 1,
+                listOf(
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto(
+                        userId = "1",
+                        url = "http://localhost:8080/path/to/photo.jpg",
+                        position = 1,
+                    ),
                 ),
-            ),
             games = emptyList(),
             animes = emptyList(),
         )

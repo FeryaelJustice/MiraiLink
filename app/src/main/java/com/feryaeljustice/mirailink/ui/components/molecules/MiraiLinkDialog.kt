@@ -16,10 +16,11 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+@Suppress("ktlint:standard:function-naming", "ContentSlotReused")
 @Composable
 fun MiraiLinkDialog(
-    modifier: Modifier = Modifier,
     title: String,
+    modifier: Modifier = Modifier,
     message: String? = null,
     onDismiss: (() -> Unit)? = null,
     onAccept: (() -> Unit)? = null,
@@ -34,11 +35,11 @@ fun MiraiLinkDialog(
     textContentColor: Color = AlertDialogDefaults.textContentColor,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     buttonTextColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textAlign: TextAlign = TextAlign.Start,
     iconContent: @Composable (() -> Unit)? = null,
     titleContent: @Composable (() -> Unit)? = null,
     messageContent: @Composable (() -> Unit)? = null,
     confirmButtonContent: @Composable (() -> Unit)? = null,
-    textAlign: TextAlign = TextAlign.Start
 ) {
     val showConfirmButton by remember {
         derivedStateOf { showAcceptButton && onAccept != null }
@@ -53,7 +54,7 @@ fun MiraiLinkDialog(
                 MiraiLinkButton(onClick = onAccept ?: {}) {
                     MiraiLinkText(
                         text = acceptText,
-                        color = buttonTextColor
+                        color = buttonTextColor,
                     )
                 }
             }
@@ -66,7 +67,7 @@ fun MiraiLinkDialog(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.error,
                     disabledContainerColor = MaterialTheme.colorScheme.onErrorContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onError
+                    disabledContentColor = MaterialTheme.colorScheme.onError,
                 ) {
                     MiraiLinkText(
                         text = cancelText,
@@ -81,7 +82,7 @@ fun MiraiLinkDialog(
             titleContent?.invoke() ?: MiraiLinkText(
                 text = title,
                 color = textColor,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
@@ -90,7 +91,7 @@ fun MiraiLinkDialog(
                     text = it,
                     color = textColor,
                     style = MaterialTheme.typography.bodyMedium,
-                    textAlign = textAlign
+                    textAlign = textAlign,
                 )
             }
         },

@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
 import java.util.Properties
@@ -33,8 +30,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "1.5.2"
+        versionCode = 26
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }

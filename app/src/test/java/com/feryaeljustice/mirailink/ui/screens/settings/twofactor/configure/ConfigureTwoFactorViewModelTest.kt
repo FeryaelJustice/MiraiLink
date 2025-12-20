@@ -1,6 +1,3 @@
-// Author: Feryael Justice
-// Date: 2025-11-08
-
 package com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure
 
 import com.feryaeljustice.mirailink.domain.model.auth.TwoFactorAuthInfo
@@ -35,16 +32,17 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
     private lateinit var viewModel: ConfigureTwoFactorViewModel
 
     @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(
-            module {
-                single { mockk<SetupTwoFactorUseCase>() }
-                single { mockk<VerifyTwoFactorUseCase>() }
-                single { mockk<GetTwoFactorStatusUseCase>() }
-                single { mockk<DisableTwoFactorUseCase>() }
-            },
-        )
-    }
+    val koinTestRule =
+        KoinTestRule.create {
+            modules(
+                module {
+                    single { mockk<SetupTwoFactorUseCase>() }
+                    single { mockk<VerifyTwoFactorUseCase>() }
+                    single { mockk<GetTwoFactorStatusUseCase>() }
+                    single { mockk<DisableTwoFactorUseCase>() }
+                },
+            )
+        }
 
     @Before
     fun setUp() {

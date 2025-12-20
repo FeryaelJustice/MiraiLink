@@ -39,16 +39,17 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.utils.clampOffset
 import kotlinx.coroutines.launch
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun FullscreenImagePreview(
-    modifier: Modifier = Modifier,
     imageUrl: String,
     onDismiss: () -> Unit,
     closeContentDescription: String,
     imageContentDescription: String,
+    modifier: Modifier = Modifier,
     backgroundAlpha: Float = 0.6f,
     contentScale: ContentScale = ContentScale.Fit,
-    contentPadding: Dp = 8.dp
+    contentPadding: Dp = 8.dp,
 ) {
     val currentOnDismiss by rememberUpdatedState(newValue = onDismiss)
     // Para hacer pinch to zoom
@@ -78,63 +79,66 @@ fun FullscreenImagePreview(
         return d
     }
 
-    val transformState = rememberTransformableState { zoomChange, panChange, rotationChange ->
-        // Zoom con límites
-        val targetScale = (scale.value * zoomChange).coerceIn(minScale, maxScale)
-        if (targetScale != scale.value) {
-            scope.launch {
-                scale.snapTo(targetScale)
-                // Al cambiar escala, re-clamp del offset
-                offset.snapTo(clampOffset(offset.value, scale.value, contentSize))
+    val transformState =
+        rememberTransformableState { zoomChange, panChange, rotationChange ->
+            // Zoom con límites
+            val targetScale = (scale.value * zoomChange).coerceIn(minScale, maxScale)
+            if (targetScale != scale.value) {
+                scope.launch {
+                    scale.snapTo(targetScale)
+                    // Al cambiar escala, re-clamp del offset
+                    offset.snapTo(clampOffset(offset.value, scale.value, contentSize))
+                }
+            }
+
+            // Pan si hay zoom > 1
+            if (scale.value > 1f) {
+                scope.launch {
+                    val newOffset = offset.value + panChange
+                    offset.snapTo(clampOffset(newOffset, scale.value, contentSize))
+                }
+            } else {
+                if (offset.value != Offset.Zero) {
+                    scope.launch { offset.snapTo(Offset.Zero) }
+                }
+            }
+
+            // Rotación con dos dedos
+            if (rotationChange != 0f) {
+                scope.launch {
+                    val newRotation = normalizeDeg(rotation.value + rotationChange)
+                    rotation.snapTo(newRotation)
+                }
             }
         }
-
-        // Pan si hay zoom > 1
-        if (scale.value > 1f) {
-            scope.launch {
-                val newOffset = offset.value + panChange
-                offset.snapTo(clampOffset(newOffset, scale.value, contentSize))
-            }
-        } else {
-            if (offset.value != Offset.Zero) {
-                scope.launch { offset.snapTo(Offset.Zero) }
-            }
-        }
-
-        // Rotación con dos dedos
-        if (rotationChange != 0f) {
-            scope.launch {
-                val newRotation = normalizeDeg(rotation.value + rotationChange)
-                rotation.snapTo(newRotation)
-            }
-        }
-    }
-
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = backgroundAlpha))
-            .clickable { currentOnDismiss() } // cierra al pulsar fuera
-            .padding(contentPadding)
-            .zIndex(99f),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = backgroundAlpha))
+                .clickable { currentOnDismiss() } // cierra al pulsar fuera
+                .padding(contentPadding)
+                .zIndex(99f),
+        contentAlignment = Alignment.Center,
     ) {
         // Botón cerrar
         MiraiLinkIconButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(12.dp)
-                .zIndex(100f),
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+                    .zIndex(100f),
             onClick = {
-                scope.launch { animateToIdentity() }
+                scope
+                    .launch { animateToIdentity() }
                     .invokeOnCompletion { currentOnDismiss() }
-            }
+            },
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = closeContentDescription,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
 
@@ -143,58 +147,60 @@ fun FullscreenImagePreview(
             model = imageUrl,
             contentDescription = imageContentDescription,
             contentScale = contentScale,
-            modifier = Modifier
-                .fillMaxSize(0.9f)
-                .padding(all = contentPadding)
-                .clickable(enabled = false) {} // evita cerrar al pulsar sobre la imagen
-                .onSizeChanged { size ->
-                    contentSize = size
-                    // Re-clamp si cambia el tamaño del contenedor
-                    scope.launch {
-                        offset.snapTo(clampOffset(offset.value, scale.value, size))
-                    }
-                }
-                // Gestos: doble toque para alternar 1x/2x
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = { tapOffset ->
-                            scope.launch {
-                                if (scale.value < 2f) {
-                                    val newScale = 2f
-                                    // Centrar hacia el punto del doble toque
-                                    if (contentSize != IntSize.Zero) {
-                                        val center = Offset(
-                                            contentSize.width / 2f,
-                                            contentSize.height / 2f
-                                        )
-                                        val scaleRatio = newScale / scale.value
-                                        val translated =
-                                            (offset.value + (tapOffset - center)) * scaleRatio
-                                        val newOffset = translated - (tapOffset - center)
-                                        offset.snapTo(clampOffset(newOffset, newScale, contentSize))
-                                    }
-                                    scale.animateTo(newScale, tween(180))
-                                } else {
-                                    animateToIdentity()
-                                }
-                            }
-                        },
-                        onLongPress = {
-                            scope.launch { animateToIdentity() }
+            modifier =
+                Modifier
+                    .fillMaxSize(0.9f)
+                    .clickable(enabled = false) {}
+                    .padding(all = contentPadding)
+                    .onSizeChanged { size ->
+                        contentSize = size
+                        // Re-clamp si cambia el tamaño del contenedor
+                        scope.launch {
+                            offset.snapTo(clampOffset(offset.value, scale.value, size))
                         }
-                    )
-                }
-                // Aplicamos transformaciones
-                .graphicsLayer {
-                    scaleX = scale.value
-                    scaleY = scale.value
-                    translationX = offset.value.x
-                    translationY = offset.value.y
-                    rotationZ = rotation.value
-                    transformOrigin = TransformOrigin.Center
-                }
-                // Habilitamos pinch/drag
-                .transformable(transformState)
+                    }.pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = { tapOffset ->
+                                scope.launch {
+                                    if (scale.value < 2f) {
+                                        val newScale = 2f
+                                        // Centrar hacia el punto del doble toque
+                                        if (contentSize != IntSize.Zero) {
+                                            val center =
+                                                Offset(
+                                                    contentSize.width / 2f,
+                                                    contentSize.height / 2f,
+                                                )
+                                            val scaleRatio = newScale / scale.value
+                                            val translated =
+                                                (offset.value + (tapOffset - center)) * scaleRatio
+                                            val newOffset = translated - (tapOffset - center)
+                                            offset.snapTo(
+                                                clampOffset(
+                                                    newOffset,
+                                                    newScale,
+                                                    contentSize,
+                                                ),
+                                            )
+                                        }
+                                        scale.animateTo(newScale, tween(180))
+                                    } else {
+                                        animateToIdentity()
+                                    }
+                                }
+                            },
+                            onLongPress = {
+                                scope.launch { animateToIdentity() }
+                            },
+                        )
+                    }.graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        translationX = offset.value.x
+                        translationY = offset.value.y
+                        rotationZ = rotation.value
+                        transformOrigin = TransformOrigin.Center
+                    }.transformable(transformState),
         )
     }
 }

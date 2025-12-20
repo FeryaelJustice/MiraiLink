@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkCard(
     modifier: Modifier = Modifier,
@@ -18,16 +19,17 @@ fun MiraiLinkCard(
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     cornerShape: RoundedCornerShape = RoundedCornerShape(16.dp),
     cardElevation: CardElevation = CardDefaults.cardElevation(6.dp),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         modifier = modifier,
         shape = cornerShape,
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        elevation = cardElevation
+        colors =
+            CardDefaults.cardColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+            ),
+        elevation = cardElevation,
     ) {
         content()
     }
