@@ -250,6 +250,84 @@ private val highContrastDarkColorScheme =
         surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
     )
 
+private val lightSchemeChristmas =
+    lightColorScheme(
+        primary = primaryLightChristmas,
+        onPrimary = onPrimaryLightChristmas,
+        primaryContainer = primaryContainerLightChristmas,
+        onPrimaryContainer = onPrimaryContainerLightChristmas,
+        secondary = secondaryLightChristmas,
+        onSecondary = onSecondaryLightChristmas,
+        secondaryContainer = secondaryContainerLightChristmas,
+        onSecondaryContainer = onSecondaryContainerLightChristmas,
+        tertiary = tertiaryLightChristmas,
+        onTertiary = onTertiaryLightChristmas,
+        tertiaryContainer = tertiaryContainerLightChristmas,
+        onTertiaryContainer = onTertiaryContainerLightChristmas,
+        error = errorLightChristmas,
+        onError = onErrorLightChristmas,
+        errorContainer = errorContainerLightChristmas,
+        onErrorContainer = onErrorContainerLightChristmas,
+        background = backgroundLightChristmas,
+        onBackground = onBackgroundLightChristmas,
+        surface = surfaceLightChristmas,
+        onSurface = onSurfaceLightChristmas,
+        surfaceVariant = surfaceVariantLightChristmas,
+        onSurfaceVariant = onSurfaceVariantLightChristmas,
+        outline = outlineLightChristmas,
+        outlineVariant = outlineVariantLightChristmas,
+        scrim = scrimLightChristmas,
+        inverseSurface = inverseSurfaceLightChristmas,
+        inverseOnSurface = inverseOnSurfaceLightChristmas,
+        inversePrimary = inversePrimaryLightChristmas,
+        surfaceDim = surfaceDimLightChristmas,
+        surfaceBright = surfaceBrightLightChristmas,
+        surfaceContainerLowest = surfaceContainerLowestLightChristmas,
+        surfaceContainerLow = surfaceContainerLowLightChristmas,
+        surfaceContainer = surfaceContainerLightChristmas,
+        surfaceContainerHigh = surfaceContainerHighLightChristmas,
+        surfaceContainerHighest = surfaceContainerHighestLightChristmas,
+    )
+
+private val darkSchemeChristmas =
+    darkColorScheme(
+        primary = primaryDarkChristmas,
+        onPrimary = onPrimaryDarkChristmas,
+        primaryContainer = primaryContainerDarkChristmas,
+        onPrimaryContainer = onPrimaryContainerDarkChristmas,
+        secondary = secondaryDarkChristmas,
+        onSecondary = onSecondaryDarkChristmas,
+        secondaryContainer = secondaryContainerDarkChristmas,
+        onSecondaryContainer = onSecondaryContainerDarkChristmas,
+        tertiary = tertiaryDarkChristmas,
+        onTertiary = onTertiaryDarkChristmas,
+        tertiaryContainer = tertiaryContainerDarkChristmas,
+        onTertiaryContainer = onTertiaryContainerDarkChristmas,
+        error = errorDarkChristmas,
+        onError = onErrorDarkChristmas,
+        errorContainer = errorContainerDarkChristmas,
+        onErrorContainer = onErrorContainerDarkChristmas,
+        background = backgroundDarkChristmas,
+        onBackground = onBackgroundDarkChristmas,
+        surface = surfaceDarkChristmas,
+        onSurface = onSurfaceDarkChristmas,
+        surfaceVariant = surfaceVariantDarkChristmas,
+        onSurfaceVariant = onSurfaceVariantDarkChristmas,
+        outline = outlineDarkChristmas,
+        outlineVariant = outlineVariantDarkChristmas,
+        scrim = scrimDarkChristmas,
+        inverseSurface = inverseSurfaceDarkChristmas,
+        inverseOnSurface = inverseOnSurfaceDarkChristmas,
+        inversePrimary = inversePrimaryDarkChristmas,
+        surfaceDim = surfaceDimDarkChristmas,
+        surfaceBright = surfaceBrightDarkChristmas,
+        surfaceContainerLowest = surfaceContainerLowestDarkChristmas,
+        surfaceContainerLow = surfaceContainerLowDarkChristmas,
+        surfaceContainer = surfaceContainerDarkChristmas,
+        surfaceContainerHigh = surfaceContainerHighDarkChristmas,
+        surfaceContainerHighest = surfaceContainerHighestDarkChristmas,
+    )
+
 /*@Immutable
 data class ColorFamily(
     val color: Color,
@@ -309,6 +387,7 @@ fun selectSchemeForContrast(isDark: Boolean): ColorScheme {
 @Composable
 fun MiraiLinkTheme(
     modifier: Modifier = Modifier,
+    themeMode: AppThemeManager.ThemeMode = AppThemeManager.ThemeMode.DEFAULT,
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -316,20 +395,28 @@ fun MiraiLinkTheme(
 ) {
     Box(modifier = modifier) {
         val colorScheme =
-            when {
-                dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                    val context = LocalContext.current
-                    if (darkTheme) {
-                        dynamicDarkColorScheme(context)
-                    } else {
-                        dynamicLightColorScheme(
-                            context,
-                        )
+            when (themeMode) {
+                AppThemeManager.ThemeMode.DEFAULT -> {
+                    when {
+                        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                            val context = LocalContext.current
+                            if (darkTheme) {
+                                dynamicDarkColorScheme(context)
+                            } else {
+                                dynamicLightColorScheme(
+                                    context,
+                                )
+                            }
+                        }
+
+                        else -> {
+                            selectSchemeForContrast(darkTheme)
+                        }
                     }
                 }
 
-                else -> {
-                    selectSchemeForContrast(darkTheme)
+                AppThemeManager.ThemeMode.CHRISTMAS -> {
+                    if (darkTheme) darkSchemeChristmas else lightSchemeChristmas
                 }
             }
 

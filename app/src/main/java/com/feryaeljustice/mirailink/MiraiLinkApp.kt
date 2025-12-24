@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.di.koin.cryptoModule
 import com.feryaeljustice.mirailink.di.koin.dataModule
 import com.feryaeljustice.mirailink.di.koin.dataStoreModule
 import com.feryaeljustice.mirailink.di.koin.dispatchersModule
+import com.feryaeljustice.mirailink.di.koin.featureFlagModule
 import com.feryaeljustice.mirailink.di.koin.loggerModule
 import com.feryaeljustice.mirailink.di.koin.networkModule
 import com.feryaeljustice.mirailink.di.koin.repositoryModule
@@ -40,6 +41,7 @@ class MiraiLinkApp : Application() {
                 dataModule,
                 dataStoreModule,
                 dispatchersModule,
+                featureFlagModule,
                 loggerModule,
                 networkModule,
                 repositoryModule,

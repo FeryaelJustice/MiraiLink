@@ -1,16 +1,21 @@
 package com.feryaeljustice.mirailink.ui
 
 import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
+import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
 import com.google.firebase.Firebase
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
@@ -26,6 +32,11 @@ class MainActivity : ComponentActivity() {
 
     val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
 
+    // Desde splashscreen se activa el modo christmas
+    private val appThemeManager: AppThemeManager by inject()
+    private val mainViewModel: MainViewModel by viewModel()
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,7 +50,10 @@ class MainActivity : ComponentActivity() {
         newToken()
 
         setContent {
-            MiraiLinkAppRoot()
+            val flags by mainViewModel.featureFlagFlow.collectAsStateWithLifecycle(
+                initialValue = emptyMap(),
+            )
+            MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
         }
     }
 

@@ -13,11 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
+import com.feryaeljustice.mirailink.core.featureflags.FeatureFlagStore
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.context.GlobalContext.get
 
 @Suppress("EffectKeys", "ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
@@ -34,9 +36,14 @@ fun SplashScreen(
     }
     val context = LocalContext.current
 
+    val store = get().get<FeatureFlagStore>()
+
     LaunchedEffect(Unit) {
         miraiLinkSession.hideBars()
         miraiLinkSession.disableBars()
+
+        // Enable Christmas
+        store.setChristmasEnabled(true)
     }
 
     // 1. Chequeo: si hay bloqueador de versión, mostramos ForceUpdateGate y no navegamos

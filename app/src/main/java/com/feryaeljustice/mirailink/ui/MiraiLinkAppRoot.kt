@@ -20,9 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
+import com.feryaeljustice.mirailink.core.featureflags.FeatureFlag
 import com.feryaeljustice.mirailink.domain.util.applyTelemetryConsent
 import com.feryaeljustice.mirailink.ui.components.notifications.NotificationRationaleDialog
 import com.feryaeljustice.mirailink.ui.navigation.NavWrapper
+import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
 import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.utils.findActivity
 import com.google.android.gms.ads.MobileAds
@@ -33,7 +35,11 @@ import com.google.android.ump.UserMessagingPlatform
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Suppress("EffectKeys", "ktlint:standard:function-naming")
 @Composable
-fun MiraiLinkAppRoot(modifier: Modifier = Modifier) {
+fun MiraiLinkAppRoot(
+    appThemeManager: AppThemeManager,
+    flags: Map<String, FeatureFlag>,
+    modifier: Modifier = Modifier,
+) {
     val systemIsInDarkMode = isSystemInDarkTheme()
     var darkTheme by rememberSaveable { mutableStateOf(systemIsInDarkMode) }
 //    EnableTransparentStatusBar(darkMode = darkTheme)
@@ -41,7 +47,8 @@ fun MiraiLinkAppRoot(modifier: Modifier = Modifier) {
     // --- SETUP GENERAL Y CONTEXTO ---
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val canRequestNotifications = remember { true } // Before: Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    val canRequestNotifications =
+        remember { true } // Before: Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
     // ---------------------------------------------------------------------------------------------
     // 🎯 SECCIÓN DE GESTIÓN DE PERMISOS DE NOTIFICACIONES (FCM)
@@ -170,7 +177,11 @@ fun MiraiLinkAppRoot(modifier: Modifier = Modifier) {
     // 🎨 ESTRUCTURA PRINCIPAL DE LA UI
     // ---------------------------------------------------------------------------------------------
 
-    MiraiLinkTheme(darkTheme = darkTheme, modifier = modifier) {
+    MiraiLinkTheme(
+        themeMode = appThemeManager.getThemeMode(flags),
+        darkTheme = darkTheme,
+        modifier = modifier,
+    ) {
         NavWrapper(darkTheme = darkTheme, onThemeChange = {
             darkTheme = !darkTheme
         })
