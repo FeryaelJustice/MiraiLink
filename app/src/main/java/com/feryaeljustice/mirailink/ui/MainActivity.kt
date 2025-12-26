@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui
 
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,9 @@ import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
 import com.google.firebase.Firebase
+import com.google.firebase.appcheck.appCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.initialize
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -47,6 +51,9 @@ class MainActivity : ComponentActivity() {
             channelName = FcmService.NOTIFICATION_CHANNEL_NAME,
             channelDescription = FcmService.NOTIFICATION_CHANNEL_DESCRIPTION,
         )
+
+        // Firebase
+        firebaseInitialize(context = applicationContext)
         newToken()
 
         setContent {
@@ -55,6 +62,13 @@ class MainActivity : ComponentActivity() {
             )
             MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
         }
+    }
+
+    private fun firebaseInitialize(context: Context) {
+        Firebase.initialize(context)
+        Firebase.appCheck.installAppCheckProviderFactory(
+            DebugAppCheckProviderFactory.getInstance(),
+        )
     }
 
     private fun newToken() {

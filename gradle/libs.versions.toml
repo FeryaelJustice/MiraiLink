@@ -26,6 +26,7 @@ playServicesAds = "24.9.0"
 retrofit = "3.0.0"
 screenshot = "0.0.1-alpha12"
 securityCrypto = "1.1.0"
+skydovesStabilityAnalyzer = "0.6.6"
 socketVersion = "2.1.2"
 socketEngineVersion = "2.1.0"
 squareupKotlinxSerializationRetrofitConverter = "3.0.0"
@@ -48,6 +49,7 @@ robolectric = "4.16"
 mockWebServer = "5.3.2"
 truth = "1.4.5"
 uiautomator = "2.4.0-alpha07"
+firebaseConfigKtx = "23.0.1"
 
 [libraries]
 # Core
@@ -157,6 +159,9 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+firebase-config = { module = "com.google.firebase:firebase-config" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
+firebase-appcheck-debug = { module = "com.google.firebase:firebase-appcheck-debug" }
 
 # Google Ads
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
@@ -198,4 +203,4 @@ kotlinx-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref 
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics-gradle" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version = "0.6.3" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "skydovesStabilityAnalyzer" }

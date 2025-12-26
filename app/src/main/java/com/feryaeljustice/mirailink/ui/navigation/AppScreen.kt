@@ -60,6 +60,10 @@ sealed class AppScreen : NavKey {
     ) : AppScreen()
 
     @Serializable
+    @SerialName("aichat")
+    data object AiChatScreen : AppScreen()
+
+    @Serializable
     @SerialName("settings")
     data object SettingsScreen : AppScreen()
 

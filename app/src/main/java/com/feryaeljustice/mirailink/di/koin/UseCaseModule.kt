@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.di.koin
 
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
+import com.feryaeljustice.mirailink.domain.usecase.ai.GenerateContentUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
@@ -114,4 +115,7 @@ val useCaseModule =
         factory { RequestPasswordResetUseCase(get()) }
         factory { RequestVerificationCodeUseCase(get()) }
         factory { UpdateUserProfileUseCase(get()) }
+
+        // AI
+        factory { GenerateContentUseCase(get()) }
     }

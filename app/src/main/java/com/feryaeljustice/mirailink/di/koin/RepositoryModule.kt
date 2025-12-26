@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.di.koin
 
+import com.feryaeljustice.mirailink.data.repository.AiRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.AppConfigRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.CatalogRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ChatRepositoryImpl
@@ -12,6 +13,7 @@ import com.feryaeljustice.mirailink.data.repository.TwoFactorRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseUrl
+import com.feryaeljustice.mirailink.domain.repository.AiRepository
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
@@ -28,6 +30,7 @@ import org.koin.dsl.module
 val repositoryModule =
     module {
         single<AppConfigRepository> { AppConfigRepositoryImpl(get()) }
+        single<AiRepository> { AiRepositoryImpl(get()) }
         single<CatalogRepository> { CatalogRepositoryImpl(get()) }
         single<ChatRepository> { ChatRepositoryImpl(get(), get(), get(BaseUrl)) }
         single<FeedbackRepository> { FeedbackRepositoryImpl(get()) }

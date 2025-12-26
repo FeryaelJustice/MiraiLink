@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink
 
 import android.app.Application
+import com.feryaeljustice.mirailink.di.koin.aiModule
 import com.feryaeljustice.mirailink.di.koin.appModule
 import com.feryaeljustice.mirailink.di.koin.cryptoModule
 import com.feryaeljustice.mirailink.di.koin.dataModule
@@ -37,6 +38,7 @@ class MiraiLinkApp : Application() {
             config?.invoke(this)
             modules(
                 appModule,
+                aiModule,
                 cryptoModule,
                 dataModule,
                 dataStoreModule,

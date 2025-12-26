@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.di.koin
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.IoDispatcher
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.MainDispatcher
 import com.feryaeljustice.mirailink.ui.navigation.NavAnalyticsViewModel
+import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
@@ -28,6 +29,7 @@ val viewModelModule =
                 checkOnboardingIsCompletedUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
+                remoteConfigManager = get(),
             )
         }
         viewModel {
@@ -69,6 +71,12 @@ val viewModelModule =
                 getUserByIdUseCase = get(),
                 reportUseCase = get(),
                 logger = get(),
+                ioDispatcher = get(qualifier = IoDispatcher),
+            )
+        }
+        viewModel {
+            AiChatViewModel(
+                generateContentUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }

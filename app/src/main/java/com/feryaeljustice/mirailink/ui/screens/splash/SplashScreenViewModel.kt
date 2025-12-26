@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.BuildConfig
+import com.feryaeljustice.mirailink.core.remoteconfig.RemoteConfigManager
 import com.feryaeljustice.mirailink.data.mappers.ui.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
@@ -26,6 +27,7 @@ class SplashScreenViewModel(
     private val checkOnboardingIsCompletedUseCase: CheckOnboardingIsCompleted,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
+    private val remoteConfigManager: RemoteConfigManager,
 ) : ViewModel() {
     private val _updateDiagInfo = MutableStateFlow<VersionCheckResultViewEntry?>(null)
     val updateDiagInfo = _updateDiagInfo.asStateFlow()
@@ -67,7 +69,10 @@ class SplashScreenViewModel(
                 }
             }
 
-            // 2) Onboarding + autologin en paralelo
+            // 2) Remote Config
+            remoteConfigManager.initialize()
+
+            // 3) Onboarding + autologin en paralelo
             withContext(ioDispatcher) {
                 val onboardingDeferred =
                     async { checkOnboardingIsCompletedUseCase() }
@@ -91,16 +96,19 @@ class SplashScreenViewModel(
                                 }
                             }
 
-                            onboardingResult is MiraiLinkResult.Success && !onboardingResult.data ->
+                            onboardingResult is MiraiLinkResult.Success && !onboardingResult.data -> {
                                 SplashUiState.Navigate(
                                     InitialNavigationAction.GoToOnboarding,
                                 )
+                            }
 
                             autologinResult is MiraiLinkResult.Success -> {
                                 SplashUiState.Navigate(InitialNavigationAction.GoToHome)
                             }
 
-                            else -> SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
+                            else -> {
+                                SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
+                            }
                         }
                 }
             }

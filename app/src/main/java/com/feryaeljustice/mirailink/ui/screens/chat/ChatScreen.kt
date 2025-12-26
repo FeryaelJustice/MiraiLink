@@ -153,7 +153,7 @@ fun ChatScreen(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {

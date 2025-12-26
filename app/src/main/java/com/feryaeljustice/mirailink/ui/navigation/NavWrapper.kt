@@ -34,6 +34,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
+import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
@@ -292,6 +293,9 @@ fun NavWrapper(
                         onNavigateToChat = { userId ->
                             navigator.navigate(AppScreen.ChatScreen(userId))
                         },
+                        onNavigateToAiChat = {
+                            navigator.navigate(AppScreen.AiChatScreen)
+                        },
                     )
                 }
 
@@ -300,6 +304,12 @@ fun NavWrapper(
                         miraiLinkSession = miraiLinkSession,
                         userId = key.userId,
                         onBackClick = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.AiChatScreen> { _ ->
+                    AiChatScreen(
+                        miraiLinkSession = miraiLinkSession,
                     )
                 }
 
@@ -453,6 +463,7 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.HomeScreen -> "home"
         is AppScreen.MessagesScreen -> "messages"
         is AppScreen.ChatScreen -> "chat"
+        is AppScreen.AiChatScreen -> "ai_chat"
         is AppScreen.SettingsScreen -> "settings"
         is AppScreen.ProfileScreen -> "profile"
         is AppScreen.FeedbackScreen -> "feedback"

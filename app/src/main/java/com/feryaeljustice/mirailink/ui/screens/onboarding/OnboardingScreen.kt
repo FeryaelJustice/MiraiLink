@@ -35,64 +35,76 @@ import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import kotlinx.coroutines.launch
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun OnboardingScreen(
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    val pagerState = rememberPagerState(
-        pageCount = { 3 }
-    )
+    val pagerState =
+        rememberPagerState(
+            pageCount = { 3 },
+        )
     val scope = rememberCoroutineScope()
 
-    val pages = listOf(
-        R.drawable.onboarding_1,
-        R.drawable.onboarding_2,
-        R.drawable.onboarding_3
-    )
-    val pageTexts = listOf(
-        R.string.onboarding_1, R.string.onboarding_2, R.string.onboarding_3
-    )
+    val pages =
+        listOf(
+            R.drawable.onboarding_1,
+            R.drawable.onboarding_2,
+            R.drawable.onboarding_3,
+        )
+    val pageTexts =
+        listOf(
+            R.string.onboarding_1,
+            R.string.onboarding_2,
+            R.string.onboarding_3,
+        )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .then(
-                if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                    Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                } else {
-                    Modifier
-                }
-            ),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Image(
             painter = painterResource(id = R.drawable.logomirailink),
             contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),
-            modifier = Modifier
-                .weight(0.1f)
-                .padding(8.dp)
+            modifier =
+                Modifier
+                    .weight(0.1f)
+                    .padding(8.dp),
         )
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .weight(0.8f)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier
+                    .weight(0.8f)
+                    .verticalScroll(rememberScrollState()),
         ) { page ->
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 MiraiLinkImage(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.6f)
-                        .fillMaxSize(0.4f),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(fraction = 0.6f)
+                            .fillMaxSize(0.4f),
                     painterId = pages[page],
                     contentScale = ContentScale.Fit,
                     hasBorder = true,
@@ -100,17 +112,18 @@ fun OnboardingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 MiraiLinkText(
                     text = stringResource(id = pageTexts[page]),
-                    textAlign = TextAlign.Justify
+                    textAlign = TextAlign.Justify,
                 )
             }
         }
 
         Row(
-            modifier = Modifier
-                .weight(0.1f)
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = if (pagerState.currentPage == 0) Arrangement.End else Arrangement.SpaceBetween
+            modifier =
+                Modifier
+                    .weight(0.1f)
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+            horizontalArrangement = if (pagerState.currentPage == 0) Arrangement.End else Arrangement.SpaceBetween,
         ) {
             if (pagerState.currentPage > 0) {
                 MiraiLinkTextButton(
@@ -122,14 +135,19 @@ fun OnboardingScreen(
                     },
                     isTransparentBackground = false,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 )
             }
 
             MiraiLinkTextButton(
-                text = if (pagerState.currentPage == pages.lastIndex) stringResource(R.string.start) else stringResource(
-                    R.string.next
-                ),
+                text =
+                    if (pagerState.currentPage == pages.lastIndex) {
+                        stringResource(R.string.start)
+                    } else {
+                        stringResource(
+                            R.string.next,
+                        )
+                    },
                 onClick = {
                     scope.launch {
                         if (pagerState.currentPage == pages.lastIndex) {
@@ -140,8 +158,22 @@ fun OnboardingScreen(
                     }
                 },
                 isTransparentBackground = false,
-                contentColor = if (pagerState.currentPage == pages.lastIndex) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.tertiary,
-                containerColor = if (pagerState.currentPage == pages.lastIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor =
+                    if (pagerState.currentPage ==
+                        pages.lastIndex
+                    ) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.tertiary
+                    },
+                containerColor =
+                    if (pagerState.currentPage ==
+                        pages.lastIndex
+                    ) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    },
             )
         }
     }

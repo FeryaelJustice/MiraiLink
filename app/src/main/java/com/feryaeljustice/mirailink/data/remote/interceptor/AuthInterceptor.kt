@@ -31,7 +31,7 @@ class AuthInterceptor(
 
         val isVerified =
             try {
-                if (responseContent.trim()?.startsWith("{") == true) {
+                if (responseContent.trim().startsWith("{")) {
                     val json = JSONObject(responseContent)
                     json.optBoolean("verified", true)
                 } else {
@@ -73,8 +73,8 @@ class AuthInterceptor(
 
         // Reconstruir el body para que Retrofit/OkHttp puedan leerlo luego al haber accedido
         val mediaType = rawBody.contentType()
-        val newBody = responseContent?.toResponseBody(mediaType)
+        val newBody = responseContent.toResponseBody(mediaType)
 
-        return newBody?.let { response.newBuilder().body(newBody).build() } ?: response
+        return newBody.let { response.newBuilder().body(newBody).build() }
     }
 }
