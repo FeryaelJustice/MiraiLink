@@ -141,4 +141,5 @@
     <string name="invalid_email">Email inválido</string>
     <string name="version_app">Version: %1$s</string>
     <string name="ai_chat_screen_title">Mirai Link AI</string>
+    <string name="ai_chat_open">AI Chat open</string>
 </resources>

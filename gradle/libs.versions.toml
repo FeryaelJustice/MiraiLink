@@ -38,6 +38,7 @@ google-services = "4.4.4"
 crashlytics-gradle = "3.0.6"
 ump = "4.0.0"
 credentials = "1.5.0"
+composeUnstyled = "1.49.3"
 
 # Testing
 junit = "4.13.2"
@@ -49,7 +50,6 @@ robolectric = "4.16"
 mockWebServer = "5.3.2"
 truth = "1.4.5"
 uiautomator = "2.4.0-alpha07"
-firebaseConfigKtx = "23.0.1"
 
 [libraries]
 # Core
@@ -190,6 +190,14 @@ koin-android-test = { module = "io.insert-koin:koin-android-test" }
 #kotzilla-sdk = { group = "io.kotzilla", name = "kotzilla-sdk", version.ref = "kotzilla" }
 kotzilla-sdk-compose = { group = "io.kotzilla", name = "kotzilla-sdk-compose", version.ref = "kotzilla" }
 #kotzilla-sdk-android = { group = "io.kotzilla", name = "kotzilla-sdk-android", version.ref = "kotzilla" }
+
+# Composables (.com) -> Unstyled
+composables-compose-unstyled = { group = "com.composables", name = "composeunstyled", version.ref = "composeUnstyled" }
+composables-compose-unstyled-theming = { group = "com.composables", name = "composeunstyled-theming", version.ref = "composeUnstyled" }
+composables-compose-unstyled-primitives = { group = "com.composables", name = "composeunstyled-primitives", version.ref = "composeUnstyled" }
+composables-compose-unstyled-platformtheme = { group = "com.composables", name = "composeunstyled-platformtheme", version.ref = "composeUnstyled" }
+
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

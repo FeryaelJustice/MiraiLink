@@ -10,10 +10,14 @@ import kotlinx.coroutines.tasks.await
 // Clave para el nombre del modelo en Remote Config
 const val GEMINI_MODEL_NAME_KEY = "gemini_model_name"
 
+const val CHRISTMAS_MODE_KEY = "is_christmas_mode"
+
 interface RemoteConfigManager {
     suspend fun initialize()
 
     fun getGeminiModelName(): String
+
+    fun getIsChristmasMode(): Boolean
 }
 
 class RemoteConfigManagerImpl : RemoteConfigManager {
@@ -25,7 +29,8 @@ class RemoteConfigManagerImpl : RemoteConfigManager {
         // Configuración para permitir fetches frecuentes en desarrollo
         val configSettings =
             remoteConfigSettings {
-                minimumFetchIntervalInSeconds = 3600 // 1 hora en producción, puedes bajarlo para debug
+                minimumFetchIntervalInSeconds =
+                    3600 // 1 hora en producción, puedes bajarlo para debug
             }
         remoteConfig.setConfigSettingsAsync(configSettings)
 
@@ -43,4 +48,6 @@ class RemoteConfigManagerImpl : RemoteConfigManager {
     }
 
     override fun getGeminiModelName(): String = remoteConfig.getString(GEMINI_MODEL_NAME_KEY)
+
+    override fun getIsChristmasMode(): Boolean = remoteConfig.getBoolean(CHRISTMAS_MODE_KEY)
 }

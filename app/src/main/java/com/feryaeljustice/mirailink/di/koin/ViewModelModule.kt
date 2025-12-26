@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.di.koin
 
+import android.util.Log
+import com.feryaeljustice.mirailink.core.remoteconfig.RemoteConfigManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.IoDispatcher
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.MainDispatcher
 import com.feryaeljustice.mirailink.ui.navigation.NavAnalyticsViewModel
@@ -23,13 +25,18 @@ import org.koin.dsl.module
 val viewModelModule =
     module {
         viewModel {
+            val remoteConfigManager: RemoteConfigManager = get()
+            val isInChristmasMode = remoteConfigManager.getIsChristmasMode()
+            Log.d("isInChristmasMode", "Christmas mode enabled: $isInChristmasMode")
+
             SplashScreenViewModel(
                 checkAppVersionUseCase = get(),
                 autologinUseCase = get(),
                 checkOnboardingIsCompletedUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
-                remoteConfigManager = get(),
+                store = get(),
+                isInChristmasMode = isInChristmasMode,
             )
         }
         viewModel {

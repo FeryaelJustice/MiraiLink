@@ -1,9 +1,10 @@
 package com.feryaeljustice.mirailink.ui.screens.splash
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.BuildConfig
-import com.feryaeljustice.mirailink.core.remoteconfig.RemoteConfigManager
+import com.feryaeljustice.mirailink.core.featureflags.FeatureFlagStore
 import com.feryaeljustice.mirailink.data.mappers.ui.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
@@ -27,7 +28,8 @@ class SplashScreenViewModel(
     private val checkOnboardingIsCompletedUseCase: CheckOnboardingIsCompleted,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
-    private val remoteConfigManager: RemoteConfigManager,
+    private val store: FeatureFlagStore,
+    private val isInChristmasMode: Boolean,
 ) : ViewModel() {
     private val _updateDiagInfo = MutableStateFlow<VersionCheckResultViewEntry?>(null)
     val updateDiagInfo = _updateDiagInfo.asStateFlow()
@@ -69,10 +71,11 @@ class SplashScreenViewModel(
                 }
             }
 
-            // 2) Remote Config
-            remoteConfigManager.initialize()
+            // Enable Christmas
+            Log.d("SplashScreenViewModel", "Christmas mode enabled: $isInChristmasMode")
+            store.setChristmasEnabled(isInChristmasMode)
 
-            // 3) Onboarding + autologin en paralelo
+            // 2) Onboarding + autologin en paralelo
             withContext(ioDispatcher) {
                 val onboardingDeferred =
                     async { checkOnboardingIsCompletedUseCase() }

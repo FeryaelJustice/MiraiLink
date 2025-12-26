@@ -253,6 +253,12 @@ dependencies {
     // implementation(libs.kotzilla.sdk)
     implementation(libs.kotzilla.sdk.compose)
     // implementation(libs.kotzilla.sdk.android)
+
+    // Composables (.com) -> Unstyled
+    implementation(libs.composables.compose.unstyled)
+    implementation(libs.composables.compose.unstyled.theming)
+    implementation(libs.composables.compose.unstyled.primitives)
+    implementation(libs.composables.compose.unstyled.platformtheme)
 }
 
 kotzilla {

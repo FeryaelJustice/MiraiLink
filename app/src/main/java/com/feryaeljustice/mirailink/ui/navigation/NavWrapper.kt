@@ -244,15 +244,27 @@ fun NavWrapper(
                                 ScreensSubgraphs.Main,
                                 AppScreen.HomeScreen,
                             )
+
+                            miraiLinkSession.showBars()
+                            miraiLinkSession.enableBars()
+                            miraiLinkSession.showTopBarSettingsIcon()
                         },
                         onRegister = {
                             navigator.resetToTopLevel(
                                 ScreensSubgraphs.Main,
                                 AppScreen.HomeScreen,
                             )
+
+                            miraiLinkSession.showBars()
+                            miraiLinkSession.enableBars()
+                            miraiLinkSession.showTopBarSettingsIcon()
                         },
                         onRequestPasswordReset = { email ->
                             navigator.navigate(AppScreen.RecoverPasswordScreen(email))
+
+                            miraiLinkSession.showBars()
+                            miraiLinkSession.enableBars()
+                            miraiLinkSession.showTopBarSettingsIcon()
                         },
                     )
                 }

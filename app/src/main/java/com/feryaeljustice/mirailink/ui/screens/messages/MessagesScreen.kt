@@ -30,16 +30,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.composeunstyled.RelativeAlignment
+import com.composeunstyled.Tooltip
+import com.composeunstyled.TooltipArrowDirection
+import com.composeunstyled.TooltipPanel
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.composeunstyled.ArrowUp
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -68,13 +77,38 @@ fun MessagesScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToAiChat() }) {
-                Icon(
-                    modifier = Modifier.width(18.dp),
-                    painter = painterResource(id = R.drawable.robot_ai),
-                    tint = null,
-                    contentDescription = "AI Chat open",
-                )
+            Tooltip(
+                placement = RelativeAlignment.TopCenter,
+                panel = {
+                    TooltipPanel(
+                        modifier = Modifier.zIndex(15f),
+                        arrow = { direction ->
+                            // Draw your arrow pointing towards the given direction
+                            val degrees =
+                                when (direction) {
+                                    TooltipArrowDirection.Up -> 0f
+                                    TooltipArrowDirection.Down -> 180f
+                                    TooltipArrowDirection.Left -> 90f
+                                    TooltipArrowDirection.Right -> 270f
+                                }
+                            ArrowUp(
+                                modifier = Modifier.rotate(degrees),
+                                color = Color.Black.copy(0.8f),
+                            )
+                        },
+                    ) {
+                        MiraiLinkText(text = stringResource(R.string.ai_chat_open))
+                    }
+                },
+            ) {
+                FloatingActionButton(onClick = { onNavigateToAiChat() }) {
+                    Icon(
+                        modifier = Modifier.width(18.dp),
+                        painter = painterResource(id = R.drawable.robot_ai),
+                        tint = null,
+                        contentDescription = stringResource(R.string.ai_chat_open),
+                    )
+                }
             }
         },
     ) { innerPadding ->
