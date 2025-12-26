@@ -52,3 +52,5 @@
 
 # ViewModels con Koin
 -keep class * extends androidx.lifecycle.ViewModel { *; }
+
+-dontwarn okhttp3.internal.Util
