@@ -46,7 +46,28 @@ import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import org.koin.compose.viewmodel.koinViewModel
 
-@Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
+// NO SE PUEDE porque las previews no tienen las librerias de android, van en jvm, hay que mockear: Define un Módulo de Koin para Previews
+@Suppress("ktlint:standard:no-consecutive-comments","ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
+/*
+@Suppress("ktlint:standard:function-naming")
+@Preview(showBackground = true)
+@Composable
+private fun ProfileScreenPreview() {
+    val context = LocalContext.current
+
+    KoinApplication(application = {
+        androidContext(context)
+        modules(MiraiLinkApp.coreModules + MiraiLinkApp.infrastructureModules + MiraiLinkApp.securityModules)
+    }) {
+        val miraiLinkSession: GlobalMiraiLinkSession = koinInject()
+        ProfileScreen(
+            miraiLinkSession = miraiLinkSession,
+            modifier = Modifier,
+        )
+    }
+}
+*/
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -104,7 +125,8 @@ fun ProfileScreen(
             }
         }
 
-    val profileSavedSuccessfullyText = stringResource(R.string.profile_screen_profile_saved_correctly)
+    val profileSavedSuccessfullyText =
+        stringResource(R.string.profile_screen_profile_saved_correctly)
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
         miraiLinkSession.enableBars()

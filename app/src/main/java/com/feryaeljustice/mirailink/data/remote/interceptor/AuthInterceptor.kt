@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.data.remote.interceptor
 
 import android.util.Log
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -12,7 +11,7 @@ class AuthInterceptor(
     private val sessionManager: SessionManager,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking { sessionManager.getCurrentToken() }
+        val token = sessionManager.getCurrentTokenSync()
         Log.d("AuthInterceptor", "Token: $token")
 
         val request =
@@ -29,46 +28,16 @@ class AuthInterceptor(
         val rawBody = response.body
         val responseContent = rawBody.string()
 
-        val isVerified =
-            try {
-                if (responseContent.trim().startsWith("{")) {
-                    val json = JSONObject(responseContent)
-                    json.optBoolean("verified", true)
-                } else {
-                    true
-                }
-            } catch (e: Exception) {
-                Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
-                true
-            }
+        val isVerified = parseJsonBoolean(responseContent, "verified", defaultValue = true)
 
-        val shouldLogout =
-            try {
-                if (responseContent.trim().startsWith("{")) {
-                    val json = JSONObject(responseContent)
-                    json.optBoolean("shouldLogout", false)
-                } else {
-                    true
-                }
-            } catch (e: Exception) {
-                Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
-                true
-            }
+        val shouldLogout = parseJsonBoolean(responseContent, "shouldLogout", defaultValue = false)
 
         if (!isVerified) {
-            runBlocking {
-                sessionManager.saveIsVerified(false)
-            }
+            sessionManager.updateVerificationSync(false) // Fire-and-forget
         }
 
-        when (response.code) {
-            401, 404, 502 -> {
-                if (shouldLogout && !token.isNullOrBlank()) {
-                    runBlocking {
-                        sessionManager.clearSession()
-                    }
-                }
-            }
+        if (response.code in setOf(401, 404, 502) && shouldLogout && !token.isNullOrBlank()) {
+            sessionManager.clearSessionSync() // Fire-and-forget
         }
 
         // Reconstruir el body para que Retrofit/OkHttp puedan leerlo luego al haber accedido
@@ -77,4 +46,20 @@ class AuthInterceptor(
 
         return newBody.let { response.newBuilder().body(newBody).build() }
     }
+
+    private fun parseJsonBoolean(
+        json: String,
+        key: String,
+        defaultValue: Boolean,
+    ): Boolean =
+        try {
+            if (json.trim().startsWith("{")) {
+                JSONObject(json).optBoolean(key, defaultValue)
+            } else {
+                defaultValue
+            }
+        } catch (e: Exception) {
+            Log.e("AuthInterceptor", "JSON parse error: ${e.message}")
+            defaultValue
+        }
 }

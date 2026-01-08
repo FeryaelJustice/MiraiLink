@@ -15,13 +15,14 @@ import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.PrefsDataStore
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.SessionDataStore
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
+import kotlinx.coroutines.CoroutineScope
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val dataModule =
     module {
         single { CredentialHelper(androidContext()) }
-        single { SessionManager(get(SessionDataStore)) }
+        single { SessionManager(dataStore = get(SessionDataStore), scope = get<CoroutineScope>()) }
         single { MiraiLinkPrefs(get(PrefsDataStore)) }
 
         single { AppConfigRemoteDataSource(get()) }

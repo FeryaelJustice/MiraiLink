@@ -16,5 +16,5 @@ val dispatchersModule =
         single<CoroutineDispatcher>(DefaultDispatcher) { Dispatchers.Default }
         single<CoroutineDispatcher>(MainDispatcher) { Dispatchers.Main }
         single(ApplicationScope) { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(DefaultDispatcher)) }
-        single { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(IoDispatcher)) }
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(IoDispatcher)) }
     }

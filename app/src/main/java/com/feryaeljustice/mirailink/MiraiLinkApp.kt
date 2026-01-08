@@ -21,6 +21,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 
 class MiraiLinkApp : Application() {
@@ -33,10 +34,10 @@ class MiraiLinkApp : Application() {
         }
     }
 
-    fun initKoin(config: KoinAppDeclaration? = null) {
-        startKoin {
-            config?.invoke(this)
-            modules(
+    companion object {
+        // Todos los módulos
+        val allModules: List<Module> =
+            listOf(
                 appModule,
                 aiModule,
                 cryptoModule,
@@ -53,6 +54,36 @@ class MiraiLinkApp : Application() {
                 useCaseModule,
                 viewModelModule,
             )
+
+        // Módulos mínimos para previews (sin red, sin telemetría, core)
+        val coreModules: List<Module> =
+            listOf(
+                appModule,
+                dataStoreModule,
+                dispatchersModule,
+                repositoryModule,
+                useCaseModule,
+                viewModelModule,
+            )
+
+        // Módulos de infraestructura (para tests de integración)
+        val infrastructureModules: List<Module> =
+            listOf(
+                networkModule,
+                dataModule,
+                serializationModule,
+            )
+
+        val securityModules: List<Module> =
+            listOf(
+                cryptoModule,
+            )
+
+        fun initKoin(config: KoinAppDeclaration? = null) {
+            startKoin {
+                config?.invoke(this)
+                modules(allModules)
+            }
         }
     }
 }

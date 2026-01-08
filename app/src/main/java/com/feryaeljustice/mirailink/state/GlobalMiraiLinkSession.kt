@@ -14,27 +14,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class GlobalMiraiLinkSession(
     private val sessionManager: SessionManager,
     private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
     private val appScope: CoroutineScope,
-) {
-    /*    private val _isInitialized = MutableStateFlow(false)
-        val isInitialized: StateFlow<Boolean> = _isInitialized*/
+){
     val isAuthenticated: StateFlow<Boolean> =
         sessionManager.isAuthenticatedFlow
             .distinctUntilChanged()
             .stateIn(
                 scope = appScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = runBlocking { sessionManager.isAuthenticatedFlow.first() },
+                started = SharingStarted.Eagerly,
+                initialValue = false,
             )
 
     fun currentAuth(): Boolean = isAuthenticated.value
@@ -44,8 +40,8 @@ class GlobalMiraiLinkSession(
             .distinctUntilChanged()
             .stateIn(
                 scope = appScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = runBlocking { sessionManager.isVerifiedFlow.first() },
+                started = SharingStarted.Eagerly,
+                initialValue = false,
             )
     val onLogout: SharedFlow<Unit> = sessionManager.onLogout
     private val _currentUserId = MutableStateFlow<String?>(null)
@@ -183,7 +179,10 @@ class GlobalMiraiLinkSession(
     // Aparte del job
     suspend fun refreshHasProfilePicture(userId: String) {
         when (val result = checkProfilePictureUseCase(userId)) {
-            is MiraiLinkResult.Success -> _hasProfilePicture.value = result.data
+            is MiraiLinkResult.Success -> {
+                _hasProfilePicture.value = result.data
+            }
+
             is MiraiLinkResult.Error -> {}
         }
     }
