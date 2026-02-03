@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.data.manager.AdMobManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
@@ -20,6 +21,8 @@ import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.Firebase
 import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
@@ -51,6 +54,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        /**
+         * Production Mobiles ads safe to use with emulator only on debug
+         */
+        if (BuildConfig.DEBUG) {
+            val testDeviceIds = listOf("emulator-5554", "8937551A56253163B1BB00727916310C")
+            val configuration =
+                RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+            MobileAds.setRequestConfiguration(configuration)
+        }
+
         createNotificationChannel(
             notificationManager = getSystemService(NotificationManager::class.java),
             channelId = FcmService.NOTIFICATION_CHANNEL_ID,
@@ -62,26 +75,29 @@ class MainActivity : ComponentActivity() {
         firebaseInitialize(context = applicationContext)
         newToken()
 
+        // Google Ads (AdMob)
+        initializeAds()
+
         setContent {
             val flags by mainViewModel.featureFlagFlow.collectAsStateWithLifecycle(
                 initialValue = emptyMap(),
             )
             MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
         }
-        initializeAds()
     }
 
     private fun initializeAds() {
         adMobManager.initialize()
         lifecycleScope.launch {
+            // First wait 10 seconds in purpose of initializing everything
+            delay(10 * 1000L)
             while (isActive) {
-                // Wait 2 minutes
-                delay(2 * 60 * 1000L)
-
                 // Show ad only if app is in foreground
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                     adMobManager.showInterstitial(this@MainActivity)
                 }
+                // Every 5 minutes
+                delay(5 * 60 * 1000L)
             }
         }
     }

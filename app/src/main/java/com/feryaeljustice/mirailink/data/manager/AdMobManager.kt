@@ -16,7 +16,7 @@ class AdMobManager(private val context: Context) {
 
     // Test Ad Unit ID for Interstitial
     // REPLACE WITH PRODUCTION ID: ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
-    private val adUnitId = "ca-app-pub-3940256099942544/1033173712"
+    private val adUnitId = "ca-app-pub-1078603769231868/6874724400"
 
     fun initialize() {
         MobileAds.initialize(context) {}
