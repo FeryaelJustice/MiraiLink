@@ -23,6 +23,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,30 +95,27 @@ fun ChatScreen(
     var showReportDialog by rememberSaveable { mutableStateOf(false) }
     var selectedReportReason by rememberSaveable { mutableStateOf("") }
 
-    val chatItems =
-        remember(messages) {
+    val chatItems by remember(messages) {
+        derivedStateOf {
             messages
                 .groupBy { message ->
                     Instant
                         .ofEpochMilli(message.timestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()
-                }.toSortedMap(compareByDescending { it }) // Sort dates newest to oldest
+                }
+                .toSortedMap(compareByDescending { it }) // Sort dates newest to oldest
                 .flatMap { (date, messagesOnDate) ->
-                    val dateSeparator =
-                        DateSeparatorItemModel(
-                            date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                        )
-                    val sortedMessages =
-                        messagesOnDate
-                            .sortedByDescending { it.timestamp }
-                            .map { MessageItemModel(it) }
-
-                    // In a reversed list, the separator needs to come *after* the items of the day
-                    // to appear *above* them visually.
-                    sortedMessages + dateSeparator
+                    messagesOnDate
+                        .sortedByDescending { it.timestamp }
+                        .map { MessageItemModel(it) } +
+                            DateSeparatorItemModel(
+                                date.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                    .toEpochMilli(),
+                            )
                 }
         }
+    }
 
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
@@ -165,6 +163,7 @@ fun ChatScreen(
     ) {
         ChatTopBar(
             modifier = Modifier,
+            // receiverId = receiver?.id,
             receiverName = receiver?.nicknameElseUsername(),
             receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
             onLongPressOnImage = { url ->

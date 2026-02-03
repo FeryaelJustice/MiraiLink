@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.ui.navigation
 
 import android.content.ClipData
 import android.widget.Toast
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -368,8 +367,22 @@ fun NavWrapper(
         }
 
     // UI
+    /**
+     * UI: Box que envuelve toda la app
+     */
     Box(modifier = modifier) {
+        /**
+         * Compose Shared Element Transitions with Navigation 3:
+         * https://developer.android.com/develop/ui/compose/animation/shared-elements
+         */
+        //SharedTransitionLayout {
+        //    CompositionLocalProvider(
+        //        LocalSharedTransitionScope provides this,
+        //    ) {
         CompositionLocalProvider(LocalShowSnackbar provides showSnackbar) {
+            /**
+             * Scaffold general de la app
+             */
             Scaffold(
                 topBar = {
                     if (topBarConfig.showTopBar) {
@@ -417,58 +430,56 @@ fun NavWrapper(
                 },
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             ) { innerPadding ->
-                SharedTransitionScope { sharedModifier ->
-                    /**
-                     * Investigar con nav3:
-                     * https://developer.android.com/develop/ui/compose/animation/shared-elements?hl=es-419
-                     * AnimatedContent(isLogin, label = "basic_loginregister_transition") { }
-                     */
-                    NavDisplay(
-                        entries = navigationState.toEntries(entries),
-                        onBack = { navigator.goBack() },
-                        // Si algún día pones destinos dialog: añade metadata + esta strategy
-                        sceneStrategy = remember { DialogSceneStrategy() },
-                        transitionSpec = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(250),
-                            ) togetherWith
-                                    slideOutHorizontally(
-                                        targetOffsetX = { -it },
-                                        animationSpec = tween(250),
-                                    )
-                        },
-                        popTransitionSpec = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it },
-                                animationSpec = tween(250),
-                            ) togetherWith
-                                    slideOutHorizontally(
-                                        targetOffsetX = { it },
-                                        animationSpec = tween(250),
-                                    )
-                        },
-                        predictivePopTransitionSpec = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it },
-                                animationSpec = tween(250),
-                            ) togetherWith
-                                    slideOutHorizontally(
-                                        targetOffsetX = { it },
-                                        animationSpec = tween(250),
-                                    )
-                        },
-                        modifier = sharedModifier.padding(innerPadding),
-                    )
-                }
+                /**
+                 * Navigation 3 root, nav display
+                 */
+                NavDisplay(
+                    entries = navigationState.toEntries(entries),
+                    onBack = { navigator.goBack() },
+                    // Si algún día pones destinos dialog: añade metadata + esta strategy
+                    sceneStrategy = remember { DialogSceneStrategy() },
+                    transitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(250),
+                        ) togetherWith
+                                slideOutHorizontally(
+                                    targetOffsetX = { -it },
+                                    animationSpec = tween(250),
+                                )
+                    },
+                    popTransitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(250),
+                        ) togetherWith
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(250),
+                                )
+                    },
+                    predictivePopTransitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(250),
+                        ) togetherWith
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(250),
+                                )
+                    },
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
         }
     }
+    //    }
+    //}
 }
 
-/* ---------------------------
-   Helpers
-   --------------------------- */
+/**
+ * Helpers
+ */
 
 private fun NavKey.debugRouteName(): String =
     when (this) {

@@ -40,10 +40,15 @@ fun ChatTopBar(
     onReportClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    // receiverId: String? = null,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
+
+    // val sharedTransitionScope = LocalSharedTransitionScope.current
+    // val animatedVisibilityScope = LocalMiraiAnimatedScope.current
+
     Row(
         modifier =
             modifier
@@ -57,7 +62,8 @@ fun ChatTopBar(
                         bottomStart = 4.dp,
                         bottomEnd = 4.dp,
                     ),
-                ).padding(8.dp),
+                )
+                .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         MiraiLinkIconButton(
@@ -72,6 +78,8 @@ fun ChatTopBar(
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
+        //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        //    with(sharedTransitionScope) {
         AsyncImage(
             model =
                 ImageRequest
@@ -94,8 +102,14 @@ fun ChatTopBar(
                                 }
                             },
                         )
-                    },
+                    }
+            //.sharedElement(
+            //    sharedContentState = rememberSharedContentState(key = "avatar_${receiverId}"),
+            //    animatedVisibilityScope = animatedVisibilityScope
+            //),
         )
+        //    }
+        //}
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
             text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),

@@ -38,6 +38,8 @@ fun MessageListItem(
     chatLastMessage: String = "",
     chatReadsPending: Int = 0,
 ) {
+    // val sharedTransitionScope = LocalSharedTransitionScope.current
+    // val animatedVisibilityScope = LocalMiraiAnimatedScope.current
     Row(
         modifier =
             modifier
@@ -46,6 +48,8 @@ fun MessageListItem(
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        //    with(sharedTransitionScope) {
         AsyncImage(
             model = chatAvatarUrl,
             contentDescription = stringResource(R.string.user_avatar),
@@ -53,8 +57,14 @@ fun MessageListItem(
             modifier =
                 Modifier
                     .size(56.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+            //.sharedElement(
+            //    sharedContentState = rememberSharedContentState(key = "avatar_${chatUserId}"),
+            //    animatedVisibilityScope = animatedVisibilityScope
+            //),
         )
+        //    }
+        //}
 
         Spacer(modifier = Modifier.width(12.dp))
 

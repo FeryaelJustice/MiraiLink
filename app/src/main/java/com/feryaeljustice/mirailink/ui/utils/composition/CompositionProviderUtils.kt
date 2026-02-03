@@ -3,3 +3,6 @@ package com.feryaeljustice.mirailink.ui.utils.composition
 import androidx.compose.runtime.staticCompositionLocalOf
 
 val LocalShowSnackbar = staticCompositionLocalOf<(String) -> Unit> { { } }
+
+// val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+//val LocalAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
