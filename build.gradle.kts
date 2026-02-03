@@ -2,7 +2,7 @@
 plugins {
     // 1. Plugins Base (Plataforma)
     alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
+    // alias(libs.plugins.kotlin.android) apply false
 
     // 2. Plugins de Features (Kotlin/UI)
     alias(libs.plugins.kotlin.compose) apply false
