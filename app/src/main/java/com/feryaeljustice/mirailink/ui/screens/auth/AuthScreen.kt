@@ -105,6 +105,8 @@ fun AuthScreen(
         miraiLinkSession.hideTopBarSettingsIcon()
         miraiLinkSession.disableBars()
 
+        viewModel.resetScreenVMState()
+
         viewModel.autofillCredentials { savedEmailOrUsername, savedPassword ->
             if (savedEmailOrUsername.isEmailValid()) {
                 email = savedEmailOrUsername
@@ -399,25 +401,31 @@ fun AuthScreen(
             },
         )
 
-        when (val currentState = state) {
-            is AuthUiState.Success -> {
-                resetAuthUiState()
-                if (isLogin) onLogin(userId) else onRegister(userId)
-            }
+        LaunchedEffect(state, onLogin, onRegister) {
+            when (val currentState = state) {
+                is AuthUiState.Success -> {
+                    resetAuthUiState()
+                    if (isLogin) onLogin(userId) else onRegister(userId)
+                }
 
+                is AuthUiState.IsAuthenticated -> {
+                    onLogin(currentState.userId)
+                }
+
+                else -> {}
+            }
+        }
+
+        when (val currentState = state) {
             is AuthUiState.Error -> {
                 MiraiLinkText(text = currentState.message, color = MaterialTheme.colorScheme.error)
             }
 
-            is AuthUiState.IsAuthenticated -> {
-                onLogin(currentState.userId)
-            }
-
-            AuthUiState.Loading -> {
+            is AuthUiState.Loading -> {
                 CircularProgressIndicator()
             }
 
-            AuthUiState.Idle -> {}
+            else -> {}
         }
     }
 }

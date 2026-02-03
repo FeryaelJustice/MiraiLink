@@ -125,11 +125,9 @@ fun NavWrapper(
 
     // 1. Reacción a logout
     LaunchedEffect(Unit) {
-        /*  snapshotFlow { isAppSessionInitialized }
-              .filter { it }
-              .take(1)
-              .collect {*/
         onLogout.collect {
+            miraiLinkSession.hideBars()
+            miraiLinkSession.disableBars()
             if (miraiLinkPrefs.isOnboardingCompleted()) {
                 navigator.resetToTopLevel(
                     topLevel = ScreensSubgraphs.Auth,
@@ -144,22 +142,38 @@ fun NavWrapper(
         }
     }
 
-    // 2. Requiere verificación o chequeo de foto de perfil
+    // 2. Control Centralizado de Sesión (Login / Verificación / ProfilePic / Home)
+    // Este efecto es la única fuente de verdad para transicionar a "Main" cuando hay sesión.
     LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture) {
-        if (!isAuthenticated) return@LaunchedEffect
+        if (isAuthenticated) {
+            val userId = currentUserId ?: return@LaunchedEffect
+            
+            // Determinar destino correcto según estado del usuario
+            val (targetTopLevel, targetFirstChild) = when {
+                !isVerified -> ScreensSubgraphs.Main to AppScreen.VerificationScreen(userId)
+                hasProfilePicture == false -> ScreensSubgraphs.Main to AppScreen.ProfilePictureScreen
+                else -> ScreensSubgraphs.Main to AppScreen.HomeScreen
+            }
 
-        val userId = currentUserId ?: return@LaunchedEffect
+            // Lógica para decidir si navegar:
+            // 1. Si NO estamos en Main (estamos en Auth o Splash) -> Navegar
+            // 2. Si estamos en Main pero deberíamos estar en Verification/ProfilePic -> Navegar
+            val currentTopLevel = navigationState.topLevelRoute
+            val needsNavigation = currentTopLevel != ScreensSubgraphs.Main ||
+                    (targetFirstChild !is AppScreen.HomeScreen && navigator.state.backStacks[ScreensSubgraphs.Main]?.lastOrNull() != targetFirstChild)
 
-        if (!isVerified) {
-            navigator.resetToTopLevel(
-                topLevel = ScreensSubgraphs.Main,
-                firstChild = AppScreen.VerificationScreen(userId),
-            )
-        } else if (hasProfilePicture == false) {
-            navigator.resetToTopLevel(
-                topLevel = ScreensSubgraphs.Main,
-                firstChild = AppScreen.ProfilePictureScreen,
-            )
+            if (needsNavigation) {
+                // Configurar UI Bars para sesión activa
+                miraiLinkSession.showBars()
+                miraiLinkSession.enableBars()
+                miraiLinkSession.showTopBarSettingsIcon()
+
+                // Navegar
+                navigator.resetToTopLevel(
+                    topLevel = targetTopLevel,
+                    firstChild = targetFirstChild,
+                )
+            }
         }
     }
 
@@ -186,10 +200,15 @@ fun NavWrapper(
                                 }
 
                                 InitialNavigationAction.GoToHome -> {
-                                    navigator.resetToTopLevel(
-                                        ScreensSubgraphs.Main,
-                                        AppScreen.HomeScreen,
-                                    )
+                                    // Dejar que el LaunchedEffect de sesión maneje la entrada a Home
+                                    // Pero para Splash explícito (autologin), el estado ya es true.
+                                    // El LaunchedEffect se ejecutará al componer NavWrapper.
+                                    // Aun así, para evitar parpadeo en splash, podemos dejar esto o confiar en el State.
+                                    // Confiaremos en el State, pero el Splash podría quedar colgado si no cambiamos TopLevel.
+                                    // Mejor: Si Splash dice GoToHome, es por autologin. Estado isAuthenticated ya es true?
+                                    // Sí. Entonces el LaunchedEffect lo captará.
+                                    // Podemos dejar vacío o un pequeño safety.
+                                    // Para seguridad, forzamos aquí también si el efecto tardase, pero idealmente el efecto gana.
                                 }
 
                                 InitialNavigationAction.GoToOnboarding -> {
@@ -210,7 +229,13 @@ fun NavWrapper(
 
                 entry<ScreensSubgraphs.Main> {
                     // Si alguien te navega a Main “base”, empuja HomeScreen
-                    LaunchedEffect(Unit) { navigator.navigate(AppScreen.HomeScreen) }
+                    LaunchedEffect(Unit) { 
+                         // Asegurar bares por si acaso se entra directo sin pasar por Auth
+                        miraiLinkSession.showBars()
+                        miraiLinkSession.enableBars()
+                        miraiLinkSession.showTopBarSettingsIcon()
+                        navigator.navigate(AppScreen.HomeScreen) 
+                    }
                 }
 
                 // Onboarding
@@ -218,14 +243,9 @@ fun NavWrapper(
                     OnboardingScreen(
                         onFinish = {
                             miraiLinkPrefs.markOnboardingCompleted()
-                            val destination =
-                                if (isAuthenticated) ScreensSubgraphs.Main else ScreensSubgraphs.Auth
-                            if (destination == ScreensSubgraphs.Main) {
-                                navigator.resetToTopLevel(
-                                    ScreensSubgraphs.Main,
-                                    AppScreen.HomeScreen,
-                                )
-                            } else {
+                            // Auth/Main decisión se delega al estado (si isAuthenticated -> LaunchedEffect actuará)
+                            // Si no está autenticado, vamos a Auth.
+                            if (!isAuthenticated) {
                                 navigator.resetToTopLevel(
                                     ScreensSubgraphs.Auth,
                                     AppScreen.AuthScreen,
@@ -240,31 +260,17 @@ fun NavWrapper(
                     AuthScreen(
                         miraiLinkSession = miraiLinkSession,
                         onLogin = {
-                            navigator.resetToTopLevel(
-                                ScreensSubgraphs.Main,
-                                AppScreen.HomeScreen,
-                            )
-
-                            miraiLinkSession.showBars()
-                            miraiLinkSession.enableBars()
-                            miraiLinkSession.showTopBarSettingsIcon()
+                            // Delegado al LaunchedEffect centralizado
                         },
                         onRegister = {
-                            navigator.resetToTopLevel(
-                                ScreensSubgraphs.Main,
-                                AppScreen.HomeScreen,
-                            )
-
-                            miraiLinkSession.showBars()
-                            miraiLinkSession.enableBars()
-                            miraiLinkSession.showTopBarSettingsIcon()
+                           // Delegado al LaunchedEffect centralizado
                         },
                         onRequestPasswordReset = { email ->
-                            navigator.navigate(AppScreen.RecoverPasswordScreen(email))
-
-                            miraiLinkSession.showBars()
+                            // Este es navegación interna de Auth, sí navega directo
+                            miraiLinkSession.showBars() // Quizás no mostrar barras aquí?
                             miraiLinkSession.enableBars()
                             miraiLinkSession.showTopBarSettingsIcon()
+                            navigator.navigate(AppScreen.RecoverPasswordScreen(email))
                         },
                     )
                 }

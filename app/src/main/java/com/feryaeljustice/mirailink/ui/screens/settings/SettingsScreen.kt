@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -61,7 +60,6 @@ fun SettingsScreen(
     val actualGoToFeedbackScreen by rememberUpdatedState(goToFeedbackScreen)
     val actualGoToConfigureTwoFactorScreen by rememberUpdatedState(goToConfigureTwoFactorScreen)
 
-    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }

@@ -96,7 +96,7 @@ class ProfileViewModel(
                             result.message,
                             result.exception,
                         )
-                } as ProfileUiState.Idle
+                }
         }
     }
 

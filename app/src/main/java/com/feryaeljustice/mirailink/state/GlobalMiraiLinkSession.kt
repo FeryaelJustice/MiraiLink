@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -43,16 +42,20 @@ class GlobalMiraiLinkSession(
                 started = SharingStarted.Eagerly,
                 initialValue = false,
             )
+
     val onLogout: SharedFlow<Unit> = sessionManager.onLogout
-    private val _currentUserId = MutableStateFlow<String?>(null)
-    val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
-    private val _hasProfilePicture = MutableStateFlow<Boolean?>(null)
-    val hasProfilePicture: StateFlow<Boolean?> = _hasProfilePicture.asStateFlow()
+
+    val currentUserId: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
+
+    val hasProfilePicture: StateFlow<Boolean?>
+        field = MutableStateFlow<Boolean?>(null)
+
     private var observeHasProfilePictureJob: Job? = null
 
     // UI TopBarConfig
-    private val _topBarConfig = MutableStateFlow(TopBarConfig())
-    val topBarConfig: StateFlow<TopBarConfig> = _topBarConfig.asStateFlow()
+    val topBarConfig: StateFlow<TopBarConfig>
+        field = MutableStateFlow<TopBarConfig>(TopBarConfig())
 
     fun clearSession() = appScope.launch { sessionManager.clearSession() }
 
@@ -66,7 +69,7 @@ class GlobalMiraiLinkSession(
     init {
         appScope.launch {
             sessionManager.userIdFlow.distinctUntilChanged().collectLatest { curUserId ->
-                _currentUserId.value = curUserId
+                currentUserId.value = curUserId
 
                 if (!curUserId.isNullOrBlank()) {
                     startObservingHasProfilePicture(curUserId)
@@ -83,7 +86,7 @@ class GlobalMiraiLinkSession(
 
     // Métodos para actualizar el estado de la UI
     fun disableBars() {
-        _topBarConfig.update {
+        topBarConfig.update {
             it.copy(
                 disableTopBar = true,
                 disableBottomBar = true,
@@ -92,7 +95,7 @@ class GlobalMiraiLinkSession(
     }
 
     fun enableBars() {
-        _topBarConfig.update {
+        topBarConfig.update {
             it.copy(
                 disableTopBar = false,
                 disableBottomBar = false,
@@ -101,7 +104,7 @@ class GlobalMiraiLinkSession(
     }
 
     fun hideBars() {
-        _topBarConfig.update {
+        topBarConfig.update {
             it.copy(
                 showTopBar = false,
                 showBottomBar = false,
@@ -110,7 +113,7 @@ class GlobalMiraiLinkSession(
     }
 
     fun showBars() {
-        _topBarConfig.update {
+        topBarConfig.update {
             it.copy(
                 showTopBar = true,
                 showBottomBar = true,
@@ -119,33 +122,33 @@ class GlobalMiraiLinkSession(
     }
 
     fun showHideTopBar(show: Boolean) {
-        _topBarConfig.update { it.copy(showTopBar = show) }
+        topBarConfig.update { it.copy(showTopBar = show) }
     }
 
     fun showHideBottomBar(show: Boolean) {
-        _topBarConfig.update { it.copy(showBottomBar = show) }
+        topBarConfig.update { it.copy(showBottomBar = show) }
     }
 
     fun enableDisableTopBar(enable: Boolean) {
-        _topBarConfig.update { it.copy(disableTopBar = enable) }
+        topBarConfig.update { it.copy(disableTopBar = enable) }
     }
 
     fun enableDisableBottomBar(enable: Boolean) {
-        _topBarConfig.update { it.copy(disableBottomBar = enable) }
+        topBarConfig.update { it.copy(disableBottomBar = enable) }
     }
 
     fun hideTopBarSettingsIcon() {
-        _topBarConfig.update { it.copy(showSettingsIcon = false) }
+        topBarConfig.update { it.copy(showSettingsIcon = false) }
     }
 
     fun showTopBarSettingsIcon() {
-        _topBarConfig.update { it.copy(showSettingsIcon = true) }
+        topBarConfig.update { it.copy(showSettingsIcon = true) }
     }
 
     /*    private suspend fun saveUserId(userId: String?) {
             userId?.let {
                 sessionManager.saveUserId(it)
-                _currentUserId.value = it
+                currentUserId.value = it
             }
         }*/
 
@@ -155,11 +158,11 @@ class GlobalMiraiLinkSession(
             appScope.launch {
                 var backoff = 10_000L
                 while (isActive) {
-                    val old = _hasProfilePicture.value
+                    val old = hasProfilePicture.value
                     when (val r = checkProfilePictureUseCase(userId)) {
                         is MiraiLinkResult.Success -> {
                             val new = r.data
-                            if (new != old) _hasProfilePicture.value = new
+                            if (new != old) hasProfilePicture.value = new
                             backoff = 10_000L // reset
                         }
 
@@ -180,7 +183,7 @@ class GlobalMiraiLinkSession(
     suspend fun refreshHasProfilePicture(userId: String) {
         when (val result = checkProfilePictureUseCase(userId)) {
             is MiraiLinkResult.Success -> {
-                _hasProfilePicture.value = result.data
+                hasProfilePicture.value = result.data
             }
 
             is MiraiLinkResult.Error -> {}

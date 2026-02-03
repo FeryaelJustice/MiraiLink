@@ -2,15 +2,17 @@ package com.feryaeljustice.mirailink.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.core.featureflags.FeatureFlagStore
+import com.feryaeljustice.mirailink.data.mappers.ui.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
+import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,16 +49,13 @@ class SplashScreenViewModel(
 
     init {
         viewModelScope.launch {
+
             uiState.value = SplashUiState.Loading
-            delay(1000)
-            withContext(Dispatchers.Main){
-                uiState.value = SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
-            }
 
             /**
-             * VOLVER A DESCOMENTAR ESTO CUANDO BACKEND REVIVA, bloquea el main thread
+             * El paso 1 y 2 se deben comentar cuando el backend esté caido para evitar problemas
              */
-            /*
+
             // 1) Chequeo de versión
             val versionResult =
                 withContext(ioDispatcher) {
@@ -78,7 +77,6 @@ class SplashScreenViewModel(
             }
 
             // Enable Christmas
-            Log.d("SplashScreenViewModel", "Christmas mode enabled: $isInChristmasMode")
             store.setChristmasEnabled(isInChristmasMode)
 
             // 2) Onboarding + autologin en paralelo
@@ -121,7 +119,6 @@ class SplashScreenViewModel(
                         }
                 }
             }
-            */
         }
     }
 
