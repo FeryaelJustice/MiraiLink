@@ -8,7 +8,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCode
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,11 +27,11 @@ class VerificationViewModel(
         val error: String? = null,
     )
 
-    private val _state = MutableStateFlow(VerificationState())
-    val state = _state.asStateFlow()
+    val state: StateFlow<VerificationState>
+        field = MutableStateFlow<VerificationState>(VerificationState())
 
     fun onTokenChanged(token: String) {
-        _state.update { it.copy(token = token, error = null) }
+        state.update { it.copy(token = token, error = null) }
     }
 
     fun checkUserIsVerified(onFinished: (isVerified: Boolean) -> Unit) =
@@ -50,7 +50,7 @@ class VerificationViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _state.update { it.copy(error = result.message) }
+                    state.update { it.copy(error = result.message) }
                 }
             }
         }
@@ -63,8 +63,8 @@ class VerificationViewModel(
                 }
 
             when (result) {
-                is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
-                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Success -> state.update { it.copy(step = 2) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = result.message) }
             }
         }
 
@@ -74,7 +74,7 @@ class VerificationViewModel(
     ) = viewModelScope.launch {
         val result =
             withContext(ioDispatcher) {
-                confirmCodeUseCase(userId, _state.value.token, "email")
+                confirmCodeUseCase(userId, state.value.token, "email")
             }
 
         when (result) {
@@ -84,12 +84,12 @@ class VerificationViewModel(
             }
 
             is MiraiLinkResult.Error -> {
-                _state.update { it.copy(error = result.message) }
+                state.update { it.copy(error = result.message) }
             }
         }
     }
 
     private fun resetState() {
-        _state.value = VerificationState()
+        state.value = VerificationState()
     }
 }

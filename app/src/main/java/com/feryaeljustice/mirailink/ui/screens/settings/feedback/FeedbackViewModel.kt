@@ -17,32 +17,33 @@ class FeedbackViewModel(
     private val sendFeedbackUseCase: SendFeedbackUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(FeedbackState())
-    val uiState: StateFlow<FeedbackState> = _uiState
+
+    val uiState: StateFlow<FeedbackState>
+        field = MutableStateFlow<FeedbackState>(FeedbackState())
 
     fun updateFeedback(feedback: String) {
-        _uiState.update { it.copy(feedback = feedback) }
+        uiState.update { it.copy(feedback = feedback) }
     }
 
     fun sendFeedback(onFinish: () -> Unit) {
         viewModelScope.launch {
-            _uiState.update { it.copy(loading = true, error = null) }
+            uiState.update { it.copy(loading = true, error = null) }
 
             val result =
                 withContext(ioDispatcher) {
-                    sendFeedbackUseCase(_uiState.value.feedback)
+                    sendFeedbackUseCase(uiState.value.feedback)
                 }
 
             when (result) {
                 is MiraiLinkResult.Success -> {
-                    _uiState.update {
+                    uiState.update {
                         it.copy(loading = false, error = null, feedback = "")
                     }
                     onFinish()
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _uiState.update {
+                    uiState.update {
                         it.copy(loading = false, error = result.message)
                     }
                 }

@@ -7,7 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUse
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,21 +27,21 @@ class RecoverPasswordViewModel(
         val error: String? = null,
     )
 
-    private val _state = MutableStateFlow(PasswordResetState())
-    val state = _state.asStateFlow()
+    val state: StateFlow<PasswordResetState>
+    field = MutableStateFlow<PasswordResetState>(PasswordResetState())
 
-    fun initEmail(initialEmail: String) = _state.update { it.copy(email = initialEmail) }
+    fun initEmail(initialEmail: String) = state.update { it.copy(email = initialEmail) }
 
     fun onEmailChanged(email: String) {
-        _state.update { it.copy(email = email, error = null) }
+        state.update { it.copy(email = email, error = null) }
     }
 
     fun onTokenChanged(token: String) {
-        _state.update { it.copy(token = token, error = null) }
+        state.update { it.copy(token = token, error = null) }
     }
 
     fun onPasswordChanged(password: String) {
-        _state.update { it.copy(newPassword = password, error = null) }
+        state.update { it.copy(newPassword = password, error = null) }
     }
 
     fun requestReset() =
@@ -53,8 +53,8 @@ class RecoverPasswordViewModel(
                 }
 
             when (result) {
-                is MiraiLinkResult.Success -> _state.update { it.copy(step = 2) }
-                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Success -> state.update { it.copy(step = 2) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = result.message) }
             }
         }
 
@@ -73,11 +73,11 @@ class RecoverPasswordViewModel(
                     onConfirmed()
                 }
 
-                is MiraiLinkResult.Error -> _state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = result.message) }
             }
         }
 
     private fun resetState() {
-        _state.value = PasswordResetState()
+        state.value = PasswordResetState()
     }
 }

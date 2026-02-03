@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -41,15 +42,15 @@ class SplashScreenViewModel(
         ) : SplashUiState()
     }
 
-    private val _uiState = MutableStateFlow<SplashUiState>(SplashUiState.Idle)
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<SplashUiState>
+    field = MutableStateFlow<SplashUiState>(SplashUiState.Idle)
 
     init {
         viewModelScope.launch {
-            _uiState.value = SplashUiState.Loading
+            uiState.value = SplashUiState.Loading
             delay(1000)
             withContext(Dispatchers.Main){
-                _uiState.value = SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
+                uiState.value = SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
             }
 
             /**
@@ -67,7 +68,7 @@ class SplashScreenViewModel(
                     if (info.mustUpdate || info.shouldUpdate) {
                         // Deja que la UI muestre el diálogo forzando update
                         _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
-                        _uiState.value = SplashUiState.Idle
+                        uiState.value = SplashUiState.Idle
                     }
                 }
 
@@ -90,7 +91,7 @@ class SplashScreenViewModel(
                 val autologinResult = autologinDeferred.await()
 
                 withContext(mainDispatcher) {
-                    _uiState.value =
+                    uiState.value =
                         when {
                             onboardingResult is MiraiLinkResult.Success && onboardingResult.data -> {
                                 if (autologinResult is MiraiLinkResult.Success) {

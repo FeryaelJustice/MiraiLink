@@ -141,7 +141,8 @@ fun AuthScreen(
                     } else {
                         Modifier
                     },
-                ).verticalScroll(rememberScrollState()),
+                )
+                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
@@ -338,6 +339,7 @@ fun AuthScreen(
             horizontalArrangement = Arrangement.End,
         ) {
             MiraiLinkTextButton(
+                modifier = Modifier,
                 onClick = {
                     onRequestPasswordReset(email)
                 },

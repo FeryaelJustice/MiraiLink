@@ -16,24 +16,25 @@ class AiChatViewModel(
     private val generateContentUseCase: GenerateContentUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<AiChatUiState>(AiChatUiState.Idle)
-    val uiState: StateFlow<AiChatUiState> = _uiState
+
+    val uiState: StateFlow<AiChatUiState>
+        field = MutableStateFlow<AiChatUiState>(AiChatUiState.Idle)
 
     fun sendMessage(prompt: String) {
         viewModelScope.launch {
-            _uiState.value = AiChatUiState.Loading
+            uiState.value = AiChatUiState.Loading
             val result =
                 withContext(ioDispatcher) {
                     generateContentUseCase(prompt = prompt)
                 }
             when (result) {
                 is MiraiLinkResult.Success -> {
-                    _uiState.value =
+                    uiState.value =
                         AiChatUiState.Success(response = result.data)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _uiState.value = AiChatUiState.Error(result.message)
+                    uiState.value = AiChatUiState.Error(result.message)
                 }
             }
         }

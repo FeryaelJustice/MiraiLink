@@ -13,7 +13,7 @@ import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
@@ -40,8 +40,8 @@ class MessagesViewModel(
         ) : MessagesUiState()
     }
 
-    private val _state = MutableStateFlow<MessagesUiState>(MessagesUiState.Idle)
-    val state = _state.asStateFlow()
+    val state: StateFlow<MessagesUiState>
+        field = MutableStateFlow<MessagesUiState>(MessagesUiState.Idle)
 
     private var _matches: MutableList<MatchUserViewEntry> =
         mutableListOf(
@@ -92,7 +92,7 @@ class MessagesViewModel(
 
     fun loadMatches() {
         viewModelScope.launch {
-            _state.value = MessagesUiState.Loading
+            state.value = MessagesUiState.Loading
 
             val result =
                 withContext(ioDispatcher) {
@@ -109,12 +109,12 @@ class MessagesViewModel(
                         }
 
                     _matches = matchesResult.toMutableList()
-                    _state.value =
+                    state.value =
                         MessagesUiState.Success(matches = matchesResult, openChats = _openChats)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _state.value = MessagesUiState.Error(result.message, result.exception)
+                    state.value = MessagesUiState.Error(result.message, result.exception)
                 }
             }
         }
@@ -122,7 +122,7 @@ class MessagesViewModel(
 
     fun loadChats() {
         viewModelScope.launch {
-            _state.value = MessagesUiState.Loading
+            state.value = MessagesUiState.Loading
 
             val result =
                 withContext(ioDispatcher) {
@@ -136,12 +136,12 @@ class MessagesViewModel(
                             chat.toChatPreviewViewEntry()
                         }
                     _openChats = chatsResult.toMutableList()
-                    _state.value =
+                    state.value =
                         MessagesUiState.Success(matches = _matches, openChats = chatsResult)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _state.value = MessagesUiState.Error(result.message, result.exception)
+                    state.value = MessagesUiState.Error(result.message, result.exception)
                 }
             }
         }

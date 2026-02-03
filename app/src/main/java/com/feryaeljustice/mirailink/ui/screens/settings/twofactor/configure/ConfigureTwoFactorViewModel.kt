@@ -9,7 +9,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.VerifyTwoFact
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -21,35 +21,38 @@ class ConfigureTwoFactorViewModel(
     private val disableTwoFactorUseCase: DisableTwoFactorUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _isTwoFactorEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isTwoFactorEnabled = _isTwoFactorEnabled.asStateFlow()
+    val isTwoFactorEnabled: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
-    private val _showSetupDialog = MutableStateFlow(false)
-    val showSetupDialog = _showSetupDialog.asStateFlow()
+    val showSetupDialog: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
-    private val _isConfigure2FALoading = MutableStateFlow(false)
-    val isConfigure2FALoading = _isConfigure2FALoading.asStateFlow()
-    private val _showDisableTwoFactorDialog = MutableStateFlow(false)
-    val showDisableTwoFactorDialog = _showDisableTwoFactorDialog.asStateFlow()
-    private val _isDisable2FALoading = MutableStateFlow(false)
-    val isDisable2FALoading = _isDisable2FALoading.asStateFlow()
+    val isConfigure2FALoading: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
-    private val _otpUrl = MutableStateFlow<String?>(null)
-    val otpUrl = _otpUrl.asStateFlow()
+    val showDisableTwoFactorDialog: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
-    private val _base32 = MutableStateFlow("")
-    val base32 = _base32.asStateFlow()
+    val isDisable2FALoading: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
 
-    private val _recoveryCodes = MutableStateFlow<List<String>>(emptyList())
-    val recoveryCodes = _recoveryCodes.asStateFlow()
+    val otpUrl: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
 
-    private val _verify2FACode = MutableStateFlow("")
-    val verify2FACode = _verify2FACode.asStateFlow()
-    private val _disable2FACode = MutableStateFlow("")
-    val disable2FACode = _disable2FACode.asStateFlow()
+    val base32: StateFlow<String>
+        field = MutableStateFlow<String>("")
 
-    private val _errorString = MutableStateFlow<String?>(null)
-    val errorString = _errorString.asStateFlow()
+    val recoveryCodes: StateFlow<List<String>>
+        field = MutableStateFlow<List<String>>(emptyList())
+
+    val verify2FACode: StateFlow<String>
+        field = MutableStateFlow<String>("")
+
+    val disable2FACode: StateFlow<String>
+        field = MutableStateFlow<String>("")
+
+    val errorString: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
 
     fun onlyCheckTwoFacStatusWithIO(userID: String?) {
         viewModelScope.launch(ioDispatcher) {
@@ -58,77 +61,77 @@ class ConfigureTwoFactorViewModel(
     }
 
     fun onSetupTwoFactorCodeChanged(newCode: String) {
-        _verify2FACode.value = newCode
+        verify2FACode.value = newCode
     }
 
     fun onDisableTwoFactorCodeChanged(newCode: String) {
-        _disable2FACode.value = newCode
+        disable2FACode.value = newCode
     }
 
     fun launchSetupTwoFactorDialog() {
         viewModelScope.launch(ioDispatcher) {
             when (val result = setup2FAUseCase()) {
                 is MiraiLinkResult.Success -> {
-                    result.data.enabled?.let { _isTwoFactorEnabled.value = it }
-                    _otpUrl.value = result.data.otpAuthUrl
-                    _base32.value = result.data.baseCode.orEmpty()
-                    _recoveryCodes.value = result.data.recoveryCodes ?: emptyList()
-                    _showSetupDialog.value = true
+                    result.data.enabled?.let { isTwoFactorEnabled.value = it }
+                    otpUrl.value = result.data.otpAuthUrl
+                    base32.value = result.data.baseCode.orEmpty()
+                    recoveryCodes.value = result.data.recoveryCodes ?: emptyList()
+                    showSetupDialog.value = true
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _errorString.value = result.message
-                    _showSetupDialog.value = false
+                    errorString.value = result.message
+                    showSetupDialog.value = false
                 }
             }
         }
     }
 
     fun launchDisableTwoFactorDialog() {
-        if (_isTwoFactorEnabled.value) {
-            _showDisableTwoFactorDialog.value = true
+        if (isTwoFactorEnabled.value) {
+            showDisableTwoFactorDialog.value = true
         }
     }
 
     fun confirmSetupTwoFactor(userID: String?) {
-        _isConfigure2FALoading.value = true
+        isConfigure2FALoading.value = true
         viewModelScope.launch(ioDispatcher) {
             // Implementación futura
-            val result = verifyTwoFactorUseCase(code = _verify2FACode.value)
+            val result = verifyTwoFactorUseCase(code = verify2FACode.value)
             // manejar respuesta
             when (result) {
                 is MiraiLinkResult.Success -> {
-                    _isConfigure2FALoading.value = false
-                    _showSetupDialog.value = false
+                    isConfigure2FALoading.value = false
+                    showSetupDialog.value = false
                     checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _errorString.value = result.message
-                    _isConfigure2FALoading.value = false
-                    _showSetupDialog.value = false
+                    errorString.value = result.message
+                    isConfigure2FALoading.value = false
+                    showSetupDialog.value = false
                 }
             }
         }
     }
 
     fun confirmDisableTwoFactor(userID: String?) {
-        _isDisable2FALoading.value = true
+        isDisable2FALoading.value = true
         viewModelScope.launch(ioDispatcher) {
             when (
                 val result =
-                    disableTwoFactorUseCase(codeOrRecoveryCode = _disable2FACode.value)
+                    disableTwoFactorUseCase(codeOrRecoveryCode = disable2FACode.value)
             ) {
                 is MiraiLinkResult.Success -> {
-                    _isDisable2FALoading.value = false
-                    _showDisableTwoFactorDialog.value = false
+                    isDisable2FALoading.value = false
+                    showDisableTwoFactorDialog.value = false
                     checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _errorString.value = result.message
-                    _isDisable2FALoading.value = false
-                    _showDisableTwoFactorDialog.value = false
+                    errorString.value = result.message
+                    isDisable2FALoading.value = false
+                    showDisableTwoFactorDialog.value = false
                 }
             }
         }
@@ -138,34 +141,34 @@ class ConfigureTwoFactorViewModel(
         userID?.let { usID ->
             when (val res = getTwoFactorStatusUseCase(userID = usID)) {
                 is MiraiLinkResult.Success -> {
-                    _isTwoFactorEnabled.value = res.data
+                    isTwoFactorEnabled.value = res.data
                 }
 
                 is MiraiLinkResult.Error -> {
-                    _isTwoFactorEnabled.value = false
+                    isTwoFactorEnabled.value = false
                 }
             }
         }
     }
 
     fun dismissSetupTwoFactorDialog() {
-        _showSetupDialog.value = false
-        _isDisable2FALoading.value = false
+        showSetupDialog.value = false
+        isDisable2FALoading.value = false
 
-        _verify2FACode.value = ""
-        _otpUrl.value = null
-        _base32.value = ""
-        _recoveryCodes.value = emptyList()
+        verify2FACode.value = ""
+        otpUrl.value = null
+        base32.value = ""
+        recoveryCodes.value = emptyList()
 
-        _errorString.value = null
+        errorString.value = null
     }
 
     fun dismissDisableTwoFactorDialog() {
-        _showDisableTwoFactorDialog.value = false
-        _isConfigure2FALoading.value = false
+        showDisableTwoFactorDialog.value = false
+        isConfigure2FALoading.value = false
 
-        _disable2FACode.value = ""
+        disable2FACode.value = ""
 
-        _errorString.value = null
+        errorString.value = null
     }
 }

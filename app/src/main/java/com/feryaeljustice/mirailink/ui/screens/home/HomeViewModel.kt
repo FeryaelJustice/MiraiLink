@@ -13,7 +13,7 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
@@ -42,8 +42,8 @@ class HomeViewModel(
         ) : HomeUiState()
     }
 
-    private val _state = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
-    val state = _state.asStateFlow()
+    val state: StateFlow<HomeUiState>
+        field = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
 
     var currentUser: UserViewEntry? = null
         private set
@@ -76,7 +76,7 @@ class HomeViewModel(
 
     fun loadUsers() {
         viewModelScope.launch {
-            _state.value = HomeUiState.Loading
+            state.value = HomeUiState.Loading
 
             val result =
                 withContext(ioDispatcher) {
@@ -88,13 +88,13 @@ class HomeViewModel(
                 _userQueue.addAll(result.data.map { it.toUserViewEntry() })
                 updateUiState()
             } else if (result is MiraiLinkResult.Error) {
-                _state.value = HomeUiState.Error(result.message, result.exception)
+                state.value = HomeUiState.Error(result.message, result.exception)
             }
         }
     }
 
     private fun updateUiState() {
-        _state.value = HomeUiState.Success(visibleUsers = _userQueue.take(2))
+        state.value = HomeUiState.Success(visibleUsers = _userQueue.take(2))
     }
 
     fun swipeRight() {

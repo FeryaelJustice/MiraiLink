@@ -45,17 +45,18 @@ class ChatViewModel(
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _chatId = MutableStateFlow<String?>(null)
-    val chatId: StateFlow<String?> = _chatId
 
-    private val _messages = MutableStateFlow<List<ChatMessageViewEntry>>(emptyList())
-    val messages: StateFlow<List<ChatMessageViewEntry>> = _messages
+    val chatId: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
 
-    private val _sender = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
-    val sender: StateFlow<MinimalUserInfoViewEntry?> = _sender
+    val messages: StateFlow<List<ChatMessageViewEntry>>
+        field = MutableStateFlow<List<ChatMessageViewEntry>>(emptyList())
 
-    private val _receiver = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
-    val receiver: StateFlow<MinimalUserInfoViewEntry?> = _receiver
+    val sender: StateFlow<MinimalUserInfoViewEntry?>
+        field = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
+
+    val receiver: StateFlow<MinimalUserInfoViewEntry?>
+        field = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
 
     private var pollingJob: Job? = null
 
@@ -95,7 +96,7 @@ class ChatViewModel(
             }
 
         if (result is MiraiLinkResult.Success) {
-            _chatId.value = result.data
+            chatId.value = result.data
             proceedWithPrivateChatSetup(result.data, receiverId)
         } else if (result is MiraiLinkResult.Error) {
             logger.d("ChatViewModel", "initPrivateChat error: ${result.message}")
@@ -132,7 +133,7 @@ class ChatViewModel(
             setReceiverSync(receiverId)
             setSenderSync()
 
-            if (_sender.value != null && _receiver.value != null) {
+            if (sender.value != null && receiver.value != null) {
                 startMessagePolling(receiverId)
             }
         }
@@ -153,7 +154,7 @@ class ChatViewModel(
             }
 
         if (result is MiraiLinkResult.Success) {
-            _sender.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
+            sender.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
             logger.d("ChatViewModel", "getCurrentUserUseCase error: ${result.message}")
         }
@@ -166,7 +167,7 @@ class ChatViewModel(
             }
 
         if (result is MiraiLinkResult.Success) {
-            _receiver.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
+            receiver.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
             logger.d("ChatViewModel", "setReceiver: ${result.message}")
         }
@@ -202,7 +203,7 @@ class ChatViewModel(
                 }
 
             if (result is MiraiLinkResult.Success) {
-                _messages.value = result.data.map { it.toChatMessageViewEntry() }
+                messages.value = result.data.map { it.toChatMessageViewEntry() }
             } else if (result is MiraiLinkResult.Error) {
                 logger.d("ChatViewModel", "getMessages: ${result.message}")
             }
@@ -211,8 +212,8 @@ class ChatViewModel(
 
     fun sendMessage(content: String) {
         viewModelScope.launch {
-            val currSender = _sender.value
-            val currReceiver = _receiver.value
+            val currSender = sender.value
+            val currReceiver = receiver.value
 
             if (currSender == null || currReceiver == null) return@launch
 
@@ -231,7 +232,7 @@ class ChatViewModel(
                 }
 
             if (result is MiraiLinkResult.Success) {
-                _messages.update { it.plus(newMessage) }
+                messages.update { it.plus(newMessage) }
                 logger.d("ChatViewModel", "Message sent successfully")
             } else if (result is MiraiLinkResult.Error) {
                 logger.d("ChatViewModel", "sendMessage: ${result.message}")
@@ -257,10 +258,10 @@ class ChatViewModel(
     }
 
     fun resetChatState() {
-        _chatId.value = null
-        _messages.value = emptyList()
-        _sender.value = null
-        _receiver.value = null
+        chatId.value = null
+        messages.value = emptyList()
+        sender.value = null
+        receiver.value = null
         stopMessagePolling()
     }
 }

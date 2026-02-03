@@ -29,8 +29,8 @@ import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,11 +62,11 @@ class ProfileViewModel(
         ) : ProfileUiState()
     }
 
-    private val _state = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
-    val state = _state.asStateFlow()
+    val state: StateFlow<ProfileUiState>
+        field = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
 
-    private val _editState = MutableStateFlow(EditProfileUiState())
-    val editState = _editState.asStateFlow()
+    val editState: StateFlow<EditProfileUiState>
+        field = MutableStateFlow<EditProfileUiState>(EditProfileUiState())
 
     // Para comunicar eventos de edición al UI
     private val _editProfUiEvent = MutableSharedFlow<EditProfileUiEvent>(replay = 0)
@@ -78,13 +78,13 @@ class ProfileViewModel(
 
     fun getCurrentUser() {
         viewModelScope.launch {
-            _state.value = ProfileUiState.Loading
+            state.value = ProfileUiState.Loading
             val result =
                 withContext(ioDispatcher) {
                     getCurrentUserUseCase()
                 }
 
-            _state.value =
+            state.value =
                 when (result) {
                     is MiraiLinkResult.Success -> {
                         val user = result.data
@@ -96,17 +96,17 @@ class ProfileViewModel(
                             result.message,
                             result.exception,
                         )
-                }
+                } as ProfileUiState.Idle
         }
     }
 
     fun setIsInEditMode(isEdit: Boolean) {
-        _editState.update { it.copy(isEditing = isEdit) }
+        editState.update { it.copy(isEditing = isEdit) }
     }
 
     // Intent es para eventos de la ui al viewmodel, el uiEvent es para lo contrario
     fun onIntent(intent: EditProfileIntent) {
-        _editState.update { state ->
+        editState.update { state ->
             when (intent) {
                 is EditProfileIntent.Initialize -> {
                     val user = intent.user
@@ -186,7 +186,7 @@ class ProfileViewModel(
                         if (result is MiraiLinkResult.Success) {
                             getCurrentUser()
                             _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
-                            _editState.update { it.copy(isEditing = false) } // aquí cierras modo edición
+                            editState.update { it.copy(isEditing = false) } // aquí cierras modo edición
                         } else if (result is MiraiLinkResult.Error) {
                             _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
                         }
@@ -244,7 +244,7 @@ class ProfileViewModel(
                             val updatedPhotos = state.photos.toMutableList()
                             updatedPhotos[intent.position] =
                                 PhotoSlotViewEntry(position = intent.position)
-                            _editState.update { it.copy(photos = updatedPhotos) }
+                            editState.update { it.copy(photos = updatedPhotos) }
 
                             getCurrentUser()
                         } else if (result is MiraiLinkResult.Error) {
@@ -306,7 +306,7 @@ class ProfileViewModel(
     }
 
     fun cleanupTempPhotos() {
-        _editState.value.photos.forEach { slot ->
+        editState.value.photos.forEach { slot ->
             slot.url?.let {
                 if (it.startsWith("file://") || it.startsWith("content://") && isTempFile(it)) {
                     deleteTempFile(it)
@@ -316,7 +316,7 @@ class ProfileViewModel(
     }
 
     fun loadCatalogIfNeeded() {
-        val state = _editState.value
+        val state = editState.value
         if (state.animeCatalog.isNotEmpty() && state.gameCatalog.isNotEmpty()) return
 
         viewModelScope.launch {
@@ -332,7 +332,7 @@ class ProfileViewModel(
                     if (result is MiraiLinkResult.Success) result.data.map { it.toGameViewEntry() } else emptyList()
                 }
 
-            _editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }
+            editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }
         }
     }
 }

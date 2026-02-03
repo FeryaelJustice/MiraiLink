@@ -19,6 +19,7 @@ class SettingsViewModel(
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
+
     private val _logoutSuccess = MutableSharedFlow<Boolean>()
     val logoutSuccess = _logoutSuccess.asSharedFlow()
 

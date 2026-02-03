@@ -7,7 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
@@ -17,8 +17,8 @@ class ProfilePictureViewModel(
     private val uploadUserPhotoUseCase: UploadUserPhotoUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _uploadResult = MutableStateFlow<MiraiLinkResult<String>?>(null)
-    val uploadResult = _uploadResult.asStateFlow()
+    val uploadResult: StateFlow<MiraiLinkResult<String>?>
+        field = MutableStateFlow<MiraiLinkResult<String>?>(null)
 
     fun uploadImage(uri: Uri) {
         viewModelScope.launch {
@@ -27,11 +27,11 @@ class ProfilePictureViewModel(
                     uploadUserPhotoUseCase(uri)
                 }
 
-            _uploadResult.value = result
+            uploadResult.value = result
         }
     }
 
     fun clearResult() {
-        _uploadResult.value = null
+        uploadResult.value = null
     }
 }
