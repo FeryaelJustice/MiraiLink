@@ -21,6 +21,14 @@ plugins {
     alias(libs.plugins.stability.analyzer)
 }
 
+kotlin {
+    jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+}
+
 android {
     namespace = "com.feryaeljustice.mirailink"
     compileSdk = 36
@@ -30,8 +38,8 @@ android {
 
         minSdk = 26
         targetSdk = 36
-        versionCode = 29
-        versionName = "2.0.0"
+        versionCode = 31
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
@@ -93,13 +101,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    kotlin {
-        jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
-
-        compilerOptions {
-            freeCompilerArgs.add("-Xexplicit-backing-fields")
-        }
     }
 
     testOptions {

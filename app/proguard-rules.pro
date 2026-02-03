@@ -21,6 +21,10 @@
 #-renamesourcefileattribute SourceFile
 -keep class kotlin.Metadata { *; }
 -keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
+-keepattributes Exceptions
 
 # Kotlinx Serialization (suele evitar problemas raros en release)
 -keep class kotlinx.serialization.** { *; }
