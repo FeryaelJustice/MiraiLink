@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.MainViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -16,4 +17,5 @@ val appModule =
         viewModel { MainViewModel(get()) }
         // Remote Config Manager
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }
+        single { com.feryaeljustice.mirailink.data.manager.AdMobManager(androidContext()) }
     }

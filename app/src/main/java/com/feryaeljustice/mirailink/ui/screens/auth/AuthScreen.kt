@@ -29,8 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -89,7 +87,6 @@ fun AuthScreen(
     val passwordErrorString = mapErrorToString(passwordError)
     val confirmPasswordErrorString = mapErrorToString(confirmPasswordError)
 
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
     fun resetAuthUiState() {
@@ -107,7 +104,6 @@ fun AuthScreen(
         miraiLinkSession.enableDisableBottomBar(false)
         miraiLinkSession.hideTopBarSettingsIcon()
         miraiLinkSession.disableBars()
-        focusRequester.requestFocus()
 
         viewModel.autofillCredentials { savedEmailOrUsername, savedPassword ->
             if (savedEmailOrUsername.isEmailValid()) {
@@ -153,9 +149,6 @@ fun AuthScreen(
             horizontalArrangement = Arrangement.End,
         ) {
             MiraiLinkTextButton(
-                modifier =
-                    Modifier
-                        .focusRequester(focusRequester),
                 onClick = {
                     isLogin = !isLogin
                     viewModel.resetScreenVMState()
@@ -175,8 +168,7 @@ fun AuthScreen(
         MiraiLinkOutlinedTextField(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .fillMaxWidth(),
             value = if (loginByUsername && isLogin) username else email,
             onValueChange = {
                 if (loginByUsername && isLogin) {
@@ -226,8 +218,7 @@ fun AuthScreen(
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                        .fillMaxWidth(),
                 value = username,
                 onValueChange = {
                     username = it
@@ -257,8 +248,7 @@ fun AuthScreen(
         MiraiLinkOutlinedTextField(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .fillMaxWidth(),
             value = password,
             onValueChange = {
                 password = it
@@ -303,8 +293,7 @@ fun AuthScreen(
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                        .fillMaxWidth(),
                 value = confirmPassword,
                 onValueChange = {
                     confirmPassword = it
@@ -349,9 +338,6 @@ fun AuthScreen(
             horizontalArrangement = Arrangement.End,
         ) {
             MiraiLinkTextButton(
-                modifier =
-                    Modifier
-                        .focusRequester(focusRequester),
                 onClick = {
                     onRequestPasswordReset(email)
                 },
@@ -362,10 +348,6 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         MiraiLinkButton(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
             onClick = {
                 // VALIDACIONES AUTH PREVIAS
                 if (!viewModel.validateFields(

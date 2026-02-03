@@ -10,7 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import com.feryaeljustice.mirailink.data.manager.AdMobManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
@@ -23,7 +26,9 @@ import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.initialize
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
@@ -39,6 +44,7 @@ class MainActivity : ComponentActivity() {
     // Desde splashscreen se activa el modo christmas
     private val appThemeManager: AppThemeManager by inject()
     private val mainViewModel: MainViewModel by viewModel()
+    private val adMobManager: AdMobManager by inject()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +67,22 @@ class MainActivity : ComponentActivity() {
                 initialValue = emptyMap(),
             )
             MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
+        }
+        initializeAds()
+    }
+
+    private fun initializeAds() {
+        adMobManager.initialize()
+        lifecycleScope.launch {
+            while (isActive) {
+                // Wait 2 minutes
+                delay(2 * 60 * 1000L)
+
+                // Show ad only if app is in foreground
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    adMobManager.showInterstitial(this@MainActivity)
+                }
+            }
         }
     }
 

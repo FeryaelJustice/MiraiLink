@@ -96,6 +96,10 @@ android {
     }
     kotlin {
         jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+
+        compilerOptions {
+            freeCompilerArgs.add("-Xexplicit-backing-fields")
+        }
     }
 
     testOptions {

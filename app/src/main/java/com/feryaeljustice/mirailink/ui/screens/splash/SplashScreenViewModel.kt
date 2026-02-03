@@ -1,19 +1,16 @@
 package com.feryaeljustice.mirailink.ui.screens.splash
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.core.featureflags.FeatureFlagStore
-import com.feryaeljustice.mirailink.data.mappers.ui.toVersionCheckResultViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
-import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -50,7 +47,15 @@ class SplashScreenViewModel(
     init {
         viewModelScope.launch {
             _uiState.value = SplashUiState.Loading
+            delay(1000)
+            withContext(Dispatchers.Main){
+                _uiState.value = SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
+            }
 
+            /**
+             * VOLVER A DESCOMENTAR ESTO CUANDO BACKEND REVIVA, bloquea el main thread
+             */
+            /*
             // 1) Chequeo de versión
             val versionResult =
                 withContext(ioDispatcher) {
@@ -115,6 +120,7 @@ class SplashScreenViewModel(
                         }
                 }
             }
+            */
         }
     }
 
