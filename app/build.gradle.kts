@@ -22,7 +22,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain { languageVersion.set(JavaLanguageVersion.of(11)) }
+    jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) }
 
     compilerOptions {
         freeCompilerArgs.add("-Xexplicit-backing-fields")
@@ -31,13 +31,13 @@ kotlin {
 
 android {
     namespace = "com.feryaeljustice.mirailink"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.feryaeljustice.mirailink"
 
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 32
         versionName = "2.2.1"
 
@@ -95,8 +95,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -260,13 +260,9 @@ dependencies {
     implementation(libs.kotzilla.sdk.compose)
     // implementation(libs.kotzilla.sdk.android)
 
-    // Composables (.com) -> Unstyled
-    implementation(libs.composables.compose.unstyled)
-    implementation(libs.composables.compose.unstyled.theming)
-    implementation(libs.composables.compose.unstyled.primitives)
-    implementation(libs.composables.compose.unstyled.platformtheme)
 }
 
 kotzilla {
     composeInstrumentation = true
+    skipBuildReportFailure = true
 }

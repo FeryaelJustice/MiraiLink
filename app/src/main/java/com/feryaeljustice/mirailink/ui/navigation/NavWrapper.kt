@@ -442,8 +442,7 @@ fun NavWrapper(
                 NavDisplay(
                     entries = navigationState.toEntries(entries),
                     onBack = { navigator.goBack() },
-                    // Si algún día pones destinos dialog: añade metadata + esta strategy
-                    sceneStrategy = remember { DialogSceneStrategy() },
+                    sceneStrategies = listOf(remember { DialogSceneStrategy() }),
                     transitionSpec = {
                         slideInHorizontally(
                             initialOffsetX = { it },

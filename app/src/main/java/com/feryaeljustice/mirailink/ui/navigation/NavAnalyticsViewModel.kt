@@ -2,7 +2,7 @@ package com.feryaeljustice.mirailink.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class NavAnalyticsViewModel(

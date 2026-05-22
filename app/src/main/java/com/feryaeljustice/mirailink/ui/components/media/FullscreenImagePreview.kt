@@ -80,7 +80,7 @@ fun FullscreenImagePreview(
     }
 
     val transformState =
-        rememberTransformableState { zoomChange, panChange, rotationChange ->
+        rememberTransformableState { _, zoomChange, panChange, rotationChange ->
             // Zoom con límites
             val targetScale = (scale.value * zoomChange).coerceIn(minScale, maxScale)
             if (targetScale != scale.value) {

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,9 +43,6 @@ fun MatchesRow(
                                 .padding(horizontal = 8.dp)
                                 .onVisibilityChanged(callback = {
                                     Log.d("MatchesRow", "Visibility changed: ${user.username}")
-                                })
-                                .onFirstVisible(callback = {
-                                    Log.d("MatchesRow", "First visible: ${user.username}")
                                 }),
                         userAvatarUrl = user.avatarUrl,
                         userIsBoosted = user.isBoosted,

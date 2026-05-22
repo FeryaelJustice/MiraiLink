@@ -19,9 +19,14 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,25 +35,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.composeunstyled.RelativeAlignment
-import com.composeunstyled.Tooltip
-import com.composeunstyled.TooltipArrowDirection
-import com.composeunstyled.TooltipPanel
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
-import com.feryaeljustice.mirailink.ui.utils.composeunstyled.ArrowUp
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -62,7 +59,7 @@ fun MessagesScreen(
     modifier: Modifier = Modifier,
     viewModel: MessagesViewModel = koinViewModel(),
 ) {
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -77,29 +74,17 @@ fun MessagesScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
-            Tooltip(
-                placement = RelativeAlignment.TopCenter,
-                panel = {
-                    TooltipPanel(
-                        modifier = Modifier.zIndex(15f),
-                        arrow = { direction ->
-                            // Draw your arrow pointing towards the given direction
-                            val degrees =
-                                when (direction) {
-                                    TooltipArrowDirection.Up -> 0f
-                                    TooltipArrowDirection.Down -> 180f
-                                    TooltipArrowDirection.Left -> 90f
-                                    TooltipArrowDirection.Right -> 270f
-                                }
-                            ArrowUp(
-                                modifier = Modifier.rotate(degrees),
-                                color = Color.Black.copy(0.8f),
-                            )
-                        },
-                    ) {
+            val tooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
+                tooltip = {
+                    PlainTooltip {
                         MiraiLinkText(text = stringResource(R.string.ai_chat_open))
                     }
                 },
+                state = tooltipState,
             ) {
                 FloatingActionButton(onClick = { onNavigateToAiChat() }) {
                     Icon(
@@ -123,7 +108,8 @@ fun MessagesScreen(
                     .padding(
                         start = innerPadding.calculateLeftPadding(layoutDirection = LayoutDirection.Ltr),
                         end = innerPadding.calculateEndPadding(layoutDirection = LayoutDirection.Ltr),
-                    ).consumeWindowInsets(paddingValues = innerPadding)
+                    )
+                    .consumeWindowInsets(paddingValues = innerPadding)
                     .then(
                         if (deviceConfiguration.requiresDisplayCutoutPadding()) {
                             Modifier.windowInsetsPadding(WindowInsets.displayCutout)
