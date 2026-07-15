@@ -38,8 +38,8 @@ android {
 
         minSdk = 26
         targetSdk = 37
-        versionCode = 32
-        versionName = "2.2.1"
+        versionCode = 33
+        versionName = "2.3.0"
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
@@ -71,7 +71,6 @@ android {
     buildTypes {
         getByName("debug") {
             isMinifyEnabled = false
-            isShrinkResources = false
             isDebuggable = true
 //            signingConfig = signingConfigs.getByName("debug")
             buildConfigField("String", "TEST_USER", keystoreProperties["TEST_USER"] as String)

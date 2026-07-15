@@ -25,7 +25,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MiraiLink"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        tools:replace="android:dataExtractionRules,android:fullBackupContent">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1078603769231868~7405600656" />
