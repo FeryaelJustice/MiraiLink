@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-15T18:03:41.2106574+02:00",
+  "baselineCommit": "47a073e",
+  "status": "needs-attention",
+  "canonicalContext": "docs/ai/README.md",
+  "filesReviewed": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "2b3a118588870f0a4d489d105ce75cb583722c451db7c115586903a2281d15ae",
+      "lastWriteTimeUtc": "2025-12-15T15:25:04.6754012Z"
+    },
+    {
+      "path": "README.md",
+      "sha256": "f7b47abd8dd1c8509db52b4eb7e5bb52d38f18140e81917c50bf41bcc24e9de6",
+      "lastWriteTimeUtc": "2025-12-20T13:52:13.6598653Z"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "299aa52c4c123e72f40174308d443bb7d746206cbd5cea96c2bb90c35fa733db",
+      "lastWriteTimeUtc": "2025-12-20T13:51:12.9080257Z"
+    },
+    {
+      "path": "GEMINI.md",
+      "sha256": "5e462c251b859968cff64401043b5f14ff73cd403669d2ea4cd3c4a8db78565c",
+      "lastWriteTimeUtc": "2025-12-20T13:52:08.0362321Z"
+    },
+    {
+      "path": "WARP.md",
+      "sha256": "915062ca070ed635a49481019834df78ba353f88fe4e66b40bc8eb712f39eeff",
+      "lastWriteTimeUtc": "2025-12-20T13:52:18.8758933Z"
+    },
+    {
+      "path": "CODEX.md",
+      "sha256": "db8d84431f36b20117d3fd2ef2202e0187716ffec4f291aaac0f2a7206e74bad",
+      "lastWriteTimeUtc": "2026-07-15T16:05:12.6865458Z"
+    }
+  ],
+  "findings": [
+    "AGENTS.md instructs Hilt, but the repository uses Koin.",
+    "README.md, GEMINI.md and WARP.md report SDK or dependency versions older than Gradle configuration.",
+    "README.md overstates the current test health and real-time Socket.IO usage.",
+    "AGENTS.md, CLAUDE.md, GEMINI.md and WARP.md duplicate architecture and workflow guidance.",
+    "docs/ai is now the shared technical context, while legacy files were preserved by request."
+  ],
+  "refreshWhen": [
+    "A reviewed file hash changes.",
+    "Build configuration, architecture, runtime integrations or validation status changes.",
+    "Legacy AI files are consolidated or removed."
+  ]
+}
