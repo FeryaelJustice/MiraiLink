@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -58,7 +60,7 @@ class RegisterUseCaseTest {
         val username = "test"
         val email = "test@test.com"
         val password = "password"
-        val errorResult = MiraiLinkResult.Error("User already exists")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.register(username, email, password) } returns errorResult
 
         // When
@@ -66,10 +68,10 @@ class RegisterUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val username = "test"
@@ -83,7 +85,7 @@ class RegisterUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("RegisterUseCase error: ", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("RegisterUseCase error: ", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

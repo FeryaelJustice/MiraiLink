@@ -1,12 +1,14 @@
 package com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.DisableTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.SetupTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.VerifyTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +22,7 @@ class ConfigureTwoFactorViewModel(
     private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase,
     private val disableTwoFactorUseCase: DisableTwoFactorUseCase,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     val isTwoFactorEnabled: StateFlow<Boolean>
         field = MutableStateFlow<Boolean>(false)
 
@@ -51,8 +53,8 @@ class ConfigureTwoFactorViewModel(
     val disable2FACode: StateFlow<String>
         field = MutableStateFlow<String>("")
 
-    val errorString: StateFlow<String?>
-        field = MutableStateFlow<String?>(null)
+    val errorString: StateFlow<UiError?>
+        field = MutableStateFlow<UiError?>(null)
 
     fun onlyCheckTwoFacStatusWithIO(userID: String?) {
         viewModelScope.launch(ioDispatcher) {
@@ -69,9 +71,12 @@ class ConfigureTwoFactorViewModel(
     }
 
     fun launchSetupTwoFactorDialog() {
+        setRecoveryAction(::launchSetupTwoFactorDialog)
+        errorString.value = null
         viewModelScope.launch(ioDispatcher) {
             when (val result = setup2FAUseCase()) {
                 is MiraiLinkResult.Success -> {
+                    errorString.value = null
                     result.data.enabled?.let { isTwoFactorEnabled.value = it }
                     otpUrl.value = result.data.otpAuthUrl
                     base32.value = result.data.baseCode.orEmpty()
@@ -80,7 +85,7 @@ class ConfigureTwoFactorViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    errorString.value = result.message
+                    errorString.value = result.error.toUiError()
                     showSetupDialog.value = false
                 }
             }
@@ -94,6 +99,8 @@ class ConfigureTwoFactorViewModel(
     }
 
     fun confirmSetupTwoFactor(userID: String?) {
+        setRecoveryAction { confirmSetupTwoFactor(userID) }
+        errorString.value = null
         isConfigure2FALoading.value = true
         viewModelScope.launch(ioDispatcher) {
             // Implementación futura
@@ -101,13 +108,14 @@ class ConfigureTwoFactorViewModel(
             // manejar respuesta
             when (result) {
                 is MiraiLinkResult.Success -> {
+                    errorString.value = null
                     isConfigure2FALoading.value = false
                     showSetupDialog.value = false
                     checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    errorString.value = result.message
+                    errorString.value = result.error.toUiError()
                     isConfigure2FALoading.value = false
                     showSetupDialog.value = false
                 }
@@ -116,6 +124,8 @@ class ConfigureTwoFactorViewModel(
     }
 
     fun confirmDisableTwoFactor(userID: String?) {
+        setRecoveryAction { confirmDisableTwoFactor(userID) }
+        errorString.value = null
         isDisable2FALoading.value = true
         viewModelScope.launch(ioDispatcher) {
             when (
@@ -123,13 +133,14 @@ class ConfigureTwoFactorViewModel(
                     disableTwoFactorUseCase(codeOrRecoveryCode = disable2FACode.value)
             ) {
                 is MiraiLinkResult.Success -> {
+                    errorString.value = null
                     isDisable2FALoading.value = false
                     showDisableTwoFactorDialog.value = false
                     checkTwoFacStatus(userID = userID)
                 }
 
                 is MiraiLinkResult.Error -> {
-                    errorString.value = result.message
+                    errorString.value = result.error.toUiError()
                     isDisable2FALoading.value = false
                     showDisableTwoFactorDialog.value = false
                 }
@@ -142,10 +153,13 @@ class ConfigureTwoFactorViewModel(
             when (val res = getTwoFactorStatusUseCase(userID = usID)) {
                 is MiraiLinkResult.Success -> {
                     isTwoFactorEnabled.value = res.data
+                    errorString.value = null
                 }
 
                 is MiraiLinkResult.Error -> {
                     isTwoFactorEnabled.value = false
+                    setRecoveryAction { onlyCheckTwoFacStatusWithIO(userID) }
+                    errorString.value = res.error.toUiError()
                 }
             }
         }

@@ -10,9 +10,5 @@ class CreateGroupChatUseCase(
         name: String,
         userIds: List<String>,
     ): MiraiLinkResult<String> =
-        try {
-            repository.createGroupChat(name = name, userIds = userIds)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while creating the group chat", e)
-        }
+        repository.createGroupChat(name = name, userIds = userIds)
 }

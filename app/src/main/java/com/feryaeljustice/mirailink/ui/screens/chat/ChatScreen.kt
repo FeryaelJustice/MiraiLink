@@ -49,6 +49,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.DateSeparator
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -90,6 +91,7 @@ fun ChatScreen(
     val sender by viewModel.sender.collectAsStateWithLifecycle()
     val receiver by viewModel.receiver.collectAsStateWithLifecycle()
     val input = rememberSaveable { mutableStateOf("") }
+    val error by viewModel.error.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
 
     var showReportDialog by rememberSaveable { mutableStateOf(false) }
@@ -174,6 +176,12 @@ fun ChatScreen(
             },
             onBackClick = onBackClick,
         )
+        error?.let { currentError ->
+            MiraiLinkErrorContent(
+                error = currentError,
+                onAction = viewModel::performErrorAction,
+            )
+        }
         LazyColumn(
             modifier =
                 Modifier

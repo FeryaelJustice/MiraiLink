@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.chat.ChatList
 import com.feryaeljustice.mirailink.ui.components.match.MatchesRow
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -158,10 +159,10 @@ fun MessagesScreen(
                 }
 
                 is MessagesViewModel.MessagesUiState.Error -> {
-                    MiraiLinkText(
-                        text = currentState.message,
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.error,
+                    MiraiLinkErrorContent(
+                        error = currentState.error,
+                        onAction = viewModel::performErrorAction,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
 

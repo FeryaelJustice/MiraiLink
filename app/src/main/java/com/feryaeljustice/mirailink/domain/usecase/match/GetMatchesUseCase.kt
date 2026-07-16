@@ -12,9 +12,5 @@ class GetMatchesUseCase(
     private val repository: MatchRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<List<User>> =
-        try {
-            repository.getMatches()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("GetMatchesUseCase error", e)
-        }
+        repository.getMatches()
 }

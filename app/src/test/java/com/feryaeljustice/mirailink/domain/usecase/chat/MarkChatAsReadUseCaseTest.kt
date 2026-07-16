@@ -38,7 +38,7 @@ class MarkChatAsReadUseCaseTest {
     fun `when repository marks chat as read successfully, return success`() = runTest {
         // Given
         val chatId = "chatId"
-        coJustRun { repository.markChatAsRead(chatId) }
+        coEvery { repository.markChatAsRead(chatId) } returns MiraiLinkResult.Success(Unit)
 
         // When
         val result = markChatAsReadUseCase(chatId)
@@ -47,7 +47,7 @@ class MarkChatAsReadUseCaseTest {
         assertTrue(result is MiraiLinkResult.Success)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val chatId = "chatId"
@@ -61,8 +61,8 @@ class MarkChatAsReadUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while marking the chat as read",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

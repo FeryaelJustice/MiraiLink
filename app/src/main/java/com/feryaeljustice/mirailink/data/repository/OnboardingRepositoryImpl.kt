@@ -1,8 +1,10 @@
 package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datastore.MiraiLinkPrefs
+import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.repository.OnboardingRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import java.util.concurrent.CancellationException
 
 class OnboardingRepositoryImpl(
     private val miraiLinkPrefs: MiraiLinkPrefs,
@@ -11,7 +13,9 @@ class OnboardingRepositoryImpl(
         try {
             val res = miraiLinkPrefs.isOnboardingCompleted()
             MiraiLinkResult.success(res)
-        } catch (e: Throwable) {
-            MiraiLinkResult.Error("Error desconocido en checkOnboardingIsCompleted repository", e)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (exception: Exception) {
+            MiraiLinkResult.Error(DataError.Local.UNKNOWN)
         }
 }

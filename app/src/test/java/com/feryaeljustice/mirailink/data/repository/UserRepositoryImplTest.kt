@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
@@ -107,7 +108,7 @@ class UserRepositoryImplTest : UnitTest() {
     fun `getCurrentUser returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { userRemoteDataSource.getCurrentUser() } returns errorResult
 
             // When
@@ -141,7 +142,7 @@ class UserRepositoryImplTest : UnitTest() {
         runTest {
             // Given
             val userId = "1"
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { userRemoteDataSource.getUserById(userId) } returns errorResult
 
             // When

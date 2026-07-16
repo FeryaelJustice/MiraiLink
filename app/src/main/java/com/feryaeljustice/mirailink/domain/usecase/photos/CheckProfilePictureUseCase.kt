@@ -11,9 +11,5 @@ class CheckProfilePictureUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(userId: String): MiraiLinkResult<Boolean> =
-        try {
-            repository.hasProfilePicture(userId)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("Error checking profile picture", e)
-        }
+        repository.hasProfilePicture(userId)
 }

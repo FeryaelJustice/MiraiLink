@@ -10,9 +10,5 @@ class SetupTwoFactorUseCase(
     private val repo: TwoFactorRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<TwoFactorAuthInfo> =
-        try {
-            repo.setup2FA()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while setting up 2FA", e)
-        }
+        repo.setup2FA()
 }

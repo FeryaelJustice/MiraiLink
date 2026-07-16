@@ -7,9 +7,5 @@ class DeleteAccountUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<Unit> =
-        try {
-            repository.deleteAccount()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("DeleteAccountUseCase error", e)
-        }
+        repository.deleteAccount()
 }

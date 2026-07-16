@@ -97,5 +97,5 @@ val dataStoreTestModule =
 
         // Providers
         single { MiraiLinkPrefs(get()) }
-        single { SessionManager(get(Qualifiers.SessionDataStore)) }
+        single { SessionManager(dataStore = get(Qualifiers.SessionDataStore), scope = get()) }
     }

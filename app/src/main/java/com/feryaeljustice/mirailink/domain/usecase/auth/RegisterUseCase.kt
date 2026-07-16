@@ -11,9 +11,5 @@ class RegisterUseCase(
         email: String,
         password: String,
     ): MiraiLinkResult<String> =
-        try {
-            repository.register(username, email, password)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("RegisterUseCase error: ", e)
-        }
+        repository.register(username, email, password)
 }

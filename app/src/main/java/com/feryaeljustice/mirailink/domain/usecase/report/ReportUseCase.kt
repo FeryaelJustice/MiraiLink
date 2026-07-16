@@ -10,9 +10,5 @@ class ReportUseCase(
         reportUser: String,
         reason: String,
     ): MiraiLinkResult<Unit> =
-        try {
-            repository.reportUser(reportUser, reason)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("ReportUseCase error", e)
-        }
+        repository.reportUser(reportUser, reason)
 }

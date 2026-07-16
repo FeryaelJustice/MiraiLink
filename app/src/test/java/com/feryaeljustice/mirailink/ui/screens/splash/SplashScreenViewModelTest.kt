@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.splash
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.core.featureflags.FeatureFlagStore
 import com.feryaeljustice.mirailink.domain.model.VersionCheckResult
 import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
@@ -28,6 +30,7 @@ class SplashScreenViewModelTest : KoinTest {
     private val checkOnboardingIsCompletedUseCase: CheckOnboardingIsCompleted by inject()
 
     private lateinit var viewModel: SplashScreenViewModel
+    private val store: FeatureFlagStore = mockk(relaxed = true)
 
     @get:Rule
     val koinTestRule =
@@ -56,7 +59,7 @@ class SplashScreenViewModelTest : KoinTest {
             coEvery {
                 checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(false)
-            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error("")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel =
                 SplashScreenViewModel(
@@ -65,6 +68,8 @@ class SplashScreenViewModelTest : KoinTest {
                     checkOnboardingIsCompletedUseCase,
                     mainCoroutineRule.testDispatcher,
                     mainCoroutineRule.testDispatcher,
+                    store,
+                    false,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -97,6 +102,8 @@ class SplashScreenViewModelTest : KoinTest {
                     checkOnboardingIsCompletedUseCase,
                     mainCoroutineRule.testDispatcher,
                     mainCoroutineRule.testDispatcher,
+                    store,
+                    false,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -120,7 +127,7 @@ class SplashScreenViewModelTest : KoinTest {
             coEvery {
                 checkOnboardingIsCompletedUseCase.invoke()
             } returns MiraiLinkResult.Success(true)
-            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error("")
+            coEvery { autologinUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel =
                 SplashScreenViewModel(
@@ -129,6 +136,8 @@ class SplashScreenViewModelTest : KoinTest {
                     checkOnboardingIsCompletedUseCase,
                     mainCoroutineRule.testDispatcher,
                     mainCoroutineRule.testDispatcher,
+                    store,
+                    false,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -161,6 +170,8 @@ class SplashScreenViewModelTest : KoinTest {
                     checkOnboardingIsCompletedUseCase,
                     mainCoroutineRule.testDispatcher,
                     mainCoroutineRule.testDispatcher,
+                    store,
+                    false,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 

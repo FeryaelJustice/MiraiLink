@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.catalog
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -66,7 +68,7 @@ class GetAnimesUseCaseTest {
     @Test
     fun `when repository fails, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error getting animes")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.getAnimes() } returns errorResult
 
         // When
@@ -74,10 +76,10 @@ class GetAnimesUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -90,8 +92,8 @@ class GetAnimesUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while getting the animes",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

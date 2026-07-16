@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.match
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.MatchRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -66,7 +67,7 @@ class GetMatchesUseCaseTest {
     @Test
     fun `when repository fails, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error getting matches")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.getMatches() } returns errorResult
 
         // When
@@ -74,10 +75,10 @@ class GetMatchesUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -88,7 +89,7 @@ class GetMatchesUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("GetMatchesUseCase error", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("GetMatchesUseCase error", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

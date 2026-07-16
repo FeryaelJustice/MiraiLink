@@ -77,6 +77,6 @@ class OnboardingRepositoryImplTest : UnitTest() {
             // Then
             assertThat(result).isInstanceOf(MiraiLinkResult.Error::class.java)
             val error = result as MiraiLinkResult.Error
-            assertThat(error.exception).isEqualTo(exception)
+            assertThat(error.error).isEqualTo(com.feryaeljustice.mirailink.domain.error.DataError.Local.UNKNOWN)
         }
 }

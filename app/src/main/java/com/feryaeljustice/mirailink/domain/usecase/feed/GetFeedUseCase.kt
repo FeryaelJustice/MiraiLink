@@ -8,9 +8,5 @@ class GetFeedUseCase(
     private val repository: SwipeRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<List<User>> =
-        try {
-            repository.getFeed()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("GetFeedUseCase error", e)
-        }
+        repository.getFeed()
 }

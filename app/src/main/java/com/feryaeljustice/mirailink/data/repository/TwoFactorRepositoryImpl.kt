@@ -29,5 +29,5 @@ class TwoFactorRepositoryImpl(
     override suspend fun loginVerifyTwoFactorLastStep(
         userId: String,
         code: String,
-    ): MiraiLinkResult<String> = remote.loginVerifyTwoFactorLastStep(userId, code)
+    ): MiraiLinkResult<Unit> = remote.loginVerifyTwoFactorLastStep(userId, code)
 }

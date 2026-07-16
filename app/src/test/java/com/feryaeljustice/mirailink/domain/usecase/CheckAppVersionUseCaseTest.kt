@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
@@ -146,7 +147,7 @@ class CheckAppVersionUseCaseTest : UnitTest() {
         runTest {
             // Given
             val errorMessage = "Network error"
-            coEvery { repo.getVersion() } returns MiraiLinkResult.Error(errorMessage)
+            coEvery { repo.getVersion() } returns MiraiLinkResult.Error(UnknownError)
 
             // When
             val result = checkAppVersionUseCase(1)
@@ -154,7 +155,7 @@ class CheckAppVersionUseCaseTest : UnitTest() {
             // Then
             assertTrue(result is MiraiLinkResult.Error)
             val error = result as MiraiLinkResult.Error
-            assertEquals(errorMessage, error.message)
+            assertEquals(UnknownError, error.error)
         }
 
     @Test

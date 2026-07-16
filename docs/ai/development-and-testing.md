@@ -57,34 +57,26 @@ Consulta las tareas disponibles antes de asumir nombres añadidos por plugins:
 
 ## Estado de validación del baseline
 
-Comprobado desde `codex/ai-project-initialization` el 2026-07-15.
+Comprobado desde `codex/typed-error-handling` el 2026-07-16.
 
 | Comando | Resultado | Evidencia |
 | --- | --- | --- |
-| `assembleDebug` | Correcto | APK generado, 26.923.031 bytes |
-| `testDebugUnitTest` | Fallo de compilación | Cuatro instancias de SplashScreenViewModel sin `store` ni `isInChristmasMode` |
-| `lintDebug` | Fallo | 1 error `CredManMissingDal` y 100 warnings |
+| `assembleDebug` | Correcto | APK generado, 28.151.052 bytes |
+| `testDebugUnitTest` | Correcto | 283 tests tras actualizar Splash y el contrato tipado de errores |
+| `compileDebugAndroidTestKotlin` | Correcto | Los 18 archivos de pruebas instrumentadas compilan |
+| `lintDebug` | Fallo | 1 error preexistente `CredManMissingDal` y 103 warnings; sin incidencias en las clases nuevas |
 | `connectedDebugAndroidTest` | No ejecutado | Incluye login, like y swipe contra servicios externos |
-| Android CLI `describe` | Sin resultado | Dos intentos agotaron 30 y 60 segundos tras requerir acceso a su caché |
+| Android CLI `describe` | Correcto | Detecta variantes debug y release y localiza sus APK |
 
-El código principal compila durante unit tests y el APK debug se construye. Sin embargo, no puede afirmarse que los 258 tests unitarios pasen porque la suite se detiene en `compileDebugUnitTestKotlin`.
-
-### Fallo unitario actual
-
-`SplashScreenViewModel` añadió estos parámetros:
-
-- `FeatureFlagStore store`
-- `Boolean isInChristmasMode`
-
-`SplashScreenViewModelTest` construye el ViewModel manualmente en las líneas 62, 94, 126 y 158 sin pasarlos. Gradle reporta los errores de llamada en las líneas 67, 99, 131 y 163.
+El código principal y los tests compilan. La suite completa de 283 tests unitarios pasa el 2026-07-16.
 
 ### Resultado de lint
 
 | Issue | Cantidad | Tipo |
 | --- | ---: | --- |
 | `CredManMissingDal` | 1 | Error |
-| `Typos` | 70 | Warning, principalmente certificados de fuentes |
-| `UnusedResources` | 11 | Warning |
+| `Typos` | 72 | Warning, principalmente certificados de fuentes |
+| `UnusedResources` | 12 | Warning |
 | `IconLocation` | 6 | Warning |
 | `PluralsCandidate` | 6 | Warning |
 | `ObsoleteSdkInt` | 3 | Warning |
@@ -100,7 +92,7 @@ Gradle también advierte que `-Xexplicit-backing-fields` ya es redundante con Ko
 
 ### Unitarias JVM
 
-- 86 archivos Kotlin y 258 métodos `@Test`.
+- 92 archivos Kotlin y 283 métodos `@Test`.
 - Cubren mappers, datasources, repositorios, casos de uso y ViewModels.
 - Usan JUnit 4, MockK, coroutines-test, Turbine, Truth, Robolectric y Koin Test.
 - `MainCoroutineRule` sustituye Main dispatcher.

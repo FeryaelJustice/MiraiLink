@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.users
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -79,7 +80,7 @@ class GetUsersUseCaseTest {
     @Test
     fun `when repository fails to get users, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Could not fetch users")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.getUsers() } returns errorResult
 
         // When
@@ -87,6 +88,6 @@ class GetUsersUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 }

@@ -11,10 +11,6 @@ class LoginVerifyTwoFactorLastStepUseCase(
     suspend operator fun invoke(
         userId: String,
         code: String,
-    ): MiraiLinkResult<String> =
-        try {
-            repo.loginVerifyTwoFactorLastStep(userId = userId, code = code)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred during 2FA login verification", e)
-        }
+    ): MiraiLinkResult<Unit> =
+        repo.loginVerifyTwoFactorLastStep(userId = userId, code = code)
 }

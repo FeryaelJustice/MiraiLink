@@ -24,7 +24,7 @@ Este archivo es el punto de entrada específico para Codex. El contexto técnico
 - No añadas nuevos secretos al repositorio. Usa configuración local o un almacén seguro.
 - Mantén los contratos en `domain/repository`, las implementaciones en `data/repository` y el cableado en `di/koin` cuando trabajes dentro del diseño existente.
 - Para UI, conserva Compose Material 3, Navigation 3 y los componentes existentes en `ui/components`.
-- Para estado asíncrono, sigue los patrones de `StateFlow`, `viewModelScope`, dispatchers inyectados y `MiraiLinkResult` ya presentes.
+- Para estado asíncrono, usa `StateFlow`, `viewModelScope`, dispatchers inyectados y el contrato de [`docs/ai/error-handling.md`](docs/ai/error-handling.md). `MiraiLinkResult.Error` solo acepta `AppError`.
 - Revisa rutas API, DTO, datasource, repositorio, caso de uso, ViewModel y prueba relacionada cuando cambie un contrato de backend.
 - No ejecutes `connectedDebugAndroidTest` sin revisar primero si las pruebas usarán el backend real. `AppE2ETest` inicia sesión y realiza acciones con datos remotos.
 
@@ -36,10 +36,10 @@ Este archivo es el punto de entrada específico para Codex. El contexto técnico
 .\gradlew.bat lintDebug
 ```
 
-Estado base verificado el 2026-07-15:
+Estado verificado el 2026-07-16:
 
 - `assembleDebug`: correcto.
-- `testDebugUnitTest`: bloqueado por cuatro construcciones desactualizadas de `SplashScreenViewModelTest`.
-- `lintDebug`: 1 error y 100 advertencias. El error es `CredManMissingDal`.
+- `testDebugUnitTest`: correcto, 283 tests.
+- `lintDebug`: 1 error y 103 advertencias. El error preexistente es `CredManMissingDal`.
 
 Los detalles y los comandos adicionales están en [`docs/ai/development-and-testing.md`](docs/ai/development-and-testing.md).

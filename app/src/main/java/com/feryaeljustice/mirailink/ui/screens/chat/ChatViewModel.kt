@@ -4,11 +4,11 @@
  */
 package com.feryaeljustice.mirailink.ui.screens.chat
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.toMinimalUserInfo
 import com.feryaeljustice.mirailink.data.mappers.ui.toChatMessageViewEntry
 import com.feryaeljustice.mirailink.data.mappers.ui.toMinimalUserInfoViewEntry
+import com.feryaeljustice.mirailink.domain.error.AppError
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreatePrivateChatUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatMessagesUseCase
@@ -19,6 +19,9 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
 import com.feryaeljustice.mirailink.domain.util.Logger
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,7 +47,7 @@ class ChatViewModel(
     private val reportUseCase: ReportUseCase,
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
 
     val chatId: StateFlow<String?>
         field = MutableStateFlow<String?>(null)
@@ -57,6 +60,9 @@ class ChatViewModel(
 
     val receiver: StateFlow<MinimalUserInfoViewEntry?>
         field = MutableStateFlow<MinimalUserInfoViewEntry?>(null)
+
+    val error: StateFlow<UiError?>
+        field = MutableStateFlow<UiError?>(null)
 
     private var pollingJob: Job? = null
 
@@ -73,6 +79,8 @@ class ChatViewModel(
         userIds: List<String>? = null,
         type: CHATTYPE,
     ) {
+        error.value = null
+        setRecoveryAction { initChat(receiverId, name, userIds, type) }
         // Tanto el init private y group chat, sus usecases devuelven el chatId
         viewModelScope.launch {
             when (type) {
@@ -99,7 +107,7 @@ class ChatViewModel(
             chatId.value = result.data
             proceedWithPrivateChatSetup(result.data, receiverId)
         } else if (result is MiraiLinkResult.Error) {
-            logger.d("ChatViewModel", "initPrivateChat error: ${result.message}")
+            showError(result.error) { initChat(receiverId = receiverId, type = CHATTYPE.PRIVATE) }
         }
     }
 
@@ -118,7 +126,7 @@ class ChatViewModel(
             // TODO: Implement group chat setup
             startGroupMessagesPolling("")
         } else if (result is MiraiLinkResult.Error) {
-            logger.d("ChatViewModel", "initGroupChat error: ${result.message}")
+            showError(result.error) { initChat(name = name, userIds = userIds, type = CHATTYPE.GROUP) }
         }
     }
 
@@ -141,8 +149,9 @@ class ChatViewModel(
 
     fun markChatAsRead(chatId: String) {
         viewModelScope.launch {
-            withContext(ioDispatcher) {
-                markChatAsReadUseCase(chatId)
+            when (val result = withContext(ioDispatcher) { markChatAsReadUseCase(chatId) }) {
+                is MiraiLinkResult.Success -> error.value = null
+                is MiraiLinkResult.Error -> showError(result.error) { markChatAsRead(chatId) }
             }
         }
     }
@@ -156,7 +165,7 @@ class ChatViewModel(
         if (result is MiraiLinkResult.Success) {
             sender.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
-            logger.d("ChatViewModel", "getCurrentUserUseCase error: ${result.message}")
+            error.value = result.error.toUiError()
         }
     }
 
@@ -169,7 +178,7 @@ class ChatViewModel(
         if (result is MiraiLinkResult.Success) {
             receiver.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
-            logger.d("ChatViewModel", "setReceiver: ${result.message}")
+            showError(result.error) { initChat(receiverId = receiverId, type = CHATTYPE.PRIVATE) }
         }
     }
 
@@ -204,8 +213,9 @@ class ChatViewModel(
 
             if (result is MiraiLinkResult.Success) {
                 messages.value = result.data.map { it.toChatMessageViewEntry() }
+                error.value = null
             } else if (result is MiraiLinkResult.Error) {
-                logger.d("ChatViewModel", "getMessages: ${result.message}")
+                showError(result.error) { getMessages(userId) }
             }
         }
     }
@@ -233,9 +243,10 @@ class ChatViewModel(
 
             if (result is MiraiLinkResult.Success) {
                 messages.update { it.plus(newMessage) }
+                error.value = null
                 logger.d("ChatViewModel", "Message sent successfully")
             } else if (result is MiraiLinkResult.Error) {
-                logger.d("ChatViewModel", "sendMessage: ${result.message}")
+                showError(result.error) { sendMessage(content) }
             }
         }
     }
@@ -249,12 +260,18 @@ class ChatViewModel(
                 reportUseCase(userId, reason)
             }.also { result ->
                 if (result is MiraiLinkResult.Success) {
+                    error.value = null
                     logger.d("ChatViewModel", "reportUser successfully")
                 } else if (result is MiraiLinkResult.Error) {
-                    logger.d("ChatViewModel", "reportUser error: ${result.message}")
+                    showError(result.error) { reportUser(userId, reason) }
                 }
             }
         }
+    }
+
+    private fun showError(appError: AppError, recovery: () -> Unit) {
+        setRecoveryAction(recovery)
+        error.value = appError.toUiError()
     }
 
     fun resetChatState() {
@@ -262,6 +279,7 @@ class ChatViewModel(
         messages.value = emptyList()
         sender.value = null
         receiver.value = null
+        error.value = null
         stopMessagePolling()
     }
 }

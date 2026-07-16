@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -55,7 +57,7 @@ class CreatePrivateChatUseCaseTest {
     fun `when repository fails to create private chat, return error`() = runTest {
         // Given
         val otherUserId = "otherUserId"
-        val errorResult = MiraiLinkResult.Error("Error creating private chat")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.createPrivateChat(otherUserId) } returns errorResult
 
         // When
@@ -63,10 +65,10 @@ class CreatePrivateChatUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val otherUserId = "otherUserId"
@@ -80,8 +82,8 @@ class CreatePrivateChatUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while creating the private chat",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

@@ -7,9 +7,5 @@ class SendFeedbackUseCase(
     private val repository: FeedbackRepository,
 ) {
     suspend operator fun invoke(feedback: String): MiraiLinkResult<Unit> =
-        try {
-            repository.sendFeedback(feedback)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("Se produjo un error al enviar el feedback", e)
-        }
+        repository.sendFeedback(feedback)
 }

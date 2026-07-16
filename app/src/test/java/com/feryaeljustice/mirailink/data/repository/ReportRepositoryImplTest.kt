@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.ReportRemoteDataSource
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -58,7 +59,7 @@ class ReportRepositoryImplTest : UnitTest() {
             // Given
             val reportedUser = "user123"
             val reason = "Spam"
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { remoteDataSource.reportUser(reportedUser, reason) } returns errorResult
 
             // When

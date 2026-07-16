@@ -38,6 +38,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.user.UserCard
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
@@ -141,10 +142,6 @@ fun ProfileScreen(
                         Toast.LENGTH_SHORT,
                     )
                 }
-
-                is EditProfileUiEvent.ShowError -> {
-                    showToast(context, event.message, Toast.LENGTH_LONG)
-                }
             }
         }
     }
@@ -171,6 +168,12 @@ fun ProfileScreen(
                     },
                 ),
     ) {
+        editState.error?.let { error ->
+            MiraiLinkErrorContent(
+                error = error,
+                onAction = viewModel::performErrorAction,
+            )
+        }
         when (val currentState = state) {
             is ProfileUiState.Success -> {
                 currentState.user?.let { user ->
@@ -312,10 +315,10 @@ fun ProfileScreen(
             }
 
             is ProfileUiState.Error -> {
-                MiraiLinkText(
-                    text = currentState.message,
-                    modifier = Modifier.padding(16.dp),
-                    color = MaterialTheme.colorScheme.error,
+                MiraiLinkErrorContent(
+                    error = currentState.error,
+                    onAction = viewModel::performErrorAction,
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
 

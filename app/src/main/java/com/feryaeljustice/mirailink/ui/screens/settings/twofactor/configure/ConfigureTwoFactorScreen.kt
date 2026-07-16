@@ -33,6 +33,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkCard
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
@@ -45,7 +46,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ConfigureTwoFactorScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit,
-    onShowError: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
@@ -60,7 +60,6 @@ fun ConfigureTwoFactorScreen(
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val actualBackClick by rememberUpdatedState(onBackClick)
-    val actualOnShowError by rememberUpdatedState(onShowError)
 
     val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
 
@@ -77,7 +76,7 @@ fun ConfigureTwoFactorScreen(
 
     val errorMsg by viewModel.errorString.collectAsStateWithLifecycle()
     val showError by remember(errorMsg) {
-        derivedStateOf { errorMsg?.isNotBlank() ?: false }
+        derivedStateOf { errorMsg != null }
     }
 
     val cardTextColor by remember(isTwoFactorEnabled) {
@@ -115,9 +114,6 @@ fun ConfigureTwoFactorScreen(
         )
     }
 
-    if (showError) {
-        actualOnShowError(errorMsg ?: "")
-    }
 
     Column(
         modifier =
@@ -143,6 +139,14 @@ fun ConfigureTwoFactorScreen(
             )
         }
 
+        if (showError) {
+            errorMsg?.let { error ->
+                MiraiLinkErrorContent(
+                    error = error,
+                    onAction = viewModel::performErrorAction,
+                )
+            }
+        }
         Column(
             modifier =
                 Modifier

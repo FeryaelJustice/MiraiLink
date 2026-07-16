@@ -1,7 +1,9 @@
 package com.feryaeljustice.mirailink.ui.screens.photo
 
 import android.net.Uri
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
@@ -55,27 +57,21 @@ class ProfilePictureViewModelTest : KoinTest {
             viewModel.uploadImage(uri)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
-            val result = viewModel.uploadResult.value
-            assert(result is MiraiLinkResult.Success)
-            assert((result as MiraiLinkResult.Success).data == imageUrl)
+            assert(viewModel.uploadSucceeded.value)
+            assert(viewModel.error.value == null)
         }
 
     @Test
     fun `upload image error`() =
         runTest {
             val uri = mockk<Uri>()
-            val errorMessage = "Upload failed"
-
             coEvery { uploadUserPhotoUseCase.invoke(uri) } returns
-                MiraiLinkResult.Error(
-                    errorMessage,
-                )
+                MiraiLinkResult.Error(UnknownError)
 
             viewModel.uploadImage(uri)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
-            val result = viewModel.uploadResult.value
-            assert(result is MiraiLinkResult.Error)
-            assert((result as MiraiLinkResult.Error).message == errorMessage)
+            assert(!viewModel.uploadSucceeded.value)
+            assert(viewModel.error.value == UnknownError.toUiError())
         }
 }

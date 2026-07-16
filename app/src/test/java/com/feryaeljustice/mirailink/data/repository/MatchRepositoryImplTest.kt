@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.MatchRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
@@ -88,7 +89,7 @@ class MatchRepositoryImplTest : UnitTest() {
     fun `getMatches returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { matchRemoteDataSource.getMatches() } returns errorResult
 
             // When
@@ -120,7 +121,7 @@ class MatchRepositoryImplTest : UnitTest() {
     fun `getUnseenMatches returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { matchRemoteDataSource.getUnseenMatches() } returns errorResult
 
             // When
@@ -150,7 +151,7 @@ class MatchRepositoryImplTest : UnitTest() {
         runTest {
             // Given
             val matchIds = listOf("1", "2")
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { matchRemoteDataSource.markMatchAsSeen(matchIds) } returns errorResult
 
             // When

@@ -1,7 +1,9 @@
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
+import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import java.util.concurrent.CancellationException
 
 class ConnectSocketUseCase(
     private val repository: ChatRepository,
@@ -10,7 +12,9 @@ class ConnectSocketUseCase(
         try {
             repository.connectSocket()
             MiraiLinkResult.Success(Unit)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
         } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while connecting to the socket", e)
+            MiraiLinkResult.Error(DataError.Network.UNKNOWN)
         }
 }

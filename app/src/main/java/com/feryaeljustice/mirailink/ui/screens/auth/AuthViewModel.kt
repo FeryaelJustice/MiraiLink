@@ -1,7 +1,10 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.domain.error.AppError
+import com.feryaeljustice.mirailink.domain.error.AuthError
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.core.JwtUtils.extractUserId
 import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
 import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
@@ -14,6 +17,9 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
 import com.feryaeljustice.mirailink.domain.util.isPasswordValid
 import kotlinx.coroutines.CoroutineDispatcher
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +37,7 @@ class AuthViewModel(
     private val credentialHelper: Lazy<CredentialHelper>,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     sealed class AuthUiState {
         object Idle : AuthUiState()
 
@@ -43,10 +49,7 @@ class AuthViewModel(
             val userId: String?,
         ) : AuthUiState()
 
-        data class Error(
-            val message: String,
-            val exception: Throwable? = null,
-        ) : AuthUiState()
+        data class Error(val error: UiError) : AuthUiState()
     }
 
     // Sealed class para representar errores de validación de campos de autenticación.
@@ -135,6 +138,7 @@ class AuthViewModel(
         password: String,
         onSaveSession: (String, String) -> Unit,
     ) {
+        setRecoveryAction { login(email, username, password, onSaveSession) }
         viewModelScope.launch(ioDispatcher) {
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
@@ -158,6 +162,7 @@ class AuthViewModel(
         password: String,
         onSaveSession: (String, String) -> Unit,
     ) {
+        setRecoveryAction { register(username, email, password, onSaveSession) }
         viewModelScope.launch(ioDispatcher) {
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
@@ -169,7 +174,7 @@ class AuthViewModel(
                 )
             } else {
                 withContext(mainDispatcher) {
-                    state.value = AuthUiState.Error("User/Email and Password fields are mandatory")
+                    state.value = AuthUiState.Error(ValidationError.MISSING_REQUIRED_VALUE.toUiError())
                 }
                 return@launch
             }
@@ -195,7 +200,7 @@ class AuthViewModel(
 
                 if (userIdd == null) {
                     withContext(mainDispatcher) {
-                        state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+                        state.value = AuthUiState.Error(UnknownError.toUiError())
                     }
                     return
                 }
@@ -221,12 +226,10 @@ class AuthViewModel(
 
                     is MiraiLinkResult.Error -> {
                         withContext(mainDispatcher) {
+                        configureRecovery(twoFactorResult.error)
                             showTwoFactorLastStepDialog.value = false
                             state.value =
-                                AuthUiState.Error(
-                                    twoFactorResult.message,
-                                    twoFactorResult.exception,
-                                )
+                                AuthUiState.Error(twoFactorResult.error.toUiError())
                         }
                     }
                 }
@@ -234,9 +237,10 @@ class AuthViewModel(
 
             is MiraiLinkResult.Error -> {
                 withContext(mainDispatcher) {
-                    state.value = AuthUiState.Error(result.message, result.exception)
+                configureRecovery(result.error)
+                    state.value = AuthUiState.Error(result.error.toUiError())
                 }
-                onLoginError(result.exception ?: Throwable(result.message))
+                onLoginError(result.error)
             }
         }
     }
@@ -248,7 +252,7 @@ class AuthViewModel(
     ) {
         viewModelScope.launch(mainDispatcher) {
             if (userId == null || token == null) {
-                state.value = AuthUiState.Error("No se pudo extraer el ID del usuario")
+                state.value = AuthUiState.Error(UnknownError.toUiError())
                 return@launch
             }
             state.value = AuthUiState.Success
@@ -264,16 +268,17 @@ class AuthViewModel(
     }
 
     fun confirmTwoFactorDiag(onSaveTheSession: (String, String) -> Unit) {
+        setRecoveryAction { confirmTwoFactorDiag(onSaveTheSession) }
         val userID = userId.value
         if (userID == null) {
             viewModelScope.launch(mainDispatcher) {
-                state.value = AuthUiState.Error("No existe el ID del usuario")
+                state.value = AuthUiState.Error(UnknownError.toUiError())
             }
             return
         }
         if (twoFactorCode.value.isBlank()) {
             viewModelScope.launch(mainDispatcher) {
-                state.value = AuthUiState.Error("El código de dos factores no puede estar vacío")
+                state.value = AuthUiState.Error(ValidationError.MISSING_REQUIRED_VALUE.toUiError())
             }
             return
         }
@@ -290,8 +295,9 @@ class AuthViewModel(
             ) {
                 is MiraiLinkResult.Error -> {
                     withContext(mainDispatcher) {
+                    configureRecovery(twoFactorLoginVerify.error)
                         resetTwoFaDiag()
-                        state.value = AuthUiState.Error(twoFactorLoginVerify.message)
+                        state.value = AuthUiState.Error(twoFactorLoginVerify.error.toUiError())
                     }
                 }
 
@@ -321,6 +327,18 @@ class AuthViewModel(
         }
     }
 
+    private fun configureRecovery(error: AppError) {
+        when (error) {
+            AuthError.INVALID_CREDENTIALS,
+            AuthError.SESSION_EXPIRED,
+            AuthError.VERIFICATION_REQUIRED,
+            AuthError.INVALID_TWO_FACTOR_CODE,
+            AuthError.INVALID_VERIFICATION_CODE,
+            -> setRecoveryAction(::resetScreenVMState)
+            else -> Unit
+        }
+    }
+
     fun resetTwoFaDiag() {
         viewModelScope.launch(mainDispatcher) {
             showTwoFactorLastStepDialog.value = false
@@ -334,8 +352,10 @@ class AuthViewModel(
         analytics.value.logEvent("login_success")
     }
 
-    fun onLoginError(e: Throwable) {
-        crash.value.recordNonFatal(e)
+    fun onLoginError(error: AppError) {
+        crash.value.recordNonFatal(
+            IllegalStateException("Authentication failed: ${error::class.simpleName}"),
+        )
         analytics.value.logEvent("login_error")
     }
 

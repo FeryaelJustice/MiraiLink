@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -50,7 +52,7 @@ class AutologinUseCaseTest {
     @Test
     fun `when repository fails to autologin, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("No session found")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.autologin() } returns errorResult
 
         // When
@@ -58,10 +60,10 @@ class AutologinUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -72,7 +74,7 @@ class AutologinUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("AutologinUseCase error: ", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("AutologinUseCase error: ", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

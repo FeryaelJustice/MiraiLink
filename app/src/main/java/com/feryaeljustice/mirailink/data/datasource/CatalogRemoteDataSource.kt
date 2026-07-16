@@ -3,25 +3,19 @@ package com.feryaeljustice.mirailink.data.datasource
 import com.feryaeljustice.mirailink.data.model.AnimeDto
 import com.feryaeljustice.mirailink.data.model.GameDto
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
+import com.feryaeljustice.mirailink.data.util.safeApiCall
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
 
 class CatalogRemoteDataSource(
     private val api: CatalogApiService,
 ) {
     suspend fun getAnimes(): MiraiLinkResult<List<AnimeDto>> =
-        try {
-            val response = api.getAllAnimes()
-            MiraiLinkResult.Success(response)
-        } catch (e: Throwable) {
-            parseMiraiLinkHttpError(e, "CatalogRemoteDataSource", "getAnimes")
+        safeApiCall {
+            api.getAllAnimes()
         }
 
     suspend fun getGames(): MiraiLinkResult<List<GameDto>> =
-        try {
-            val response = api.getAllGames()
-            MiraiLinkResult.Success(response)
-        } catch (e: Throwable) {
-            parseMiraiLinkHttpError(e, "CatalogRemoteDataSource", "getAnimes")
+        safeApiCall {
+            api.getAllGames()
         }
 }

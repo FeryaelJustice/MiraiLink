@@ -7,9 +7,5 @@ class CreatePrivateChatUseCase(
     private val repository: ChatRepository,
 ) {
     suspend operator fun invoke(otherUserId: String): MiraiLinkResult<String> =
-        try {
-            repository.createPrivateChat(otherUserId)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while creating the private chat", e)
-        }
+        repository.createPrivateChat(otherUserId)
 }

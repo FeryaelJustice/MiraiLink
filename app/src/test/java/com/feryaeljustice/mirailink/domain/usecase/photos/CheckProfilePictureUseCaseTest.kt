@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.photos
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -66,7 +67,7 @@ class CheckProfilePictureUseCaseTest {
     fun `when repository fails, return error`() = runTest {
         // Given
         val userId = "userId"
-        val errorResult = MiraiLinkResult.Error("Error checking profile picture")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.hasProfilePicture(userId) } returns errorResult
 
         // When
@@ -74,10 +75,10 @@ class CheckProfilePictureUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws exception, return error`() = runTest {
         // Given
         val userId = "userId"
@@ -89,7 +90,7 @@ class CheckProfilePictureUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("Error checking profile picture", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("Error checking profile picture", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

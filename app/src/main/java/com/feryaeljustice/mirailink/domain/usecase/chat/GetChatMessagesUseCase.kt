@@ -8,9 +8,5 @@ class GetChatMessagesUseCase(
     private val repository: ChatRepository,
 ) {
     suspend operator fun invoke(userId: String): MiraiLinkResult<List<ChatMessage>> =
-        try {
-            repository.getMessagesWith(userId)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while getting the messages", e)
-        }
+        repository.getMessagesWith(userId)
 }

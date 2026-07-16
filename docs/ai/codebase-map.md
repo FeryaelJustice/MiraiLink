@@ -28,8 +28,8 @@ El inventario se realizó sobre todos los archivos versionados en el commit base
 
 | Source set | Archivos Kotlin | Líneas Kotlin | Anotaciones `@Test` |
 | --- | ---: | ---: | ---: |
-| `app/src/main` | 302 | 14.257 | 0 |
-| `app/src/test` | 86 | 6.775 | 258 |
+| `app/src/main` | 311 | 14.680 | 0 |
+| `app/src/test` | 92 | 7.137 | 283 |
 | `app/src/androidTest` | 18 | 1.662 | 43 |
 | `app/src/screenshotTest` | 1 | 11 | 0 |
 

@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.chat
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -59,7 +61,7 @@ class CreateGroupChatUseCaseTest {
         // Given
         val name = "Test Group"
         val userIds = listOf("user1", "user2")
-        val errorResult = MiraiLinkResult.Error("Error creating group chat")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.createGroupChat(name, userIds) } returns errorResult
 
         // When
@@ -67,10 +69,10 @@ class CreateGroupChatUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val name = "Test Group"
@@ -85,8 +87,8 @@ class CreateGroupChatUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while creating the group chat",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

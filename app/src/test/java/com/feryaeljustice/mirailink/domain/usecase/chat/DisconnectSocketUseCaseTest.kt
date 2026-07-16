@@ -58,9 +58,8 @@ class DisconnectSocketUseCaseTest {
         // Then
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
-            "An error occurred while disconnecting from the socket",
-            (result as MiraiLinkResult.Error).message
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.UNKNOWN,
+            (result as MiraiLinkResult.Error).error,
         )
-        assertEquals(exception, result.exception)
     }
 }

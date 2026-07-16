@@ -7,10 +7,5 @@ class MarkChatAsReadUseCase(
     private val repository: ChatRepository,
 ) {
     suspend operator fun invoke(chatId: String): MiraiLinkResult<Unit> =
-        try {
-            repository.markChatAsRead(chatId)
-            MiraiLinkResult.Success(Unit)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while marking the chat as read", e)
-        }
+        repository.markChatAsRead(chatId)
 }

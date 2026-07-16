@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.users
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -36,7 +37,7 @@ class ConfirmPasswordResetUseCaseTest {
     @Test
     fun `when repository confirms password reset successfully, return success`() = runTest {
         // Given
-        val successResult = MiraiLinkResult.Success("Password reset confirmed")
+        val successResult = MiraiLinkResult.Success(Unit)
         coEvery { repo.confirmPasswordReset(any(), any(), any()) } returns successResult
 
         // When
@@ -50,7 +51,7 @@ class ConfirmPasswordResetUseCaseTest {
     @Test
     fun `when repository fails to confirm password reset, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Invalid token")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.confirmPasswordReset(any(), any(), any()) } returns errorResult
 
         // When
@@ -58,10 +59,10 @@ class ConfirmPasswordResetUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -72,7 +73,7 @@ class ConfirmPasswordResetUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("ConfirmPasswordResetUseCase error", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("ConfirmPasswordResetUseCase error", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

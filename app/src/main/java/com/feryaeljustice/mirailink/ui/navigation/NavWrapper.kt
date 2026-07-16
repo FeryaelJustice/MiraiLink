@@ -366,7 +366,6 @@ fun NavWrapper(
                     ConfigureTwoFactorScreen(
                         miraiLinkSession = miraiLinkSession,
                         onBackClick = { navigator.goBack() },
-                        onShowError = { error -> if (error.isNotBlank()) showSnackbar(error) },
                     )
                 }
             }

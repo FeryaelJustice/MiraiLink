@@ -23,6 +23,6 @@ class CheckAppVersionUseCase(
                 )
             }
 
-            is MiraiLinkResult.Error -> MiraiLinkResult.error(r.message, r.exception)
+            is MiraiLinkResult.Error -> r
         }
 }

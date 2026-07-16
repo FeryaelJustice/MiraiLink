@@ -9,9 +9,5 @@ class RequestVerificationCodeUseCase(
     suspend operator fun invoke(
         userId: String,
         type: String,
-    ) = try {
-        repo.requestVerificationCode(userId, type)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("RequestVerificationCodeUseCase error:", e)
-    }
+    ) = repo.requestVerificationCode(userId, type)
 }

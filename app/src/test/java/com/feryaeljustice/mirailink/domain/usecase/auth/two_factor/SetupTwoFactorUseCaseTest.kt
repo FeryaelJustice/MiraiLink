@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth.two_factor
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.model.auth.TwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -52,7 +54,7 @@ class SetupTwoFactorUseCaseTest {
     @Test
     fun `when repository fails to set up 2FA, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error setting up 2FA")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.setup2FA() } returns errorResult
 
         // When
@@ -60,10 +62,10 @@ class SetupTwoFactorUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -76,8 +78,8 @@ class SetupTwoFactorUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while setting up 2FA",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

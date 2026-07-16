@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import org.koin.androidx.compose.koinViewModel
 
 @Suppress("EffectKeys", "ParamsComparedByRef", "ktlint:standard:function-naming")
@@ -105,7 +106,10 @@ fun AiChatScreen(
             }
 
             is AiChatUiState.Error -> {
-                Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                MiraiLinkErrorContent(
+                    error = state.error,
+                    onAction = viewModel::performErrorAction,
+                )
             }
 
             else -> {}

@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.feedback
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.FeedbackRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -50,7 +52,7 @@ class SendFeedbackUseCaseTest {
     fun `when repository fails to send feedback, return error`() = runTest {
         // Given
         val feedback = "This is a test feedback"
-        val errorResult = MiraiLinkResult.Error("Se produjo un error al enviar el feedback")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.sendFeedback(feedback) } returns errorResult
 
         // When
@@ -58,10 +60,10 @@ class SendFeedbackUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val feedback = "This is a test feedback"
@@ -75,8 +77,8 @@ class SendFeedbackUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "Se produjo un error al enviar el feedback",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

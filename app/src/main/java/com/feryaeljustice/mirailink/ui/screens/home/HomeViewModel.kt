@@ -1,7 +1,5 @@
 package com.feryaeljustice.mirailink.ui.screens.home
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
@@ -10,6 +8,9 @@ import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,7 @@ class HomeViewModel(
     private val dislikeUser: DislikeUserUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     sealed class HomeUiState {
         object Idle : HomeUiState()
 
@@ -36,10 +37,7 @@ class HomeViewModel(
             val currentIndex: Int = 0,
         ) : HomeUiState()
 
-        data class Error(
-            val message: String,
-            val exception: Throwable? = null,
-        ) : HomeUiState()
+        data class Error(val error: UiError) : HomeUiState()
     }
 
     val state: StateFlow<HomeUiState>
@@ -55,6 +53,10 @@ class HomeViewModel(
     internal var lastUndoTime: Long = 0L
 
     init {
+        reload()
+    }
+
+    fun reload() {
         loadCurrentUser()
         loadUsers()
     }
@@ -69,7 +71,8 @@ class HomeViewModel(
             if (result is MiraiLinkResult.Success) {
                 currentUser = result.data.toUserViewEntry()
             } else if (result is MiraiLinkResult.Error) {
-                Log.e("HomeViewModel", "loadCurrentUser: ${result.message}")
+                setRecoveryAction(::reload)
+                state.value = HomeUiState.Error(result.error.toUiError())
             }
         }
     }
@@ -88,7 +91,8 @@ class HomeViewModel(
                 _userQueue.addAll(result.data.map { it.toUserViewEntry() })
                 updateUiState()
             } else if (result is MiraiLinkResult.Error) {
-                state.value = HomeUiState.Error(result.message, result.exception)
+                setRecoveryAction(::loadUsers)
+                state.value = HomeUiState.Error(result.error.toUiError())
             }
         }
     }
@@ -101,12 +105,17 @@ class HomeViewModel(
         val current = _userQueue.firstOrNull() ?: return
 
         viewModelScope.launch {
-            withContext(ioDispatcher) {
-                likeUser(current.id)
+            when (val result = withContext(ioDispatcher) { likeUser(current.id) }) {
+                is MiraiLinkResult.Success -> {
+                    saveToHistory(current)
+                    safeRemoveFirst()
+                    updateUiState()
+                }
+                is MiraiLinkResult.Error -> {
+                    setRecoveryAction(::swipeRight)
+                    state.value = HomeUiState.Error(result.error.toUiError())
+                }
             }
-            saveToHistory(current)
-            safeRemoveFirst()
-            updateUiState()
         }
     }
 
@@ -114,12 +123,17 @@ class HomeViewModel(
         val current = _userQueue.firstOrNull() ?: return
 
         viewModelScope.launch {
-            withContext(ioDispatcher) {
-                dislikeUser(current.id)
+            when (val result = withContext(ioDispatcher) { dislikeUser(current.id) }) {
+                is MiraiLinkResult.Success -> {
+                    saveToHistory(current)
+                    safeRemoveFirst()
+                    updateUiState()
+                }
+                is MiraiLinkResult.Error -> {
+                    setRecoveryAction(::swipeLeft)
+                    state.value = HomeUiState.Error(result.error.toUiError())
+                }
             }
-            saveToHistory(current)
-            safeRemoveFirst()
-            updateUiState()
         }
     }
 

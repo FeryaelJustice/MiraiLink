@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.settings
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import app.cash.turbine.test
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
@@ -68,7 +69,7 @@ class SettingsViewModelTest : KoinTest {
     @Test
     fun `logout failure`() =
         runTest {
-            coEvery { logoutUseCase.invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { logoutUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             var onFinishCalled = false
             viewModel.logout { onFinishCalled = true }
@@ -98,7 +99,7 @@ class SettingsViewModelTest : KoinTest {
     @Test
     fun `delete account failure`() =
         runTest {
-            coEvery { deleteAccountUseCase.invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { deleteAccountUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             var onFinishCalled = false
             viewModel.deleteAccount { onFinishCalled = true }

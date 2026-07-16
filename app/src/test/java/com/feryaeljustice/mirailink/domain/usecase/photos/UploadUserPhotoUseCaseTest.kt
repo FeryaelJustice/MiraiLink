@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.photos
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import android.net.Uri
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -54,7 +55,7 @@ class UploadUserPhotoUseCaseTest {
     fun `when repository fails to upload photo, return error`() = runTest {
         // Given
         val photoUri = mockk<Uri>()
-        val errorResult = MiraiLinkResult.Error("Could not upload photo")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.uploadUserPhoto(photoUri) } returns errorResult
 
         // When
@@ -62,10 +63,10 @@ class UploadUserPhotoUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, use case should return error`() = runTest {
         // Given
         val photoUri = mockk<Uri>()
@@ -77,7 +78,7 @@ class UploadUserPhotoUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("UploadUserPhotoUseCase error", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("UploadUserPhotoUseCase error", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }
