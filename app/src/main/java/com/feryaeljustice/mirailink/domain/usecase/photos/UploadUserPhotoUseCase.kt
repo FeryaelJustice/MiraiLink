@@ -12,9 +12,5 @@ class UploadUserPhotoUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(photo: Uri): MiraiLinkResult<String> =
-        try {
-            repository.uploadUserPhoto(photo)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("UploadUserPhotoUseCase error", e)
-        }
+        repository.uploadUserPhoto(photo)
 }

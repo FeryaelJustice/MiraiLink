@@ -12,9 +12,5 @@ class SendMessageUseCase(
         userId: String,
         message: String,
     ): MiraiLinkResult<Unit> =
-        try {
-            repository.sendMessageTo(userId, message)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while sending the message", e)
-        }
+        repository.sendMessageTo(userId, message)
 }

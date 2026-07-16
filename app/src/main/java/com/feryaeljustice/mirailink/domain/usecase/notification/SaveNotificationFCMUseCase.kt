@@ -12,9 +12,5 @@ class SaveNotificationFCMUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(fcm: String): MiraiLinkResult<Unit> =
-        try {
-            repository.saveUserFCM(fcm = fcm)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("SaveNotificationFCMUseCase error: ", e)
-        }
+        repository.saveUserFCM(fcm = fcm)
 }

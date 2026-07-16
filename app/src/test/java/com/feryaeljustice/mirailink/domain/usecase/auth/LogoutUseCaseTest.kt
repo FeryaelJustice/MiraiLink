@@ -37,7 +37,7 @@ class LogoutUseCaseTest {
     @Test
     fun `when repository logs out successfully, return success`() = runTest {
         // Given
-        coJustRun { repository.logout() }
+        coEvery { repository.logout() } returns MiraiLinkResult.Success(true)
 
         // When
         val result = logoutUseCase()
@@ -46,7 +46,7 @@ class LogoutUseCaseTest {
         assertTrue(result is MiraiLinkResult.Success<*>)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Logout failed")
@@ -57,7 +57,7 @@ class LogoutUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("LogoutUseCase error: ", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("LogoutUseCase error: ", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

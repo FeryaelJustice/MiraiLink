@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -62,7 +64,7 @@ class CheckIsVerifiedUseCaseTest {
     @Test
     fun `when repository fails, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error checking verification")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.checkIsVerified() } returns errorResult
 
         // When
@@ -70,10 +72,10 @@ class CheckIsVerifiedUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -86,8 +88,8 @@ class CheckIsVerifiedUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while checking if the user is verified",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

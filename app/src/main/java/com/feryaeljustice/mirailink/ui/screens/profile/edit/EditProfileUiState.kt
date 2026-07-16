@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.profile.edit
 
 import android.net.Uri
 import com.feryaeljustice.mirailink.domain.enums.TagType
+import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
@@ -18,6 +19,7 @@ data class EditProfileUiState(
     val selectedGames: List<GameViewEntry> = emptyList(),
     val animeCatalog: List<AnimeViewEntry> = emptyList(),
     val gameCatalog: List<GameViewEntry> = emptyList(),
+    val error: UiError? = null,
     val photos: List<PhotoSlotViewEntry> = List(4) { PhotoSlotViewEntry() }, // index = position
     val selectedSlotForDialog: Int? = null, // el slot que ha sido clicado
     val showActionDialog: Boolean = false,
@@ -40,5 +42,4 @@ sealed class EditProfileIntent {
 
 sealed class EditProfileUiEvent {
     object ProfileSavedSuccessfully : EditProfileUiEvent()
-    data class ShowError(val message: String) : EditProfileUiEvent()
 }

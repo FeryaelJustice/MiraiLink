@@ -4,7 +4,6 @@
  */
 package com.feryaeljustice.mirailink.ui.screens.profile
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toAnimeViewEntry
 import com.feryaeljustice.mirailink.data.mappers.ui.toGameViewEntry
@@ -13,6 +12,7 @@ import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
+import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
@@ -21,6 +21,9 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.Logger
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
@@ -46,7 +49,7 @@ class ProfileViewModel(
     private val getGamesUseCase: GetGamesUseCase,
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     sealed class ProfileUiState {
         object Idle : ProfileUiState()
 
@@ -56,10 +59,7 @@ class ProfileViewModel(
             val user: UserViewEntry?,
         ) : ProfileUiState()
 
-        data class Error(
-            val message: String,
-            val exception: Throwable? = null,
-        ) : ProfileUiState()
+        data class Error(val error: UiError) : ProfileUiState()
     }
 
     val state: StateFlow<ProfileUiState>
@@ -77,6 +77,7 @@ class ProfileViewModel(
     }
 
     fun getCurrentUser() {
+        setRecoveryAction(::getCurrentUser)
         viewModelScope.launch {
             state.value = ProfileUiState.Loading
             val result =
@@ -92,10 +93,7 @@ class ProfileViewModel(
                     }
 
                     is MiraiLinkResult.Error ->
-                        ProfileUiState.Error(
-                            result.message,
-                            result.exception,
-                        )
+                        ProfileUiState.Error(result.error.toUiError())
                 }
         }
     }
@@ -138,6 +136,7 @@ class ProfileViewModel(
                 }
 
                 EditProfileIntent.Save -> {
+                    setRecoveryAction { onIntent(EditProfileIntent.Save) }
                     logger.d(
                         "ProfileViewModel",
                         "Save: ${state.nickname} ${state.bio} ${state.selectedAnimes} ${state.selectedGames}",
@@ -152,7 +151,7 @@ class ProfileViewModel(
                         // validación mínima local (opcional)
                         val dateOk = birthdate?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) ?: true
                         if (!dateOk) {
-                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError("Fecha de nacimiento inválida"))
+                            editState.update { it.copy(error = ValidationError.INVALID_INPUT.toUiError()) }
                             return@launch
                         }
 
@@ -186,9 +185,9 @@ class ProfileViewModel(
                         if (result is MiraiLinkResult.Success) {
                             getCurrentUser()
                             _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
-                            editState.update { it.copy(isEditing = false) } // aquí cierras modo edición
+                            editState.update { it.copy(isEditing = false, error = null) }
                         } else if (result is MiraiLinkResult.Error) {
-                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
+                            editState.update { it.copy(error = result.error.toUiError()) }
                         }
                     }
 
@@ -233,6 +232,7 @@ class ProfileViewModel(
                 }
 
                 is EditProfileIntent.RemovePhoto -> {
+                    setRecoveryAction { onIntent(intent) }
                     viewModelScope.launch {
                         val result =
                             withContext(ioDispatcher) {
@@ -244,11 +244,11 @@ class ProfileViewModel(
                             val updatedPhotos = state.photos.toMutableList()
                             updatedPhotos[intent.position] =
                                 PhotoSlotViewEntry(position = intent.position)
-                            editState.update { it.copy(photos = updatedPhotos) }
+                            editState.update { it.copy(photos = updatedPhotos, error = null) }
 
                             getCurrentUser()
                         } else if (result is MiraiLinkResult.Error) {
-                            _editProfUiEvent.emit(EditProfileUiEvent.ShowError(result.message))
+                            editState.update { it.copy(error = result.error.toUiError()) }
                         }
                     }
 
@@ -316,23 +316,34 @@ class ProfileViewModel(
     }
 
     fun loadCatalogIfNeeded() {
-        val state = editState.value
-        if (state.animeCatalog.isNotEmpty() && state.gameCatalog.isNotEmpty()) return
+        val currentState = editState.value
+        if (currentState.animeCatalog.isNotEmpty() && currentState.gameCatalog.isNotEmpty()) return
 
+        setRecoveryAction(::loadCatalogIfNeeded)
         viewModelScope.launch {
+            val animesResult = withContext(ioDispatcher) { getAnimesUseCase() }
             val animes =
-                withContext(ioDispatcher) {
-                    val result = getAnimesUseCase()
-                    if (result is MiraiLinkResult.Success) result.data.map { it.toAnimeViewEntry() } else emptyList()
+                when (animesResult) {
+                    is MiraiLinkResult.Success -> animesResult.data.map { it.toAnimeViewEntry() }
+                    is MiraiLinkResult.Error -> {
+                        editState.update { it.copy(error = animesResult.error.toUiError()) }
+                        return@launch
+                    }
                 }
 
+            val gamesResult = withContext(ioDispatcher) { getGamesUseCase() }
             val games =
-                withContext(ioDispatcher) {
-                    val result = getGamesUseCase()
-                    if (result is MiraiLinkResult.Success) result.data.map { it.toGameViewEntry() } else emptyList()
+                when (gamesResult) {
+                    is MiraiLinkResult.Success -> gamesResult.data.map { it.toGameViewEntry() }
+                    is MiraiLinkResult.Error -> {
+                        editState.update { it.copy(error = gamesResult.error.toUiError()) }
+                        return@launch
+                    }
                 }
 
-            editState.update { it.copy(animeCatalog = animes, gameCatalog = games) }
+            editState.update {
+                it.copy(animeCatalog = animes, gameCatalog = games, error = null)
+            }
         }
     }
 }

@@ -2,8 +2,9 @@ package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.data.model.request.report.ReportUserRequest
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
+import com.feryaeljustice.mirailink.data.util.NetworkOperation
+import com.feryaeljustice.mirailink.data.util.safeApiUnitResponse
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.util.parseMiraiLinkHttpError
 
 class ReportRemoteDataSource(
     private val api: ReportApiService,
@@ -12,11 +13,7 @@ class ReportRemoteDataSource(
         reportedUser: String,
         reason: String,
     ): MiraiLinkResult<Unit> =
-        try {
-            val request = ReportUserRequest(reportedUser, reason)
-            api.reportUser(request)
-            MiraiLinkResult.Success(Unit)
-        } catch (e: Throwable) {
-            parseMiraiLinkHttpError(e, "ReportRemoteDataSource", "reportUser")
+        safeApiUnitResponse(NetworkOperation.AUTHENTICATED) {
+            api.reportUser(ReportUserRequest(reportedUser, reason))
         }
 }

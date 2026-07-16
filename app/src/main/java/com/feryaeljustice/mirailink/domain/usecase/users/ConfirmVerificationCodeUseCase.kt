@@ -10,9 +10,5 @@ class ConfirmVerificationCodeUseCase(
         userId: String,
         token: String,
         type: String,
-    ) = try {
-        repo.confirmVerificationCode(userId, token, type)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("ConfirmVerificationCodeUseCase error", e)
-    }
+    ) = repo.confirmVerificationCode(userId, token, type)
 }

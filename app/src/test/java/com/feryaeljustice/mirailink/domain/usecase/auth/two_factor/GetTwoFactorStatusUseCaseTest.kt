@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth.two_factor
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -66,7 +68,7 @@ class GetTwoFactorStatusUseCaseTest {
     fun `when repository fails to get status, return error`() = runTest {
         // Given
         val userId = "userId"
-        val errorResult = MiraiLinkResult.Error("Error getting 2FA status")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.get2FAStatus(userId) } returns errorResult
 
         // When
@@ -74,10 +76,10 @@ class GetTwoFactorStatusUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val userId = "userId"
@@ -91,8 +93,8 @@ class GetTwoFactorStatusUseCaseTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "An error occurred while getting 2FA status",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

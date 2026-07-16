@@ -2,15 +2,11 @@ package com.feryaeljustice.mirailink.domain.usecase.auth
 
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.asEmptyResult
 
 class LogoutUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<Unit> =
-        try {
-            repository.logout()
-            MiraiLinkResult.Success(Unit)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("LogoutUseCase error: ", e)
-        }
+        repository.logout().asEmptyResult()
 }

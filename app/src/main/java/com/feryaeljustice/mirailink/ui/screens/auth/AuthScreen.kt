@@ -49,6 +49,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -426,7 +427,11 @@ fun AuthScreen(
 
         when (val currentState = state) {
             is AuthUiState.Error -> {
-                MiraiLinkText(text = currentState.message, color = MaterialTheme.colorScheme.error)
+                MiraiLinkErrorContent(
+                    error = currentState.error,
+                    onAction = viewModel::performErrorAction,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
             is AuthUiState.Loading -> {

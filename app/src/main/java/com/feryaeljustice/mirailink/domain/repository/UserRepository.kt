@@ -27,24 +27,24 @@ interface UserRepository {
 
     suspend fun checkIsVerified(): MiraiLinkResult<Boolean>
 
-    suspend fun requestPasswordReset(email: String): MiraiLinkResult<String>
+    suspend fun requestPasswordReset(email: String): MiraiLinkResult<Unit>
 
     suspend fun confirmPasswordReset(
         email: String,
         token: String,
         newPassword: String,
-    ): MiraiLinkResult<String>
+    ): MiraiLinkResult<Unit>
 
     suspend fun requestVerificationCode(
         userId: String,
         type: String,
-    ): MiraiLinkResult<String>
+    ): MiraiLinkResult<Unit>
 
     suspend fun confirmVerificationCode(
         userId: String,
         token: String,
         type: String,
-    ): MiraiLinkResult<String>
+    ): MiraiLinkResult<Unit>
 
     suspend fun getCurrentUser(): MiraiLinkResult<User>
 

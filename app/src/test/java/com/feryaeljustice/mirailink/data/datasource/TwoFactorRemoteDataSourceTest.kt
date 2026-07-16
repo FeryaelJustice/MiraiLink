@@ -126,7 +126,7 @@ class TwoFactorRemoteDataSourceTest : UnitTest() {
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)
-            assertEquals("Success", (result as MiraiLinkResult.Success).data)
+            assertEquals(Unit, (result as MiraiLinkResult.Success).data)
             coVerify { twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("userId" to userId, "code" to code)) }
         }
 }

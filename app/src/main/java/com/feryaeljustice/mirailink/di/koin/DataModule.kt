@@ -12,6 +12,7 @@ import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datasource.UsersRemoteDataSource
 import com.feryaeljustice.mirailink.data.datastore.MiraiLinkPrefs
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.IoDispatcher
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.PrefsDataStore
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.SessionDataStore
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
@@ -26,7 +27,7 @@ val dataModule =
         single { MiraiLinkPrefs(get(PrefsDataStore)) }
 
         single { AppConfigRemoteDataSource(get()) }
-        single { UserRemoteDataSource(get(), androidContext()) }
+        single { UserRemoteDataSource(get(), androidContext(), get(IoDispatcher)) }
         single { UsersRemoteDataSource(get()) }
         single { TwoFactorRemoteDataSource(get()) }
         single { SwipeRemoteDataSource(get()) }

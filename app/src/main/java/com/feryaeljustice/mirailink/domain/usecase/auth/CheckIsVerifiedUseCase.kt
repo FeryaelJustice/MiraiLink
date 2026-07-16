@@ -7,9 +7,5 @@ class CheckIsVerifiedUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<Boolean> =
-        try {
-            repository.checkIsVerified()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while checking if the user is verified", e)
-        }
+        repository.checkIsVerified()
 }

@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
@@ -70,7 +72,7 @@ class VerificationViewModelTest : KoinTest {
             val userId = "userId"
             coEvery {
                 requestVerificationCodeUseCase.invoke(userId, "email")
-            } returns MiraiLinkResult.Success("Success")
+            } returns MiraiLinkResult.Success(Unit)
 
             viewModel.requestCode(userId)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -86,7 +88,7 @@ class VerificationViewModelTest : KoinTest {
             val token = "token"
             coEvery {
                 confirmVerificationCodeUseCase.invoke(userId, token, "email")
-            } returns MiraiLinkResult.Success("Success")
+            } returns MiraiLinkResult.Success(Unit)
 
             viewModel.onTokenChanged(token)
 
@@ -106,7 +108,7 @@ class VerificationViewModelTest : KoinTest {
             val errorMessage = "Error message"
             coEvery {
                 confirmVerificationCodeUseCase.invoke(userId, token, "email")
-            } returns MiraiLinkResult.Error(errorMessage)
+            } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel.onTokenChanged(token)
 
@@ -115,6 +117,6 @@ class VerificationViewModelTest : KoinTest {
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(!onFinishCalled)
-            assert(viewModel.state.value.error == errorMessage)
+            assert(viewModel.state.value.error == UnknownError.toUiError())
         }
 }

@@ -9,9 +9,5 @@ class DisableTwoFactorUseCase(
     private val repo: TwoFactorRepository,
 ) {
     suspend operator fun invoke(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
-        try {
-            repo.disable2FA(codeOrRecoveryCode)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while disabling 2FA", e)
-        }
+        repo.disable2FA(codeOrRecoveryCode)
 }

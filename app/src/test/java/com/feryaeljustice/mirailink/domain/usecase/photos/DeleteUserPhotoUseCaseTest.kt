@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.photos
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -48,7 +49,7 @@ class DeleteUserPhotoUseCaseTest {
     @Test
     fun `when repository fails to delete photo, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Could not delete photo")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.deleteUserPhoto(any()) } returns errorResult
 
         // When
@@ -56,10 +57,10 @@ class DeleteUserPhotoUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, use case should catch it and return error`() =
         runTest {
             // Given
@@ -71,7 +72,7 @@ class DeleteUserPhotoUseCaseTest {
 
             // Then
             assertTrue(result is MiraiLinkResult.Error)
-            assertEquals("DeleteUserPhotoUseCase error", (result as MiraiLinkResult.Error).message)
-            assertEquals(exception, result.exception)
+            assertEquals("DeleteUserPhotoUseCase error", (result as MiraiLinkResult.Error).error)
+            assertEquals(exception, result.error)
         }
 }

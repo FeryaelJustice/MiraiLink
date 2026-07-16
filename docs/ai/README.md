@@ -33,6 +33,7 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 - [`codebase-map.md`](codebase-map.md): inventario del repositorio, paquetes, pantallas, endpoints, recursos y pruebas.
 - [`runtime-and-integrations.md`](runtime-and-integrations.md): backend, Socket.IO, Firebase, Gemini, FCM, anuncios, credenciales y deep links.
 - [`development-and-testing.md`](development-and-testing.md): configuración local, comandos, estrategia de pruebas y estado de validación.
+- [`error-handling.md`](error-handling.md): contrato tipado, taxonomía, clasificación, métodos, recursos, reintentos y guía de extensión.
 - [`security-and-risks.md`](security-and-risks.md): riesgos priorizados, deuda técnica y hallazgos de lint.
 - [`ai-context-audit.md`](ai-context-audit.md): evaluación del README y de los archivos de contexto AI existentes.
 - [`/CODEX.md`](../../CODEX.md): instrucciones de entrada específicas para Codex.
@@ -43,7 +44,7 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 | --- | --- |
 | Orientación general | Este archivo y `codebase-map.md` |
 | Nueva funcionalidad | `architecture.md` y el paquete análogo más cercano |
-| API o autenticación | `runtime-and-integrations.md` y `security-and-risks.md` |
+| API, autenticación o errores | `error-handling.md`, `runtime-and-integrations.md` y `security-and-risks.md` |
 | UI o navegación | `architecture.md`, sección de navegación, y `ui/navigation` |
 | Chat | `runtime-and-integrations.md`, sección de mensajería |
 | Firebase, Ads o consentimiento | `runtime-and-integrations.md` y `security-and-risks.md` |
@@ -53,8 +54,8 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 ## Estado de salud resumido
 
 - El APK debug se ensambla correctamente.
-- Los tests unitarios no compilan por una prueba de Splash desactualizada.
-- Lint falla con un error de Credential Manager y reporta 100 advertencias.
+- Los 283 tests unitarios pasan tras migrar Splash y el tratamiento tipado de errores.
+- Lint falla con un error preexistente de Credential Manager y reporta 103 advertencias; el sistema de errores nuevo no añade incidencias.
 - Hay riesgos de seguridad que deben tratarse antes de una publicación: materiales sensibles versionados, App Check de debug instalado sin condición, tokens en logs y tráfico claro permitido globalmente.
 - La documentación anterior contiene versiones obsoletas y una instrucción incorrecta para usar Hilt.
 

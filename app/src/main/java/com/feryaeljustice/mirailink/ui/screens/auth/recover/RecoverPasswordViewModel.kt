@@ -1,11 +1,14 @@
 package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -18,13 +21,13 @@ class RecoverPasswordViewModel(
     private val requestResetUseCase: RequestPasswordResetUseCase,
     private val confirmResetUseCase: ConfirmPasswordResetUseCase,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     data class PasswordResetState(
         val step: Int = 1,
         val email: String = "",
         val token: String = "",
         val newPassword: String = "",
-        val error: String? = null,
+        val error: UiError? = null,
     )
 
     val state: StateFlow<PasswordResetState>
@@ -44,8 +47,9 @@ class RecoverPasswordViewModel(
         state.update { it.copy(newPassword = password, error = null) }
     }
 
-    fun requestReset() =
+    fun requestReset(): Job =
         viewModelScope.launch {
+            setRecoveryAction(::requestReset)
             val email = state.value.email
             val result =
                 withContext(ioDispatcher) {
@@ -54,12 +58,13 @@ class RecoverPasswordViewModel(
 
             when (result) {
                 is MiraiLinkResult.Success -> state.update { it.copy(step = 2) }
-                is MiraiLinkResult.Error -> state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = result.error.toUiError()) }
             }
         }
 
-    fun confirmReset(onConfirmed: () -> Unit) =
+    fun confirmReset(onConfirmed: () -> Unit): Job =
         viewModelScope.launch {
+            setRecoveryAction { confirmReset(onConfirmed) }
             val s = state.value
 
             val result =
@@ -73,7 +78,7 @@ class RecoverPasswordViewModel(
                     onConfirmed()
                 }
 
-                is MiraiLinkResult.Error -> state.update { it.copy(error = result.message) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = result.error.toUiError()) }
             }
         }
 

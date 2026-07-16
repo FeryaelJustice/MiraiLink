@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
@@ -39,6 +40,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -63,6 +65,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val error by viewModel.error.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -141,6 +144,12 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        error?.let { currentError ->
+            MiraiLinkErrorContent(
+                error = currentError,
+                onAction = viewModel::performErrorAction,
+            )
+        }
         Image(
             painter = painterResource(id = R.drawable.logomirailink),
             contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),

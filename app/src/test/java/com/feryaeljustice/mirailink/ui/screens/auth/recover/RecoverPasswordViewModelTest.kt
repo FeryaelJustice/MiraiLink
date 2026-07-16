@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth.recover
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -53,7 +55,7 @@ class RecoverPasswordViewModelTest : KoinTest {
             val email = "test@test.com"
             coEvery {
                 requestPasswordResetUseCase.invoke(email)
-            } returns MiraiLinkResult.Success("token")
+            } returns MiraiLinkResult.Success(Unit)
 
             viewModel.onEmailChanged(email)
             viewModel.requestReset()
@@ -70,14 +72,14 @@ class RecoverPasswordViewModelTest : KoinTest {
             val errorMessage = "Error message"
             coEvery {
                 requestPasswordResetUseCase.invoke(email)
-            } returns MiraiLinkResult.Error(errorMessage)
+            } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel.onEmailChanged(email)
             viewModel.requestReset()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(viewModel.state.value.step == 1)
-            assert(viewModel.state.value.error == errorMessage)
+            assert(viewModel.state.value.error == UnknownError.toUiError())
         }
 
     @Test
@@ -88,7 +90,7 @@ class RecoverPasswordViewModelTest : KoinTest {
             val newPassword = "newPassword"
             coEvery {
                 confirmPasswordResetUseCase.invoke(email, token, newPassword)
-            } returns MiraiLinkResult.Success("Success")
+            } returns MiraiLinkResult.Success(Unit)
 
             viewModel.onEmailChanged(email)
             viewModel.onTokenChanged(token)
@@ -111,7 +113,7 @@ class RecoverPasswordViewModelTest : KoinTest {
             val errorMessage = "Error message"
             coEvery {
                 confirmPasswordResetUseCase.invoke(email, token, newPassword)
-            } returns MiraiLinkResult.Error(errorMessage)
+            } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel.onEmailChanged(email)
             viewModel.onTokenChanged(token)
@@ -122,6 +124,6 @@ class RecoverPasswordViewModelTest : KoinTest {
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(!onConfirmedCalled)
-            assert(viewModel.state.value.error == errorMessage)
+            assert(viewModel.state.value.error == UnknownError.toUiError())
         }
 }

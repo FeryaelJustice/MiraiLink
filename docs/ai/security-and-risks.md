@@ -112,9 +112,8 @@ El interceptor carga todo el response body como String para buscar flags y luego
 
 ## Deuda de calidad
 
-- Unit tests no compilan por el constructor de Splash.
 - Instrumented API tests contienen endpoints antiguos.
-- Lint tiene 1 error y 100 warnings.
+- Lint tiene 1 error preexistente y 103 warnings; las clases nuevas de tratamiento de errores no añaden incidencias.
 - Android lint recibe un ID de regla de ktlint que no conoce.
 - El flag de compilador `-Xexplicit-backing-fields` es redundante.
 - Hay 11 recursos sin uso y 6 bitmaps en una carpeta densityless inadecuada según lint.

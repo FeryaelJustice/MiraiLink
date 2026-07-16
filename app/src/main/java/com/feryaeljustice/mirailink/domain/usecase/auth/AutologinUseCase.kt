@@ -7,9 +7,5 @@ class AutologinUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<String> =
-        try {
-            repository.autologin()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("AutologinUseCase error: ", e)
-        }
+        repository.autologin()
 }

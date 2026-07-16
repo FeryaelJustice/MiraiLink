@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.core.JwtUtils
 import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
 import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
@@ -117,9 +119,7 @@ class AuthViewModelTest : KoinTest {
             val errorMessage = "Invalid credentials"
 
             coEvery { loginUseCase.invoke(email, "", password) } returns
-                MiraiLinkResult.Error(
-                    errorMessage,
-                )
+                MiraiLinkResult.Error(UnknownError)
 
             viewModel.login(email, "", password) { _, _ -> }
 
@@ -127,7 +127,7 @@ class AuthViewModelTest : KoinTest {
 
             val state = viewModel.state.value
             assert(state is AuthViewModel.AuthUiState.Error)
-            assert((state as AuthViewModel.AuthUiState.Error).message == errorMessage)
+            assert((state as AuthViewModel.AuthUiState.Error).error == UnknownError.toUiError())
         }
 
     @Test

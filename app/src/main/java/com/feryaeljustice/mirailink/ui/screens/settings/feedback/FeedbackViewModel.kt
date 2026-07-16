@@ -1,9 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,7 @@ import org.koin.core.annotation.KoinViewModel
 class FeedbackViewModel(
     private val sendFeedbackUseCase: SendFeedbackUseCase,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
 
     val uiState: StateFlow<FeedbackState>
         field = MutableStateFlow<FeedbackState>(FeedbackState())
@@ -26,6 +28,7 @@ class FeedbackViewModel(
     }
 
     fun sendFeedback(onFinish: () -> Unit) {
+        setRecoveryAction { sendFeedback(onFinish) }
         viewModelScope.launch {
             uiState.update { it.copy(loading = true, error = null) }
 
@@ -44,7 +47,7 @@ class FeedbackViewModel(
 
                 is MiraiLinkResult.Error -> {
                     uiState.update {
-                        it.copy(loading = false, error = result.message)
+                        it.copy(loading = false, error = result.error.toUiError())
                     }
                 }
             }
@@ -54,6 +57,6 @@ class FeedbackViewModel(
 
 data class FeedbackState(
     val loading: Boolean = false,
-    val error: String? = null,
+    val error: UiError? = null,
     val feedback: String = "",
 )

@@ -23,7 +23,7 @@ flowchart LR
 
 ### Presentación
 
-`ui` contiene 100 archivos Kotlin:
+`ui` contiene 104 archivos Kotlin:
 
 - Pantallas Compose y ViewModels por flujo funcional.
 - Componentes reutilizables organizados como atoms, molecules y grupos específicos de chat, media, usuario, match, barras y 2FA.
@@ -31,7 +31,7 @@ flowchart LR
 - View entries específicos de presentación.
 - Tema, utilidades Compose y extensiones Android.
 
-Los ViewModels usan principalmente `StateFlow`, `MutableStateFlow`, `viewModelScope`, dispatchers inyectados y `MiraiLinkResult`. No hay una única convención de estado: algunas pantallas usan sealed UI states, Profile usa intents y eventos, y otras exponen varios flujos independientes.
+Los ViewModels usan principalmente `StateFlow`, `MutableStateFlow`, `viewModelScope`, dispatchers inyectados y `MiraiLinkResult`. Los fallos visibles se convierten a `UiError` en el ViewModel y se muestran con una acción propiedad de `RetryableViewModel`; consulta [`error-handling.md`](error-handling.md). Persisten distintos contenedores de estado: sealed UI states, intents en Profile y flujos independientes.
 
 ### Dominio
 
@@ -46,7 +46,7 @@ No es una capa independiente de plataforma. Se encontraron dependencias directas
 
 ### Datos
 
-`data` contiene 91 archivos Kotlin:
+`data` contiene 96 archivos Kotlin:
 
 - 10 interfaces Retrofit, un interceptor y un servicio Socket.IO.
 - 11 datasources, 12 implementaciones de repositorio y mappers DTO a dominio.

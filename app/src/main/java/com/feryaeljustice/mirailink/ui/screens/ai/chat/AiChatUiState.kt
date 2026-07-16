@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.ai.chat
 
+import com.feryaeljustice.mirailink.ui.error.UiError
+
 sealed class AiChatUiState {
     data object Idle : AiChatUiState()
 
@@ -10,6 +12,6 @@ sealed class AiChatUiState {
     ) : AiChatUiState()
 
     data class Error(
-        val message: String,
+        val error: UiError,
     ) : AiChatUiState()
 }

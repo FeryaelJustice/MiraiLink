@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.SwipeRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.UserDto
@@ -72,7 +73,7 @@ class SwipeRepositoryImplTest : UnitTest() {
     fun `getFeed returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { swipeRemoteDataSource.getFeed() } returns errorResult
 
             // When
@@ -102,7 +103,7 @@ class SwipeRepositoryImplTest : UnitTest() {
         runTest {
             // Given
             val userId = "2"
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { swipeRemoteDataSource.likeUser(userId) } returns errorResult
 
             // When
@@ -132,7 +133,7 @@ class SwipeRepositoryImplTest : UnitTest() {
         runTest {
             // Given
             val userId = "2"
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { swipeRemoteDataSource.dislikeUser(userId) } returns errorResult
 
             // When

@@ -10,9 +10,5 @@ class ConfirmPasswordResetUseCase(
         email: String,
         token: String,
         newPassword: String,
-    ) = try {
-        repo.confirmPasswordReset(email, token, newPassword)
-    } catch (e: Exception) {
-        MiraiLinkResult.Error("ConfirmPasswordResetUseCase error", e)
-    }
+    ) = repo.confirmPasswordReset(email, token, newPassword)
 }

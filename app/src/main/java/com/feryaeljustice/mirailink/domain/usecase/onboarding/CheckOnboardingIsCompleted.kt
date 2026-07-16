@@ -11,9 +11,5 @@ class CheckOnboardingIsCompleted(
     private val repository: OnboardingRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<Boolean> =
-        try {
-            repository.checkOnboardingIsCompleted()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("CheckOnboardingIsCompleted error: ", e)
-        }
+        repository.checkOnboardingIsCompleted()
 }

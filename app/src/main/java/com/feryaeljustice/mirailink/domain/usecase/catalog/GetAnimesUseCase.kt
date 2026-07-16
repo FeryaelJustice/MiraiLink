@@ -8,9 +8,5 @@ class GetAnimesUseCase(
     private val repository: CatalogRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<List<Anime>> =
-        try {
-            repository.getAnimes()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while getting the animes", e)
-        }
+        repository.getAnimes()
 }

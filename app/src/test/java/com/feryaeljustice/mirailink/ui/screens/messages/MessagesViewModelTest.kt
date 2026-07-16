@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.ui.screens.messages
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.enums.ChatRole
 import com.feryaeljustice.mirailink.domain.enums.ChatType
 import com.feryaeljustice.mirailink.domain.model.chat.ChatSummary
@@ -95,7 +96,7 @@ class MessagesViewModelTest : KoinTest {
     @Test
     fun `load matches error`() =
         runTest {
-            coEvery { getMatchesUseCase.invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { getMatchesUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel.loadMatches()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -107,7 +108,7 @@ class MessagesViewModelTest : KoinTest {
     @Test
     fun `load chats error`() =
         runTest {
-            coEvery { chatUseCases.getChatsFromUser.invoke() } returns MiraiLinkResult.Error("Error")
+            coEvery { chatUseCases.getChatsFromUser.invoke() } returns MiraiLinkResult.Error(UnknownError)
 
             viewModel.loadChats()
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()

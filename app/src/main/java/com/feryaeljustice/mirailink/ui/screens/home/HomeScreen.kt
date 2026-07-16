@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -96,10 +97,10 @@ fun HomeScreen(
             }
 
             is HomeUiState.Error -> {
-                MiraiLinkText(
-                    text = currentState.message,
-                    modifier = Modifier.padding(16.dp),
-                    color = MaterialTheme.colorScheme.error,
+                MiraiLinkErrorContent(
+                    error = currentState.error,
+                    onAction = viewModel::performErrorAction,
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
 

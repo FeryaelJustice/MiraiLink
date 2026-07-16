@@ -1,6 +1,5 @@
 package com.feryaeljustice.mirailink.ui.screens.messages
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toChatPreviewViewEntry
 import com.feryaeljustice.mirailink.data.mappers.ui.toMatchUserViewEntry
@@ -9,6 +8,9 @@ import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
+import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
+import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +25,7 @@ class MessagesViewModel(
     private val getMatchesUseCase: GetMatchesUseCase,
     private val chatUseCases: ChatUseCases,
     private val ioDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : RetryableViewModel() {
     sealed class MessagesUiState {
         object Idle : MessagesUiState()
 
@@ -34,10 +36,7 @@ class MessagesViewModel(
             val openChats: List<ChatPreviewViewEntry>,
         ) : MessagesUiState()
 
-        data class Error(
-            val message: String,
-            val exception: Throwable? = null,
-        ) : MessagesUiState()
+        data class Error(val error: UiError) : MessagesUiState()
     }
 
     val state: StateFlow<MessagesUiState>
@@ -114,7 +113,8 @@ class MessagesViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    state.value = MessagesUiState.Error(result.message, result.exception)
+                    setRecoveryAction(::loadMatches)
+                    state.value = MessagesUiState.Error(result.error.toUiError())
                 }
             }
         }
@@ -141,7 +141,8 @@ class MessagesViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    state.value = MessagesUiState.Error(result.message, result.exception)
+                    setRecoveryAction(::loadChats)
+                    state.value = MessagesUiState.Error(result.error.toUiError())
                 }
             }
         }

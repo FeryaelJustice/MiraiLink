@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.report
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.ReportRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -48,7 +49,7 @@ class ReportUseCaseTest {
     @Test
     fun `when repository fails to report user, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Could not report user")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.reportUser(any(), any()) } returns errorResult
 
         // When
@@ -56,10 +57,10 @@ class ReportUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -70,7 +71,7 @@ class ReportUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("ReportUseCase error", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("ReportUseCase error", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

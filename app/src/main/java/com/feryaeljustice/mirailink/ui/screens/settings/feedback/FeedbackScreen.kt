@@ -35,6 +35,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -97,10 +98,10 @@ fun FeedbackScreen(
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                uiState.error?.let {
-                    MiraiLinkText(
-                        text = it,
-                        color = MaterialTheme.colorScheme.error,
+                uiState.error?.let { error ->
+                    MiraiLinkErrorContent(
+                        error = error,
+                        onAction = viewModel::performErrorAction,
                     )
                 }
                 val feedbackText = stringResource(R.string.feedback)

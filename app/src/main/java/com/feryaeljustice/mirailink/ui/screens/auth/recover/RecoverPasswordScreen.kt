@@ -29,6 +29,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -125,6 +126,8 @@ fun RecoverPasswordScreen(
             }
         }
 
-        if (uiState.error != null) MiraiLinkText(text = uiState.error!!, color = Color.Red)
+        uiState.error?.let { error ->
+            MiraiLinkErrorContent(error = error, onAction = viewModel::performErrorAction)
+        }
     }
 }

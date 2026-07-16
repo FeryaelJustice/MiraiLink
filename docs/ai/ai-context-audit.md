@@ -25,7 +25,7 @@ No existían `CODEX.md`, `docs/` ni `.codex/context-health/check.json` al comenz
 | AGP | 8.13.0 | 9.3.0 |
 | Gradle | No reflejado con precisión | 9.6.1 |
 | Chat | Tiempo real Socket.IO | UI actual por polling REST, socket sin call sites |
-| Tests | Testing al completo | Unit tests no compilan y lint falla |
+| Tests | Testing al completo | 283 unit tests pasan; lint mantiene un error DAL preexistente |
 | Arquitectura | Clean Architecture estricta | Dependencias cruzadas entre domain, data y UI |
 
 ### Duplicación

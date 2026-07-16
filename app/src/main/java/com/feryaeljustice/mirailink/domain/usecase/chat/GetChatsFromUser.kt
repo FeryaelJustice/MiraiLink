@@ -8,9 +8,5 @@ class GetChatsFromUser(
     private val repository: ChatRepository,
 ) {
     suspend operator fun invoke(): MiraiLinkResult<List<ChatSummary>> =
-        try {
-            repository.getChatsFromUser()
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("An error occurred while getting the chats", e)
-        }
+        repository.getChatsFromUser()
 }

@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.onboarding
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.OnboardingRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -63,7 +64,7 @@ class CheckOnboardingIsCompletedTest {
     @Test
     fun `when repository fails, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error checking onboarding status")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repo.checkOnboardingIsCompleted() } returns errorResult
 
         // When
@@ -71,10 +72,10 @@ class CheckOnboardingIsCompletedTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -87,8 +88,8 @@ class CheckOnboardingIsCompletedTest {
         assertTrue(result is MiraiLinkResult.Error)
         assertEquals(
             "CheckOnboardingIsCompleted error: ",
-            (result as MiraiLinkResult.Error).message
+            (result as MiraiLinkResult.Error).error
         )
-        assertEquals(exception, result.exception)
+        assertEquals(exception, result.error)
     }
 }

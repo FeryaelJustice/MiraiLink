@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.feed
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -66,7 +68,7 @@ class GetFeedUseCaseTest {
     @Test
     fun `when repository fails, return error`() = runTest {
         // Given
-        val errorResult = MiraiLinkResult.Error("Error getting feed")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.getFeed() } returns errorResult
 
         // When
@@ -74,10 +76,10 @@ class GetFeedUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
@@ -88,7 +90,7 @@ class GetFeedUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("GetFeedUseCase error", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("GetFeedUseCase error", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

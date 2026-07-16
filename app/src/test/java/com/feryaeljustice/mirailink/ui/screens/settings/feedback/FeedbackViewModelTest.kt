@@ -1,5 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
@@ -69,9 +71,7 @@ class FeedbackViewModelTest : KoinTest {
             val feedback = "This is a test feedback."
             val errorMessage = "Error message"
             coEvery { sendFeedbackUseCase.invoke(feedback) } returns
-                MiraiLinkResult.Error(
-                    errorMessage,
-                )
+                MiraiLinkResult.Error(UnknownError)
 
             viewModel.updateFeedback(feedback)
 
@@ -81,6 +81,6 @@ class FeedbackViewModelTest : KoinTest {
 
             assert(!onFinishCalled)
             assert(!viewModel.uiState.value.loading)
-            assert(viewModel.uiState.value.error == errorMessage)
+            assert(viewModel.uiState.value.error == UnknownError.toUiError())
         }
 }

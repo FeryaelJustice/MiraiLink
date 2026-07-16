@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.CatalogRemoteDataSource
 import com.feryaeljustice.mirailink.data.model.AnimeDto
@@ -63,7 +64,7 @@ class CatalogRepositoryImplTest : UnitTest() {
     fun `getAnimes returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { remoteDataSource.getAnimes() } returns errorResult
 
             // When
@@ -95,7 +96,7 @@ class CatalogRepositoryImplTest : UnitTest() {
     fun `getGames returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error("An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { remoteDataSource.getGames() } returns errorResult
 
             // When

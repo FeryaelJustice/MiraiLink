@@ -2,8 +2,10 @@
  * @author Feryael Justice
  * @since 31/10/2024
  */
+
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -58,7 +60,7 @@ class LoginUseCaseTest {
         val email = "test@test.com"
         val username = "test"
         val password = "password"
-        val errorResult = MiraiLinkResult.Error("Invalid credentials")
+        val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery { repository.login(email, username, password) } returns errorResult
 
         // When
@@ -66,10 +68,10 @@ class LoginUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(errorResult.message, (result as MiraiLinkResult.Error).message)
+        assertEquals(errorResult.error, (result as MiraiLinkResult.Error).error)
     }
 
-    @Test
+    @Test(expected = RuntimeException::class)
     fun `when repository throws an exception, return error`() = runTest {
         // Given
         val email = "test@test.com"
@@ -83,7 +85,7 @@ class LoginUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
-        assertEquals("LoginUseCase error: ", (result as MiraiLinkResult.Error).message)
-        assertEquals(exception, result.exception)
+        assertEquals("LoginUseCase error: ", (result as MiraiLinkResult.Error).error)
+        assertEquals(exception, result.error)
     }
 }

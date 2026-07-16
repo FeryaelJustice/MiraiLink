@@ -11,9 +11,5 @@ class DeleteUserPhotoUseCase(
     private val repository: UserRepository,
 ) {
     suspend operator fun invoke(position: Int): MiraiLinkResult<Unit> =
-        try {
-            repository.deleteUserPhoto(position)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("DeleteUserPhotoUseCase error", e)
-        }
+        repository.deleteUserPhoto(position)
 }

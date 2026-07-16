@@ -104,13 +104,13 @@ class TwoFactorRepositoryImplTest : UnitTest() {
             val userId = "user1"
             val code = "123456"
             val token = "jwt_token"
-            coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(userId, code) } returns MiraiLinkResult.Success(token)
+            coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(userId, code) } returns MiraiLinkResult.Success(Unit)
 
             // When
             val result = twoFactorRepository.loginVerifyTwoFactorLastStep(userId, code)
 
             // Then
             assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-            assertThat((result as MiraiLinkResult.Success).data).isEqualTo(token)
+            assertThat((result as MiraiLinkResult.Success).data).isEqualTo(Unit)
         }
 }

@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.repository
 
+import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.AppConfigRemoteDataSource
 import com.feryaeljustice.mirailink.domain.model.AppVersionInfo
@@ -63,7 +64,7 @@ class AppConfigRepositoryImplTest : UnitTest() {
     fun `getVersion returns error when remote data source fails`() =
         runTest {
             // Given
-            val errorResult = MiraiLinkResult.Error(message = "An error occurred")
+            val errorResult = MiraiLinkResult.Error(UnknownError)
             coEvery { appConfigRemoteDataSource.getVersion() } returns errorResult
 
             // When

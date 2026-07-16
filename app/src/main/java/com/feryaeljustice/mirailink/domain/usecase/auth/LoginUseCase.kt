@@ -11,9 +11,5 @@ class LoginUseCase(
         username: String,
         password: String,
     ): MiraiLinkResult<String> =
-        try {
-            repository.login(email, username, password)
-        } catch (e: Exception) {
-            MiraiLinkResult.Error("LoginUseCase error: ", e)
-        }
+        repository.login(email, username, password)
 }
