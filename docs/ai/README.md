@@ -33,6 +33,7 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 - [`codebase-map.md`](codebase-map.md): inventario del repositorio, paquetes, pantallas, endpoints, recursos y pruebas.
 - [`runtime-and-integrations.md`](runtime-and-integrations.md): backend, Socket.IO, Firebase, Gemini, FCM, anuncios, credenciales y deep links.
 - [`development-and-testing.md`](development-and-testing.md): configuración local, comandos, estrategia de pruebas y estado de validación.
+- [testing/README.md](testing/README.md): estrategia completa, infraestructura compartida, Compose aislado, exclusiones y fuentes oficiales.
 - [`error-handling.md`](error-handling.md): contrato tipado, taxonomía, clasificación, métodos, recursos, reintentos y guía de extensión.
 - [`security-and-risks.md`](security-and-risks.md): riesgos priorizados, deuda técnica y hallazgos de lint.
 - [`ai-context-audit.md`](ai-context-audit.md): evaluación del README y de los archivos de contexto AI existentes.
@@ -48,13 +49,14 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 | UI o navegación | `architecture.md`, sección de navegación, y `ui/navigation` |
 | Chat | `runtime-and-integrations.md`, sección de mensajería |
 | Firebase, Ads o consentimiento | `runtime-and-integrations.md` y `security-and-risks.md` |
-| Build o pruebas | `development-and-testing.md` |
+| Build o pruebas | `development-and-testing.md` y `testing/README.md` |
 | Actualizar documentación AI | `ai-context-audit.md` |
 
 ## Estado de salud resumido
 
 - El APK debug se ensambla correctamente.
 - Los 283 tests unitarios pasan tras migrar Splash y el tratamiento tipado de errores.
+- La rama de testing amplía el árbol a 325 tests JVM y 58 instrumentados, pero estas adiciones no se han compilado ni ejecutado por instrucción expresa del propietario.
 - Lint falla con un error preexistente de Credential Manager y reporta 103 advertencias; el sistema de errores nuevo no añade incidencias.
 - Hay riesgos de seguridad que deben tratarse antes de una publicación: materiales sensibles versionados, App Check de debug instalado sin condición, tokens en logs y tráfico claro permitido globalmente.
 - La documentación anterior contiene versiones obsoletas y una instrucción incorrecta para usar Hilt.

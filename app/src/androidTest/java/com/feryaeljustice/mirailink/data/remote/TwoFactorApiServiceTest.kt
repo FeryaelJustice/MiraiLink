@@ -75,7 +75,7 @@ class TwoFactorApiServiceTest : KoinTest {
             assertThat(result).isNotNull()
             assertThat(result.enabled).isTrue()
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/2fa/status")
+            assertThat(request.path).isEqualTo("/auth/2fa/status")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -94,7 +94,7 @@ class TwoFactorApiServiceTest : KoinTest {
             assertThat(result).isNotNull()
             assertThat(result.otpAuthUrl).isEqualTo("otpauth_url")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/2fa/setup")
+            assertThat(request.path).isEqualTo("/auth/2fa/setup")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -112,7 +112,7 @@ class TwoFactorApiServiceTest : KoinTest {
             // Then
             assertThat(response.isSuccessful).isTrue()
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/2fa/verify")
+            assertThat(request.path).isEqualTo("/auth/2fa/verify")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -130,7 +130,7 @@ class TwoFactorApiServiceTest : KoinTest {
             // Then
             assertThat(response.isSuccessful).isTrue()
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/2fa/disable")
+            assertThat(request.path).isEqualTo("/auth/2fa/disable")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -150,7 +150,7 @@ class TwoFactorApiServiceTest : KoinTest {
             assertThat(result).isNotNull()
             assertThat(result.message).isEqualTo("Success")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/2fa/login-verify")
+            assertThat(request.path).isEqualTo("/auth/2fa/loginVerifyLastStep")
             assertThat(request.method).isEqualTo("POST")
         }
 }

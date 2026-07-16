@@ -31,6 +31,16 @@ El inventario se realizó sobre todos los archivos versionados en el commit base
 | `app/src/main` | 311 | 14.680 | 0 |
 | `app/src/test` | 92 | 7.137 | 283 |
 | `app/src/androidTest` | 18 | 1.662 | 43 |
+
+### Ampliación de testing redactada
+
+La rama codex/comprehensive-testing añade código sin cambiar el inventario histórico anterior:
+
+| Source set | Archivos Kotlin actuales | Anotaciones @Test actuales | Estado |
+| --- | ---: | ---: | --- |
+| app/src/test | 105 | 325 | No ejecutado por instrucción |
+| app/src/androidTest | 24 | 58 | No ejecutado por instrucción |
+| app/src/sharedTest | 1 | 0 | No compilado por instrucción |
 | `app/src/screenshotTest` | 1 | 11 | 0 |
 
 `app/src/journeysTest` añade un journey XML mínimo para Kotzilla.
@@ -156,7 +166,7 @@ Las tablas de strings contienen 133 entradas base, 131 inglesas, 131 españolas 
 - `app/src/debug/screenshotTest/reference`: una imagen de referencia versionada.
 - `app/src/journeysTest`: un journey de inicio de app.
 
-Varias pruebas instrumentadas de API esperan rutas antiguas, por ejemplo `/users/login` o `/2fa/status`, mientras los contratos actuales usan `/auth/login` y `/auth/2fa/status`. Deben sincronizarse antes de considerar esa suite una validación del contrato actual.
+Las aserciones instrumentadas de rutas se sincronizaron con los contratos Retrofit actuales para auth, user, 2FA, app config, catálogo y matches.
 
 ## Hotspots por tamaño
 
