@@ -117,7 +117,7 @@ class MatchApiServiceTest : KoinTest {
             assertThat(response).isNotNull()
             assertThat(response.message).isEqualTo("Success")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/matches/seen")
+            assertThat(request.path).isEqualTo("/matches/mark-seen")
             assertThat(request.method).isEqualTo("POST")
         }
 }

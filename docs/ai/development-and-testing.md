@@ -57,7 +57,7 @@ Consulta las tareas disponibles antes de asumir nombres añadidos por plugins:
 
 ## Estado de validación del baseline
 
-Comprobado desde `codex/typed-error-handling` el 2026-07-16.
+Baseline comprobado desde `codex/typed-error-handling` el 2026-07-16. Las adiciones posteriores de `codex/comprehensive-testing` no se ejecutaron ni compilaron por instrucción expresa del propietario.
 
 | Comando | Resultado | Evidencia |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ Comprobado desde `codex/typed-error-handling` el 2026-07-16.
 | `connectedDebugAndroidTest` | No ejecutado | Incluye login, like y swipe contra servicios externos |
 | Android CLI `describe` | Correcto | Detecta variantes debug y release y localiza sus APK |
 
-El código principal y los tests compilan. La suite completa de 283 tests unitarios pasa el 2026-07-16.
+El baseline de código principal y tests compila, y sus 283 tests unitarios pasaron el 2026-07-16. Esto no certifica los tests redactados después en la rama de testing.
 
 ### Resultado de lint
 
@@ -92,7 +92,8 @@ Gradle también advierte que `-Xexplicit-backing-fields` ya es redundante con Ko
 
 ### Unitarias JVM
 
-- 92 archivos Kotlin y 283 métodos `@Test`.
+- Baseline validado: 92 archivos Kotlin y 283 métodos `@Test`.
+- Árbol actual redactado: 105 archivos Kotlin y 325 métodos `@Test`, aún no ejecutados.
 - Cubren mappers, datasources, repositorios, casos de uso y ViewModels.
 - Usan JUnit 4, MockK, coroutines-test, Turbine, Truth, Robolectric y Koin Test.
 - `MainCoroutineRule` sustituye Main dispatcher.
@@ -100,10 +101,13 @@ Gradle también advierte que `-Xexplicit-backing-fields` ya es redundante con Ko
 
 ### Instrumentación
 
-- 18 archivos Kotlin y 43 métodos `@Test`.
+- Baseline validado: 18 archivos Kotlin y 43 métodos `@Test`.
+- Árbol actual redactado: 24 archivos Kotlin y 58 métodos `@Test`, aún no ejecutados.
 - Prueban DataStore cifrado, SessionManager, módulos Koin y servicios Retrofit con MockWebServer.
 - `MiraiLinkTestRunner` fuerza `MiraiLinkApp` como Application.
-- Algunos asserts de rutas API están desactualizados frente a los servicios Retrofit actuales.
+- Las pantallas principales tienen pruebas Compose aisladas con ComponentActivity, dobles controlados y regla v2.
+- La estrategia detallada, el análisis del proyecto de referencia y el catálogo de métodos están en docs/ai/testing.
+- Los asserts de rutas API se sincronizaron estáticamente con los servicios Retrofit actuales; no se ejecutaron.
 
 ### E2E Compose
 

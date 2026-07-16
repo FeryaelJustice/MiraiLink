@@ -83,7 +83,7 @@ class AppConfigApiServiceTest : KoinTest {
             assertThat(response).isNotNull()
             assertThat(response.platform).isEqualTo("android")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("config/android")
+            assertThat(request.path).isEqualTo("/app/version/android")
             assertThat(request.method).isEqualTo("GET")
         }
 }

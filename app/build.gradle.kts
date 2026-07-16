@@ -32,6 +32,14 @@ kotlin {
 android {
     namespace = "com.feryaeljustice.mirailink"
     compileSdk = 37
+    sourceSets {
+        getByName("test") {
+            kotlin.directories += "src/sharedTest/kotlin"
+        }
+        getByName("androidTest") {
+            kotlin.directories += "src/sharedTest/kotlin"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.feryaeljustice.mirailink"
@@ -154,6 +162,7 @@ dependencies {
 
     // Testing - Unit Tests
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)

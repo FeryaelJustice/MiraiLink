@@ -77,7 +77,7 @@ class CatalogApiServiceTest : KoinTest {
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("1")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("catalog/animes")
+            assertThat(request.path).isEqualTo("/catalog/animes")
             assertThat(request.method).isEqualTo("GET")
         }
 
@@ -100,7 +100,7 @@ class CatalogApiServiceTest : KoinTest {
             assertThat(response).hasSize(1)
             assertThat(response[0].id).isEqualTo("1")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("catalog/games")
+            assertThat(request.path).isEqualTo("/catalog/games")
             assertThat(request.method).isEqualTo("GET")
         }
 }

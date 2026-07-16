@@ -42,4 +42,6 @@ Estado verificado el 2026-07-16:
 - `testDebugUnitTest`: correcto, 283 tests.
 - `lintDebug`: 1 error y 103 advertencias. El error preexistente es `CredManMissingDal`.
 
+
+La rama codex/comprehensive-testing redacta 325 tests JVM y 58 instrumentados. No se han compilado ni ejecutado por instrucción expresa; consulta docs/ai/testing/README.md antes de modificarlos.
 Los detalles y los comandos adicionales están en [`docs/ai/development-and-testing.md`](docs/ai/development-and-testing.md).

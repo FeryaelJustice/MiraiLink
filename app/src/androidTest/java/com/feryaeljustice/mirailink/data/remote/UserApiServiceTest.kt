@@ -78,7 +78,7 @@ class UserApiServiceTest : KoinTest {
             assertThat(result).isNotNull()
             assertThat(result.token).isEqualTo("token")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/users/login")
+            assertThat(request.path).isEqualTo("/auth/login")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -99,7 +99,7 @@ class UserApiServiceTest : KoinTest {
             assertThat(result).isNotNull()
             assertThat(result.token).isEqualTo("token")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/users/register")
+            assertThat(request.path).isEqualTo("/auth/register")
             assertThat(request.method).isEqualTo("POST")
         }
 
@@ -132,7 +132,7 @@ class UserApiServiceTest : KoinTest {
             assertThat(response).isNotNull()
             assertThat(response.id).isEqualTo("1")
             val request = mockWebServer.takeRequest()
-            assertThat(request.path).isEqualTo("/users/me")
+            assertThat(request.path).isEqualTo("/user")
             assertThat(request.method).isEqualTo("GET")
         }
 }
