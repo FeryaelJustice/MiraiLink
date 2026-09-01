@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
@@ -53,6 +55,7 @@ fun SettingsScreen(
     goToConfigureTwoFactorScreen: () -> Unit,
     showToast: (String, Int) -> Unit,
     copyToClipBoard: (String) -> Unit,
+    onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
@@ -147,6 +150,17 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        MiraiLinkIconButton(
+            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp, top = 8.dp),
+            onClick = onBackClick,
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_back),
+                contentDescription = stringResource(id = R.string.back),
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,

@@ -331,6 +331,7 @@ fun NavWrapper(
                 entry<AppScreen.AiChatScreen> { _ ->
                     AiChatScreen(
                         miraiLinkSession = miraiLinkSession,
+                        onBackClick = { navigator.goBack() },
                     )
                 }
 
@@ -355,6 +356,7 @@ fun NavWrapper(
                         goToConfigureTwoFactorScreen = { navigator.navigate(AppScreen.ConfigureTwoFactorScreen) },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
+                        onBackClick = { navigator.goBack() }
                     )
                 }
 
