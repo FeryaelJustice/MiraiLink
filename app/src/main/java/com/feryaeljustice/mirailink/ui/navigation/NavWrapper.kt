@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -32,6 +33,7 @@ import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
+import com.feryaeljustice.mirailink.ui.components.demo.DemoModeBanner
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
@@ -75,6 +77,7 @@ fun NavWrapper(
     // Session states
 //    val isAppSessionInitialized by miraiLinkSession.isInitialized.collectAsStateWithLifecycle()
     val isAuthenticated by miraiLinkSession.isAuthenticated.collectAsStateWithLifecycle()
+    val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val topBarConfig by miraiLinkSession.topBarConfig.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsStateWithLifecycle()
@@ -328,6 +331,7 @@ fun NavWrapper(
                 entry<AppScreen.AiChatScreen> { _ ->
                     AiChatScreen(
                         miraiLinkSession = miraiLinkSession,
+                        onBackClick = { navigator.goBack() },
                     )
                 }
 
@@ -352,6 +356,7 @@ fun NavWrapper(
                         goToConfigureTwoFactorScreen = { navigator.navigate(AppScreen.ConfigureTwoFactorScreen) },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
+                        onBackClick = { navigator.goBack() }
                     )
                 }
 
@@ -390,31 +395,36 @@ fun NavWrapper(
              */
             Scaffold(
                 topBar = {
-                    if (topBarConfig.showTopBar) {
-                        val isAuthUi =
-                            navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
-                        MiraiLinkTopBar(
-                            darkTheme = darkTheme,
-                            enabled = !topBarConfig.disableTopBar && isAuthenticated,
-                            isAuthenticated = isAuthenticated,
-                            showSettingsIcon = topBarConfig.showSettingsIcon,
-                            title = topBarConfig.title,
-                            onThemeChange = onThemeChange,
-                            layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
-                            onNavigateHome = {
-                                if (currentKey !is AppScreen.HomeScreen) {
-                                    navigator.resetToTopLevel(
-                                        ScreensSubgraphs.Main,
-                                        AppScreen.HomeScreen,
-                                    )
-                                }
-                            },
-                            onNavigateToSettings = {
-                                if (currentKey !is AppScreen.SettingsScreen) {
-                                    navigator.navigate(AppScreen.SettingsScreen)
-                                }
-                            },
-                        )
+                    Column {
+                        if (topBarConfig.showTopBar) {
+                            val isAuthUi =
+                                navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
+                            MiraiLinkTopBar(
+                                darkTheme = darkTheme,
+                                enabled = !topBarConfig.disableTopBar && isAuthenticated,
+                                isAuthenticated = isAuthenticated,
+                                showSettingsIcon = topBarConfig.showSettingsIcon,
+                                title = topBarConfig.title,
+                                onThemeChange = onThemeChange,
+                                layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
+                                onNavigateHome = {
+                                    if (currentKey !is AppScreen.HomeScreen) {
+                                        navigator.resetToTopLevel(
+                                            ScreensSubgraphs.Main,
+                                            AppScreen.HomeScreen,
+                                        )
+                                    }
+                                },
+                                onNavigateToSettings = {
+                                    if (currentKey !is AppScreen.SettingsScreen) {
+                                        navigator.navigate(AppScreen.SettingsScreen)
+                                    }
+                                },
+                            )
+                        }
+                        if (isAuthenticated && isDemoMode) {
+                            DemoModeBanner(visible = true)
+                        }
                     }
                 },
                 bottomBar = {

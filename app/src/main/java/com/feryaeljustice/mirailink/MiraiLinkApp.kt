@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.di.koin.appModule
 import com.feryaeljustice.mirailink.di.koin.cryptoModule
 import com.feryaeljustice.mirailink.di.koin.dataModule
 import com.feryaeljustice.mirailink.di.koin.dataStoreModule
+import com.feryaeljustice.mirailink.di.koin.demoModule
 import com.feryaeljustice.mirailink.di.koin.dispatchersModule
 import com.feryaeljustice.mirailink.di.koin.featureFlagModule
 import com.feryaeljustice.mirailink.di.koin.loggerModule
@@ -43,6 +44,7 @@ class MiraiLinkApp : Application() {
                 cryptoModule,
                 dataModule,
                 dataStoreModule,
+                demoModule,
                 dispatchersModule,
                 featureFlagModule,
                 loggerModule,
@@ -60,6 +62,7 @@ class MiraiLinkApp : Application() {
             listOf(
                 appModule,
                 dataStoreModule,
+                demoModule,
                 dispatchersModule,
                 repositoryModule,
                 useCaseModule,
@@ -80,9 +83,11 @@ class MiraiLinkApp : Application() {
             )
 
         fun initKoin(config: KoinAppDeclaration? = null) {
-            startKoin {
-                config?.invoke(this)
-                modules(allModules)
+            if (org.koin.core.context.GlobalContext.getOrNull() == null) {
+                startKoin {
+                    config?.invoke(this)
+                    modules(allModules)
+                }
             }
         }
     }

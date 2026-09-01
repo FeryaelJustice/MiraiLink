@@ -169,4 +169,14 @@
     <string name="error_invalid_input">We could not use some details. Review them and try again.</string>
     <string name="error_invalid_media">We could not use this file. Choose another one and try again.</string>
     <string name="error_missing_value">Some required information is missing. Review it and try again.</string>
-    <string name="error_unknown">An unexpected problem occurred. Try again in a moment.</string></resources>
+    <string name="error_unknown">An unexpected problem occurred. Try again in a moment.</string>
+
+    <!-- Offline Demo Mode -->
+    <string name="demo_mode_button">Try Offline Demo Mode</string>
+    <string name="demo_mode_banner_text">Offline Demo Mode: Profiles and chats are simulated and do not connect to real users.</string>
+    <string name="demo_mode_reset_data">Reset demo data</string>
+    <string name="demo_mode_reset_data_done">Demo data reset successfully</string>
+    <string name="demo_mode_exit">Exit demo mode</string>
+    <string name="demo_mode_section_title">Demo Mode Options</string>
+    <string name="demo_mode_active_label">Demo mode active</string>
+</resources>

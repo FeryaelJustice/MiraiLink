@@ -24,9 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
 class AuthViewModel(
     private val loginUseCase: Lazy<LoginUseCase>,
     private val registerUseCase: Lazy<RegisterUseCase>,
@@ -430,5 +428,14 @@ class AuthViewModel(
         }
 
         return isValid
+    }
+
+    fun enterDemoMode(onSaveSession: (userId: String, token: String) -> Unit) {
+        state.value = AuthUiState.Loading
+        viewModelScope.launch(mainDispatcher) {
+            userId.value = "demo_user_id"
+            onSaveSession("demo_user_id", "DEMO_TOKEN")
+            state.value = AuthUiState.Success
+        }
     }
 }

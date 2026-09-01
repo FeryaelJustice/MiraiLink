@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
@@ -90,7 +91,7 @@ fun ChatScreen(
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val sender by viewModel.sender.collectAsStateWithLifecycle()
     val receiver by viewModel.receiver.collectAsStateWithLifecycle()
-    val input = rememberSaveable { mutableStateOf("") }
+    val input = rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
     val error by viewModel.error.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
 
@@ -240,25 +241,26 @@ fun ChatScreen(
                 keyboardActions =
                     KeyboardActions(
                         onSend = {
-                            if (input.value.isNotBlank()) {
-                                viewModel.sendMessage(input.value)
-                                input.value = ""
+                            if (input.value.text.isNotBlank()) {
+                                viewModel.sendMessage(input.value.text)
+                                input.value = TextFieldValue("")
                             }
                         },
                     ),
             )
             Spacer(modifier = Modifier.width(4.dp))
 
-            EmojiPickerButton(onEmojiSelect = { emoji ->
-                input.value += emoji // Añade el emoji al final del mensaje
-            })
+            EmojiPickerButton(
+                textFieldValue = input.value,
+                onTextFieldValueChange = { input.value = it },
+            )
 
             Spacer(modifier = Modifier.width(4.dp))
 
             MiraiLinkIconButton(onClick = {
-                if (input.value.isNotBlank()) {
-                    viewModel.sendMessage(input.value)
-                    input.value = ""
+                if (input.value.text.isNotBlank()) {
+                    viewModel.sendMessage(input.value.text)
+                    input.value = TextFieldValue("")
                 }
             }) {
                 Icon(

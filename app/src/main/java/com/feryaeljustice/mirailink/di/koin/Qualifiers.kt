@@ -17,4 +17,8 @@ object Qualifiers {
     // DataStore
     val PrefsDataStore = named("PrefsDataStore")
     val SessionDataStore = named("SessionDataStore")
+
+    // Repositories
+    val Remote = named("Remote")
+    val Demo = named("Demo")
 }
