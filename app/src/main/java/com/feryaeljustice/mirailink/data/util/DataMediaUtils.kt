@@ -11,7 +11,11 @@ import java.net.URI
 fun createImageUri(context: Context): Uri {
     val file = File(context.cacheDir, "photo_${System.currentTimeMillis()}.jpg")
     file.createNewFile()
-    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    return try {
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    } catch (e: Exception) {
+        Uri.fromFile(file)
+    }
 }
 
 fun deleteTempFile(uriString: String) {

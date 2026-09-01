@@ -130,6 +130,9 @@ fun SettingsScreen(
         )
     }
 
+    val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
+    val resetDemoDoneText = stringResource(R.string.demo_mode_reset_data_done)
+
     Column(
         modifier =
             modifier
@@ -159,34 +162,63 @@ fun SettingsScreen(
                     .padding(8.dp),
         )
         Spacer(modifier = Modifier.weight(0.25f))
-        MiraiLinkButton(onClick = { actualGoToFeedbackScreen() }, content = {
-            MiraiLinkText(
-                text = stringResource(R.string.settings_screen_txt_give_feedback),
-                color = MaterialTheme.colorScheme.onPrimary,
+
+        if (isDemoMode) {
+            MiraiLinkButton(
+                onClick = {
+                    miraiLinkSession.resetDemoData {
+                        showToast(resetDemoDoneText, Toast.LENGTH_SHORT)
+                    }
+                },
+                content = {
+                    MiraiLinkText(
+                        text = stringResource(R.string.demo_mode_reset_data),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                },
             )
-        })
-        Spacer(modifier = Modifier.height(16.dp))
-        MiraiLinkButton(onClick = { actualGoToConfigureTwoFactorScreen() }, content = {
-            MiraiLinkText(
-                text = stringResource(R.string.configure_two_factor),
-                color = MaterialTheme.colorScheme.onPrimary,
+            Spacer(modifier = Modifier.height(16.dp))
+            MiraiLinkButton(
+                onClick = {
+                    miraiLinkSession.clearSession()
+                },
+                content = {
+                    MiraiLinkText(
+                        text = stringResource(R.string.demo_mode_exit),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                },
             )
-        })
-        Spacer(modifier = Modifier.height(16.dp))
-        MiraiLinkButton(onClick = { showLogoutDialog = true }, content = {
-            MiraiLinkText(
-                text = stringResource(R.string.logout),
-                color = MaterialTheme.colorScheme.onPrimary,
+        } else {
+            MiraiLinkButton(onClick = { actualGoToFeedbackScreen() }, content = {
+                MiraiLinkText(
+                    text = stringResource(R.string.settings_screen_txt_give_feedback),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            })
+            Spacer(modifier = Modifier.height(16.dp))
+            MiraiLinkButton(onClick = { actualGoToConfigureTwoFactorScreen() }, content = {
+                MiraiLinkText(
+                    text = stringResource(R.string.configure_two_factor),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            })
+            Spacer(modifier = Modifier.height(16.dp))
+            MiraiLinkButton(onClick = { showLogoutDialog = true }, content = {
+                MiraiLinkText(
+                    text = stringResource(R.string.logout),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            })
+            Spacer(modifier = Modifier.height(16.dp))
+            MiraiLinkTextButton(
+                onClick = { showDeleteDialog = true },
+                text = stringResource(R.string.delete_account),
+                isTransparentBackground = false,
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
             )
-        })
-        Spacer(modifier = Modifier.height(16.dp))
-        MiraiLinkTextButton(
-            onClick = { showDeleteDialog = true },
-            text = stringResource(R.string.delete_account),
-            isTransparentBackground = false,
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError,
-        )
+        }
         Spacer(modifier = Modifier.weight(1.75f))
 
         Row(

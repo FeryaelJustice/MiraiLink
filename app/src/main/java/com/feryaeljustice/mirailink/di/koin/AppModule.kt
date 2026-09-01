@@ -13,7 +13,7 @@ import org.koin.dsl.module
 val appModule =
     module {
         single { GlobalMiraiLinkPrefs(get(), get(ApplicationScope)) }
-        single { GlobalMiraiLinkSession(get(), get(), get(ApplicationScope)) }
+        single { GlobalMiraiLinkSession(get(), get(), get(ApplicationScope), getOrNull()) }
         viewModel { MainViewModel(get()) }
         // Remote Config Manager
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }

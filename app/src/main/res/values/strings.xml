@@ -172,4 +172,14 @@
     <string name="error_invalid_input">No hemos podido usar algunos datos. Revísalos y vuelve a intentarlo.</string>
     <string name="error_invalid_media">No hemos podido usar este archivo. Elige otro y vuelve a intentarlo.</string>
     <string name="error_missing_value">Falta información necesaria para continuar. Revísala y vuelve a intentarlo.</string>
-    <string name="error_unknown">Ha ocurrido un problema inesperado. Reintenta en unos instantes.</string></resources>
+    <string name="error_unknown">Ha ocurrido un problema inesperado. Reintenta en unos instantes.</string>
+
+    <!-- Modo Demostración Offline -->
+    <string name="demo_mode_button">Probar Modo Demostración (Offline)</string>
+    <string name="demo_mode_banner_text">Modo Demostración Offline: Los perfiles y chats son simulados y no conectan con usuarios reales.</string>
+    <string name="demo_mode_reset_data">Restaurar datos de prueba</string>
+    <string name="demo_mode_reset_data_done">Datos de demostración restaurados</string>
+    <string name="demo_mode_exit">Salir del modo demo</string>
+    <string name="demo_mode_section_title">Opciones de Demostración</string>
+    <string name="demo_mode_active_label">Modo demo activo</string>
+</resources>

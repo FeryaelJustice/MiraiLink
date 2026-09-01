@@ -410,6 +410,20 @@ fun AuthScreen(
             },
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        MiraiLinkTextButton(
+            onClick = {
+                viewModel.enterDemoMode { _, _ ->
+                    miraiLinkSession.enterDemoMode()
+                }
+            },
+            text = stringResource(R.string.demo_mode_button),
+            isTransparentBackground = false,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+
         LaunchedEffect(state, onLogin, onRegister) {
             when (val currentState = state) {
                 is AuthUiState.Success -> {

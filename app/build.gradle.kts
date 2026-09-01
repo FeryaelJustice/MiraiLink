@@ -23,10 +23,6 @@ plugins {
 
 kotlin {
     jvmToolchain { languageVersion.set(JavaLanguageVersion.of(17)) }
-
-    compilerOptions {
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
-    }
 }
 
 android {
@@ -204,6 +200,12 @@ dependencies {
     // Proto DataStore
     implementation(libs.androidx.datastore)
 
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    testImplementation(libs.androidx.room.testing)
+
     // Jetpack Security
     implementation(libs.androidx.security.crypto)
 
@@ -261,7 +263,6 @@ dependencies {
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.koin.android.test)
-    ksp(libs.koin.ksp.compiler)
 
     // Kotzilla
     // implementation(libs.kotzilla.sdk)

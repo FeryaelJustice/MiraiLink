@@ -1,6 +1,8 @@
 package com.feryaeljustice.mirailink.state
 
+import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
@@ -22,7 +24,11 @@ class GlobalMiraiLinkSession(
     private val sessionManager: SessionManager,
     private val checkProfilePictureUseCase: CheckProfilePictureUseCase,
     private val appScope: CoroutineScope,
+    private val demoModeManager: DemoModeManager? = null,
 ){
+    val isDemoMode: StateFlow<Boolean> =
+        demoModeManager?.isDemoMode ?: MutableStateFlow(false)
+
     val isAuthenticated: StateFlow<Boolean> =
         sessionManager.isAuthenticatedFlow
             .distinctUntilChanged()
@@ -57,12 +63,37 @@ class GlobalMiraiLinkSession(
     val topBarConfig: StateFlow<TopBarConfig>
         field = MutableStateFlow<TopBarConfig>(TopBarConfig())
 
-    fun clearSession() = appScope.launch { sessionManager.clearSession() }
+    fun clearSession() = appScope.launch {
+        demoModeManager?.disableDemoMode()
+        sessionManager.clearSession()
+    }
 
     fun saveSession(
         token: String,
         userId: String,
     ) = appScope.launch { sessionManager.saveSession(token, userId) }
+
+    fun enterDemoMode(onComplete: (() -> Unit)? = null) {
+        demoModeManager?.enableDemoMode {
+            appScope.launch {
+                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID)
+                sessionManager.saveIsVerified(true)
+                hasProfilePicture.value = true
+                onComplete?.invoke()
+            }
+        } ?: run {
+            appScope.launch {
+                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID)
+                sessionManager.saveIsVerified(true)
+                hasProfilePicture.value = true
+                onComplete?.invoke()
+            }
+        }
+    }
+
+    fun resetDemoData(onComplete: (() -> Unit)? = null) {
+        demoModeManager?.resetDemoData(onComplete)
+    }
 
     fun saveIsVerified(verified: Boolean) = appScope.launch { sessionManager.saveIsVerified(isVerified = verified) }
 
