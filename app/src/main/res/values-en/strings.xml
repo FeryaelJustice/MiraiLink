@@ -108,7 +108,7 @@
     <string name="start">Start</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="is_two_factor_enabled">¿Is multifactor authentication enabled?</string>
+    <string name="is_two_factor_enabled">Is multifactor authentication enabled?</string>
     <string name="setup_two_factor">Configure 2FA</string>
     <string name="enter_code_from_app">Introduce the app code</string>
     <string name="code_placeholder">Code</string>
@@ -129,7 +129,7 @@
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
     <string name="gender_other">Other</string>
-    <string name="gender_presentation">Genre: %1$s</string>
+    <string name="gender_presentation">Gender: %1$s</string>
     <string name="notifications_rationale_title">Don\'t miss a thing!</string>
     <string name="notifications_rationale_text">To receive alerts for new messages and matches on MiraiLink, we need your permission to send notifications. Don\'t worry, you can disable them later in settings!</string>
     <string name="notifications_rationale_btn_confirm">Understood, Continue</string>

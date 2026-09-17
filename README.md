@@ -10,17 +10,21 @@
 </p>
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink" target="_blank">
-    <img src="https://img.shields.io/badge/Google_Play-Descargar_en_Produccion-34A853?style=for-the-badge&logo=googleplay&logoColor=white" alt="Disponible en Google Play" />
-  </a>
+  <b>Español</b> · <a href="README.en.md">English</a>
 </p>
 
 <p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink" target="_blank">
+    <img src="https://img.shields.io/badge/Google_Play-Descargar_en_Produccion-34A853?style=flat-square&logo=googleplay&logoColor=white" alt="Disponible en Google Play" />
+  </a>
   <img src="https://img.shields.io/badge/Platform-Android_8.0+_API_26_a_37-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android Platform" />
   <img src="https://img.shields.io/badge/Kotlin-2.4.10-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.4.10" />
   <img src="https://img.shields.io/badge/Compose_BOM-2026.08.00-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Compose BOM" />
-  <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-FF6F00?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/Navigation-Navigation_3-00ACC1?style=flat-square" alt="Navigation 3" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-FF6F00?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/DI-Koin_4.2.2-FF4081?style=flat-square" alt="Koin DI" />
   <img src="https://img.shields.io/badge/Database-Room_2.8.4-1DE9B6?style=flat-square&logo=sqlite&logoColor=white" alt="Room Database" />
   <img src="https://img.shields.io/badge/Security-Encrypted_DataStore-E91E63?style=flat-square" alt="Encrypted DataStore" />
@@ -300,7 +304,14 @@ MiraiLink/
 │   │   ├── debug/screenshotTest/          # Capturas doradas de referencia para Screenshot Testing
 │   │   └── journeysTest/                  # Pruebas automatizadas de recorridos con Kotzilla
 │   └── build.gradle.kts                   # Configuracion de compilacion y dependencias del modulo
-├── docs/                                  # Documentacion de diseno, auditorias y capturas
+├── docs/                                  # Documentacion de arquitectura, diseno y estandar SDMD
+│   ├── generic_rules.md                   # Reglas transversales de calidad de codigo
+│   ├── mobile_guidelines.md               # Directrices criticas de Mobile (SDMD)
+│   ├── spec_template.md                   # Plantilla canonica de especificacion funcional
+│   ├── plan_template.md                   # Plantilla canonica de plan tecnico
+│   ├── PROMPTS.md                         # Prompts del flujo metodologico SDMD
+│   ├── SDMD.md                            # Guia del estandar Spec-Driven Mobile Development
+│   ├── features/                          # Especificaciones vivas por funcionalidad (Spec-Anchor)
 │   └── screenshots/                       # Galeria de imagenes en alta resolucion para el README
 ├── gradle/
 │   └── libs.versions.toml                 # Version Catalog centralizado
