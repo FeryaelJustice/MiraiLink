@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.util.Locale
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -129,6 +130,12 @@ class ProfileViewModel(
                         bio = user.bio ?: "",
                         gender = user.gender ?: "",
                         birthdate = user.birthdate ?: "",
+                        residenceCountryCode = user.residenceCountryCode ?: "",
+                        residenceCountryName = user.residenceCountryCode?.let { code ->
+                            Locale("", code).getDisplayCountry(Locale.getDefault())
+                        }.orEmpty(),
+                        residenceRegion = user.residenceRegion ?: "",
+                        residenceCity = user.residenceCity ?: "",
                         selectedAnimes = user.animes,
                         selectedGames = user.games,
                         photos = photos,
@@ -147,6 +154,9 @@ class ProfileViewModel(
                         val bio = state.bio
                         val gender = state.gender.ifBlank { null }
                         val birthdate = state.birthdate.ifBlank { null } // "YYYY-MM-DD"
+                        val residenceCountryCode = state.residenceCountryCode.ifBlank { null }
+                        val residenceRegion = state.residenceRegion.ifBlank { null }
+                        val residenceCity = state.residenceCity.ifBlank { null }
 
                         // validación mínima local (opcional)
                         val dateOk = birthdate?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) ?: true
@@ -175,6 +185,9 @@ class ProfileViewModel(
                                     bio = bio,
                                     gender = gender,
                                     birthdate = birthdate,
+                                    residenceCountryCode = residenceCountryCode,
+                                    residenceRegion = residenceRegion,
+                                    residenceCity = residenceCity,
                                     animesJson = animesJson,
                                     gamesJson = gamesJson,
                                     photoUris = photoUris,
@@ -200,6 +213,20 @@ class ProfileViewModel(
                         TextFieldType.BIO -> state.copy(bio = intent.value)
                         TextFieldType.GENDER -> state.copy(gender = intent.value)
                         TextFieldType.BIRTHDATE -> state.copy(birthdate = intent.value)
+                        TextFieldType.RESIDENCE_COUNTRY -> {
+                            val country = Locale.getISOCountries().firstOrNull { code ->
+                                Locale("", code).getDisplayCountry(Locale.getDefault())
+                                    .equals(intent.value.trim(), ignoreCase = true)
+                            }
+                            state.copy(
+                                residenceCountryName = intent.value,
+                                residenceCountryCode = country ?: "",
+                                residenceRegion = "",
+                                residenceCity = "",
+                            )
+                        }
+                        TextFieldType.RESIDENCE_REGION -> state.copy(residenceRegion = intent.value, residenceCity = "")
+                        TextFieldType.RESIDENCE_CITY -> state.copy(residenceCity = intent.value)
                     }
                 }
 

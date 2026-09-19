@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.profile
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -38,8 +39,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
+import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
@@ -155,6 +159,36 @@ fun ProfileScreen(
     LaunchedEffect(editState.isEditing) {
         if (!editState.isEditing) {
             viewModel.cleanupTempPhotos()
+        } else if (
+            editState.residenceCountryCode.isBlank() &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            val locationManager = context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
+            val location = runCatching {
+                locationManager?.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+                    ?: locationManager?.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+            }.getOrNull()
+            if (location != null && Geocoder.isPresent()) {
+                val address = withContext(Dispatchers.IO) {
+                    runCatching {
+                        @Suppress("DEPRECATION")
+                        Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull()
+                    }.getOrNull()
+                }
+                address?.let {
+                    it.countryCode?.let { code ->
+                        val countryName = java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
+                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_COUNTRY, countryName))
+                    }
+                    it.adminArea?.let { region ->
+                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_REGION, region))
+                    }
+                    it.locality?.let { city ->
+                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_CITY, city))
+                    }
+                }
+            }
         }
     }
 

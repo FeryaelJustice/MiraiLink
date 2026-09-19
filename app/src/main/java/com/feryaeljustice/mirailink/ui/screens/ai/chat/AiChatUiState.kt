@@ -15,3 +15,8 @@ sealed class AiChatUiState {
         val error: UiError,
     ) : AiChatUiState()
 }
+
+data class AiChatMessage(
+    val text: String,
+    val isUser: Boolean,
+)

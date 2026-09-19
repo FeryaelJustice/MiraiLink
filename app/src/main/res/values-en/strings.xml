@@ -67,6 +67,12 @@
     <string name="cancel">Cancel</string>
     <string name="specify_reason">Specify the reason</string>
     <string name="feedback">Feedback</string>
+    <string name="feedback_screen_intro">Your experience helps us build a closer and safer community.</string>
+    <string name="feedback_screen_helper">Share an idea, something you liked, or any detail you would improve.</string>
+    <string name="feedback_screen_prompt_title">Where should we start?</string>
+    <string name="feedback_screen_prompt_subtitle">Choose a suggestion or write whatever is on your mind.</string>
+    <string name="feedback_prompt_feature">What feature do you love?</string>
+    <string name="feedback_prompt_improvement">What would you change?</string>
     <string name="feedback_screen_send_feedback">Send feedback</string>
     <string name="feedback_screen_enter_your_feedback">Enter your feedback</string>
     <string name="users_empty_by_now">No more users by now</string>
@@ -85,6 +91,20 @@
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
     <string name="settings_screen_txt_give_feedback">Give us your opinion</string>
+    <string name="settings_screen_title">Your MiraiLink space</string>
+    <string name="settings_screen_subtitle">Personalize your experience and manage your account</string>
+    <string name="settings_section_experience">Experience</string>
+    <string name="settings_section_account">Account and security</string>
+    <string name="settings_section_about">About MiraiLink</string>
+    <string name="settings_faq_subtitle">Answers about privacy, location and matches</string>
+    <string name="settings_demo_subtitle">Local profiles, matches and chats to explore the app</string>
+    <string name="settings_reset_demo_subtitle">Reload the sample profile catalog</string>
+    <string name="settings_exit_demo_subtitle">Return to the main MiraiLink access screen</string>
+    <string name="settings_feedback_subtitle">Tell us what you would improve</string>
+    <string name="settings_two_factor_subtitle">Protect access with a second step</string>
+    <string name="settings_logout_subtitle">Sign out on this device</string>
+    <string name="settings_delete_account_subtitle">Permanently delete your data</string>
+    <string name="settings_privacy_subtitle">Learn how we protect your information</string>
     <string name="delete_account">Delete account</string>
     <string name="delete_account_done">Account deleted</string>
     <string name="feedback_done">Feedback successfully sent</string>
@@ -116,6 +136,10 @@
     <string name="recovery_codes">Recovery codes</string>
     <string name="error">Error</string>
     <string name="disable_two_factor">Disable two factor</string>
+    <string name="activate_two_factor">Enable authentication</string>
+    <string name="close">Close</string>
+    <string name="two_factor_enabled_message">Multifactor authentication is enabled and protects your account.</string>
+    <string name="two_factor_disabled_message">Multifactor authentication is not enabled yet.</string>
     <string name="enter_code_from_app_or_use_recovery_code">Put the code from the auth app. If you don\'t have it, you can use one of the recovery codes</string>
     <string name="complete_login">Complete the login</string>
     <string name="update_required_title">Update required</string>
@@ -140,6 +164,10 @@
     <string name="invalid_email">Invalid email</string>
     <string name="version_app">Version: %1$s</string>
     <string name="ai_chat_screen_title">Mirai Link AI</string>
+    <string name="ai_chat_subtitle">Your copilot for anime, games and new ideas</string>
+    <string name="ai_chat_empty_title">What would you like to discover?</string>
+    <string name="ai_chat_empty_message">Ask me about recommendations, characters, games or anything that sparks your curiosity.</string>
+    <string name="ai_chat_thinking">Mirai Link AI is thinking...</string>
     <string name="ai_chat_open">AI Chat open</string>
     <string name="action_retry">Try again</string>
     <string name="action_sign_in_again">Sign in again</string>
@@ -206,6 +234,9 @@
     <string name="location_permission_rationale_desc">MiraiLink needs location access to calculate search radius and display nearby users. You can choose precise or approximate location.</string>
     <string name="card_traveler_badge">Traveling here</string>
     <string name="card_lives_in">Lives in %1$s</string>
+    <string name="profile_residence_country">Country of residence</string>
+    <string name="profile_residence_region">State or region</string>
+    <string name="profile_residence_city">City</string>
     <string name="card_distance_km">%1$d km away</string>
 
     <!-- Frequently Asked Questions (FAQ) -->

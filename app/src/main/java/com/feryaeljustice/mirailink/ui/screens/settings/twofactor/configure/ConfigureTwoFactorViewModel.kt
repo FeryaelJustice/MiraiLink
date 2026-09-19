@@ -29,6 +29,12 @@ class ConfigureTwoFactorViewModel(
     val showSetupDialog: StateFlow<Boolean>
         field = MutableStateFlow<Boolean>(false)
 
+    val showStatusDialog: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
+
+    val isCheckingStatus: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(true)
+
     val isConfigure2FALoading: StateFlow<Boolean>
         field = MutableStateFlow<Boolean>(false)
 
@@ -154,12 +160,15 @@ class ConfigureTwoFactorViewModel(
                 is MiraiLinkResult.Success -> {
                     isTwoFactorEnabled.value = res.data
                     errorString.value = null
+                    isCheckingStatus.value = false
+                    showStatusDialog.value = true
                 }
 
                 is MiraiLinkResult.Error -> {
                     isTwoFactorEnabled.value = false
                     setRecoveryAction { onlyCheckTwoFacStatusWithIO(userID) }
                     errorString.value = res.error.toUiError()
+                    isCheckingStatus.value = false
                 }
             }
         }
@@ -175,6 +184,15 @@ class ConfigureTwoFactorViewModel(
         recoveryCodes.value = emptyList()
 
         errorString.value = null
+    }
+
+    fun dismissStatusDialog() {
+        showStatusDialog.value = false
+    }
+
+    fun launchActivationFromStatus() {
+        showStatusDialog.value = false
+        launchSetupTwoFactorDialog()
     }
 
     fun dismissDisableTwoFactorDialog() {

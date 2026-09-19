@@ -37,6 +37,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorConten
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -64,6 +65,8 @@ fun ConfigureTwoFactorScreen(
     val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
 
     val showSetupDialog by viewModel.showSetupDialog.collectAsStateWithLifecycle()
+    val showStatusDialog by viewModel.showStatusDialog.collectAsStateWithLifecycle()
+    val isCheckingStatus by viewModel.isCheckingStatus.collectAsStateWithLifecycle()
     val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsStateWithLifecycle()
     val otpUrl by viewModel.otpUrl.collectAsStateWithLifecycle()
     val base32 by viewModel.base32.collectAsStateWithLifecycle()
@@ -83,8 +86,8 @@ fun ConfigureTwoFactorScreen(
         derivedStateOf { if (isTwoFactorEnabled) secondaryColor else errorColor }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.onlyCheckTwoFacStatusWithIO(userID.value)
+    LaunchedEffect(userID.value) {
+        userID.value?.let(viewModel::onlyCheckTwoFacStatusWithIO)
     }
 
     if (showSetupDialog) {
@@ -98,6 +101,18 @@ fun ConfigureTwoFactorScreen(
             onDismiss = viewModel::dismissSetupTwoFactorDialog,
             onConfirm = {
                 viewModel.confirmSetupTwoFactor(userID = userID.value)
+            },
+        )
+    }
+
+    if (showStatusDialog) {
+        TwoFactorStatusDialog(
+            enabled = isTwoFactorEnabled,
+            onDismiss = viewModel::dismissStatusDialog,
+            onEnable = viewModel::launchActivationFromStatus,
+            onDisable = {
+                viewModel.dismissStatusDialog()
+                viewModel.launchDisableTwoFactorDialog()
             },
         )
     }
@@ -139,6 +154,11 @@ fun ConfigureTwoFactorScreen(
             )
         }
 
+        if (isCheckingStatus) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
         if (showError) {
             errorMsg?.let { error ->
                 MiraiLinkErrorContent(
