@@ -57,6 +57,11 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupCompletedDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
+import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -66,19 +71,18 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SettingsScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     goToFeedbackScreen: () -> Unit,
-    goToConfigureTwoFactorScreen: () -> Unit,
     goToFaqScreen: () -> Unit,
     showToast: (String, Int) -> Unit,
     copyToClipBoard: (String) -> Unit,
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
+    twoFactorViewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val actualGoToFeedbackScreen by rememberUpdatedState(goToFeedbackScreen)
-    val actualGoToConfigureTwoFactorScreen by rememberUpdatedState(goToConfigureTwoFactorScreen)
     val actualGoToFaqScreen by rememberUpdatedState(goToFaqScreen)
 
     val draftRadius by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
@@ -95,6 +99,69 @@ fun SettingsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val error by viewModel.error.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val userId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
+    val isTwoFactorEnabled by twoFactorViewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
+    val showTwoFactorStatusDialog by twoFactorViewModel.showStatusDialog.collectAsStateWithLifecycle()
+    val showTwoFactorSetupDialog by twoFactorViewModel.showSetupDialog.collectAsStateWithLifecycle()
+    val showTwoFactorSetupCompletedDialog by twoFactorViewModel.showSetupCompletedDialog.collectAsStateWithLifecycle()
+    val showTwoFactorDisableDialog by twoFactorViewModel.showDisableTwoFactorDialog.collectAsStateWithLifecycle()
+    val twoFactorDisableLoading by twoFactorViewModel.isDisable2FALoading.collectAsStateWithLifecycle()
+    val twoFactorSetupLoading by twoFactorViewModel.isConfigure2FALoading.collectAsStateWithLifecycle()
+    val twoFactorStartingSetup by twoFactorViewModel.isStartingSetup.collectAsStateWithLifecycle()
+    val twoFactorOtpUrl by twoFactorViewModel.otpUrl.collectAsStateWithLifecycle()
+    val twoFactorBase32 by twoFactorViewModel.base32.collectAsStateWithLifecycle()
+    val twoFactorRecoveryCodes by twoFactorViewModel.recoveryCodes.collectAsStateWithLifecycle()
+    val twoFactorSetupCode by twoFactorViewModel.verify2FACode.collectAsStateWithLifecycle()
+    val twoFactorDisableCode by twoFactorViewModel.disable2FACode.collectAsStateWithLifecycle()
+    val twoFactorError by twoFactorViewModel.errorString.collectAsStateWithLifecycle()
+
+    if (showTwoFactorStatusDialog) {
+        TwoFactorStatusDialog(
+            enabled = isTwoFactorEnabled,
+            onDismiss = twoFactorViewModel::dismissStatusDialog,
+            onEnable = twoFactorViewModel::launchActivationFromStatus,
+            onDisable = {
+                twoFactorViewModel.dismissStatusDialog()
+                twoFactorViewModel.launchDisableTwoFactorDialog()
+            },
+        )
+    }
+
+    if (showTwoFactorSetupDialog) {
+        TwoFactorSetupDialog(
+            otpUrl = twoFactorOtpUrl,
+            base32 = twoFactorBase32,
+            recoveryCodes = twoFactorRecoveryCodes,
+            code = twoFactorSetupCode,
+            isLoading = twoFactorSetupLoading || twoFactorStartingSetup,
+            onCodeChange = twoFactorViewModel::onSetupTwoFactorCodeChanged,
+            onDismiss = twoFactorViewModel::dismissSetupTwoFactorDialog,
+            onConfirm = { twoFactorViewModel.confirmSetupTwoFactor(userId) },
+        )
+    }
+
+    if (showTwoFactorSetupCompletedDialog) {
+        TwoFactorSetupCompletedDialog(
+            onDismiss = twoFactorViewModel::dismissSetupCompletedDialog,
+        )
+    }
+
+    if (showTwoFactorDisableDialog) {
+        TwoFactorPutCodeOrRecoveryCDialog(
+            code = twoFactorDisableCode,
+            isLoading = twoFactorDisableLoading,
+            onCodeChange = twoFactorViewModel::onDisableTwoFactorCodeChanged,
+            onDismiss = twoFactorViewModel::dismissDisableTwoFactorDialog,
+            onConfirm = { twoFactorViewModel.confirmDisableTwoFactor(userId) },
+        )
+    }
+
+    twoFactorError?.let { errorMessage ->
+        MiraiLinkErrorContent(
+            error = errorMessage,
+            onAction = twoFactorViewModel::performErrorAction,
+        )
+    }
 
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
@@ -431,7 +498,7 @@ fun SettingsScreen(
                 icon = Icons.Default.Lock,
                 title = stringResource(R.string.configure_two_factor),
                 subtitle = stringResource(R.string.settings_two_factor_subtitle),
-                onClick = { actualGoToConfigureTwoFactorScreen() },
+                onClick = { userId?.let(twoFactorViewModel::onlyCheckTwoFacStatusWithIO) },
             )
             Spacer(modifier = Modifier.height(16.dp))
             SettingsActionCard(

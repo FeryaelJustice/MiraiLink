@@ -68,6 +68,7 @@ fun ConfigureTwoFactorScreen(
     val showStatusDialog by viewModel.showStatusDialog.collectAsStateWithLifecycle()
     val isCheckingStatus by viewModel.isCheckingStatus.collectAsStateWithLifecycle()
     val isConfigure2FADialogLoading by viewModel.isConfigure2FALoading.collectAsStateWithLifecycle()
+    val isStartingSetup by viewModel.isStartingSetup.collectAsStateWithLifecycle()
     val otpUrl by viewModel.otpUrl.collectAsStateWithLifecycle()
     val base32 by viewModel.base32.collectAsStateWithLifecycle()
     val recoveryCodes by viewModel.recoveryCodes.collectAsStateWithLifecycle()
@@ -96,7 +97,7 @@ fun ConfigureTwoFactorScreen(
             base32 = base32,
             recoveryCodes = recoveryCodes,
             code = setupTwoFactorCode,
-            isLoading = isConfigure2FADialogLoading,
+            isLoading = isConfigure2FADialogLoading || isStartingSetup,
             onCodeChange = viewModel::onSetupTwoFactorCodeChanged,
             onDismiss = viewModel::dismissSetupTwoFactorDialog,
             onConfirm = {

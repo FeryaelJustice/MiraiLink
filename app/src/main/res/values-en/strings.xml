@@ -140,6 +140,9 @@
     <string name="close">Close</string>
     <string name="two_factor_enabled_message">Multifactor authentication is enabled and protects your account.</string>
     <string name="two_factor_disabled_message">Multifactor authentication is not enabled yet.</string>
+    <string name="two_factor_setup_completed_title">Authentication enabled</string>
+    <string name="two_factor_setup_completed_message">Your account is now protected with multifactor authentication.</string>
+    <string name="done">Done</string>
     <string name="enter_code_from_app_or_use_recovery_code">Put the code from the auth app. If you don\'t have it, you can use one of the recovery codes</string>
     <string name="complete_login">Complete the login</string>
     <string name="update_required_title">Update required</string>

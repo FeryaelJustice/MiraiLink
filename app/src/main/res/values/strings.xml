@@ -143,6 +143,9 @@
     <string name="close">Cerrar</string>
     <string name="two_factor_enabled_message">La autenticación multifactor está activada y protege tu cuenta.</string>
     <string name="two_factor_disabled_message">La autenticación multifactor no está activada todavía.</string>
+    <string name="two_factor_setup_completed_title">Autenticación activada</string>
+    <string name="two_factor_setup_completed_message">Tu cuenta ya está protegida con autenticación multifactor.</string>
+    <string name="done">Hecho</string>
     <string name="enter_code_from_app_or_use_recovery_code">Pon el código de la app autenticadora. Si no la tienes, pon uno de los códigos de recuperación.</string>
     <string name="complete_login">Completa el inicio de sesión</string>
     <string name="update_required_title">Actualización requerida</string>
