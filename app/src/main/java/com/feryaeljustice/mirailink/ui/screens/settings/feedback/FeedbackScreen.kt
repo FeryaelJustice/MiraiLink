@@ -10,12 +10,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -23,20 +25,30 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Star
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -106,11 +118,12 @@ fun FeedbackScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    MiraiLinkText(
-                        text = stringResource(R.string.feedback),
-                        style = MaterialTheme.typography.headlineMedium,
+                    FeedbackHeader()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    FeedbackPromptCard(
+                        onPromptClick = viewModel::updateFeedback,
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     uiState.error?.let { error ->
                         MiraiLinkErrorContent(
                             error = error,
@@ -126,6 +139,7 @@ fun FeedbackScreen(
                                 .align(Alignment.CenterHorizontally),
                         onValueChange = { viewModel.updateFeedback(it) },
                         label = stringResource(R.string.feedback_screen_enter_your_feedback),
+                        maxLines = 7,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                         keyboardActions =
                             KeyboardActions(
@@ -141,7 +155,13 @@ fun FeedbackScreen(
                                 },
                             ),
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.feedback_screen_helper),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     val feedbackDoneText = stringResource(R.string.feedback_done)
                     MiraiLinkButton(onClick = {
                         if (uiState.feedback.isNotBlank()) {
@@ -157,6 +177,100 @@ fun FeedbackScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FeedbackHeader() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Surface(
+                modifier = Modifier.size(56.dp),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.primary,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(14.dp),
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                MiraiLinkText(
+                    text = stringResource(R.string.feedback),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                MiraiLinkText(
+                    text = stringResource(R.string.feedback_screen_intro),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeedbackPromptCard(onPromptClick: (String) -> Unit) {
+    val featurePrompt = stringResource(R.string.feedback_prompt_feature)
+    val improvementPrompt = stringResource(R.string.feedback_prompt_improvement)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                MiraiLinkText(
+                    text = stringResource(R.string.feedback_screen_prompt_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            MiraiLinkText(
+                text = stringResource(R.string.feedback_screen_prompt_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FeedbackPrompt(
+                icon = Icons.Default.Star,
+                text = featurePrompt,
+                onClick = { onPromptClick(featurePrompt) },
+            )
+            FeedbackPrompt(
+                icon = Icons.Default.Send,
+                text = improvementPrompt,
+                onClick = { onPromptClick(improvementPrompt) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun FeedbackPrompt(icon: ImageVector, text: String, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            MiraiLinkText(text = text, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }

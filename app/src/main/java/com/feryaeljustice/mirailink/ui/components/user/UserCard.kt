@@ -67,6 +67,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
 import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
 import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
+import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
@@ -216,6 +217,16 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    ResidenceSelector(
+                        country = editUiState.residenceCountryName,
+                        region = editUiState.residenceRegion,
+                        city = editUiState.residenceCity,
+                        countryCode = editUiState.residenceCountryCode,
+                        onValueChange = { field, value -> onValueChange?.invoke(field, value) },
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
                     MultiSelectDropdown(
                         label = stringResource(id = R.string.user_card_fav_animes),
@@ -252,7 +263,11 @@ fun UserCard(
                         // Ubicacion y distancia geografica
                         val locationParts = mutableListOf<String>()
                         if (!user.residenceCity.isNullOrBlank()) {
-                            locationParts.add(stringResource(R.string.card_lives_in, user.residenceCity))
+                            val countryName = user.residenceCountryCode?.let { code ->
+                                java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
+                            }
+                            val place = listOfNotNull(user.residenceCity, countryName).joinToString(", ")
+                            locationParts.add(stringResource(R.string.card_lives_in, place))
                         }
                         val formattedDist = com.feryaeljustice.mirailink.domain.util.GeoUtils.formatDistance(user.distanceKm)
                         if (formattedDist != null) {

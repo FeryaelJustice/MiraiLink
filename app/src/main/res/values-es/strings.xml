@@ -68,6 +68,12 @@
     <string name="cancel">Cancelar</string>
     <string name="specify_reason">Especifica el motivo</string>
     <string name="feedback">Feedback</string>
+    <string name="feedback_screen_intro">Tu experiencia nos ayuda a construir una comunidad más cercana y segura.</string>
+    <string name="feedback_screen_helper">Puedes contarnos una idea, algo que te haya gustado o cualquier detalle que mejorarías.</string>
+    <string name="feedback_screen_prompt_title">¿Por dónde empezamos?</string>
+    <string name="feedback_screen_prompt_subtitle">Elige una sugerencia o escribe lo que tengas en mente.</string>
+    <string name="feedback_prompt_feature">¿Qué función te encanta?</string>
+    <string name="feedback_prompt_improvement">¿Qué cambiarías?</string>
     <string name="feedback_screen_send_feedback">Enviar feedback</string>
     <string name="feedback_screen_enter_your_feedback">Introduce tu opinión</string>
     <string name="users_empty_by_now">No hay más usuarios por ahora</string>
@@ -86,6 +92,20 @@
     <string name="gallery">Galería</string>
     <string name="camera">Cámara</string>
     <string name="settings_screen_txt_give_feedback">Danos tu opinión</string>
+    <string name="settings_screen_title">Tu espacio MiraiLink</string>
+    <string name="settings_screen_subtitle">Personaliza tu experiencia y gestiona tu cuenta</string>
+    <string name="settings_section_experience">Experiencia</string>
+    <string name="settings_section_account">Cuenta y seguridad</string>
+    <string name="settings_section_about">Sobre MiraiLink</string>
+    <string name="settings_faq_subtitle">Resuelve dudas sobre privacidad, ubicación y matches</string>
+    <string name="settings_demo_subtitle">Perfiles, matches y conversaciones locales para explorar la app</string>
+    <string name="settings_reset_demo_subtitle">Vuelve a cargar el repertorio de perfiles de prueba</string>
+    <string name="settings_exit_demo_subtitle">Regresa al acceso principal de MiraiLink</string>
+    <string name="settings_feedback_subtitle">Cuéntanos qué mejorarías</string>
+    <string name="settings_two_factor_subtitle">Protege el acceso con un segundo paso</string>
+    <string name="settings_logout_subtitle">Cierra la sesión en este dispositivo</string>
+    <string name="settings_delete_account_subtitle">Elimina definitivamente tus datos</string>
+    <string name="settings_privacy_subtitle">Consulta cómo cuidamos tu información</string>
     <string name="delete_account">Borrar cuenta</string>
     <string name="delete_account_done">Cuenta eliminada</string>
     <string name="feedback_done">Feedback dado correctamente</string>
@@ -117,6 +137,10 @@
     <string name="recovery_codes">Códigos de recuperación</string>
     <string name="error">Error</string>
     <string name="disable_two_factor">Desactivar doble factor</string>
+    <string name="activate_two_factor">Activar autenticación</string>
+    <string name="close">Cerrar</string>
+    <string name="two_factor_enabled_message">La autenticación multifactor está activada y protege tu cuenta.</string>
+    <string name="two_factor_disabled_message">La autenticación multifactor no está activada todavía.</string>
     <string name="enter_code_from_app_or_use_recovery_code">Pon el código de la app autenticadora. Si no la tienes, pon uno de los códigos de recuperación.</string>
     <string name="complete_login">Completa el inicio de sesión</string>
     <string name="update_required_title">Actualización requerida</string>
@@ -141,6 +165,10 @@
     <string name="invalid_email">Email inválido</string>
     <string name="version_app">Version: %1$s</string>
     <string name="ai_chat_screen_title">Mirai Link AI</string>
+    <string name="ai_chat_subtitle">Tu copiloto para anime, juegos y nuevas ideas</string>
+    <string name="ai_chat_empty_title">¿Qué te apetece descubrir?</string>
+    <string name="ai_chat_empty_message">Pregúntame por recomendaciones, personajes, juegos o cualquier tema que te intrigue.</string>
+    <string name="ai_chat_thinking">Mirai Link AI está pensando...</string>
     <string name="ai_chat_open">AI Chat open</string>
     <string name="action_retry">Reintentar</string>
     <string name="action_sign_in_again">Iniciar sesión de nuevo</string>
@@ -207,6 +235,9 @@
     <string name="location_permission_rationale_desc">MiraiLink necesita acceso a tu ubicación para calcular el radio de búsqueda y mostrarte usuarios cercanos. Puedes elegir ubicación precisa o aproximada.</string>
     <string name="card_traveler_badge">De viaje aquí</string>
     <string name="card_lives_in">Vive en %1$s</string>
+    <string name="profile_residence_country">País de residencia</string>
+    <string name="profile_residence_region">Comunidad o región</string>
+    <string name="profile_residence_city">Ciudad</string>
     <string name="card_distance_km">A %1$d km</string>
 
     <!-- Preguntas Frecuentes (FAQ) -->

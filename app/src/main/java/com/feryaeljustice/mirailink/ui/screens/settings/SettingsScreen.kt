@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.settings
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,14 +11,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +42,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,10 +53,8 @@ import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -177,17 +191,22 @@ fun SettingsScreen(
         if (fineGranted || coarseGranted) {
             // Ubicación otorgada (precisa o aproximada)
             try {
-                val locationManager = context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
+                val locationManager =
+                    context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
                 if (locationManager != null) {
-                    val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
-                    val isNetworkEnabled = locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+                    val isGpsEnabled =
+                        locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                    val isNetworkEnabled =
+                        locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 
                     var lastKnown: android.location.Location? = null
                     if (fineGranted && isGpsEnabled) {
-                        lastKnown = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+                        lastKnown =
+                            locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
                     }
                     if (lastKnown == null && (fineGranted || coarseGranted) && isNetworkEnabled) {
-                        lastKnown = locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+                        lastKnown =
+                            locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
                     }
 
                     lastKnown?.let { loc ->
@@ -271,21 +290,51 @@ fun SettingsScreen(
                     } else {
                         Modifier
                     },
-                ).verticalScroll(scrollState),
+                )
+                .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
     ) {
-        MiraiLinkIconButton(
-            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp, top = 8.dp),
-            onClick = onBackClick,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = stringResource(id = R.string.back),
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
+            MiraiLinkIconButton(
+                modifier = Modifier.padding(end = 8.dp),
+                onClick = onBackClick,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_back),
+                    contentDescription = stringResource(id = R.string.back),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                MiraiLinkText(
+                    text = stringResource(R.string.settings_screen_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
+                MiraiLinkText(
+                    text = stringResource(R.string.settings_screen_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .size(24.dp),
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,
@@ -303,6 +352,7 @@ fun SettingsScreen(
         )
         val searchSavedText = stringResource(R.string.search_settings_saved_success)
 
+        SettingsSectionTitle(stringResource(R.string.settings_section_experience))
         // Seccion de Preferencias de Busqueda (Minimapa condicional, Radio, Pais, Viajeros)
         com.feryaeljustice.mirailink.ui.screens.settings.components.SearchSettingsSection(
             radiusKm = draftRadius,
@@ -341,101 +391,79 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Boton de Preguntas Frecuentes (FAQ)
-        MiraiLinkButton(
+        SettingsActionCard(
+            icon = Icons.Default.Info,
+            title = stringResource(R.string.faq_title),
+            subtitle = stringResource(R.string.settings_faq_subtitle),
             onClick = { actualGoToFaqScreen() },
-            content = {
-                MiraiLinkText(
-                    text = stringResource(R.string.faq_title),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isDemoMode) {
-            MiraiLinkButton(
+            SettingsActionCard(
+                icon = Icons.Default.Refresh,
+                title = stringResource(R.string.demo_mode_reset_data),
+                subtitle = stringResource(R.string.settings_reset_demo_subtitle),
                 onClick = {
                     miraiLinkSession.resetDemoData {
                         showToast(resetDemoDoneText, Toast.LENGTH_SHORT)
                     }
                 },
-                content = {
-                    MiraiLinkText(
-                        text = stringResource(R.string.demo_mode_reset_data),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                },
             )
             Spacer(modifier = Modifier.height(16.dp))
-            MiraiLinkButton(
-                onClick = {
-                    miraiLinkSession.clearSession()
-                },
-                content = {
-                    MiraiLinkText(
-                        text = stringResource(R.string.demo_mode_exit),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                },
+            SettingsActionCard(
+                icon = Icons.Default.ExitToApp,
+                title = stringResource(R.string.demo_mode_exit),
+                subtitle = stringResource(R.string.settings_exit_demo_subtitle),
+                onClick = miraiLinkSession::clearSession,
             )
         } else {
-            MiraiLinkButton(onClick = { actualGoToFeedbackScreen() }, content = {
-                MiraiLinkText(
-                    text = stringResource(R.string.settings_screen_txt_give_feedback),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            })
+            SettingsSectionTitle(stringResource(R.string.settings_section_account))
+            SettingsActionCard(
+                icon = Icons.Default.Favorite,
+                title = stringResource(R.string.settings_screen_txt_give_feedback),
+                subtitle = stringResource(R.string.settings_feedback_subtitle),
+                onClick = { actualGoToFeedbackScreen() },
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            MiraiLinkButton(onClick = { actualGoToConfigureTwoFactorScreen() }, content = {
-                MiraiLinkText(
-                    text = stringResource(R.string.configure_two_factor),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            })
+            SettingsActionCard(
+                icon = Icons.Default.Lock,
+                title = stringResource(R.string.configure_two_factor),
+                subtitle = stringResource(R.string.settings_two_factor_subtitle),
+                onClick = { actualGoToConfigureTwoFactorScreen() },
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            MiraiLinkButton(onClick = { showLogoutDialog = true }, content = {
-                MiraiLinkText(
-                    text = stringResource(R.string.logout),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            })
+            SettingsActionCard(
+                icon = Icons.Default.ExitToApp,
+                title = stringResource(R.string.logout),
+                subtitle = stringResource(R.string.settings_logout_subtitle),
+                onClick = { showLogoutDialog = true },
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            MiraiLinkTextButton(
+            SettingsActionCard(
+                icon = Icons.Default.Delete,
+                title = stringResource(R.string.delete_account),
+                subtitle = stringResource(R.string.settings_delete_account_subtitle),
                 onClick = { showDeleteDialog = true },
-                text = stringResource(R.string.delete_account),
-                isTransparentBackground = false,
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
+                destructive = true,
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
 
+        SettingsSectionTitle(stringResource(R.string.settings_section_about))
+        SettingsActionCard(
+            icon = Icons.Default.Lock,
+            title = stringResource(R.string.privacy_policy),
+            subtitle = stringResource(R.string.settings_privacy_subtitle),
+            onLongPress = { copyToClipBoard(deepLinkPrivacyPolicyUrl) },
+            onClick = { uriHandler.openUri(deepLinkPrivacyPolicyUrl) },
+        )
+
         Row(
             modifier =
                 Modifier
-                    .padding(bottom = 24.dp)
-                    .align(Alignment.CenterHorizontally),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            MiraiLinkTextButton(
-                text = stringResource(R.string.privacy_policy),
-                style = MaterialTheme.typography.bodyLarge,
-                onClick = {
-                    uriHandler.openUri(deepLinkPrivacyPolicyUrl)
-                },
-                onLongClick = {
-                    copyToClipBoard(deepLinkPrivacyPolicyUrl)
-                },
-                isTransparentBackground = true,
-            )
-        }
-        Row(
-            modifier =
-                Modifier
-                    .padding(bottom = 24.dp)
+                    .padding(top = 12.dp, bottom = 24.dp)
                     .align(Alignment.CenterHorizontally),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -444,6 +472,82 @@ fun SettingsScreen(
                 text = stringResource(R.string.version_app, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyLarge,
             )
+        }
+    }
+}
+
+@Composable
+private fun SettingsSectionTitle(title: String) {
+    MiraiLinkText(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp, bottom = 8.dp, start = 20.dp),
+    )
+}
+
+@Composable
+private fun SettingsActionCard(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)? = null,
+    destructive: Boolean = false,
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onLongPress = { onLongPress?.invoke() })
+            },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (destructive) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            },
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondaryContainer,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (destructive) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(22.dp),
+                )
+            }
+            Spacer(Modifier.size(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                MiraiLinkText(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    color = if (destructive) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
+                )
+                MiraiLinkText(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (destructive) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

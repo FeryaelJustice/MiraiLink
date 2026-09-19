@@ -50,7 +50,8 @@ fun PhotoCarousel(
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
 
-    val images = photoUrls.ifEmpty { listOf(R.drawable.logomirailink.toString()) }
+    val hasPhotos = photoUrls.isNotEmpty()
+    val images = photoUrls.ifEmpty { listOf("") }
 
     val pagerState = rememberPagerState(pageCount = { images.size })
 //    val pagerIsDragged by pagerState.interactionSource.collectIsDraggedAsState()
@@ -84,12 +85,13 @@ fun PhotoCarousel(
                 Modifier
                     .fillMaxSize(),
         ) { page ->
-            val url = images[page].getFormattedUrl()
+            val photoUrl = images[page]
+            val imageModel = if (photoUrl.isBlank()) R.drawable.logomirailink else photoUrl.getFormattedUrl()
             AsyncImage(
                 model =
                     ImageRequest
                         .Builder(LocalContext.current)
-                        .data(url)
+                        .data(imageModel)
                         .crossfade(true)
                         .placeholder(drawableResId = R.drawable.logomirailink)
                         .build(),
@@ -98,7 +100,7 @@ fun PhotoCarousel(
                         R.string.content_description_photo_carousel_pager_image,
                         page + 1,
                     ),
-                contentScale = ContentScale.Crop,
+                contentScale = if (hasPhotos) ContentScale.Crop else ContentScale.Fit,
                 modifier =
                     Modifier
                         .fillMaxSize()
@@ -111,10 +113,12 @@ fun PhotoCarousel(
                                 val nextPage = (pagerState.currentPage + 1) % images.size
                                 pagerState.animateScrollToPage(nextPage)
                             }
-                        }.pointerInput(url) {
+                        }.pointerInput(photoUrl) {
                             detectTapGestures(
                                 onLongPress = {
-                                    currentLongPressHandler(url)
+                                    if (hasPhotos) {
+                                        currentLongPressHandler(photoUrl)
+                                    }
                                 },
                             )
                         },

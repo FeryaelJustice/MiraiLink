@@ -6,16 +6,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -38,7 +41,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkScreenContent
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
@@ -53,8 +55,9 @@ fun AiChatScreen(
     viewModel: AiChatViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val messages by viewModel.messages.collectAsStateWithLifecycle()
     var prompt by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
-    var response by rememberSaveable { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
@@ -62,36 +65,113 @@ fun AiChatScreen(
         miraiLinkSession.showTopBarSettingsIcon()
     }
 
+    LaunchedEffect(messages.size, uiState) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.lastIndex)
+        }
+    }
+
+    fun submitPrompt() {
+        if (prompt.text.isNotBlank() && uiState !is AiChatUiState.Loading) {
+            viewModel.sendMessage(prompt.text)
+            prompt = TextFieldValue("")
+        }
+    }
+
     Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MiraiLinkIconButton(
-                onClick = onBackClick,
-            ) {
+            MiraiLinkIconButton(onClick = onBackClick) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(id = R.string.back),
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            MiraiLinkText(
-                text = stringResource(id = R.string.ai_chat_screen_title),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 8.dp),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.tertiary,
+            Spacer(Modifier.width(8.dp))
+            Column {
+                MiraiLinkText(
+                    text = stringResource(R.string.ai_chat_screen_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+                Text(
+                    text = stringResource(R.string.ai_chat_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            if (messages.isEmpty()) {
+                item(key = "empty-state") {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        ),
+                    ) {
+                        Column(Modifier.fillMaxWidth().padding(18.dp)) {
+                            Text(
+                                text = stringResource(R.string.ai_chat_empty_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            )
+                            Text(
+                                text = stringResource(R.string.ai_chat_empty_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.padding(top = 6.dp),
+                            )
+                        }
+                    }
+                }
+            } else {
+                itemsIndexed(
+                    items = messages,
+                    key = { index, _ -> index },
+                ) { _, message ->
+                    AiMessageBubble(message = message)
+                }
+            }
+
+            if (uiState is AiChatUiState.Loading) {
+                item(key = "loading") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                        )
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.ai_chat_thinking),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+
+        if (uiState is AiChatUiState.Error) {
+            MiraiLinkErrorContent(
+                error = (uiState as AiChatUiState.Error).error,
+                onAction = viewModel::performErrorAction,
             )
         }
 
@@ -102,81 +182,60 @@ fun AiChatScreen(
             OutlinedTextField(
                 value = prompt,
                 onValueChange = { prompt = it },
-                label = { Text(text = stringResource(id = R.string.chat_screen_send_msg)) },
-                placeholder = { Text(text = stringResource(id = R.string.chat_screen_send_msg)) },
+                label = { Text(stringResource(R.string.chat_screen_send_msg)) },
                 modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions =
-                    KeyboardActions(
-                        onSend = {
-                            if (uiState !is AiChatUiState.Loading && prompt.text.isNotBlank()) {
-                                viewModel.sendMessage(prompt = prompt.text)
-                            }
-                        },
-                    ),
+                maxLines = 3,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { submitPrompt() }),
             )
-            Spacer(modifier = Modifier.width(4.dp))
             EmojiPickerButton(
                 textFieldValue = prompt,
                 onTextFieldValueChange = { prompt = it },
             )
-        }
-
-        Button(
-            onClick = { viewModel.sendMessage(prompt = prompt.text) },
-            enabled = uiState !is AiChatUiState.Loading && prompt.text.isNotBlank(),
-        ) {
-            Text(stringResource(id = R.string.send))
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // El area de respuesta usa MiraiLinkScreenContent para que el spinner
-        // reemplace el contenido de la respuesta con una transicion animada.
-        MiraiLinkScreenContent(
-            isLoading = uiState is AiChatUiState.Loading,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            when (val state = uiState) {
-                is AiChatUiState.Success -> {
-                    response = state.response
-                }
-
-                is AiChatUiState.Error -> {
-                    MiraiLinkErrorContent(
-                        error = state.error,
-                        onAction = viewModel::performErrorAction,
-                    )
-                }
-
-                else -> {}
+            IconButton(
+                onClick = { submitPrompt() },
+                enabled = prompt.text.isNotBlank() && uiState !is AiChatUiState.Loading,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = stringResource(R.string.send),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
+        }
+    }
+}
 
-            response?.let {
-                Card(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(),
-                ) {
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(all = 4.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(top = 4.dp),
-                            text = stringResource(id = R.string.ai_chat_screen_title),
-                            fontStyle = FontStyle.Italic,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = it, modifier = Modifier.padding(16.dp))
-                    }
-                }
-            }
+@Composable
+private fun AiMessageBubble(message: AiChatMessage) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start,
+    ) {
+        Card(
+            shape = RoundedCornerShape(
+                topStart = 18.dp,
+                topEnd = 18.dp,
+                bottomStart = if (message.isUser) 18.dp else 4.dp,
+                bottomEnd = if (message.isUser) 4.dp else 18.dp,
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = if (message.isUser) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+            ),
+        ) {
+            Text(
+                text = message.text,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                color = if (message.isUser) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
         }
     }
 }
