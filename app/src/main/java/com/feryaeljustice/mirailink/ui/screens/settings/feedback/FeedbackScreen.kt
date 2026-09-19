@@ -1,6 +1,12 @@
 package com.feryaeljustice.mirailink.ui.screens.settings.feedback
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,92 +61,100 @@ fun FeedbackScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.loading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
-        Box(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .then(
-                        if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                            Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                        } else {
-                            Modifier
-                        },
-                    ),
-        ) {
-            MiraiLinkIconButton(
-                modifier = Modifier.align(Alignment.TopStart),
-                onClick = {
-                    actualBackClick()
-                },
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(id = R.string.back),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+    AnimatedContent(
+        targetState = uiState.loading,
+        modifier =
+            modifier
+                .fillMaxSize()
+                .then(
+                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
+                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+                    } else {
+                        Modifier
+                    },
+                ),
+        transitionSpec = {
+            (fadeIn() + scaleIn(initialScale = 0.92f))
+                .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+        },
+        label = "FeedbackLoadingTransition",
+    ) { loading ->
+        if (loading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(12.dp)
-                        .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                MiraiLinkText(
-                    text = stringResource(R.string.feedback),
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                uiState.error?.let { error ->
-                    MiraiLinkErrorContent(
-                        error = error,
-                        onAction = viewModel::performErrorAction,
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                MiraiLinkIconButton(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    onClick = {
+                        actualBackClick()
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_back),
+                        contentDescription = stringResource(id = R.string.back),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                val feedbackText = stringResource(R.string.feedback)
-                MiraiLinkTextField(
-                    value = uiState.feedback,
+                Column(
                     modifier =
                         Modifier
-                            .fillMaxWidth(0.8f)
-                            .align(Alignment.CenterHorizontally),
-                    onValueChange = { viewModel.updateFeedback(it) },
-                    label = stringResource(R.string.feedback_screen_enter_your_feedback),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions =
-                        KeyboardActions(
-                            onSend = {
-                                if (uiState.feedback.isNotBlank()) {
-                                    viewModel.sendFeedback(onFinish = {
-                                        showToast(
-                                            feedbackText,
-                                            Toast.LENGTH_SHORT,
-                                        )
-                                    })
-                                }
-                            },
-                        ),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                val feedbackDoneText = stringResource(R.string.feedback_done)
-                MiraiLinkButton(onClick = {
-                    if (uiState.feedback.isNotBlank()) {
-                        viewModel.sendFeedback(onFinish = {
-                            showToast(feedbackDoneText, Toast.LENGTH_SHORT)
-                        })
-                    }
-                }) {
+                            .fillMaxSize()
+                            .padding(12.dp)
+                            .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
                     MiraiLinkText(
-                        text = stringResource(R.string.feedback_screen_send_feedback),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        text = stringResource(R.string.feedback),
+                        style = MaterialTheme.typography.headlineMedium,
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    uiState.error?.let { error ->
+                        MiraiLinkErrorContent(
+                            error = error,
+                            onAction = viewModel::performErrorAction,
+                        )
+                    }
+                    val feedbackText = stringResource(R.string.feedback)
+                    MiraiLinkTextField(
+                        value = uiState.feedback,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(0.8f)
+                                .align(Alignment.CenterHorizontally),
+                        onValueChange = { viewModel.updateFeedback(it) },
+                        label = stringResource(R.string.feedback_screen_enter_your_feedback),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                        keyboardActions =
+                            KeyboardActions(
+                                onSend = {
+                                    if (uiState.feedback.isNotBlank()) {
+                                        viewModel.sendFeedback(onFinish = {
+                                            showToast(
+                                                feedbackText,
+                                                Toast.LENGTH_SHORT,
+                                            )
+                                        })
+                                    }
+                                },
+                            ),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val feedbackDoneText = stringResource(R.string.feedback_done)
+                    MiraiLinkButton(onClick = {
+                        if (uiState.feedback.isNotBlank()) {
+                            viewModel.sendFeedback(onFinish = {
+                                showToast(feedbackDoneText, Toast.LENGTH_SHORT)
+                            })
+                        }
+                    }) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.feedback_screen_send_feedback),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    }
                 }
             }
         }

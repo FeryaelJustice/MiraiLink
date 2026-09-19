@@ -55,7 +55,7 @@ object NetworkErrorMapper {
         return when (exception.code()) {
             400, 422 -> DataError.Network.BAD_REQUEST
             401 ->
-                if (operation == NetworkOperation.LOGIN) {
+                if (operation == NetworkOperation.LOGIN || operation == NetworkOperation.REGISTER) {
                     AuthError.INVALID_CREDENTIALS
                 } else {
                     AuthError.SESSION_EXPIRED

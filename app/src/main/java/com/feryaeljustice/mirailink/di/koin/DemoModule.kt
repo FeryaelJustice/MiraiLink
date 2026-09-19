@@ -36,6 +36,12 @@ val demoModule =
 
         single<UserRepository>(Demo) { DemoUserRepositoryImpl(database = get(), seeder = get()) }
         single<MatchRepository>(Demo) { DemoMatchRepositoryImpl(database = get()) }
-        single<SwipeRepository>(Demo) { DemoSwipeRepositoryImpl(database = get(), seeder = get()) }
+        single<SwipeRepository>(Demo) {
+            DemoSwipeRepositoryImpl(
+                database = get(),
+                seeder = get(),
+                searchPreferencesRepository = get(),
+            )
+        }
         single<ChatRepository>(Demo) { DemoChatRepositoryImpl(database = get(), scope = get(ApplicationScope)) }
     }

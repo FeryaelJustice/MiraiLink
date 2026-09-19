@@ -48,6 +48,7 @@ val viewModelModule =
                 analytics = lazy { get() },
                 crash = lazy { get() },
                 credentialHelper = lazy { get() },
+                sessionManager = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )
@@ -124,8 +125,17 @@ val viewModelModule =
             SettingsViewModel(
                 logoutUseCase = get(),
                 deleteAccountUseCase = get(),
+                getSearchPreferencesUseCase = get(),
+                saveSearchPreferencesUseCase = get(),
+                getCurrentUserUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
+            )
+        }
+        viewModel {
+            com.feryaeljustice.mirailink.ui.screens.settings.faq.FaqViewModel(
+                getFaqItemsUseCase = get(),
+                ioDispatcher = get(qualifier = IoDispatcher),
             )
         }
         viewModel {

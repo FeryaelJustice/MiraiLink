@@ -162,8 +162,9 @@ fun NavWrapper(
             // 1. Si NO estamos en Main (estamos en Auth o Splash) -> Navegar
             // 2. Si estamos en Main pero deberíamos estar en Verification/ProfilePic -> Navegar
             val currentTopLevel = navigationState.topLevelRoute
+            val currentMainChild = navigator.state.backStacks[ScreensSubgraphs.Main]?.lastOrNull()
             val needsNavigation = currentTopLevel != ScreensSubgraphs.Main ||
-                    (targetFirstChild !is AppScreen.HomeScreen && navigator.state.backStacks[ScreensSubgraphs.Main]?.lastOrNull() != targetFirstChild)
+                    currentMainChild != targetFirstChild
 
             if (needsNavigation) {
                 // Configurar UI Bars para sesión activa
@@ -354,9 +355,10 @@ fun NavWrapper(
                         miraiLinkSession = miraiLinkSession,
                         goToFeedbackScreen = { navigator.navigate(AppScreen.FeedbackScreen) },
                         goToConfigureTwoFactorScreen = { navigator.navigate(AppScreen.ConfigureTwoFactorScreen) },
+                        goToFaqScreen = { navigator.navigate(AppScreen.FaqScreen) },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
-                        onBackClick = { navigator.goBack() }
+                        onBackClick = { navigator.goBack() },
                     )
                 }
 
@@ -370,6 +372,12 @@ fun NavWrapper(
                 entry<AppScreen.ConfigureTwoFactorScreen> {
                     ConfigureTwoFactorScreen(
                         miraiLinkSession = miraiLinkSession,
+                        onBackClick = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.FaqScreen> {
+                    com.feryaeljustice.mirailink.ui.screens.settings.faq.FaqScreen(
                         onBackClick = { navigator.goBack() },
                     )
                 }

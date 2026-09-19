@@ -51,7 +51,7 @@
     <string name="auth_screen_text_field_repeat_password">Repetir contraseña</string>
     <string name="auth_screen_text_btn_forgot_password">¿Has olvidado tu contraseña?</string>
     <string name="must_have_less_than">Debe tener al menos %1$d caracteres</string>
-    <string name="must_have_less_than_and_contain">Debe tener al menos %1$d caracteres y contener %2$s</string>
+    <string name="password_trivial_pattern">La contraseña no puede ser una secuencia o patrón predecible (como 1234... o caracteres repetidos)</string>
     <string name="passwords_do_not_match">Las contraseñas no coinciden</string>
     <string name="request_email_verification">Solicitar verificación a email</string>
     <string name="send_code">Enviar código</string>
@@ -150,7 +150,7 @@
     <string name="error_bad_request">No hemos podido completar la solicitud. Revisa los datos y vuelve a intentarlo.</string>
     <string name="error_forbidden">Esta acción no está disponible para esta cuenta. Vuelve a intentarlo más tarde.</string>
     <string name="error_not_found">No hemos encontrado la información solicitada. Actualiza y vuelve a intentarlo.</string>
-    <string name="error_conflict">La información ha cambiado. Actualiza y vuelve a intentarlo.</string>
+    <string name="error_conflict">La información ha cambiado o ya existe el registro. Actualiza y vuelve a intentarlo.</string>
     <string name="error_rate_limited">Hay muchas solicitudes en este momento. Espera un poco y vuelve a intentarlo.</string>
     <string name="error_payload_too_large">El contenido es demasiado grande para enviarlo. Elige uno más pequeño y vuelve a intentarlo.</string>
     <string name="error_server">El servicio ha tenido un problema. Reintenta dentro de unos instantes.</string>
@@ -180,4 +180,47 @@
     <string name="demo_mode_exit">Salir del modo demo</string>
     <string name="demo_mode_section_title">Opciones de Demostración</string>
     <string name="demo_mode_active_label">Modo demo activo</string>
+
+    <!-- Preferencias de Búsqueda y Localización -->
+    <string name="search_settings_title">Preferencias de búsqueda</string>
+    <string name="search_settings_subtitle">Ajusta el radio y país o alcance geográfico para descubrir personas</string>
+    <string name="search_scope_title">País y alcance de búsqueda</string>
+    <string name="search_target_country_label">Código de país (ej. JP, ES, US)</string>
+    <string name="search_invalid_country_code">Introduce un código ISO de 2 letras mayúsculas (ej. ES, JP)</string>
+    <string name="search_settings_map_preview_label">Vista previa del mapa de búsqueda</string>
+    <string name="search_scope_local">Radio local</string>
+    <string name="search_scope_country">Mi país</string>
+    <string name="search_scope_world">Todo el mundo</string>
+    <string name="search_scope_passport">Pasaporte</string>
+    <string name="search_radius_label">Radio de búsqueda: %1$d km</string>
+    <string name="search_match_travelers_title">Buscar viajeros en mi zona</string>
+    <string name="search_match_travelers_desc">Por defecto buscamos según la residencia habitual. Al activar esta opción, encontrarás personas que se encuentran físicamente en tu radio ahora mismo aunque residan en otra ciudad o país.</string>
+    <string name="search_settings_save">Guardar ajustes</string>
+    <string name="search_settings_saved_success">Ajustes de búsqueda guardados correctamente</string>
+    <string name="search_premium_badge">Premium (Gratis en beta)</string>
+    <string name="search_premium_radius_future_note">Radio ampliado (+150 km)</string>
+    <string name="search_location_permission_needed_title">Descubre personas cerca de ti</string>
+    <string name="search_location_permission_needed_desc">Activa la ubicación para que MiraiLink pueda calcular la distancia y mostrarte perfiles en tu zona.</string>
+    <string name="search_location_enable_action">Activar ubicación</string>
+    <string name="search_location_explore_world">Explorar todo el mundo</string>
+    <string name="location_permission_rationale_title">Permiso de ubicación necesario</string>
+    <string name="location_permission_rationale_desc">MiraiLink necesita acceso a tu ubicación para calcular el radio de búsqueda y mostrarte usuarios cercanos. Puedes elegir ubicación precisa o aproximada.</string>
+    <string name="card_traveler_badge">De viaje aquí</string>
+    <string name="card_lives_in">Vive en %1$s</string>
+    <string name="card_distance_km">A %1$d km</string>
+
+    <!-- Preguntas Frecuentes (FAQ) -->
+    <string name="faq_title">Preguntas frecuentes (FAQ)</string>
+    <string name="faq_category_general">Sobre MiraiLink</string>
+    <string name="faq_category_privacy">Ubicación y Privacidad</string>
+    <string name="faq_category_matching">Búsqueda y Alcance</string>
+    <string name="faq_category_premium">Modelo Premium</string>
+    <string name="faq_what_is_mirailink_q">¿Qué es MiraiLink y cómo funciona?</string>
+    <string name="faq_what_is_mirailink_a">MiraiLink es una aplicación social y de citas diseñada para personas apasionadas por el anime, manga y videojuegos. Te conectamos con personas afines según tus intereses culturales en común y cercanía geográfica.</string>
+    <string name="faq_50_points_q">¿Cómo se gestiona mi ubicación y por qué se guardan hasta 50 puntos?</string>
+    <string name="faq_50_points_a">Para calcular la cercanía con otros usuarios y permitir futuras funciones de reencuentros o lugares visitados, guardamos un historial de hasta los últimos 50 puntos donde has usado la app. Solo se registra una nueva posición si te has movido más de 5 km o tras 24 horas. Al superar los 50 puntos, los más antiguos se eliminan automáticamente. Tu ubicación exacta nunca es visible para otros usuarios.</string>
+    <string name="faq_residence_vs_travelers_q">¿Qué diferencia hay entre lugar de residencia y ubicación actual?</string>
+    <string name="faq_residence_vs_travelers_a">Tu lugar de residencia es la ciudad que indicas en tu perfil ("Vive en Palma"). Por defecto, las búsquedas se realizan comparando las residencias. Si activas la opción de viajeros, la app buscará personas que estén físicamente en tu radio en ese momento aunque residan en otra parte.</string>
+    <string name="faq_premium_q">¿Qué funciones serán Premium en el futuro?</string>
+    <string name="faq_premium_a">Actualmente todas las funciones de MiraiLink son 100% gratuitas. En el futuro, características avanzadas como el modo pasaporte internacional, radios superiores a 50 km o búsquedas especializadas de viajeros formarán parte de planes opcionales para apoyar el desarrollo de la app.</string>
 </resources>

@@ -18,4 +18,9 @@ data class UserViewEntry(
     val photos: List<UserPhotoViewEntry> = emptyList(),
     val games: List<GameViewEntry>,
     val animes: List<AnimeViewEntry>,
+    val residenceCity: String? = null,
+    val residenceRegion: String? = null,
+    val residenceCountryCode: String? = null,
+    val distanceKm: Double? = null,
+    val isTraveler: Boolean = false,
 )

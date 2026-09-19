@@ -118,4 +118,14 @@ interface UserApiService {
     suspend fun saveUserFcm(
         @Body body: SaveFCMUserRequest,
     ): BasicResponse
+
+    @PUT("user/settings/search")
+    suspend fun updateSearchSettings(
+        @Body body: com.feryaeljustice.mirailink.data.model.request.settings.UpdateSearchSettingsRequest,
+    ): BasicResponse
+
+    @POST("user/location/ping")
+    suspend fun pingLocation(
+        @Body body: com.feryaeljustice.mirailink.data.model.request.location.LocationPingRequest,
+    ): BasicResponse
 }

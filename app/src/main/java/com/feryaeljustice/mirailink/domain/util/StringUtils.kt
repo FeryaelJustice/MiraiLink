@@ -17,16 +17,40 @@ fun String.superCapitalize(): String = this.replaceFirstChar { firstChar -> firs
  */
 fun String.isEmailValid(): Boolean = EMAIL_REGEX.matches(this) && this.isSafeSqlInput()
 
-/**
- * Validates if the string is a well-formed phone address.
- */
 fun String.isPhoneNumberValid(): Boolean = this.isNotBlank() && this.isSafeSqlInput()
 
+/**
+ * Validates ISO 3166-1 alpha-2 country codes (2 uppercase letters: e.g. ES, JP, US).
+ */
+private val COUNTRY_CODE_REGEX = "^[A-Z]{2}$".toRegex()
+
+fun String.isCountryCodeValid(): Boolean = COUNTRY_CODE_REGEX.matches(this.trim())
+
 fun String.isPasswordValid(): Boolean {
-    /*
-    val passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
-    return passwordRegex.toRegex().matches(this) && this.isSafeSqlInput()*/
-    return this.length >= 4 && this.isSafeSqlInput()
+    return this.length >= 8 && this.isSafeSqlInput() && this.isNotTrivialPassword()
+}
+
+/**
+ * Checks that the password does not consist of repeated characters or trivial sequential patterns.
+ */
+fun String.isNotTrivialPassword(): Boolean {
+    if (this.isBlank()) return false
+    // Reject repeated single character (e.g. 11111111, aaaaaaaa)
+    if (this.all { it == this[0] }) return false
+
+    val sequences = listOf(
+        "01234567890123456789",
+        "98765432109876543210",
+        "abcdefghijklmnopqrstuvwxyz",
+        "zyxwvutsrqponmlkjihgfedcba",
+        "qwertyuiop",
+        "asdfghjkl",
+    )
+    val lower = this.lowercase()
+    for (seq in sequences) {
+        if (seq.contains(lower)) return false
+    }
+    return true
 }
 
 fun String?.isStringNotEmpty(): Boolean = !this.isNullOrEmpty()

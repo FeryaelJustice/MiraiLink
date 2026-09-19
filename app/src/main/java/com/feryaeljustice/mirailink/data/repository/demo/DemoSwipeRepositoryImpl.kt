@@ -7,20 +7,25 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMatchEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMessageEntity
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
 import com.feryaeljustice.mirailink.domain.model.user.User
+import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
+import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
+import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import kotlinx.coroutines.flow.first
 import java.util.UUID
 
 class DemoSwipeRepositoryImpl(
     private val database: MiraiLinkDemoDatabase,
     private val seeder: DemoDataSeeder,
+    private val searchPreferencesRepository: SearchPreferencesRepository,
 ) : SwipeRepository {
 
     override suspend fun getFeed(): MiraiLinkResult<List<User>> {
         seeder.seedInitialDataIfEmpty()
         var feedUsers = database.userDao().getFeedUsers()
         if (feedUsers.isEmpty()) {
-            // Si el usuario consumió todo el feed, reiniciamos el estado de like/dislike de los feed users
+            // Si el usuario consumio todo el feed, reiniciamos el estado de like/dislike de los feed users
             val allUsers = database.userDao().getAllFeedUsers()
             if (allUsers.isNotEmpty()) {
                 allUsers.forEach { user ->
@@ -29,8 +34,50 @@ class DemoSwipeRepositoryImpl(
                 feedUsers = database.userDao().getFeedUsers()
             }
         }
-        val users = feedUsers.map { it.toDomainUser() }
-        return MiraiLinkResult.Success(users)
+
+        val searchPrefs = searchPreferencesRepository.getSearchPreferences().first()
+        val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
+        val userLat = demoProfile?.currentLatitude ?: GeoUtils.DEFAULT_FALLBACK_LATITUDE
+        val userLon = demoProfile?.currentLongitude ?: GeoUtils.DEFAULT_FALLBACK_LONGITUDE
+
+        val usersWithDistance = feedUsers.map { entity ->
+            val user = entity.toDomainUser()
+            // Si es viajero y el ajuste matchByLiveLocation esta activo, calculamos con current coordinates
+            val targetLat = if (searchPrefs.matchByLiveLocation && user.isTraveler) {
+                user.currentLatitude ?: user.residenceLatitude
+            } else {
+                user.residenceLatitude ?: user.currentLatitude
+            }
+            val targetLon = if (searchPrefs.matchByLiveLocation && user.isTraveler) {
+                user.currentLongitude ?: user.residenceLongitude
+            } else {
+                user.residenceLongitude ?: user.currentLongitude
+            }
+
+            val distance = GeoUtils.calculateDistanceKm(userLat, userLon, targetLat, targetLon)
+            user.copy(distanceKm = distance)
+        }
+
+        val filteredUsers = usersWithDistance.filter { user ->
+            when (searchPrefs.scope) {
+                SearchScope.RADIUS -> {
+                    val distance = user.distanceKm
+                    distance != null && distance <= searchPrefs.radiusKm
+                }
+                SearchScope.MY_COUNTRY -> {
+                    val myCountry = demoProfile?.residenceCountryCode ?: "ES"
+                    user.residenceCountryCode?.equals(myCountry, ignoreCase = true) == true
+                }
+                SearchScope.WORLD -> true
+                SearchScope.SPECIFIC_COUNTRY -> {
+                    val target = searchPrefs.targetCountryCode
+                    if (target.isNullOrBlank()) true
+                    else user.residenceCountryCode?.equals(target, ignoreCase = true) == true
+                }
+            }
+        }.sortedBy { it.distanceKm ?: Double.MAX_VALUE }
+
+        return MiraiLinkResult.Success(filteredUsers)
     }
 
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> {

@@ -44,6 +44,15 @@ fun DemoUserProfileEntity.toDomainUser(): User {
         games = gamesList,
         animes = animesList,
         fcmToken = fcmToken,
+        residenceCity = residenceCity,
+        residenceRegion = residenceRegion,
+        residenceCountryCode = residenceCountryCode,
+        residenceLatitude = residenceLatitude,
+        residenceLongitude = residenceLongitude,
+        currentLatitude = currentLatitude,
+        currentLongitude = currentLongitude,
+        distanceKm = null,
+        isTraveler = false,
     )
 }
 
@@ -89,6 +98,15 @@ fun DemoFeedUserEntity.toDomainUser(): User {
         games = gamesList,
         animes = animesList,
         fcmToken = "",
+        residenceCity = residenceCity,
+        residenceRegion = residenceRegion,
+        residenceCountryCode = residenceCountryCode,
+        residenceLatitude = residenceLatitude,
+        residenceLongitude = residenceLongitude,
+        currentLatitude = currentLatitude,
+        currentLongitude = currentLongitude,
+        distanceKm = null,
+        isTraveler = isTraveler,
     )
 }
 

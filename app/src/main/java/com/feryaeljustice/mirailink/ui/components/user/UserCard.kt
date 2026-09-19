@@ -249,6 +249,47 @@ fun UserCard(
                             style = MaterialTheme.typography.titleLarge.copy(textDecoration = TextDecoration.Underline),
                         )
 
+                        // Ubicacion y distancia geografica
+                        val locationParts = mutableListOf<String>()
+                        if (!user.residenceCity.isNullOrBlank()) {
+                            locationParts.add(stringResource(R.string.card_lives_in, user.residenceCity))
+                        }
+                        val formattedDist = com.feryaeljustice.mirailink.domain.util.GeoUtils.formatDistance(user.distanceKm)
+                        if (formattedDist != null) {
+                            locationParts.add(formattedDist)
+                        }
+
+                        if (locationParts.isNotEmpty() || user.isTraveler) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                if (locationParts.isNotEmpty()) {
+                                    MiraiLinkText(
+                                        text = locationParts.joinToString(" • "),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                                if (user.isTraveler) {
+                                    androidx.compose.material3.Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                                    ) {
+                                        MiraiLinkText(
+                                            text = stringResource(R.string.card_traveler_badge),
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(8.dp))
 
                         MiraiLinkText(

@@ -20,6 +20,15 @@ fun UserDto.toDomain(): User =
         games = games.map { it.toDomain() },
         animes = animes.map { it.toDomain() },
         fcmToken = fcmToken,
+        residenceCity = residenceCity,
+        residenceRegion = residenceRegion,
+        residenceCountryCode = residenceCountryCode,
+        residenceLatitude = residenceLatitude,
+        residenceLongitude = residenceLongitude,
+        currentLatitude = currentLatitude,
+        currentLongitude = currentLongitude,
+        distanceKm = distanceKm,
+        isTraveler = isTraveler,
     )
 
 fun MinimalUserInfoResponse.toMinimalUserInfo(): MinimalUserInfo =

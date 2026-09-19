@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 fun MiraiLinkButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     disabledContainerColor: Color = MaterialTheme.colorScheme.primary,
@@ -22,6 +23,7 @@ fun MiraiLinkButton(
     Button(
         modifier = modifier,
         onClick = onClick,
+        enabled = enabled,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = containerColor,

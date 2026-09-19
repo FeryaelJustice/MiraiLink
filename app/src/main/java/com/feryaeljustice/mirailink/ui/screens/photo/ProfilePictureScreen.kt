@@ -69,9 +69,12 @@ fun ProfilePictureScreen(
     }
 
     LaunchedEffect(uploadSucceeded) {
-        if (uploadSucceeded && !userId.isNullOrBlank()) {
+        if (uploadSucceeded) {
             viewModel.clearResult()
-            miraiLinkSession.refreshHasProfilePicture(userId!!)
+            userId?.takeIf(String::isNotBlank)?.let { miraiLinkSession.refreshHasProfilePicture(it) }
+            // Esta pantalla bloquea las barras mientras falta la foto. Restaurarlas
+            // antes de cambiar de destino evita que Home herede el estado bloqueado.
+            miraiLinkSession.enableBars()
             currentOnProfileUpload()
         }
     }

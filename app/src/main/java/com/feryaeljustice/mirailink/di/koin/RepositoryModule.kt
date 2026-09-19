@@ -79,4 +79,22 @@ val repositoryModule =
                 demoModeManager = get(),
             )
         }
+
+        // Search Preferences & FAQ & Location
+        single<com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository> {
+            com.feryaeljustice.mirailink.data.repository.SearchPreferencesRepositoryImpl(
+                dataStore = get(com.feryaeljustice.mirailink.di.koin.Qualifiers.PrefsDataStore),
+                userRemoteDataSource = get(),
+                demoModeManager = get(),
+            )
+        }
+        single<com.feryaeljustice.mirailink.domain.repository.FaqRepository> {
+            com.feryaeljustice.mirailink.data.repository.FaqRepositoryImpl()
+        }
+        single<com.feryaeljustice.mirailink.domain.repository.LocationRepository> {
+            com.feryaeljustice.mirailink.data.repository.LocationRepositoryImpl(
+                remoteDataSource = get(),
+                demoModeManager = get(),
+            )
+        }
     }

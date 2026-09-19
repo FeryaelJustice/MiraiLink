@@ -19,7 +19,7 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
         DemoChatEntity::class,
         DemoMessageEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class MiraiLinkDemoDatabase : RoomDatabase() {

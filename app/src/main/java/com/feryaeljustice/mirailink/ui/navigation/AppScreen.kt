@@ -78,6 +78,10 @@ sealed class AppScreen : NavKey {
     @Serializable
     @SerialName("configure_2fa")
     object ConfigureTwoFactorScreen : AppScreen()
+
+    @Serializable
+    @SerialName("faq")
+    data object FaqScreen : AppScreen()
 }
 
 private fun AppScreen.topLevelTab(): AppScreen =

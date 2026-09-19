@@ -118,4 +118,10 @@ val useCaseModule =
 
         // AI
         factory { GenerateContentUseCase(get()) }
+
+        // Search Preferences & FAQ & Location
+        factory { com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.settings.SaveSearchPreferencesUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.faq.GetFaqItemsUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase(get()) }
     }

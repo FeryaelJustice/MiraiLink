@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 
 val networkModule =
     module {
-        single(BaseUrl) { "https://mirailink.xyz" }
+        single(BaseUrl) { "http://192.168.1.137:3000" }
         single(BaseApiUrl) { "${get<String>(BaseUrl)}/api/" }
 
         single { AuthInterceptor(get<SessionManager>()) }
