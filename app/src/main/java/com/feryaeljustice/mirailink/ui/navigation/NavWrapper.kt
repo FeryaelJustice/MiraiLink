@@ -48,7 +48,6 @@ import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureScreen
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
-import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
@@ -354,7 +353,6 @@ fun NavWrapper(
                     SettingsScreen(
                         miraiLinkSession = miraiLinkSession,
                         goToFeedbackScreen = { navigator.navigate(AppScreen.FeedbackScreen) },
-                        goToConfigureTwoFactorScreen = { navigator.navigate(AppScreen.ConfigureTwoFactorScreen) },
                         goToFaqScreen = { navigator.navigate(AppScreen.FaqScreen) },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
@@ -369,12 +367,6 @@ fun NavWrapper(
                     )
                 }
 
-                entry<AppScreen.ConfigureTwoFactorScreen> {
-                    ConfigureTwoFactorScreen(
-                        miraiLinkSession = miraiLinkSession,
-                        onBackClick = { navigator.goBack() },
-                    )
-                }
 
                 entry<AppScreen.FaqScreen> {
                     com.feryaeljustice.mirailink.ui.screens.settings.faq.FaqScreen(
@@ -520,6 +512,5 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.SettingsScreen -> "settings"
         is AppScreen.ProfileScreen -> "profile"
         is AppScreen.FeedbackScreen -> "feedback"
-        is AppScreen.ConfigureTwoFactorScreen -> "configure_2fa"
         else -> this::class.simpleName ?: "unknown"
     }

@@ -76,10 +76,6 @@ sealed class AppScreen : NavKey {
     object FeedbackScreen : AppScreen()
 
     @Serializable
-    @SerialName("configure_2fa")
-    object ConfigureTwoFactorScreen : AppScreen()
-
-    @Serializable
     @SerialName("faq")
     data object FaqScreen : AppScreen()
 }
