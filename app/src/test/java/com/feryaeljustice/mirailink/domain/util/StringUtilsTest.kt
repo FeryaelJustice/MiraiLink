@@ -31,12 +31,28 @@ class StringUtilsTest {
         assertThat("person@example.com;drop table users".isEmailValid()).isFalse()
     }
 
-    /** Documents the current minimum password contract and SQL-input guard. */
+    /** Documents the current minimum password contract, non-trivial pattern guard, and SQL-input guard. */
     @Test
-    fun `password validation enforces minimum length and safe input`() {
-        assertThat("abc".isPasswordValid()).isFalse()
-        assertThat("abcd".isPasswordValid()).isTrue()
-        assertThat("abcd;".isPasswordValid()).isFalse()
+    fun `password validation enforces minimum length, non-trivial pattern, and safe input`() {
+        assertThat("Secret1".isPasswordValid()).isFalse() // < 8 chars
+        assertThat("12345678".isPasswordValid()).isFalse() // trivial sequential
+        assertThat("11111111".isPasswordValid()).isFalse() // trivial repeated
+        assertThat("abcdefgh".isPasswordValid()).isFalse() // trivial alphabetical sequence
+        assertThat("SecurePass123!".isPasswordValid()).isTrue() // >= 8 chars and not trivial
+        assertThat("SecurePass123!;".isPasswordValid()).isFalse() // sql injection symbol
+    }
+
+    /** Verifies ISO country code format enforcement. */
+    @Test
+    fun `country code validation accepts two uppercase letters only`() {
+        assertThat("ES".isCountryCodeValid()).isTrue()
+        assertThat("JP".isCountryCodeValid()).isTrue()
+        assertThat("US".isCountryCodeValid()).isTrue()
+        assertThat("es".isCountryCodeValid()).isFalse()
+        assertThat("ESP".isCountryCodeValid()).isFalse()
+        assertThat("12".isCountryCodeValid()).isFalse()
+        assertThat("".isCountryCodeValid()).isFalse()
+        assertThat("E ".isCountryCodeValid()).isFalse()
     }
 
     /** Verifies capitalization and nullable convenience helpers at their boundaries. */

@@ -17,6 +17,13 @@ data class DemoUserProfileEntity(
     val gamesJson: String,
     val photosJson: String,
     val fcmToken: String? = "",
+    val residenceCity: String? = "Palma",
+    val residenceRegion: String? = "Islas Baleares",
+    val residenceCountryCode: String? = "ES",
+    val residenceLatitude: Double? = 39.5696,
+    val residenceLongitude: Double? = 2.6502,
+    val currentLatitude: Double? = 39.5696,
+    val currentLongitude: Double? = 2.6502,
 )
 
 @Entity(tableName = "demo_feed_users")
@@ -33,6 +40,14 @@ data class DemoFeedUserEntity(
     val isLiked: Boolean = false,
     val isDisliked: Boolean = false,
     val willMatch: Boolean = true,
+    val residenceCity: String? = null,
+    val residenceRegion: String? = null,
+    val residenceCountryCode: String? = "ES",
+    val residenceLatitude: Double? = null,
+    val residenceLongitude: Double? = null,
+    val currentLatitude: Double? = null,
+    val currentLongitude: Double? = null,
+    val isTraveler: Boolean = false,
 )
 
 @Entity(tableName = "demo_matches")

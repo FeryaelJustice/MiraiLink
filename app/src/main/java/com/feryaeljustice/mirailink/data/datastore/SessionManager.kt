@@ -53,6 +53,16 @@ class SessionManager(
     // MÉTODOS SÍNCRONOS PARA INTERCEPTORES
     fun getCurrentTokenSync(): String? = cachedToken
 
+    /**
+     * Actualiza el cache volatile con el token recién obtenido del login, sin persistirlo
+     * todavía en DataStore. Esto permite que AuthInterceptor adjunte el Bearer token a las
+     * llamadas intermedias (p.ej. get2FAStatus) que ocurren antes de que completeAuth
+     * persista la sesión definitivamente.
+     */
+    fun cacheTokenTemporarily(token: String) {
+        cachedToken = token
+    }
+
     // fun getCurrentUserIdSync(): String? = cachedUserId
 
     // fun getIsVerifiedSync(): Boolean = cachedIsVerified

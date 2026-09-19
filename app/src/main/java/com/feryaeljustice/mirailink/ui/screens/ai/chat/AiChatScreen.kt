@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -39,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkScreenContent
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
@@ -131,47 +131,50 @@ fun AiChatScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        when (val state = uiState) {
-            is AiChatUiState.Loading -> {
-                CircularProgressIndicator()
+        // El area de respuesta usa MiraiLinkScreenContent para que el spinner
+        // reemplace el contenido de la respuesta con una transicion animada.
+        MiraiLinkScreenContent(
+            isLoading = uiState is AiChatUiState.Loading,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            when (val state = uiState) {
+                is AiChatUiState.Success -> {
+                    response = state.response
+                }
+
+                is AiChatUiState.Error -> {
+                    MiraiLinkErrorContent(
+                        error = state.error,
+                        onAction = viewModel::performErrorAction,
+                    )
+                }
+
+                else -> {}
             }
 
-            is AiChatUiState.Success -> {
-                response = state.response // Actualiza la respuesta solo en éxito
-            }
-
-            is AiChatUiState.Error -> {
-                MiraiLinkErrorContent(
-                    error = state.error,
-                    onAction = viewModel::performErrorAction,
-                )
-            }
-
-            else -> {}
-        }
-
-        response?.let {
-            Card(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(),
-            ) {
-                Column(
+            response?.let {
+                Card(
                     modifier =
                         Modifier
-                            .fillMaxWidth()
-                            .padding(all = 4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
+                            .fillMaxWidth(),
                 ) {
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = stringResource(id = R.string.ai_chat_screen_title),
-                        fontStyle = FontStyle.Italic,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = it, modifier = Modifier.padding(16.dp))
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(all = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(top = 4.dp),
+                            text = stringResource(id = R.string.ai_chat_screen_title),
+                            fontStyle = FontStyle.Italic,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = it, modifier = Modifier.padding(16.dp))
+                    }
                 }
             }
         }

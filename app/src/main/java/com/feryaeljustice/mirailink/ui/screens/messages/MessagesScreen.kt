@@ -1,5 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.messages
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -119,63 +125,75 @@ fun MessagesScreen(
                         },
                     ),
         ) {
-            when (val currentState = state) {
-                is MessagesViewModel.MessagesUiState.Success -> {
-                    val matches = currentState.matches
-                    val openChats = currentState.openChats
+            AnimatedContent(
+                targetState = state,
+                modifier = Modifier.fillMaxSize(),
+                transitionSpec = {
+                    (fadeIn() + scaleIn(initialScale = 0.92f))
+                        .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+                },
+                label = "MessagesStateTransition",
+            ) { currentState ->
+                when (currentState) {
+                    is MessagesViewModel.MessagesUiState.Success -> {
+                        val matches = currentState.matches
+                        val openChats = currentState.openChats
 
-                    val filteredMatches =
-                        remember(searchQuery, matches) {
-                            matches.filter {
-                                it.username.contains(searchQuery, ignoreCase = true)
+                        val filteredMatches =
+                            remember(searchQuery, matches) {
+                                matches.filter {
+                                    it.username.contains(searchQuery, ignoreCase = true)
+                                }
                             }
-                        }
 
-                    val filteredOpenChats =
-                        remember(searchQuery, openChats) {
-                            openChats.filter {
-                                it.username.contains(searchQuery, ignoreCase = true)
+                        val filteredOpenChats =
+                            remember(searchQuery, openChats) {
+                                openChats.filter {
+                                    it.username.contains(searchQuery, ignoreCase = true)
+                                }
                             }
-                        }
 
-                    Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState()),
-                    ) {
-                        MatchesRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            matches = filteredMatches,
-                            onNavigateToChat = onNavigateToChat,
-                        )
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                        ChatList(
-                            modifier = Modifier.fillMaxWidth(),
-                            chats = filteredOpenChats,
-                            onNavigateToChat = onNavigateToChat,
+                        Column(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState()),
+                        ) {
+                            MatchesRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                matches = filteredMatches,
+                                onNavigateToChat = onNavigateToChat,
+                            )
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            ChatList(
+                                modifier = Modifier.fillMaxWidth(),
+                                chats = filteredOpenChats,
+                                onNavigateToChat = onNavigateToChat,
+                            )
+                        }
+                    }
+
+                    is MessagesViewModel.MessagesUiState.Error -> {
+                        MiraiLinkErrorContent(
+                            error = currentState.error,
+                            onAction = viewModel::performErrorAction,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
-                }
 
-                is MessagesViewModel.MessagesUiState.Error -> {
-                    MiraiLinkErrorContent(
-                        error = currentState.error,
-                        onAction = viewModel::performErrorAction,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                    MessagesViewModel.MessagesUiState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
 
-                MessagesViewModel.MessagesUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
+                    MessagesViewModel.MessagesUiState.Idle -> {
+                        Box(modifier = Modifier.fillMaxSize())
                     }
                 }
-
-                MessagesViewModel.MessagesUiState.Idle -> {}
             }
         }
     }

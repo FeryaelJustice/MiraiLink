@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.domain.error.AppError
 import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
@@ -15,6 +16,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTw
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
+import com.feryaeljustice.mirailink.domain.util.isNotTrivialPassword
 import com.feryaeljustice.mirailink.domain.util.isPasswordValid
 import kotlinx.coroutines.CoroutineDispatcher
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
@@ -22,6 +24,9 @@ import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -33,6 +38,7 @@ class AuthViewModel(
     private val analytics: Lazy<AnalyticsTracker>,
     private val crash: Lazy<CrashReporter>,
     private val credentialHelper: Lazy<CredentialHelper>,
+    private val sessionManager: SessionManager,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
@@ -58,10 +64,25 @@ class AuthViewModel(
 
         object InvalidEmail : AuthFieldError()
 
-        // object InvalidPassword : AuthFieldError()
+        object InvalidPassword : AuthFieldError()
+
+        object TrivialPassword : AuthFieldError()
 
         object PasswordsDoNotMatch : AuthFieldError()
     }
+
+    /** Eventos one-shot que la UI consume exactamente una vez. */
+    sealed class AuthEvent {
+        /** Pide a la UI que cambie a modo login y reintente con las credenciales proporcionadas. */
+        data class SwitchToLoginAndRetry(
+            val email: String,
+            val username: String,
+            val password: String,
+        ) : AuthEvent()
+    }
+
+    private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
 
     val state: StateFlow<AuthUiState>
         field = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
@@ -160,7 +181,13 @@ class AuthViewModel(
         password: String,
         onSaveSession: (String, String) -> Unit,
     ) {
-        setRecoveryAction { register(username, email, password, onSaveSession) }
+        // Si el registro falla y el usuario pulsa la accion de recuperacion, la UI
+        // cambiara a modo login con los mismos datos para que pueda intentar iniciar sesion.
+        setRecoveryAction {
+            viewModelScope.launch(mainDispatcher) {
+                _events.emit(AuthEvent.SwitchToLoginAndRetry(email, username, password))
+            }
+        }
         viewModelScope.launch(ioDispatcher) {
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
@@ -204,6 +231,12 @@ class AuthViewModel(
                 }
 
                 onLoginSuccess(userId = userIdd)
+
+                // El AuthInterceptor lee el token de SessionManager.cachedToken sincrónicamente.
+                // Si no lo cacheamos aquí antes de llamar a getTwoFactorStatus, la request irá
+                // sin Authorization header (token aún no en DataStore) y el servidor responderá
+                // 401 -> SESSION_EXPIRED aunque el login haya sido exitoso.
+                sessionManager.cacheTokenTemporarily(token)
 
                 // Check 2fa is enabled to show dialog
                 when (val twoFactorResult = getTwoFactorStatusUseCase.value(userID = userIdd)) {
@@ -375,55 +408,65 @@ class AuthViewModel(
 
         var isValid = true
 
-        if (username.isBlank() || email.isBlank() || password.isBlank()) {
-            // Lógica de Registro
-            @Suppress("ktlint:standard:if-else-wrapping")
-            if (!isLogin) {
-                if (username.length < 4 || email.isBlank()) {
+        // Lógica de Registro
+        @Suppress("ktlint:standard:if-else-wrapping")
+        if (!isLogin) {
+            if (username.isBlank() || username.length < 4) {
+                viewModelScope.launch(mainDispatcher) {
+                    usernameError.value = AuthFieldError.MinLength(4)
+                }
+                isValid = false
+            }
+            if (email.isBlank() || !email.isEmailValid()) {
+                viewModelScope.launch(mainDispatcher) {
+                    emailError.value = AuthFieldError.InvalidEmail
+                }
+                isValid = false
+            }
+            if (confirmPassword != password) {
+                viewModelScope.launch(mainDispatcher) {
+                    confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
+                }
+                isValid = false
+            }
+        }
+        // Lógica de Login
+        else {
+            if (loginByUsername.value) {
+                if (username.isBlank() || username.length < 4) {
                     viewModelScope.launch(mainDispatcher) {
                         usernameError.value = AuthFieldError.MinLength(4)
                     }
                     isValid = false
                 }
-                if (!email.isEmailValid() || email.isBlank()) {
+            } else { // Login con email
+                if (email.isBlank() || !email.isEmailValid()) {
                     viewModelScope.launch(mainDispatcher) {
                         emailError.value = AuthFieldError.InvalidEmail
                     }
                     isValid = false
                 }
-                if (confirmPassword != password) {
-                    viewModelScope.launch(mainDispatcher) {
-                        confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
-                    }
-                    isValid = false
-                }
-            }
-            // Lógica de Login
-            else {
-                if (loginByUsername.value) {
-                    if (username.isBlank() || username.length < 4) {
-                        viewModelScope.launch(mainDispatcher) {
-                            usernameError.value = AuthFieldError.MinLength(4)
-                        }
-                        isValid = false
-                    }
-                } else { // Login con email
-                    if (!email.isEmailValid() || email.isBlank()) {
-                        viewModelScope.launch(mainDispatcher) {
-                            emailError.value = AuthFieldError.InvalidEmail
-                        }
-                        isValid = false
-                    }
-                }
             }
         }
 
-        // Validaciones comunes
-        if (!password.isPasswordValid() || password.isBlank()) {
+        // Validaciones de Contraseña:
+        // 1. Debe tener al menos 8 caracteres (MinLength)
+        // 2. No debe ser trivial (secuencias 1234..., caracteres repetidos 1111...) (TrivialPassword)
+        // 3. No debe contener inyección SQL u otros caracteres no válidos (InvalidPassword)
+        if (password.isBlank() || password.length < 8) {
             viewModelScope.launch(mainDispatcher) {
-                passwordError.value =
-                    AuthFieldError.MinLength(4)
-            } // Cuando se pase a usar el regex en el ispasswordvalid, aqui poner el InvalidPassword
+                passwordError.value = AuthFieldError.MinLength(8)
+            }
+            isValid = false
+        } else if (!password.isNotTrivialPassword()) {
+            viewModelScope.launch(mainDispatcher) {
+                passwordError.value = AuthFieldError.TrivialPassword
+            }
+            isValid = false
+        } else if (!password.isPasswordValid()) {
+            viewModelScope.launch(mainDispatcher) {
+                passwordError.value = AuthFieldError.InvalidPassword
+            }
             isValid = false
         }
 

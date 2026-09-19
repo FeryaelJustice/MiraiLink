@@ -15,6 +15,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
+import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class DemoSwipeRepositoryImplTest {
@@ -22,6 +27,14 @@ class DemoSwipeRepositoryImplTest {
     private lateinit var database: MiraiLinkDemoDatabase
     private lateinit var seeder: DemoDataSeeder
     private lateinit var repository: DemoSwipeRepositoryImpl
+
+    private val fakeSearchPreferencesRepository = object : SearchPreferencesRepository {
+        override fun getSearchPreferences(): Flow<SearchPreferences> =
+            flowOf(SearchPreferences(radiusKm = 100f))
+
+        override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> =
+            MiraiLinkResult.Success(Unit)
+    }
 
     @Before
     fun setUp() {
@@ -31,7 +44,7 @@ class DemoSwipeRepositoryImplTest {
             MiraiLinkDemoDatabase::class.java,
         ).allowMainThreadQueries().build()
         seeder = DemoDataSeeder(database)
-        repository = DemoSwipeRepositoryImpl(database, seeder)
+        repository = DemoSwipeRepositoryImpl(database, seeder, fakeSearchPreferencesRepository)
     }
 
     @After

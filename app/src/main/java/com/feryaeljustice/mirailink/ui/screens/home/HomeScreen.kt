@@ -1,9 +1,18 @@
 package com.feryaeljustice.mirailink.ui.screens.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
@@ -67,50 +76,76 @@ fun HomeScreen(
                     },
                 ),
     ) {
-        when (val currentState = state) {
-            is HomeUiState.Success -> {
-                val visibleUsers = currentState.visibleUsers.take(2)
-                val index = currentState.currentIndex
+        AnimatedContent(
+            targetState = state,
+            modifier = Modifier.fillMaxSize(),
+            transitionSpec = {
+                (fadeIn() + scaleIn(initialScale = 0.92f))
+                    .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+            },
+            label = "HomeStateTransition",
+        ) { currentState ->
+            when (currentState) {
+                is HomeUiState.Success -> {
+                    val visibleUsers = currentState.visibleUsers.take(2)
+                    val index = currentState.currentIndex
 
-                if (visibleUsers.isNotEmpty() && index < visibleUsers.size) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        UserSwipeCardStack(
-                            modifier =
-                                Modifier
-                                    .padding(16.dp)
-                                    .testTag("swipeHome"),
-                            users = visibleUsers,
-                            canUndo = canUndo,
-                            onSwipeLeft = { viewModel.swipeLeft() },
-                            onGoBack = { viewModel.undoSwipe() },
-                            onSwipeRight = { viewModel.swipeRight() },
-                        )
-                    }
-                } else {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        MiraiLinkText(
-                            text = stringResource(R.string.users_empty_by_now),
-                            style = MaterialTheme.typography.titleLarge,
-                        )
+                    if (visibleUsers.isNotEmpty() && index < visibleUsers.size) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            UserSwipeCardStack(
+                                modifier =
+                                    Modifier
+                                        .padding(16.dp)
+                                        .testTag("swipeHome"),
+                                users = visibleUsers,
+                                canUndo = canUndo,
+                                onSwipeLeft = { viewModel.swipeLeft() },
+                                onGoBack = { viewModel.undoSwipe() },
+                                onSwipeRight = { viewModel.swipeRight() },
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.users_empty_by_now),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_location_permission_needed_desc),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
-            }
 
-            is HomeUiState.Error -> {
-                MiraiLinkErrorContent(
-                    error = currentState.error,
-                    onAction = viewModel::performErrorAction,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+                is HomeUiState.Error -> {
+                    MiraiLinkErrorContent(
+                        error = currentState.error,
+                        onAction = viewModel::performErrorAction,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
 
-            HomeUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                HomeUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                HomeUiState.Idle -> {
+                    Box(modifier = Modifier.fillMaxSize())
                 }
             }
-
-            HomeUiState.Idle -> {}
         }
     }
 }

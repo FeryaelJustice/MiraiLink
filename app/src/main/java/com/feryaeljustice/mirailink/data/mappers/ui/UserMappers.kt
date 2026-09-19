@@ -18,7 +18,12 @@ fun User.toUserViewEntry(): UserViewEntry = UserViewEntry(
     birthdate = birthdate,
     photos = photos.map { it.toUserPhotoViewEntry() },
     games = games.map { it.toGameViewEntry() },
-    animes = animes.map { it.toAnimeViewEntry() }
+    animes = animes.map { it.toAnimeViewEntry() },
+    residenceCity = residenceCity,
+    residenceRegion = residenceRegion,
+    residenceCountryCode = residenceCountryCode,
+    distanceKm = distanceKm,
+    isTraveler = isTraveler,
 )
 
 fun User.toMatchUserViewEntry() = MatchUserViewEntry(

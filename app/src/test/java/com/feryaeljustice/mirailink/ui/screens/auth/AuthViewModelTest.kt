@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.core.JwtUtils
 import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
@@ -40,6 +41,7 @@ class AuthViewModelTest : KoinTest {
     private val analytics: AnalyticsTracker by inject()
     private val crash: CrashReporter by inject()
     private val credentialHelper: CredentialHelper by inject()
+    private val sessionManager: SessionManager by inject()
 
     private lateinit var viewModel: AuthViewModel
 
@@ -55,6 +57,7 @@ class AuthViewModelTest : KoinTest {
                     single { mockk<AnalyticsTracker>(relaxed = true) }
                     single { mockk<CrashReporter>(relaxed = true) }
                     single { mockk<CredentialHelper>(relaxed = true) }
+                    single { mockk<SessionManager>(relaxed = true) }
                 },
             )
         }
@@ -73,6 +76,7 @@ class AuthViewModelTest : KoinTest {
                 lazy { analytics },
                 lazy { crash },
                 lazy { credentialHelper },
+                sessionManager,
                 mainCoroutineRule.testDispatcher,
                 mainCoroutineRule.testDispatcherUnconfined,
             )
@@ -156,5 +160,58 @@ class AuthViewModelTest : KoinTest {
 
             assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
             assert(sessionSaved)
+        }
+
+    @Test
+    fun `validateFields rejects passwords shorter than 8 characters`() =
+        runTest {
+            val valid = viewModel.validateFields(
+                isLogin = false,
+                username = "testuser",
+                email = "test@example.com",
+                password = "short",
+                confirmPassword = "short",
+            )
+
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(!valid)
+            assert(viewModel.passwordError.value is AuthViewModel.AuthFieldError.MinLength)
+            val minError = viewModel.passwordError.value as AuthViewModel.AuthFieldError.MinLength
+            assert(minError.min == 8)
+        }
+
+    @Test
+    fun `validateFields rejects trivial sequential passwords`() =
+        runTest {
+            val valid = viewModel.validateFields(
+                isLogin = false,
+                username = "testuser",
+                email = "test@example.com",
+                password = "12345678",
+                confirmPassword = "12345678",
+            )
+
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(!valid)
+            assert(viewModel.passwordError.value is AuthViewModel.AuthFieldError.TrivialPassword)
+        }
+
+    @Test
+    fun `validateFields accepts non-trivial passwords of at least 8 characters`() =
+        runTest {
+            val valid = viewModel.validateFields(
+                isLogin = false,
+                username = "testuser",
+                email = "test@example.com",
+                password = "SecurePassword2026!",
+                confirmPassword = "SecurePassword2026!",
+            )
+
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(valid)
+            assert(viewModel.passwordError.value == null)
         }
 }

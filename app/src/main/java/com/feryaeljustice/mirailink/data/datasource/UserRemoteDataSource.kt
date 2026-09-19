@@ -45,7 +45,13 @@ class UserRemoteDataSource(
         password: String,
     ): MiraiLinkResult<String> =
         safeApiCall(NetworkOperation.LOGIN) {
-            api.login(LoginRequest(email, username, password)).token
+            api.login(
+                LoginRequest(
+                    email = email.ifBlank { null },
+                    username = username.ifBlank { null },
+                    password = password,
+                ),
+            ).token
         }
 
     suspend fun logout(): MiraiLinkResult<Boolean> =
@@ -139,7 +145,7 @@ class UserRemoteDataSource(
             safeLocalCall(ioDispatcher) {
                 val photoParts =
                     photoUris.mapIndexed { index, uri ->
-                        uri?.let { createPhotoPart(it, index) }
+                        uri?.let { createPhotoPart(it, fieldName = "photo_$index") }
                     }
                 val reordered =
                     existingPhotoUrls.mapIndexedNotNull { index, url ->
@@ -183,7 +189,7 @@ class UserRemoteDataSource(
     suspend fun uploadUserPhoto(uri: Uri): MiraiLinkResult<String> {
         val prepared =
             safeLocalCall(ioDispatcher) {
-                val multipart = createPhotoPart(uri, index = 0)
+                val multipart = createPhotoPart(uri, fieldName = "photo")
                 PreparedPhotoUpload(
                     multipart = multipart,
                     position = "1".toRequestBody("text/plain".toMediaType()),
@@ -207,18 +213,52 @@ class UserRemoteDataSource(
             api.saveUserFcm(body = SaveFCMUserRequest(fcm = fcm))
         }
 
+    suspend fun updateSearchSettings(
+        radiusKm: Int,
+        scope: String,
+        targetCountry: String?,
+        matchLiveLocation: Boolean,
+    ): MiraiLinkResult<Unit> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.updateSearchSettings(
+                body = com.feryaeljustice.mirailink.data.model.request.settings.UpdateSearchSettingsRequest(
+                    searchRadiusKm = radiusKm,
+                    searchScope = scope,
+                    searchTargetCountry = targetCountry,
+                    searchMatchLiveLocation = matchLiveLocation,
+                ),
+            )
+        }
+
+    suspend fun pingLocation(
+        latitude: Double,
+        longitude: Double,
+        city: String?,
+        countryCode: String?,
+    ): MiraiLinkResult<Unit> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.pingLocation(
+                body = com.feryaeljustice.mirailink.data.model.request.location.LocationPingRequest(
+                    latitude = latitude,
+                    longitude = longitude,
+                    city = city,
+                    countryCode = countryCode,
+                ),
+            )
+        }
+
     private fun createPhotoPart(
         uri: Uri,
-        index: Int,
+        fieldName: String,
     ): MultipartBody.Part {
         val resolver = context.contentResolver
         val bytes =
             resolver.openInputStream(uri)?.use { it.readBytes() }
                 ?: throw InvalidMediaException()
         val mimeType = resolver.getType(uri) ?: "image/jpeg"
-        val fileName = "photo_${System.currentTimeMillis()}_$index.jpg"
+        val fileName = "photo_${System.currentTimeMillis()}.jpg"
         val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-        return MultipartBody.Part.createFormData("photo_$index", fileName, requestBody)
+        return MultipartBody.Part.createFormData(fieldName, fileName, requestBody)
     }
 
     private data class PreparedProfileRequest(

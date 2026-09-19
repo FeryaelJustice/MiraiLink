@@ -50,7 +50,7 @@
     <string name="auth_screen_text_field_repeat_password">Repeat password</string>
     <string name="auth_screen_text_btn_forgot_password">Have you forgot your password?</string>
     <string name="must_have_less_than">You need at least %1$d characters</string>
-    <string name="must_have_less_than_and_contain">You need at least %1$d characters and contain %2$s</string>
+    <string name="password_trivial_pattern">Password cannot be an easily predictable sequence or repeated pattern</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="request_email_verification">Request email verification</string>
     <string name="send_code">Send code</string>
@@ -149,7 +149,7 @@
     <string name="error_bad_request">We could not complete the request. Review the details and try again.</string>
     <string name="error_forbidden">This action is not available for this account. Try again later.</string>
     <string name="error_not_found">We could not find the requested information. Refresh and try again.</string>
-    <string name="error_conflict">The information has changed. Refresh and try again.</string>
+    <string name="error_conflict">The information has changed or the registry exists. Refresh and try again.</string>
     <string name="error_rate_limited">There are many requests right now. Wait a moment and try again.</string>
     <string name="error_payload_too_large">This content is too large to send. Choose a smaller one and try again.</string>
     <string name="error_server">The service had a problem. Try again in a moment.</string>
@@ -179,4 +179,47 @@
     <string name="demo_mode_exit">Exit demo mode</string>
     <string name="demo_mode_section_title">Demo Mode Options</string>
     <string name="demo_mode_active_label">Demo mode active</string>
+
+    <!-- Search Preferences -->
+    <string name="search_settings_title">Search Preferences</string>
+    <string name="search_settings_subtitle">Adjust search radius and target country or scope</string>
+    <string name="search_scope_title">Country &amp; search scope</string>
+    <string name="search_target_country_label">Country code (e.g. JP, ES, US)</string>
+    <string name="search_invalid_country_code">Enter a 2-letter uppercase ISO country code (e.g. ES, JP)</string>
+    <string name="search_settings_map_preview_label">Search map preview</string>
+    <string name="search_scope_local">Local radius</string>
+    <string name="search_scope_country">My country</string>
+    <string name="search_scope_world">Whole world</string>
+    <string name="search_scope_passport">Passport</string>
+    <string name="search_radius_label">Search radius: %1$d km</string>
+    <string name="search_match_travelers_title">Find travelers in my area</string>
+    <string name="search_match_travelers_desc">Matches users physically in your area right now even if they reside elsewhere.</string>
+    <string name="search_settings_save">Save settings</string>
+    <string name="search_settings_saved_success">Search preferences saved successfully</string>
+    <string name="search_premium_badge">Premium (Free in beta)</string>
+    <string name="search_premium_radius_future_note">Extended radius (+150 km)</string>
+    <string name="search_location_permission_needed_title">Discover people near you</string>
+    <string name="search_location_permission_needed_desc">Enable location to let MiraiLink calculate distance and show profiles in your area.</string>
+    <string name="search_location_enable_action">Enable location</string>
+    <string name="search_location_explore_world">Explore worldwide</string>
+    <string name="location_permission_rationale_title">Location permission required</string>
+    <string name="location_permission_rationale_desc">MiraiLink needs location access to calculate search radius and display nearby users. You can choose precise or approximate location.</string>
+    <string name="card_traveler_badge">Traveling here</string>
+    <string name="card_lives_in">Lives in %1$s</string>
+    <string name="card_distance_km">%1$d km away</string>
+
+    <!-- Frequently Asked Questions (FAQ) -->
+    <string name="faq_title">Frequently asked questions (FAQ)</string>
+    <string name="faq_category_general">About MiraiLink</string>
+    <string name="faq_category_privacy">Location &amp; Privacy</string>
+    <string name="faq_category_matching">Search &amp; Scope</string>
+    <string name="faq_category_premium">Premium Model</string>
+    <string name="faq_what_is_mirailink_q">What is MiraiLink and how does it work?</string>
+    <string name="faq_what_is_mirailink_a">MiraiLink is a social and dating app designed for anime, manga, and gaming enthusiasts. We connect you with like-minded people based on shared cultural interests and geographic proximity.</string>
+    <string name="faq_50_points_q">How is my location handled and why are up to 50 points saved?</string>
+    <string name="faq_50_points_a">To calculate distance to other users and enable future features like reunions or visited places, we keep a history of up to the last 50 points where you used the app. A new position is only recorded if you moved more than 5 km or after 24 hours. Once 50 points are exceeded, the oldest ones are automatically removed. Your exact location is never visible to other users.</string>
+    <string name="faq_residence_vs_travelers_q">What is the difference between place of residence and current location?</string>
+    <string name="faq_residence_vs_travelers_a">Your place of residence is the city shown on your profile ("Lives in Palma"). By default, searches compare residence locations. If you enable the travelers option, the app will match users who are physically within your radius right now even if they reside elsewhere.</string>
+    <string name="faq_premium_q">Which features will be Premium in the future?</string>
+    <string name="faq_premium_a">Currently all MiraiLink features are 100% free. In the future, advanced features such as international passport mode, search radius beyond 50 km, or specialized traveler searches will be part of optional plans to support app development.</string>
 </resources>

@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,10 +46,12 @@ import com.feryaeljustice.mirailink.domain.util.isEmailValid
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkScreenContent
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
+import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthEvent
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -123,6 +124,29 @@ fun AuthScreen(
         }
     }
 
+    // Consume eventos one-shot del ViewModel (p.ej. cambiar a login tras un error de registro)
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is AuthEvent.SwitchToLoginAndRetry -> {
+                    email = event.email
+                    username = event.username
+                    password = event.password
+                    isLogin = true
+                    viewModel.resetScreenVMState()
+                    viewModel.login(
+                        email = event.email,
+                        username = event.username,
+                        password = event.password,
+                        onSaveSession = { userId, token ->
+                            miraiLinkSession.saveSession(token, userId)
+                        },
+                    )
+                }
+            }
+        }
+    }
+
     if (showTwoFactorLastStepDialog) {
         TwoFactorPutCodeOrRecoveryCDialog(
             code = twoFactorCode,
@@ -138,180 +162,142 @@ fun AuthScreen(
         )
     }
 
-    Column(
+    // El spinner de carga reemplaza todo el formulario con AnimatedContent
+    MiraiLinkScreenContent(
+        isLoading = state is AuthUiState.Loading,
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(16.dp)
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {
                         Modifier.windowInsetsPadding(WindowInsets.displayCutout)
                     } else {
                         Modifier
                     },
-                )
-                .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
+                ),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            MiraiLinkTextButton(
-                onClick = {
-                    isLogin = !isLogin
-                    viewModel.resetScreenVMState()
-                    resetAuthUiState()
-                },
-                text =
-                    if (isLogin) {
-                        stringResource(R.string.auth_screen_register)
-                    } else {
-                        stringResource(
-                            R.string.auth_screen_login,
-                        )
-                    },
-            )
-        }
-
-        MiraiLinkOutlinedTextField(
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .semantics { contentType = ContentType.NewUsername },
-            value = if (loginByUsername && isLogin) username else email,
-            onValueChange = {
-                if (loginByUsername && isLogin) {
-                    username = it
-                    viewModel.resetUsernameError()
-                } else {
-                    email = it
-                    viewModel.resetEmailError()
-                }
-            },
-            maxLines = 1,
-            label =
-                if (loginByUsername && isLogin) {
-                    stringResource(R.string.auth_screen_text_field_username)
-                } else {
-                    stringResource(
-                        R.string.auth_screen_text_field_email,
-                    )
-                },
-            isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
-            supportingText = if (loginByUsername && isLogin) usernameErrorString else emailErrorString,
-            trailingIcon = {
-                if (isLogin) {
-                    val icon =
-                        if (loginByUsername) R.drawable.ic_user else R.drawable.ic_email
-                    IconButton(onClick = { viewModel.toggleLoginBy() }) {
-                        Icon(painter = painterResource(id = icon), contentDescription = null)
-                    }
-                } else {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_email),
-                        contentDescription = null,
-                    )
-                }
-            },
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next,
-                ),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
-        )
-
-        if (!isLogin) {
-            Spacer(modifier = Modifier.height(8.dp))
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                MiraiLinkTextButton(
+                    onClick = {
+                        isLogin = !isLogin
+                        viewModel.resetScreenVMState()
+                        resetAuthUiState()
+                    },
+                    text =
+                        if (isLogin) {
+                            stringResource(R.string.auth_screen_register)
+                        } else {
+                            stringResource(
+                                R.string.auth_screen_login,
+                            )
+                        },
+                )
+            }
 
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
-                value = username,
+                        .fillMaxWidth()
+                        .semantics { contentType = ContentType.NewUsername },
+                value = if (loginByUsername && isLogin) username else email,
                 onValueChange = {
-                    username = it
-                    viewModel.resetUsernameError()
+                    if (loginByUsername && isLogin) {
+                        username = it
+                        viewModel.resetUsernameError()
+                    } else {
+                        email = it
+                        viewModel.resetEmailError()
+                    }
                 },
                 maxLines = 1,
-                label = stringResource(R.string.auth_screen_text_field_username),
-                isError = usernameError != null,
-                supportingText = usernameErrorString,
+                label =
+                    if (loginByUsername && isLogin) {
+                        stringResource(R.string.auth_screen_text_field_username)
+                    } else {
+                        stringResource(
+                            R.string.auth_screen_text_field_email,
+                        )
+                    },
+                isError = if (loginByUsername && isLogin) usernameError != null else emailError != null,
+                supportingText = if (loginByUsername && isLogin) usernameErrorString else emailErrorString,
                 trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_user),
-                        contentDescription = null,
-                    )
+                    if (isLogin) {
+                        val icon =
+                            if (loginByUsername) R.drawable.ic_user else R.drawable.ic_email
+                        IconButton(onClick = { viewModel.toggleLoginBy() }) {
+                            Icon(painter = painterResource(id = icon), contentDescription = null)
+                        }
+                    } else {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_email),
+                            contentDescription = null,
+                        )
+                    }
                 },
                 keyboardOptions =
                     KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
+                        keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next,
                     ),
                 keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
             )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            if (!isLogin) {
+                Spacer(modifier = Modifier.height(8.dp))
 
-        MiraiLinkOutlinedTextField(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .semantics { contentType = ContentType.NewPassword },
-            value = password,
-            onValueChange = {
-                password = it
-                viewModel.resetPasswordError()
-            },
-            maxLines = 1,
-            label = stringResource(R.string.auth_screen_text_field_password),
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val icon =
-                    if (passwordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(painter = painterResource(id = icon), contentDescription = null)
-                }
-            },
-            isError = passwordError != null,
-            supportingText = passwordErrorString,
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = if (isLogin) ImeAction.Done else ImeAction.Next,
-                ),
-            keyboardActions =
-                KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Next) },
-                    onDone = {
-                        focusManager.clearFocus()
-                        viewModel.login(
-                            email,
-                            username,
-                            password,
-                            onSaveSession = { userId, token ->
-                                miraiLinkSession.saveSession(token, userId)
-                            },
+                MiraiLinkOutlinedTextField(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
+                    value = username,
+                    onValueChange = {
+                        username = it
+                        viewModel.resetUsernameError()
+                    },
+                    maxLines = 1,
+                    label = stringResource(R.string.auth_screen_text_field_username),
+                    isError = usernameError != null,
+                    supportingText = usernameErrorString,
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_user),
+                            contentDescription = null,
                         )
                     },
-                ),
-        )
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                        ),
+                    keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
+                )
+            }
 
-        if (!isLogin) {
             Spacer(modifier = Modifier.height(8.dp))
+
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
-                value = confirmPassword,
+                        .fillMaxWidth()
+                        .semantics { contentType = ContentType.NewPassword },
+                value = password,
                 onValueChange = {
-                    confirmPassword = it
-                    viewModel.resetConfirmPasswordError()
+                    password = it
+                    viewModel.resetPasswordError()
                 },
                 maxLines = 1,
-                label = stringResource(R.string.auth_screen_text_field_repeat_password),
+                label = stringResource(R.string.auth_screen_text_field_password),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon =
@@ -320,16 +306,116 @@ fun AuthScreen(
                         Icon(painter = painterResource(id = icon), contentDescription = null)
                     }
                 },
-                isError = confirmPasswordError != null,
-                supportingText = confirmPasswordErrorString,
+                isError = passwordError != null,
+                supportingText = passwordErrorString,
                 keyboardOptions =
                     KeyboardOptions(
                         keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Done,
+                        imeAction = if (isLogin) ImeAction.Done else ImeAction.Next,
                     ),
                 keyboardActions =
-                    KeyboardActions(onDone = {
-                        focusManager.clearFocus()
+                    KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Next) },
+                        onDone = {
+                            focusManager.clearFocus()
+                            viewModel.login(
+                                email,
+                                username,
+                                password,
+                                onSaveSession = { userId, token ->
+                                    miraiLinkSession.saveSession(token, userId)
+                                },
+                            )
+                        },
+                    ),
+            )
+
+            if (!isLogin) {
+                Spacer(modifier = Modifier.height(8.dp))
+                MiraiLinkOutlinedTextField(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        viewModel.resetConfirmPasswordError()
+                    },
+                    maxLines = 1,
+                    label = stringResource(R.string.auth_screen_text_field_repeat_password),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon =
+                            if (passwordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(painter = painterResource(id = icon), contentDescription = null)
+                        }
+                    },
+                    isError = confirmPasswordError != null,
+                    supportingText = confirmPasswordErrorString,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Done,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(onDone = {
+                            focusManager.clearFocus()
+                            viewModel.register(
+                                username,
+                                email,
+                                password,
+                                onSaveSession = { userId, token ->
+                                    miraiLinkSession.saveSession(token, userId)
+                                },
+                            )
+                        }),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                MiraiLinkTextButton(
+                    modifier = Modifier,
+                    onClick = {
+                        onRequestPasswordReset(email)
+                        autofillManager?.commit()
+                    },
+                    text = stringResource(R.string.auth_screen_text_btn_forgot_password),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MiraiLinkButton(
+                onClick = {
+                    // VALIDACIONES AUTH PREVIAS
+                    if (!viewModel.validateFields(
+                            isLogin = isLogin,
+                            email = email,
+                            username = username,
+                            password = password,
+                            confirmPassword = confirmPassword,
+                        )
+                    ) {
+                        return@MiraiLinkButton
+                    }
+
+                    // ACCION AUTH
+                    if (isLogin) {
+                        viewModel.login(
+                            email,
+                            username,
+                            password,
+                            onSaveSession = { userId, token ->
+                                miraiLinkSession.saveSession(token, userId)
+                            },
+                        )
+                    } else {
                         viewModel.register(
                             username,
                             email,
@@ -338,121 +424,60 @@ fun AuthScreen(
                                 miraiLinkSession.saveSession(token, userId)
                             },
                         )
-                    }),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            MiraiLinkTextButton(
-                modifier = Modifier,
-                onClick = {
-                    onRequestPasswordReset(email)
-                    autofillManager?.commit()
+                    }
                 },
-                text = stringResource(R.string.auth_screen_text_btn_forgot_password),
+                content = {
+                    MiraiLinkText(
+                        text =
+                            if (isLogin) {
+                                stringResource(R.string.auth_screen_login)
+                            } else {
+                                stringResource(
+                                    R.string.auth_screen_register,
+                                )
+                            },
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                },
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        MiraiLinkButton(
-            onClick = {
-                // VALIDACIONES AUTH PREVIAS
-                if (!viewModel.validateFields(
-                        isLogin = isLogin,
-                        email = email,
-                        username = username,
-                        password = password,
-                        confirmPassword = confirmPassword,
-                    )
-                ) {
-                    return@MiraiLinkButton
+            MiraiLinkTextButton(
+                onClick = {
+                    viewModel.enterDemoMode { _, _ ->
+                        miraiLinkSession.enterDemoMode()
+                    }
+                },
+                text = stringResource(R.string.demo_mode_button),
+                isTransparentBackground = false,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+
+            LaunchedEffect(state, onLogin, onRegister) {
+                when (val currentState = state) {
+                    is AuthUiState.Success -> {
+                        resetAuthUiState()
+                        if (isLogin) onLogin(userId) else onRegister(userId)
+                    }
+
+                    is AuthUiState.IsAuthenticated -> {
+                        onLogin(currentState.userId)
+                    }
+
+                    else -> {}
                 }
-
-                // ACCION AUTH
-                if (isLogin) {
-                    viewModel.login(
-                        email,
-                        username,
-                        password,
-                        onSaveSession = { userId, token ->
-                            miraiLinkSession.saveSession(token, userId)
-                        },
-                    )
-                } else {
-                    viewModel.register(
-                        username,
-                        email,
-                        password,
-                        onSaveSession = { userId, token ->
-                            miraiLinkSession.saveSession(token, userId)
-                        },
-                    )
-                }
-            },
-            content = {
-                MiraiLinkText(
-                    text =
-                        if (isLogin) {
-                            stringResource(R.string.auth_screen_login)
-                        } else {
-                            stringResource(
-                                R.string.auth_screen_register,
-                            )
-                        },
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        MiraiLinkTextButton(
-            onClick = {
-                viewModel.enterDemoMode { _, _ ->
-                    miraiLinkSession.enterDemoMode()
-                }
-            },
-            text = stringResource(R.string.demo_mode_button),
-            isTransparentBackground = false,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
-
-        LaunchedEffect(state, onLogin, onRegister) {
-            when (val currentState = state) {
-                is AuthUiState.Success -> {
-                    resetAuthUiState()
-                    if (isLogin) onLogin(userId) else onRegister(userId)
-                }
-
-                is AuthUiState.IsAuthenticated -> {
-                    onLogin(currentState.userId)
-                }
-
-                else -> {}
             }
-        }
 
-        when (val currentState = state) {
-            is AuthUiState.Error -> {
+            if (state is AuthUiState.Error) {
+                Spacer(modifier = Modifier.height(8.dp))
                 MiraiLinkErrorContent(
-                    error = currentState.error,
+                    error = (state as AuthUiState.Error).error,
                     onAction = viewModel::performErrorAction,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-
-            is AuthUiState.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            else -> {}
         }
     }
 }
@@ -471,11 +496,18 @@ private fun mapErrorToString(error: AuthViewModel.AuthFieldError?): String? =
             stringResource(R.string.invalid_email)
         }
 
+        is AuthViewModel.AuthFieldError.InvalidPassword -> {
+            stringResource(R.string.password_must_contain_at_least_one_letter_and_one_number)
+        }
+
         is AuthViewModel.AuthFieldError.PasswordsDoNotMatch -> {
             stringResource(R.string.passwords_do_not_match)
         }
 
-        // is AuthFieldError.InvalidPassword -> context.getString(R.string.password_format_error)
+        is AuthViewModel.AuthFieldError.TrivialPassword -> {
+            stringResource(R.string.password_trivial_pattern)
+        }
+
         else -> {
             null
         }

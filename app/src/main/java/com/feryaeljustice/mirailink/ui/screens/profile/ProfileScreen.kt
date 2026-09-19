@@ -7,6 +7,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
@@ -174,161 +180,173 @@ fun ProfileScreen(
                 onAction = viewModel::performErrorAction,
             )
         }
-        when (val currentState = state) {
-            is ProfileUiState.Success -> {
-                currentState.user?.let { user ->
-                    Box(modifier = Modifier.padding(16.dp)) {
-                        UserCard(
-                            modifier =
-                                Modifier
-                                    .padding(2.dp),
-                            user = user,
-                            isPreviewMode = true,
-                            editUiState = editState,
-                            onEdit = { isEdit ->
-                                viewModel.setIsInEditMode(isEdit)
+        AnimatedContent(
+            targetState = state,
+            modifier = Modifier.fillMaxSize(),
+            transitionSpec = {
+                (fadeIn() + scaleIn(initialScale = 0.92f))
+                    .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+            },
+            label = "ProfileStateTransition",
+        ) { currentState ->
+            when (currentState) {
+                is ProfileUiState.Success -> {
+                    currentState.user?.let { user ->
+                        Box(modifier = Modifier.padding(16.dp)) {
+                            UserCard(
+                                modifier =
+                                    Modifier
+                                        .padding(2.dp),
+                                user = user,
+                                isPreviewMode = true,
+                                editUiState = editState,
+                                onEdit = { isEdit ->
+                                    viewModel.setIsInEditMode(isEdit)
 
-                                // Initialize edit state if going to edit user
-                                if (isEdit) {
-                                    (state as? ProfileUiState.Success)?.user?.let { stateUser ->
-                                        viewModel.onIntent(EditProfileIntent.Initialize(stateUser))
+                                    // Initialize edit state if going to edit user
+                                    if (isEdit) {
+                                        (state as? ProfileUiState.Success)?.user?.let { stateUser ->
+                                            viewModel.onIntent(EditProfileIntent.Initialize(stateUser))
+                                        }
                                     }
-                                }
-                            },
-                            onSave = {
-                                viewModel.onIntent(EditProfileIntent.Save)
-                            },
-                            onValueChange = { field, value ->
-                                Log.d("ProfileScreen", "onValueChange: $field $value")
-                                viewModel.onIntent(
-                                    EditProfileIntent.UpdateTextField(
-                                        field,
-                                        value,
-                                    ),
-                                )
-                            },
-                            onTagSelect = { field, value ->
-                                Log.d(
-                                    "ProfileScreen",
-                                    "onTagSelect: $field, value ",
-                                )
-                                viewModel.onIntent(
-                                    EditProfileIntent.UpdateTags(
-                                        field,
-                                        value,
-                                    ),
-                                )
-                            },
-                            onPhotoReorder = { oldPosition, newPosition ->
-                                Log.d(
-                                    "ProfileScreen",
-                                    "onPhotoReorder: $oldPosition $newPosition",
-                                )
-                                viewModel.onIntent(
-                                    EditProfileIntent.ReorderPhoto(
-                                        oldPosition,
-                                        newPosition,
-                                    ),
-                                )
-                            },
-                            onPhotoSlotClick = { position ->
-                                // position is the index of the photo slot
-                                Log.d(
-                                    "ProfileScreen",
-                                    "onPhotoSlotClick: $position",
-                                )
-                                viewModel.onIntent(EditProfileIntent.OpenPhotoActionDialog(position))
-                            },
-                        )
-
-                        // 1. Dialogo: Actualizar o Borrar
-                        if (editState.showActionDialog && editState.selectedSlotForDialog != null) {
-                            AlertDialog(
-                                onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_title)) },
-                                text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_text)) },
-                                confirmButton = {
-                                    MiraiLinkTextButton(
-                                        onClick = {
-                                            viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
-                                        },
-                                        text = stringResource(R.string.update),
+                                },
+                                onSave = {
+                                    viewModel.onIntent(EditProfileIntent.Save)
+                                },
+                                onValueChange = { field, value ->
+                                    Log.d("ProfileScreen", "onValueChange: $field $value")
+                                    viewModel.onIntent(
+                                        EditProfileIntent.UpdateTextField(
+                                            field,
+                                            value,
+                                        ),
                                     )
                                 },
-                                dismissButton = {
-                                    MiraiLinkTextButton(
-                                        onClick = {
-                                            editState.selectedSlotForDialog?.let {
-                                                viewModel.onIntent(
-                                                    EditProfileIntent.RemovePhoto(it),
-                                                )
-                                                viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
-                                            }
-                                        },
-                                        text = stringResource(R.string.delete),
+                                onTagSelect = { field, value ->
+                                    Log.d(
+                                        "ProfileScreen",
+                                        "onTagSelect: $field, value ",
                                     )
+                                    viewModel.onIntent(
+                                        EditProfileIntent.UpdateTags(
+                                            field,
+                                            value,
+                                        ),
+                                    )
+                                },
+                                onPhotoReorder = { oldPosition, newPosition ->
+                                    Log.d(
+                                        "ProfileScreen",
+                                        "onPhotoReorder: $oldPosition $newPosition",
+                                    )
+                                    viewModel.onIntent(
+                                        EditProfileIntent.ReorderPhoto(
+                                            oldPosition,
+                                            newPosition,
+                                        ),
+                                    )
+                                },
+                                onPhotoSlotClick = { position ->
+                                    // position is the index of the photo slot
+                                    Log.d(
+                                        "ProfileScreen",
+                                        "onPhotoSlotClick: $position",
+                                    )
+                                    viewModel.onIntent(EditProfileIntent.OpenPhotoActionDialog(position))
                                 },
                             )
-                        }
 
-                        // 2. Dialogo: Galería o Cámara
-                        if (editState.showPhotoSourceDialog && editState.selectedSlotForDialog != null) {
-                            AlertDialog(
-                                onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
-                                title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_title)) },
-                                text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_text)) },
-                                confirmButton = {
-                                    MiraiLinkTextButton(
-                                        onClick = {
-                                            // Aquí lanzas launcher de galería
-                                            Log.d("ProfileScreen", "Chosen: Gallery")
-                                            galleryLauncher.launch("image/*")
-                                        },
-                                        text = stringResource(R.string.gallery),
-                                    )
-                                },
-                                dismissButton = {
-                                    MiraiLinkTextButton(
-                                        onClick = {
-                                            // Aquí lanzas launcher de cámara
-                                            Log.d("ProfileScreen", "Chosen: Camera")
-                                            if (ContextCompat.checkSelfPermission(
-                                                    context,
-                                                    Manifest.permission.CAMERA,
-                                                ) == PackageManager.PERMISSION_GRANTED
-                                            ) {
-                                                val uri = createImageUri(context)
-                                                tempCameraUri = uri
-                                                cameraLauncher.launch(uri)
-                                            } else {
-                                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                                viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
-                                            }
-                                        },
-                                        text = stringResource(R.string.camera),
-                                    )
-                                },
-                            )
+                            // 1. Dialogo: Actualizar o Borrar
+                            if (editState.showActionDialog && editState.selectedSlotForDialog != null) {
+                                AlertDialog(
+                                    onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
+                                    title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_title)) },
+                                    text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_action_text)) },
+                                    confirmButton = {
+                                        MiraiLinkTextButton(
+                                            onClick = {
+                                                viewModel.onIntent(EditProfileIntent.ShowPhotoSourceDialog)
+                                            },
+                                            text = stringResource(R.string.update),
+                                        )
+                                    },
+                                    dismissButton = {
+                                        MiraiLinkTextButton(
+                                            onClick = {
+                                                editState.selectedSlotForDialog?.let {
+                                                    viewModel.onIntent(
+                                                        EditProfileIntent.RemovePhoto(it),
+                                                    )
+                                                    viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                                }
+                                            },
+                                            text = stringResource(R.string.delete),
+                                        )
+                                    },
+                                )
+                            }
+
+                            // 2. Dialogo: Galeria o Camara
+                            if (editState.showPhotoSourceDialog && editState.selectedSlotForDialog != null) {
+                                AlertDialog(
+                                    onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
+                                    title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_title)) },
+                                    text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_text)) },
+                                    confirmButton = {
+                                        MiraiLinkTextButton(
+                                            onClick = {
+                                                // Aqui lanzas launcher de galeria
+                                                Log.d("ProfileScreen", "Chosen: Gallery")
+                                                galleryLauncher.launch("image/*")
+                                            },
+                                            text = stringResource(R.string.gallery),
+                                        )
+                                    },
+                                    dismissButton = {
+                                        MiraiLinkTextButton(
+                                            onClick = {
+                                                // Aqui lanzas launcher de camara
+                                                Log.d("ProfileScreen", "Chosen: Camera")
+                                                if (ContextCompat.checkSelfPermission(
+                                                        context,
+                                                        Manifest.permission.CAMERA,
+                                                    ) == PackageManager.PERMISSION_GRANTED
+                                                ) {
+                                                    val uri = createImageUri(context)
+                                                    tempCameraUri = uri
+                                                    cameraLauncher.launch(uri)
+                                                } else {
+                                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                                    viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                                }
+                                            },
+                                            text = stringResource(R.string.camera),
+                                        )
+                                    },
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            is ProfileUiState.Error -> {
-                MiraiLinkErrorContent(
-                    error = currentState.error,
-                    onAction = viewModel::performErrorAction,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+                is ProfileUiState.Error -> {
+                    MiraiLinkErrorContent(
+                        error = currentState.error,
+                        onAction = viewModel::performErrorAction,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
 
-            ProfileUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                ProfileUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                ProfileUiState.Idle -> {
+                    Box(modifier = Modifier.fillMaxSize())
                 }
             }
-
-            ProfileUiState.Idle -> {}
         }
     }
 }

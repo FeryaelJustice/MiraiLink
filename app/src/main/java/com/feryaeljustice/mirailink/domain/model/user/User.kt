@@ -18,4 +18,13 @@ data class User(
     val games: List<Game>,
     val animes: List<Anime>,
     val fcmToken: String? = "",
+    val residenceCity: String? = null,
+    val residenceRegion: String? = null,
+    val residenceCountryCode: String? = null,
+    val residenceLatitude: Double? = null,
+    val residenceLongitude: Double? = null,
+    val currentLatitude: Double? = null,
+    val currentLongitude: Double? = null,
+    val distanceKm: Double? = null,
+    val isTraveler: Boolean = false,
 )
