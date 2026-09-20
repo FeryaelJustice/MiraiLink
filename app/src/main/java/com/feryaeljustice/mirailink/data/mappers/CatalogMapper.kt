@@ -5,5 +5,5 @@ import com.feryaeljustice.mirailink.data.model.GameDto
 import com.feryaeljustice.mirailink.domain.model.catalog.Anime
 import com.feryaeljustice.mirailink.domain.model.catalog.Game
 
-fun AnimeDto.toDomain() = Anime(id, name, imageUrl)
-fun GameDto.toDomain() = Game(id, name, imageUrl)
+fun AnimeDto.toDomain() = Anime(id, name, imageUrl, catalogKey, biography)
+fun GameDto.toDomain() = Game(id, name, imageUrl, catalogKey, biography)

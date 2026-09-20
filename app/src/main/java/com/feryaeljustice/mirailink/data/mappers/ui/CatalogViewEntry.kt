@@ -8,11 +8,15 @@ import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 fun Anime.toAnimeViewEntry(): AnimeViewEntry = AnimeViewEntry(
     id = id,
     name = name,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    catalogKey = catalogKey,
+    biography = biography,
 )
 
 fun Game.toGameViewEntry(): GameViewEntry = GameViewEntry(
     id = id,
     name = name,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    catalogKey = catalogKey,
+    biography = biography,
 )

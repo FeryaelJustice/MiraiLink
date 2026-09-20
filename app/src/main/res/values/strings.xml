@@ -24,6 +24,10 @@
     <string name="user_card_fav_animes_empty">No hay animes favoritos</string>
     <string name="user_card_fav_games_empty">No hay juegos favoritos</string>
     <string name="bio_placeholder">Aquí para triunfar</string>
+    <string name="bio_not_set">No tiene una biografía establecida</string>
+    <string name="profile_bio_label">Biografía</string>
+    <string name="profile_gender_not_set">Género no establecido</string>
+    <string name="profile_age_not_set">Edad no establecida</string>
     <string name="save">Guardar</string>
     <string name="edit">Editar</string>
     <string name="discard">Descartar</string>
@@ -260,4 +264,7 @@
     <string name="faq_residence_vs_travelers_a">Tu lugar de residencia es la ciudad que indicas en tu perfil ("Vive en Palma"). Por defecto, las búsquedas se realizan comparando las residencias. Si activas la opción de viajeros, la app buscará personas que estén físicamente en tu radio en ese momento aunque residan en otra parte.</string>
     <string name="faq_premium_q">¿Qué funciones serán Premium en el futuro?</string>
     <string name="faq_premium_a">Actualmente todas las funciones de MiraiLink son 100% gratuitas. En el futuro, características avanzadas como el modo pasaporte internacional, radios superiores a 50 km o búsquedas especializadas de viajeros formarán parte de planes opcionales para apoyar el desarrollo de la app.</string>
+    <string name="profile_section_basic">Información básica</string>
+    <string name="profile_section_residence">Residencia</string>
+    <string name="profile_section_interests">Gustos</string>
 </resources>

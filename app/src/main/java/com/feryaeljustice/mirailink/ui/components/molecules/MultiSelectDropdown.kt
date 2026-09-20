@@ -35,11 +35,13 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
+data class MultiSelectOption(val id: String, val label: String)
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MultiSelectDropdown(
     label: String,
-    options: List<String>,
+    options: List<MultiSelectOption>,
     selected: List<String>,
     onSelectionChange: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
@@ -60,7 +62,7 @@ fun MultiSelectDropdown(
                 Modifier
                     .fillMaxWidth()
                     .clickable { expanded = true },
-            value = if (selected.isEmpty()) "" else selected.joinToString(", "),
+            value = options.filter { it.id in selected }.joinToString(", ") { it.label },
             onValueChange = {},
             label = label,
             readOnly = true,
@@ -87,12 +89,12 @@ fun MultiSelectDropdown(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                selected.forEach { tag ->
+                options.filter { it.id in selected }.forEach { option ->
                     AssistChip(
                         onClick = {
-                            onSelectionChange(selected - tag)
+                            onSelectionChange(selected - option.id)
                         },
-                        label = { MiraiLinkText(text = tag) },
+                        label = { MiraiLinkText(text = option.label) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.padding(end = 8.dp, bottom = 4.dp),
                         colors =
@@ -117,20 +119,20 @@ fun MultiSelectDropdown(
                     ).fillMaxHeight(fraction = 0.6f),
         ) {
             options.forEach { option ->
-                val isSelected = option in selected
+                val isSelected = option.id in selected
                 DropdownMenuItem(
                     text = {
                         MiraiLinkText(
-                            text = option,
+                            text = option.label,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     },
                     onClick = {
                         val newSelection =
                             if (isSelected) {
-                                selected - option
+                                selected - option.id
                             } else {
-                                selected + option
+                                selected + option.id
                             }
                         onSelectionChange(newSelection)
                     },

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MinimalUserInfoResponse(
     @SerialName("id") val id: String,
-    @SerialName("username") val username: String,
+    @SerialName("username") val username: String = "",
     @SerialName("nickname") val nickname: String,
     @SerialName("avatarUrl") val avatarUrl: String? = null
 )
