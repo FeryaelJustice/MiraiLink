@@ -24,6 +24,7 @@ import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
 import com.google.firebase.Firebase
 import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.initialize
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
@@ -96,6 +97,10 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG) {
             Firebase.appCheck.installAppCheckProviderFactory(
                 DebugAppCheckProviderFactory.getInstance(),
+            )
+        } else {
+            Firebase.appCheck.installAppCheckProviderFactory(
+                PlayIntegrityAppCheckProviderFactory.getInstance(),
             )
         }
     }

@@ -272,6 +272,7 @@ dependencies {
     implementation(libs.firebase.config)
     implementation(libs.firebase.ai)
     implementation(libs.firebase.appcheck.debug)
+    implementation(libs.firebase.appcheck.play.integrity)
 
     // Google Ads
     implementation(libs.play.services.ads)
