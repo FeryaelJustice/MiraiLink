@@ -32,7 +32,7 @@ val demoModule =
         single { get<MiraiLinkDemoDatabase>().chatDao() }
 
         single { DemoDataSeeder(database = get()) }
-        single { DemoModeManager(seeder = get(), scope = get(ApplicationScope)) }
+        single { DemoModeManager(seeder = get(), sessionManager = get(), scope = get(ApplicationScope)) }
 
         single<UserRepository>(Demo) { DemoUserRepositoryImpl(database = get(), seeder = get()) }
         single<MatchRepository>(Demo) { DemoMatchRepositoryImpl(database = get()) }

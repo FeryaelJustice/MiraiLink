@@ -42,6 +42,7 @@ import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScree
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
+import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesScreen
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesScreen
 import com.feryaeljustice.mirailink.ui.screens.onboarding.OnboardingScreen
 import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureScreen
@@ -269,10 +270,6 @@ fun NavWrapper(
                            // Delegado al LaunchedEffect centralizado
                         },
                         onRequestPasswordReset = { email ->
-                            // Este es navegación interna de Auth, sí navega directo
-                            miraiLinkSession.showBars() // Quizás no mostrar barras aquí?
-                            miraiLinkSession.enableBars()
-                            miraiLinkSession.showTopBarSettingsIcon()
                             navigator.navigate(AppScreen.RecoverPasswordScreen(email))
                         },
                     )
@@ -286,6 +283,7 @@ fun NavWrapper(
                             // Vuelves a Auth
                             navigator.resetToTopLevel(ScreensSubgraphs.Auth, AppScreen.AuthScreen)
                         },
+                        onBack = { navigator.goBack() },
                     )
                 }
 
@@ -360,6 +358,13 @@ fun NavWrapper(
                     )
                 }
 
+                entry<AppScreen.SearchPreferencesScreen> {
+                    SearchPreferencesScreen(
+                        onBackClick = { navigator.goBack() },
+                        showToast = { msg, duration -> showToast(context, msg, duration) },
+                    )
+                }
+
                 entry<AppScreen.FeedbackScreen> {
                     FeedbackScreen(
                         showToast = { msg, duration -> showToast(context, msg, duration) },
@@ -404,6 +409,7 @@ fun NavWrapper(
                                 enabled = !topBarConfig.disableTopBar && isAuthenticated,
                                 isAuthenticated = isAuthenticated,
                                 showSettingsIcon = topBarConfig.showSettingsIcon,
+                                showSearchPreferencesIcon = currentKey is AppScreen.HomeScreen,
                                 title = topBarConfig.title,
                                 onThemeChange = onThemeChange,
                                 layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
@@ -418,6 +424,11 @@ fun NavWrapper(
                                 onNavigateToSettings = {
                                     if (currentKey !is AppScreen.SettingsScreen) {
                                         navigator.navigate(AppScreen.SettingsScreen)
+                                    }
+                                },
+                                onNavigateToSearchPreferences = {
+                                    if (currentKey is AppScreen.HomeScreen) {
+                                        navigator.navigate(AppScreen.SearchPreferencesScreen)
                                     }
                                 },
                             )

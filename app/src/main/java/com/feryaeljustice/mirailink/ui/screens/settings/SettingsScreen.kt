@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.ui.screens.settings
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
@@ -58,8 +57,8 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
-import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupCompletedDialog
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -84,15 +83,6 @@ fun SettingsScreen(
 
     val actualGoToFeedbackScreen by rememberUpdatedState(goToFeedbackScreen)
     val actualGoToFaqScreen by rememberUpdatedState(goToFaqScreen)
-
-    val draftRadius by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
-    val draftScope by viewModel.draftScope.collectAsStateWithLifecycle()
-    val draftTargetCountry by viewModel.draftTargetCountry.collectAsStateWithLifecycle()
-    val draftMatchLiveLocation by viewModel.draftMatchLiveLocation.collectAsStateWithLifecycle()
-    val hasUnsavedChanges by viewModel.hasUnsavedChanges.collectAsStateWithLifecycle()
-    val isSavingPreferences by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
-    val userLat by viewModel.userLatitude.collectAsStateWithLifecycle()
-    val userLon by viewModel.userLongitude.collectAsStateWithLifecycle()
 
     val uriHandler = LocalUriHandler.current
 
@@ -229,123 +219,6 @@ fun SettingsScreen(
     val resetDemoDoneText = stringResource(R.string.demo_mode_reset_data_done)
 
     val scrollState = rememberScrollState()
-    var isMapVisible by remember { mutableStateOf(false) }
-
-    // El mapa se hace visible en cuanto el usuario empieza a hacer scroll
-    LaunchedEffect(scrollState.isScrollInProgress) {
-        if (scrollState.isScrollInProgress) {
-            isMapVisible = true
-        }
-    }
-
-    // O en cuanto cambie algún parámetro del borrador
-    LaunchedEffect(draftRadius, draftScope, draftTargetCountry, draftMatchLiveLocation) {
-        if (hasUnsavedChanges) {
-            isMapVisible = true
-        }
-    }
-
-    // Permisos de Ubicación (Precisa y Aproximada) con compatibilidad hacia atrás
-    val context = androidx.compose.ui.platform.LocalContext.current
-    var showLocationRationaleDialog by remember { mutableStateOf(false) }
-
-    val locationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions(),
-    ) { permissions ->
-        val fineGranted = permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true
-        val coarseGranted = permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true
-
-        if (fineGranted || coarseGranted) {
-            // Ubicación otorgada (precisa o aproximada)
-            try {
-                val locationManager =
-                    context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
-                if (locationManager != null) {
-                    val isGpsEnabled =
-                        locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
-                    val isNetworkEnabled =
-                        locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
-
-                    var lastKnown: android.location.Location? = null
-                    if (fineGranted && isGpsEnabled) {
-                        lastKnown =
-                            locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
-                    }
-                    if (lastKnown == null && (fineGranted || coarseGranted) && isNetworkEnabled) {
-                        lastKnown =
-                            locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
-                    }
-
-                    lastKnown?.let { loc ->
-                        viewModel.updateUserCoordinates(loc.latitude, loc.longitude)
-                    }
-                }
-            } catch (_: SecurityException) {
-                // Ignore security exception
-            }
-        }
-        showLocationRationaleDialog = false
-    }
-
-    val requestLocationPermissions = {
-        val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-
-        val hasCoarse = androidx.core.content.ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-
-        if (!hasFine && !hasCoarse) {
-            val activity = context as? android.app.Activity
-            val shouldShowFine = activity?.let {
-                androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-                    it,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                )
-            } ?: false
-
-            val shouldShowCoarse = activity?.let {
-                androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-                    it,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                )
-            } ?: false
-
-            if (shouldShowFine || shouldShowCoarse) {
-                showLocationRationaleDialog = true
-            } else {
-                locationPermissionLauncher.launch(
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    ),
-                )
-            }
-        }
-    }
-
-    AnimatedVisibility(showLocationRationaleDialog) {
-        MiraiLinkDialog(
-            title = stringResource(R.string.location_permission_rationale_title),
-            message = stringResource(R.string.location_permission_rationale_desc),
-            onDismiss = { showLocationRationaleDialog = false },
-            onAccept = {
-                showLocationRationaleDialog = false
-                locationPermissionLauncher.launch(
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    ),
-                )
-            },
-            onCancel = { showLocationRationaleDialog = false },
-            acceptText = stringResource(R.string.accept),
-            cancelText = stringResource(R.string.cancel),
-        )
-    }
 
     Column(
         modifier =
@@ -408,65 +281,15 @@ fun SettingsScreen(
                 onAction = viewModel::performErrorAction,
             )
         }
-        // Logo de MiraiLink redimensionado a tamaño más compacto y elegante
-        Image(
+        // OCULTO: Logo de MiraiLink redimensionado a tamaño más compacto y elegante
+        /* Image(
             painter = painterResource(id = R.drawable.logomirailink),
             contentDescription = stringResource(R.string.content_description_settings_screen_img_logo),
             modifier =
                 Modifier
                     .size(110.dp)
                     .padding(4.dp),
-        )
-        val searchSavedText = stringResource(R.string.search_settings_saved_success)
-
-        SettingsSectionTitle(stringResource(R.string.settings_section_experience))
-        // Seccion de Preferencias de Busqueda (Minimapa condicional, Radio, Pais, Viajeros)
-        com.feryaeljustice.mirailink.ui.screens.settings.components.SearchSettingsSection(
-            radiusKm = draftRadius,
-            onRadiusChange = { radius ->
-                isMapVisible = true
-                viewModel.updateDraftRadius(radius)
-            },
-            scope = draftScope,
-            onScopeChange = { scope ->
-                isMapVisible = true
-                viewModel.updateDraftScope(scope)
-            },
-            targetCountry = draftTargetCountry,
-            onTargetCountryChange = { country ->
-                isMapVisible = true
-                viewModel.updateDraftTargetCountry(country)
-            },
-            matchLiveLocation = draftMatchLiveLocation,
-            onMatchLiveLocationChange = { enabled ->
-                isMapVisible = true
-                viewModel.updateDraftMatchLiveLocation(enabled)
-            },
-            hasUnsavedChanges = hasUnsavedChanges,
-            isSaving = isSavingPreferences,
-            onSaveClick = {
-                viewModel.saveSearchPreferences {
-                    isMapVisible = false // Al guardar ajustes se oculta de nuevo el mapa
-                    showToast(searchSavedText, Toast.LENGTH_SHORT)
-                }
-            },
-            latitude = userLat,
-            longitude = userLon,
-            isMapVisible = isMapVisible,
-            onRequestLocationPermission = requestLocationPermissions,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SettingsActionCard(
-            icon = Icons.Default.Info,
-            title = stringResource(R.string.faq_title),
-            subtitle = stringResource(R.string.settings_faq_subtitle),
-            onClick = { actualGoToFaqScreen() },
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
+        )*/
         if (isDemoMode) {
             SettingsActionCard(
                 icon = Icons.Default.Refresh,
@@ -480,7 +303,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             SettingsActionCard(
-                icon = Icons.Default.ExitToApp,
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
                 title = stringResource(R.string.demo_mode_exit),
                 subtitle = stringResource(R.string.settings_exit_demo_subtitle),
                 onClick = miraiLinkSession::clearSession,
@@ -502,7 +325,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             SettingsActionCard(
-                icon = Icons.Default.ExitToApp,
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
                 title = stringResource(R.string.logout),
                 subtitle = stringResource(R.string.settings_logout_subtitle),
                 onClick = { showLogoutDialog = true },
@@ -525,6 +348,13 @@ fun SettingsScreen(
             subtitle = stringResource(R.string.settings_privacy_subtitle),
             onLongPress = { copyToClipBoard(deepLinkPrivacyPolicyUrl) },
             onClick = { uriHandler.openUri(deepLinkPrivacyPolicyUrl) },
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        SettingsActionCard(
+            icon = Icons.Default.Info,
+            title = stringResource(R.string.faq_title),
+            subtitle = stringResource(R.string.settings_faq_subtitle),
+            onClick = { actualGoToFaqScreen() },
         )
 
         Row(

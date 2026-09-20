@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.local.demo
 
+import androidx.room.withTransaction
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoFeedUserEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMatchEntity
@@ -28,6 +29,7 @@ class DemoDataSeeder(
     }
 
     suspend fun resetDemoData() {
+        database.withTransaction {
         // 1. Limpiar todas las tablas demo
         database.userDao().clearUserProfile()
         database.userDao().clearFeedUsers()
@@ -464,5 +466,6 @@ class DemoDataSeeder(
             isRead = true,
         )
         database.chatDao().insertMessage(msgKenji1)
+        }
     }
 }

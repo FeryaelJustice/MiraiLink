@@ -276,10 +276,7 @@ fun UserCard(
 
                         if (locationParts.isNotEmpty() || user.isTraveler) {
                             Spacer(modifier = Modifier.height(4.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 if (locationParts.isNotEmpty()) {
                                     MiraiLinkText(
                                         text = locationParts.joinToString(" • "),

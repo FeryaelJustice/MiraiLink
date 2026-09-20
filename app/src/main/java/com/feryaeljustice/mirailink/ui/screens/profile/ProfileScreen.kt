@@ -91,6 +91,8 @@ fun ProfileScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val editState by viewModel.editState.collectAsStateWithLifecycle()
+    val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
+    val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
 
     // Galería
     val galleryLauncher =
@@ -190,6 +192,10 @@ fun ProfileScreen(
                 }
             }
         }
+    }
+
+    LaunchedEffect(isDemoMode, currentUserId) {
+        viewModel.getCurrentUser()
     }
 
     PullToRefreshBox(
