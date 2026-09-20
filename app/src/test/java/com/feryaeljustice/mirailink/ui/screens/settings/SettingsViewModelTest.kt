@@ -19,11 +19,6 @@ import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
 
-import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
-import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
-import com.feryaeljustice.mirailink.domain.usecase.settings.SaveSearchPreferencesUseCase
-import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
-import kotlinx.coroutines.flow.flowOf
 
 @ExperimentalCoroutinesApi
 class SettingsViewModelTest : KoinTest {
@@ -32,10 +27,6 @@ class SettingsViewModelTest : KoinTest {
 
     private val logoutUseCase: LogoutUseCase by inject()
     private val deleteAccountUseCase: DeleteAccountUseCase by inject()
-    private val getSearchPreferencesUseCase: GetSearchPreferencesUseCase by inject()
-    private val saveSearchPreferencesUseCase: SaveSearchPreferencesUseCase by inject()
-    private val getCurrentUserUseCase: GetCurrentUserUseCase by inject()
-
     private lateinit var viewModel: SettingsViewModel
 
     @get:Rule
@@ -45,21 +36,6 @@ class SettingsViewModelTest : KoinTest {
                 module {
                     single { mockk<LogoutUseCase>() }
                     single { mockk<DeleteAccountUseCase>() }
-                    single {
-                        mockk<GetSearchPreferencesUseCase> {
-                            coEvery { this@mockk.invoke() } returns flowOf(SearchPreferences())
-                        }
-                    }
-                    single {
-                        mockk<SaveSearchPreferencesUseCase> {
-                            coEvery { this@mockk.invoke(any()) } returns MiraiLinkResult.Success(Unit)
-                        }
-                    }
-                    single {
-                        mockk<GetCurrentUserUseCase> {
-                            coEvery { this@mockk.invoke() } returns MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.UnknownError)
-                        }
-                    }
                 },
             )
         }
@@ -70,9 +46,6 @@ class SettingsViewModelTest : KoinTest {
             SettingsViewModel(
                 logoutUseCase,
                 deleteAccountUseCase,
-                getSearchPreferencesUseCase,
-                saveSearchPreferencesUseCase,
-                getCurrentUserUseCase,
                 mainCoroutineRule.testDispatcher,
                 mainCoroutineRule.testDispatcher,
             )
@@ -138,29 +111,4 @@ class SettingsViewModelTest : KoinTest {
             assert(!onFinishCalled)
         }
 
-    @Test
-    fun `updateDraftRadius coerces radius between 10 and 300`() =
-        runTest {
-            viewModel.updateDraftRadius(2f)
-            assertEquals(10f, viewModel.draftRadiusKm.value, 0.01f)
-
-            viewModel.updateDraftRadius(150f)
-            assertEquals(150f, viewModel.draftRadiusKm.value, 0.01f)
-
-            viewModel.updateDraftRadius(500f)
-            assertEquals(300f, viewModel.draftRadiusKm.value, 0.01f)
-        }
-
-    @Test
-    fun `saveSearchPreferences blocks saving when specific country code is invalid`() =
-        runTest {
-            viewModel.updateDraftScope(com.feryaeljustice.mirailink.domain.model.settings.SearchScope.SPECIFIC_COUNTRY)
-            viewModel.updateDraftTargetCountry("INVALID")
-
-            var onSaved = false
-            viewModel.saveSearchPreferences { onSaved = true }
-
-            assert(!onSaved)
-            assert(viewModel.error.value != null)
-        }
 }

@@ -47,6 +47,7 @@ class SettingsScreensTest {
             SettingsScreen(
                 miraiLinkSession = testSession(),
                 goToFeedbackScreen = { opened = true },
+                goToFaqScreen = {},
                 showToast = { _, _ -> },
                 copyToClipBoard = {},
                 modifier = Modifier.testTag("settings-screen"),

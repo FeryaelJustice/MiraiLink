@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
+import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,9 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -27,6 +31,7 @@ class DemoModeManagerTest {
 
     private lateinit var database: MiraiLinkDemoDatabase
     private lateinit var seeder: DemoDataSeeder
+    private lateinit var sessionManager: SessionManager
 
     @Before
     fun setUp() {
@@ -36,6 +41,10 @@ class DemoModeManagerTest {
             MiraiLinkDemoDatabase::class.java,
         ).allowMainThreadQueries().build()
         seeder = DemoDataSeeder(database)
+        sessionManager = mockk(relaxed = true) {
+            every { tokenFlow } returns flowOf(null)
+            every { getCurrentTokenSync() } returns null
+        }
     }
 
     @After
@@ -45,7 +54,7 @@ class DemoModeManagerTest {
 
     @Test
     fun `enableDemoMode sets isDemoMode to true and seeds database`() = runTest {
-        val manager = DemoModeManager(seeder, this)
+        val manager = DemoModeManager(seeder, sessionManager, this)
         assertThat(manager.isDemoActive()).isFalse()
 
         var completed = false
@@ -63,7 +72,7 @@ class DemoModeManagerTest {
 
     @Test
     fun `disableDemoMode sets isDemoMode to false`() = runTest {
-        val manager = DemoModeManager(seeder, this)
+        val manager = DemoModeManager(seeder, sessionManager, this)
         val job = manager.enableDemoMode()
         job.join()
         assertThat(manager.isDemoActive()).isTrue()
