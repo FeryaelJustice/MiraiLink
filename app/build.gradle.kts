@@ -28,6 +28,16 @@ kotlin {
 android {
     namespace = "com.feryaeljustice.mirailink"
     compileSdk = 37
+    val localProperties =
+        Properties().apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) load(FileInputStream(file))
+        }
+    val miraiLinkBaseUrl =
+        localProperties.getProperty("mirailink.baseUrl")?.trim()?.trimEnd('/')
+            ?.takeIf { it.isNotEmpty() }
+            ?: "http://10.0.2.2:3000"
+
     sourceSets {
         getByName("test") {
             kotlin.directories += "src/sharedTest/kotlin"
@@ -44,6 +54,8 @@ android {
         targetSdk = 37
         versionCode = 33
         versionName = "2.3.0"
+
+        buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
