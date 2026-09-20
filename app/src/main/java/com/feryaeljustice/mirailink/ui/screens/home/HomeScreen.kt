@@ -101,7 +101,6 @@ fun HomeScreen(
                             UserSwipeCardStack(
                                 modifier =
                                     Modifier
-                                        .padding(16.dp)
                                         .testTag("swipeHome"),
                                 users = visibleUsers,
                                 canUndo = canUndo,
