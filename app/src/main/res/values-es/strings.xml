@@ -94,7 +94,6 @@
     <string name="settings_screen_txt_give_feedback">Danos tu opinión</string>
     <string name="settings_screen_title">Tu espacio MiraiLink</string>
     <string name="settings_screen_subtitle">Personaliza tu experiencia y gestiona tu cuenta</string>
-    <string name="settings_section_experience">Experiencia</string>
     <string name="settings_section_account">Cuenta y seguridad</string>
     <string name="settings_section_about">Sobre MiraiLink</string>
     <string name="settings_faq_subtitle">Resuelve dudas sobre privacidad, ubicación y matches</string>

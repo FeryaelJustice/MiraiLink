@@ -75,7 +75,7 @@ class UserRemoteDataSourceTest : UnitTest() {
             coEvery { userApiService.login(request) } returns response
 
             // When
-            val result = userRemoteDataSource.login(request.email, request.username, request.password)
+            val result = userRemoteDataSource.login(request.email.orEmpty(), request.username.orEmpty(), request.password)
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)

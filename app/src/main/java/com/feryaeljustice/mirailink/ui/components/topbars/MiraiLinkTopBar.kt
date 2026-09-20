@@ -37,10 +37,12 @@ fun MiraiLinkTopBar(
     onThemeChange: () -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToSearchPreferences: () -> Unit,
     modifier: Modifier = Modifier,
     darkTheme: Boolean = false,
     enabled: Boolean = true,
     showSettingsIcon: Boolean = true,
+    showSearchPreferencesIcon: Boolean = false,
     title: String? = null,
     layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW,
 ) {
@@ -104,6 +106,14 @@ fun MiraiLinkTopBar(
     }, actions = {
         if (enabled) {
             ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
+            if (showSearchPreferencesIcon) {
+                MiraiLinkIconButton(onClick = onNavigateToSearchPreferences) {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(R.drawable.ic_filter_list),
+                        contentDescription = stringResource(R.string.search_settings_title),
+                    )
+                }
+            }
             if (showSettingsIcon) {
                 MiraiLinkIconButton(onClick = onNavigateToSettings) {
                     Icon(

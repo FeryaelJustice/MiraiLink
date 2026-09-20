@@ -70,12 +70,18 @@ fun MessagesScreen(
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
+    val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val searchQuery by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()
         miraiLinkSession.enableBars()
         miraiLinkSession.showTopBarSettingsIcon()
+    }
+
+    LaunchedEffect(isDemoMode, currentUserId) {
+        viewModel.loadData()
     }
 
     Scaffold(

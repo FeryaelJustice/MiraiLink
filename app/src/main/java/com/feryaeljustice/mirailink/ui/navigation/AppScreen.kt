@@ -68,6 +68,10 @@ sealed class AppScreen : NavKey {
     data object SettingsScreen : AppScreen()
 
     @Serializable
+    @SerialName("search_preferences")
+    data object SearchPreferencesScreen : AppScreen()
+
+    @Serializable
     @SerialName("profile")
     data object ProfileScreen : AppScreen()
 

@@ -33,14 +33,13 @@ class DemoChatRepositoryImpl(
 
     override suspend fun getChatsFromUser(): MiraiLinkResult<List<ChatSummary>> {
         val chats = database.chatDao().getAllChats()
-        val chatSummaries = chats.map { chat ->
-            val otherUser = database.userDao().getFeedUserById(chat.otherUserId)?.toMinimalUserInfo()
-                ?: MinimalUserInfo(
-                    id = chat.otherUserId,
-                    username = "usuario_demo",
-                    nickname = "Usuario Demo",
-                )
-            chat.toDomainChatSummary(otherUser)
+        // Los chats solo son validos si su destinatario sigue existiendo en el
+        // feed demo. Los registros huerfanos no deben convertirse en un
+        // "Usuario Demo" ni abrir una conversacion sin destinatario real.
+        val chatSummaries = chats.mapNotNull { chat ->
+            database.userDao().getFeedUserById(chat.otherUserId)?.let { otherUser ->
+                chat.toDomainChatSummary(otherUser.toMinimalUserInfo())
+            }
         }
         return MiraiLinkResult.Success(chatSummaries)
     }

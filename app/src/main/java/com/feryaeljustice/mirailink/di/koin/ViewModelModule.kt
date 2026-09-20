@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewM
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
+import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesViewModel
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesViewModel
 import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureViewModel
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel
@@ -122,12 +123,18 @@ val viewModelModule =
             )
         }
         viewModel {
-            SettingsViewModel(
-                logoutUseCase = get(),
-                deleteAccountUseCase = get(),
+            SearchPreferencesViewModel(
                 getSearchPreferencesUseCase = get(),
                 saveSearchPreferencesUseCase = get(),
                 getCurrentUserUseCase = get(),
+                ioDispatcher = get(qualifier = IoDispatcher),
+                mainDispatcher = get(qualifier = MainDispatcher),
+            )
+        }
+        viewModel {
+            SettingsViewModel(
+                logoutUseCase = get(),
+                deleteAccountUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )

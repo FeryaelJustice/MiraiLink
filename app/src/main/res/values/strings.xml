@@ -60,6 +60,7 @@
     <string name="code">Código</string>
     <string name="verify">Verificar</string>
     <string name="recover_password_screen_mail">Correo</string>
+    <string name="auth_recover_title">Recuperar contraseña</string>
     <string name="new_password">Nueva contraseña</string>
     <string name="confirm">Confirmar</string>
     <string name="chat_screen_send_msg">Escribe un mensaje</string>
@@ -96,7 +97,6 @@
     <string name="settings_screen_txt_give_feedback">Danos tu opinión</string>
     <string name="settings_screen_title">Tu espacio MiraiLink</string>
     <string name="settings_screen_subtitle">Personaliza tu experiencia y gestiona tu cuenta</string>
-    <string name="settings_section_experience">Experiencia</string>
     <string name="settings_section_account">Cuenta y seguridad</string>
     <string name="settings_section_about">Sobre MiraiLink</string>
     <string name="settings_faq_subtitle">Resuelve dudas sobre privacidad, ubicación y matches</string>
@@ -238,6 +238,7 @@
     <string name="search_location_explore_world">Explorar todo el mundo</string>
     <string name="location_permission_rationale_title">Permiso de ubicación necesario</string>
     <string name="location_permission_rationale_desc">MiraiLink necesita acceso a tu ubicación para calcular el radio de búsqueda y mostrarte usuarios cercanos. Puedes elegir ubicación precisa o aproximada.</string>
+    <string name="search_settings_refresh_location">Actualizar mi ubicación en el mapa</string>
     <string name="card_traveler_badge">De viaje aquí</string>
     <string name="card_lives_in">Vive en %1$s</string>
     <string name="profile_residence_country">País de residencia</string>

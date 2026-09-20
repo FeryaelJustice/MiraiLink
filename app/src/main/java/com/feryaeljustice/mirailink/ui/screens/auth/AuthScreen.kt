@@ -1,5 +1,10 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,6 +23,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
@@ -40,6 +50,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
@@ -105,7 +117,8 @@ fun AuthScreen(
     }
 
     LaunchedEffect(Unit) {
-        miraiLinkSession.showHideTopBar(true)
+        // La autenticacion ocurre fuera de la sesion: no debe mostrar navegacion global.
+        miraiLinkSession.showHideTopBar(false)
         miraiLinkSession.showHideBottomBar(false)
         miraiLinkSession.enableDisableTopBar(false)
         miraiLinkSession.enableDisableBottomBar(false)
@@ -184,26 +197,97 @@ fun AuthScreen(
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
+            val logoSize =
+                if (deviceConfiguration == DeviceConfiguration.MOBILE_LANDSCAPE) 72.dp else 116.dp
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                ),
             ) {
-                MiraiLinkTextButton(
-                    onClick = {
-                        isLogin = !isLogin
-                        viewModel.resetScreenVMState()
-                        resetAuthUiState()
-                    },
-                    text =
-                        if (isLogin) {
-                            stringResource(R.string.auth_screen_register)
-                        } else {
-                            stringResource(
-                                R.string.auth_screen_login,
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.logomirailink),
+                        contentDescription = stringResource(R.string.app_name),
+                        modifier = Modifier.size(logoSize),
+                    )
+                    AnimatedContent(
+                        targetState = isLogin,
+                        transitionSpec = { fadeIn().togetherWith(fadeOut()) },
+                        label = "AuthModeTitle",
+                    ) { loginMode ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            MiraiLinkText(
+                                text = stringResource(R.string.app_name),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
-                        },
-                )
+                            MiraiLinkText(
+                                text = stringResource(if (loginMode) R.string.auth_screen_login else R.string.auth_screen_register),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
+                ),
+                shape = RoundedCornerShape(24.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outlineVariant,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FilterChip(
+                        modifier = Modifier.weight(1f),
+                        selected = isLogin,
+                        onClick = {
+                            if (!isLogin) {
+                                isLogin = true
+                                viewModel.resetScreenVMState()
+                                resetAuthUiState()
+                            }
+                        },
+                        label = { MiraiLinkText(stringResource(R.string.auth_screen_login)) },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = FilterChipDefaults.filterChipColors(),
+                    )
+                    FilterChip(
+                        modifier = Modifier.weight(1f),
+                        selected = !isLogin,
+                        onClick = {
+                            if (isLogin) {
+                                isLogin = false
+                                viewModel.resetScreenVMState()
+                                resetAuthUiState()
+                            }
+                        },
+                        label = { MiraiLinkText(stringResource(R.string.auth_screen_register)) },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = FilterChipDefaults.filterChipColors(),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             MiraiLinkOutlinedTextField(
                 modifier =
@@ -444,6 +528,7 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             MiraiLinkTextButton(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.enterDemoMode { _, _ ->
                         miraiLinkSession.enterDemoMode()

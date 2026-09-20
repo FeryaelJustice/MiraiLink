@@ -54,6 +54,8 @@ fun SearchSettingsSection(
     longitude: Double = 2.6502,
     isMapVisible: Boolean = false,
     onRequestLocationPermission: (() -> Unit)? = null,
+    onRefreshLocation: () -> Unit = {},
+    isRefreshingLocation: Boolean = false,
 ) {
     val displayRadius = radiusKm.toInt()
     val isCountryValid = targetCountry.isNullOrBlank() || targetCountry.isCountryCodeValid()
@@ -94,7 +96,7 @@ fun SearchSettingsSection(
                 }
             }
 
-            // Minimapa interactivo: solo visible si el usuario interactua o hace scroll
+            // El minimapa aparece al volver a ajustar el radio local.
             AnimatedVisibility(visible = isMapVisible) {
                 Column {
                     Spacer(modifier = Modifier.height(14.dp))
@@ -103,6 +105,8 @@ fun SearchSettingsSection(
                         onRadiusChange = { onRadiusChange(it.toFloat()) },
                         latitude = latitude,
                         longitude = longitude,
+                        onRefreshLocation = onRefreshLocation,
+                        isRefreshingLocation = isRefreshingLocation,
                         minRadiusKm = SearchPreferences.MIN_RADIUS_KM.toInt(),
                         maxRadiusKm = SearchPreferences.MAX_RADIUS_KM.toInt(),
                     )
@@ -148,6 +152,7 @@ fun SearchSettingsSection(
                 valueRange = SearchPreferences.MIN_RADIUS_KM..SearchPreferences.MAX_RADIUS_KM,
                 steps = 28, // pasos aproximados de 10 km
                 modifier = Modifier.fillMaxWidth(),
+                enabled = scope == SearchScope.RADIUS,
             )
 
             Row(

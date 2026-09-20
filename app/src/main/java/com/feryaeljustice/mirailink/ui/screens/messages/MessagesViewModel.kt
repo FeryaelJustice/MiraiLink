@@ -3,7 +3,6 @@ package com.feryaeljustice.mirailink.ui.screens.messages
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toChatPreviewViewEntry
 import com.feryaeljustice.mirailink.data.mappers.ui.toMatchUserViewEntry
-import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -42,43 +41,11 @@ class MessagesViewModel(
     val state: StateFlow<MessagesUiState>
         field = MutableStateFlow<MessagesUiState>(MessagesUiState.Idle)
 
-    private var _matches: MutableList<MatchUserViewEntry> =
-        mutableListOf(
-            MatchUserViewEntry(
-                "1",
-                "Fer",
-                "Ferr",
-                TEMPORAL_PLACEHOLDER_PICTURE_URL,
-                false,
-            ),
-            MatchUserViewEntry(
-                "2",
-                "Maria",
-                "Mariaa",
-                "https://loremflickr.com/320/240/dog",
-                true,
-            ),
-        )
+    // No mostramos datos ficticios mientras las fuentes cargan. Esos IDs no existen
+    // en el modo demo y podían abrir el chat del perfil propio como fallback.
+    private var _matches: MutableList<MatchUserViewEntry> = mutableListOf()
 
-    private var _openChats: MutableList<ChatPreviewViewEntry> =
-        mutableListOf(
-            ChatPreviewViewEntry(
-                "1",
-                "Fer",
-                "Ferr",
-                TEMPORAL_PLACEHOLDER_PICTURE_URL,
-                "Hola, ¿cómo estás?",
-                false,
-            ),
-            ChatPreviewViewEntry(
-                "2",
-                "Maria",
-                "Mariaa",
-                "https://loremflickr.com/320/240/dog",
-                "¿Qué me dijiste?",
-                true,
-            ),
-        )
+    private var _openChats: MutableList<ChatPreviewViewEntry> = mutableListOf()
 
     init {
         loadData()
