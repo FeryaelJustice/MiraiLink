@@ -21,8 +21,6 @@ import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.service.FcmService
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.theme.AppThemeManager
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.Firebase
 import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
@@ -54,16 +52,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        /**
-         * Production Mobiles ads safe to use with emulator only on debug
-         */
-        if (BuildConfig.DEBUG) {
-            val testDeviceIds = listOf("emulator-5554", "8937551A56253163B1BB00727916310C")
-            val configuration =
-                RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
-            MobileAds.setRequestConfiguration(configuration)
-        }
-
         createNotificationChannel(
             notificationManager = getSystemService(NotificationManager::class.java),
             channelId = FcmService.NOTIFICATION_CHANNEL_ID,
@@ -87,6 +75,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initializeAds() {
+        if (BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID.isBlank()) return
         adMobManager.initialize()
         lifecycleScope.launch {
             // First wait 10 seconds in purpose of initializing everything
@@ -104,9 +93,11 @@ class MainActivity : ComponentActivity() {
 
     private fun firebaseInitialize(context: Context) {
         Firebase.initialize(context)
-        Firebase.appCheck.installAppCheckProviderFactory(
-            DebugAppCheckProviderFactory.getInstance(),
-        )
+        if (BuildConfig.DEBUG) {
+            Firebase.appCheck.installAppCheckProviderFactory(
+                DebugAppCheckProviderFactory.getInstance(),
+            )
+        }
     }
 
     private fun newToken() {

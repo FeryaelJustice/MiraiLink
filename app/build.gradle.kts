@@ -37,6 +37,14 @@ android {
         localProperties.getProperty("mirailink.baseUrl")?.trim()?.trimEnd('/')
             ?.takeIf { it.isNotEmpty() }
             ?: "http://10.0.2.2:3000"
+    val debugInterstitialAdUnitId =
+        localProperties.getProperty("admob.interstitial.testAdUnitId")?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: "ca-app-pub-3940256099942544/1033173712"
+    val releaseInterstitialAdUnitId =
+        localProperties.getProperty("admob.interstitial.productionAdUnitId")?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: ""
 
     sourceSets {
         getByName("test") {
@@ -88,6 +96,11 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             isDebuggable = true
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_AD_UNIT_ID",
+                "\"${debugInterstitialAdUnitId.replace("\"", "\\\"")}\"",
+            )
 //            signingConfig = signingConfigs.getByName("debug")
             buildConfigField("String", "TEST_USER", keystoreProperties["TEST_USER"] as String)
             buildConfigField("String", "TEST_PASS", keystoreProperties["TEST_PASS"] as String)
@@ -104,6 +117,11 @@ android {
                 "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_AD_UNIT_ID",
+                "\"${releaseInterstitialAdUnitId.replace("\"", "\\\"")}\"",
+            )
             configure<CrashlyticsExtension> {
                 mappingFileUploadEnabled = true
             }

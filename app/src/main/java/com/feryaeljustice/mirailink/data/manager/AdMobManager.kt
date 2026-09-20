@@ -9,27 +9,27 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.feryaeljustice.mirailink.BuildConfig
 
 class AdMobManager(private val context: Context) {
 
     private var interstitialAd: InterstitialAd? = null
 
-    // Test Ad Unit ID for Interstitial
-    // REPLACE WITH PRODUCTION ID: ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
-    private val adUnitId = "ca-app-pub-1078603769231868/6874724400"
+    private val interstitialAdUnitId = BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID
 
     fun initialize() {
         MobileAds.initialize(context) {}
-        loadAd()
+        if (interstitialAdUnitId.isNotBlank()) loadAd()
     }
 
     fun loadAd() {
+        if (interstitialAdUnitId.isBlank()) return
         if (interstitialAd != null) return // Already loaded
 
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             context,
-            adUnitId,
+            interstitialAdUnitId,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
