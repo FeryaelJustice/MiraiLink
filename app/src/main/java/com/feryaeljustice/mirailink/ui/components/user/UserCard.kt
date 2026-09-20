@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,8 +23,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -40,7 +37,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -58,7 +54,6 @@ import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.domain.util.toBackendDate
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
-import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -84,16 +79,12 @@ fun UserCard(
     user: UserViewEntry,
     onSave: (() -> Unit),
     modifier: Modifier = Modifier,
-    canUndo: Boolean = false,
     isPreviewMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
     onTagSelect: ((type: TagType, newValue: List<String>) -> Unit)? = null,
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
-    onLike: (() -> Unit)? = null,
-    onGoBackToLast: (() -> Unit)? = null,
-    onDislike: (() -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null,
 ) {
     val (focusRequester) = FocusRequester.createRefs()
@@ -442,7 +433,7 @@ fun UserCard(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(240.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
@@ -481,63 +472,6 @@ fun UserCard(
                         MiraiLinkText(
                             text = stringResource(id = R.string.edit),
                             color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    }
-                } else {
-                    MiraiLinkOutlinedButton(
-                        modifier =
-                            Modifier
-                                .size(64.dp)
-                                .testTag("discardBtn"),
-                        onClick = { onDislike?.invoke() },
-                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Blue),
-                        shape = CircleShape,
-                        border = BorderStroke(1.dp, Color.Black),
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = stringResource(R.string.discard),
-                            tint = Color.White,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(32.dp))
-
-                    if (canUndo) {
-                        MiraiLinkOutlinedButton(
-                            modifier =
-                                Modifier
-                                    .size(64.dp)
-                                    .testTag("returnSwipeBtn"),
-                            onClick = { onGoBackToLast?.invoke() },
-                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Yellow),
-                            shape = CircleShape,
-                            border = BorderStroke(1.dp, Color.Black),
-                        ) {
-                            Icon(
-                                Icons.Default.Refresh,
-                                contentDescription = stringResource(R.string.comeback),
-                                tint = Color.Black,
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(32.dp))
-                    }
-
-                    MiraiLinkOutlinedButton(
-                        modifier =
-                            Modifier
-                                .size(64.dp)
-                                .testTag("likeBtn"),
-                        onClick = { onLike?.invoke() },
-                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Red),
-                        shape = CircleShape,
-                        border = BorderStroke(1.dp, Color.Black),
-                    ) {
-                        Icon(
-                            Icons.Default.Favorite,
-                            contentDescription = stringResource(R.string.like),
-                            tint = Color.White,
                         )
                     }
                 }
@@ -636,8 +570,6 @@ private fun UserCardPreview() {
                 birthdate = "23-12",
             ),
         isPreviewMode = true,
-        onLike = {},
-        onDislike = {},
         onEdit = {},
         onSave = {},
     )
