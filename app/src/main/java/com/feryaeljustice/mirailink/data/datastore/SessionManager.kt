@@ -63,6 +63,10 @@ class SessionManager(
         cachedToken = token
     }
 
+    fun clearTemporaryToken() {
+        cachedToken = null
+    }
+
     // fun getCurrentUserIdSync(): String? = cachedUserId
 
     // fun getIsVerifiedSync(): Boolean = cachedIsVerified

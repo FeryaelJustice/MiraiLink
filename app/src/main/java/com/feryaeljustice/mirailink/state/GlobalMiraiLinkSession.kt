@@ -71,7 +71,8 @@ class GlobalMiraiLinkSession(
     fun saveSession(
         token: String,
         userId: String,
-    ) = appScope.launch { sessionManager.saveSession(token, userId) }
+        verified: Boolean = false,
+    ) = appScope.launch { sessionManager.saveSession(token, userId, verified) }
 
     fun enterDemoMode(onComplete: (() -> Unit)? = null) {
         demoModeManager?.enableDemoMode {

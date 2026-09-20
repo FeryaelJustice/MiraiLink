@@ -65,6 +65,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorConten
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthEvent
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
+import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -169,8 +170,24 @@ fun AuthScreen(
             onDismiss = viewModel::dismissTwoFactorDiag,
             onConfirm = {
                 viewModel.confirmTwoFactorDiag { userId, token ->
-                    miraiLinkSession.saveSession(token, userId)
+                    miraiLinkSession.saveSession(token, userId, verified = true)
                 }
+            },
+        )
+    }
+
+    val verificationRequired = state as? AuthUiState.VerificationRequired
+    if (verificationRequired != null) {
+        VerificationDialog(
+            userId = verificationRequired.userId,
+            onVerified = {
+                viewModel.completePendingVerification { userId, token ->
+                    miraiLinkSession.saveSession(token, userId, verified = true)
+                }
+            },
+            onClose = {
+                viewModel.cancelPendingVerification()
+                resetAuthUiState()
             },
         )
     }
