@@ -86,8 +86,8 @@ fun UserCard(
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null,
+    isPublicPresentation: Boolean = false,
 ) {
-    val (focusRequester) = FocusRequester.createRefs()
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
     if (fullscreenImageUrl != null) {
@@ -98,6 +98,17 @@ fun UserCard(
             imageContentDescription = stringResource(R.string.content_description_user_card_fullscreen_img),
         )
     }
+
+    if (isPublicPresentation) {
+        PublicUserCard(
+            user = user,
+            onLongPressOnImage = setFullscreenImageUrl,
+            modifier = modifier,
+        )
+        return
+    }
+
+    val (focusRequester) = FocusRequester.createRefs()
 
     Card(
         modifier =
@@ -514,6 +525,7 @@ private fun ProfileReadOnlySectionHeader(
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
+
 }
 
 @Suppress("ktlint:standard:function-naming")

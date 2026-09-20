@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -46,6 +47,7 @@ fun PhotoCarousel(
     photoUrls: List<String>,
     onLongPressOnImage: (String) -> Unit,
     modifier: Modifier = Modifier,
+    immersive: Boolean = false,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
@@ -75,8 +77,13 @@ fun PhotoCarousel(
     Box(
         modifier =
             modifier
-                .fillMaxWidth()
-                .height(300.dp),
+                .then(
+                    if (immersive) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier.fillMaxWidth().height(300.dp)
+                    },
+                ),
     ) {
         HorizontalPager(
             state = pagerState,
@@ -104,7 +111,13 @@ fun PhotoCarousel(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .clip(
+                            if (immersive) {
+                                RectangleShape
+                            } else {
+                                RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                            },
+                        )
                         .clickable(
                             interactionSource = pageInteractionSource,
                             indication = LocalIndication.current,
@@ -129,8 +142,8 @@ fun PhotoCarousel(
             pagerState = pagerState,
             modifier =
                 Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 12.dp),
+                    .align(if (immersive) Alignment.TopCenter else Alignment.BottomCenter)
+                    .padding(top = if (immersive) 12.dp else 0.dp, bottom = if (immersive) 0.dp else 12.dp),
             activeColor = Color.White,
             inactiveColor = Color.LightGray,
         )

@@ -9,7 +9,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -102,50 +102,49 @@ fun UserSwipeCardStack(
             }
         }
 
-        Column(modifier = modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                users.getOrNull(1)?.let { nextUser ->
-                    UserCard(
-                        modifier = Modifier.padding(2.dp).alpha(0.5f),
-                        user = nextUser,
-                        onSave = {},
-                    )
-                }
-
+        Box(modifier = modifier.fillMaxSize()) {
+            users.getOrNull(1)?.let { nextUser ->
                 UserCard(
-                    modifier =
-                        Modifier
-                            .padding(2.dp)
-                            .graphicsLayer(
-                                translationX = offsetX.value,
-                                translationY = offsetY.value,
-                                rotationZ = rotation,
-                            ).graphicsLayer { alpha = alphaAnim }
-                            .pointerInput(topUser.id) {
-                                detectDragGestures(
-                                    onDragEnd = {
-                                        when {
-                                            offsetX.value >= SwipeConfirmationThresholdPx ->
-                                                completeSwipe(SwipeDirection.Like)
-                                            offsetX.value <= -SwipeConfirmationThresholdPx ->
-                                                completeSwipe(SwipeDirection.Dislike)
-                                            else -> settleCard()
-                                        }
-                                    },
-                                    onDragCancel = ::settleCard,
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        scope.launch {
-                                            offsetX.snapTo(offsetX.value + dragAmount.x)
-                                            offsetY.snapTo(offsetY.value + dragAmount.y)
-                                        }
-                                    },
-                                )
-                            },
-                    user = topUser,
+                    modifier = Modifier.alpha(0.5f),
+                    user = nextUser,
                     onSave = {},
+                    isPublicPresentation = true,
                 )
             }
+
+            UserCard(
+                modifier =
+                    Modifier
+                        .graphicsLayer(
+                            translationX = offsetX.value,
+                            translationY = offsetY.value,
+                            rotationZ = rotation,
+                        ).graphicsLayer { alpha = alphaAnim }
+                        .pointerInput(topUser.id) {
+                            detectDragGestures(
+                                onDragEnd = {
+                                    when {
+                                        offsetX.value >= SwipeConfirmationThresholdPx ->
+                                            completeSwipe(SwipeDirection.Like)
+                                        offsetX.value <= -SwipeConfirmationThresholdPx ->
+                                            completeSwipe(SwipeDirection.Dislike)
+                                        else -> settleCard()
+                                    }
+                                },
+                                onDragCancel = ::settleCard,
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    scope.launch {
+                                        offsetX.snapTo(offsetX.value + dragAmount.x)
+                                        offsetY.snapTo(offsetY.value + dragAmount.y)
+                                    }
+                                },
+                            )
+                        },
+                user = topUser,
+                onSave = {},
+                isPublicPresentation = true,
+            )
 
             SwipeActionButtons(
                 activeDirection = activeDirection,
@@ -153,6 +152,10 @@ fun UserSwipeCardStack(
                 onDislike = { completeSwipe(SwipeDirection.Dislike) },
                 onUndo = onGoBack,
                 onLike = { completeSwipe(SwipeDirection.Like) },
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .zIndex(2f),
             )
         }
     }
@@ -165,10 +168,11 @@ private fun SwipeActionButtons(
     onDislike: () -> Unit,
     onUndo: () -> Unit,
     onLike: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .height(96.dp)
                 .padding(horizontal = 20.dp, vertical = 12.dp),
