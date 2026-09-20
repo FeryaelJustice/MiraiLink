@@ -7,5 +7,7 @@ import kotlinx.serialization.Serializable
 data class GameDto(
     @SerialName("id") val id: String,
     @SerialName("name") val name: String,
-    @SerialName("image_url") val imageUrl: String?
+    @SerialName("image_url") val imageUrl: String?,
+    @SerialName("catalog_key") val catalogKey: String = "",
+    @SerialName("biography") val biography: String = "",
 )

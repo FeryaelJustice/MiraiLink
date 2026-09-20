@@ -8,7 +8,7 @@ data class UserDto(
     @SerialName("id")
     val id: String,
     @SerialName("username")
-    val username: String,
+    val username: String = "",
     @SerialName("nickname")
     val nickname: String,
     @SerialName("email")

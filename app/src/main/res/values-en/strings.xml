@@ -21,6 +21,10 @@
     <string name="user_card_fav_animes_empty">There aren\'t any favorite animes</string>
     <string name="user_card_fav_games_empty">There aren\'t any favorite games</string>
     <string name="bio_placeholder">Here to triumph</string>
+    <string name="bio_not_set">No biography has been set</string>
+    <string name="profile_bio_label">Biography</string>
+    <string name="profile_gender_not_set">Gender not set</string>
+    <string name="profile_age_not_set">Age not set</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
     <string name="discard">Discard</string>
@@ -257,4 +261,7 @@
     <string name="faq_residence_vs_travelers_a">Your place of residence is the city shown on your profile ("Lives in Palma"). By default, searches compare residence locations. If you enable the travelers option, the app will match users who are physically within your radius right now even if they reside elsewhere.</string>
     <string name="faq_premium_q">Which features will be Premium in the future?</string>
     <string name="faq_premium_a">Currently all MiraiLink features are 100% free. In the future, advanced features such as international passport mode, search radius beyond 50 km, or specialized traveler searches will be part of optional plans to support app development.</string>
+    <string name="profile_section_basic">Basic information</string>
+    <string name="profile_section_residence">Residence</string>
+    <string name="profile_section_interests">Interests</string>
 </resources>

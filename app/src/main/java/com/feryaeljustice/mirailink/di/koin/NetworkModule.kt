@@ -23,6 +23,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
+import java.util.Locale
 
 val networkModule =
     module {
@@ -43,6 +44,12 @@ val networkModule =
                         )
                     }
                     addInterceptor(get<AuthInterceptor>())
+                    addInterceptor { chain ->
+                        val request = chain.request().newBuilder()
+                            .header("Accept-Language", Locale.getDefault().toLanguageTag())
+                            .build()
+                        chain.proceed(request)
+                    }
                     connectTimeout(10, TimeUnit.SECONDS)
                     readTimeout(10, TimeUnit.SECONDS)
                     writeTimeout(10, TimeUnit.SECONDS)

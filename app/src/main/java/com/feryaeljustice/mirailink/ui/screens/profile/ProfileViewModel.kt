@@ -234,16 +234,16 @@ class ProfileViewModel(
                     when (intent.field) {
                         TagType.ANIME -> {
                             val mappedAnimes =
-                                intent.selected.mapNotNull { animeName ->
-                                    state.animeCatalog.find { it.name == animeName }
+                                intent.selected.mapNotNull { animeId ->
+                                    state.animeCatalog.find { it.id == animeId }
                                 }
                             state.copy(selectedAnimes = mappedAnimes)
                         }
 
                         TagType.GAME -> {
                             val mappedGames =
-                                intent.selected.mapNotNull { gameName ->
-                                    state.gameCatalog.find { it.name == gameName }
+                                intent.selected.mapNotNull { gameId ->
+                                    state.gameCatalog.find { it.id == gameId }
                                 }
                             state.copy(selectedGames = mappedGames)
                         }

@@ -22,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -66,6 +68,7 @@ import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
 import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
+import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectOption
 import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
@@ -157,6 +160,12 @@ fun UserCard(
                         ).verticalScroll(rememberScrollState()),
             ) {
                 if (editUiState != null && editUiState.isEditing) {
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_section_basic),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     // Cuadrícula de imágenes
                     EditablePhotoGrid(
                         photos = editUiState.photos,
@@ -217,6 +226,12 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_section_residence),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     ResidenceSelector(
                         country = editUiState.residenceCountryName,
                         region = editUiState.residenceRegion,
@@ -227,11 +242,17 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_section_interests),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
                     MultiSelectDropdown(
                         label = stringResource(id = R.string.user_card_fav_animes),
-                        options = editUiState.animeCatalog.map { it.name },
-                        selected = editUiState.selectedAnimes.map { it.name },
+                        options = editUiState.animeCatalog.map { MultiSelectOption(it.id, it.name) },
+                        selected = editUiState.selectedAnimes.map { it.id },
                         onSelectionChange = { onTagSelect?.invoke(TagType.ANIME, it) },
                     )
 
@@ -239,8 +260,8 @@ fun UserCard(
 
                     MultiSelectDropdown(
                         label = stringResource(id = R.string.user_card_fav_games),
-                        options = editUiState.gameCatalog.map { it.name },
-                        selected = editUiState.selectedGames.map { it.name },
+                        options = editUiState.gameCatalog.map { MultiSelectOption(it.id, it.name) },
+                        selected = editUiState.selectedGames.map { it.id },
                         onSelectionChange = { onTagSelect?.invoke(TagType.GAME, it) },
                     )
 
@@ -260,6 +281,12 @@ fun UserCard(
                             style = MaterialTheme.typography.titleLarge.copy(textDecoration = TextDecoration.Underline),
                         )
 
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ProfileReadOnlySectionHeader(
+                            title = stringResource(R.string.profile_section_basic),
+                            icon = Icons.Default.Info,
+                        )
+
                         // Ubicacion y distancia geografica
                         val locationParts = mutableListOf<String>()
                         if (!user.residenceCity.isNullOrBlank()) {
@@ -273,6 +300,68 @@ fun UserCard(
                         if (formattedDist != null) {
                             locationParts.add(formattedDist)
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        MiraiLinkText(
+                            text = stringResource(R.string.profile_bio_label),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        MiraiLinkText(
+                            text = if (!user.bio.isNullOrBlank()) user.bio else stringResource(id = R.string.bio_not_set),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontStyle = FontStyle.Italic,
+                        )
+
+                        Gender.fromRealValue(user.gender)?.let { genderEnum ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text =
+                                    stringResource(
+                                        R.string.gender_presentation,
+                                        genderEnum.localizedLabel(),
+                                    ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        } ?: run {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(R.string.profile_gender_not_set),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        }
+
+                        val age = user.birthdate.toAgeOrNull()
+                        if (!age.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(R.string.age_presentation, age),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(R.string.profile_age_not_set),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontStyle = FontStyle.Italic,
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+                        androidx.compose.material3.HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ProfileReadOnlySectionHeader(
+                            title = stringResource(R.string.profile_section_residence),
+                            icon = Icons.Default.LocationOn,
+                        )
 
                         if (locationParts.isNotEmpty() || user.isTraveler) {
                             Spacer(modifier = Modifier.height(4.dp))
@@ -302,37 +391,16 @@ fun UserCard(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        MiraiLinkText(
-                            text = if (!user.bio.isNullOrBlank()) user.bio else stringResource(id = R.string.bio_placeholder),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontStyle = FontStyle.Italic,
+                        Spacer(modifier = Modifier.height(20.dp))
+                        androidx.compose.material3.HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                         )
-
-                        Gender.fromRealValue(user.gender)?.let { genderEnum ->
-                            Spacer(modifier = Modifier.height(8.dp))
-                            MiraiLinkText(
-                                text =
-                                    stringResource(
-                                        R.string.gender_presentation,
-                                        genderEnum.localizedLabel(),
-                                    ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontStyle = FontStyle.Italic,
-                            )
-                        }
-
-                        val age = user.birthdate.toAgeOrNull()
-                        if (!age.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            MiraiLinkText(
-                                text = stringResource(R.string.age_presentation, age),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontStyle = FontStyle.Italic,
-                            )
-                        }
-
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ProfileReadOnlySectionHeader(
+                            title = stringResource(R.string.profile_section_interests),
+                            icon = Icons.Default.Favorite,
+                        )
                         // Secciones: anime y videojuegos
                         Spacer(modifier = Modifier.height(16.dp))
                         MiraiLinkText(
@@ -475,6 +543,42 @@ fun UserCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileReadOnlySectionHeader(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        androidx.compose.material3.Surface(
+            modifier = Modifier.size(40.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(23.dp),
+                )
+            }
+        }
+        MiraiLinkText(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
