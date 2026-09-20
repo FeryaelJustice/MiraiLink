@@ -27,7 +27,7 @@ import java.util.Locale
 
 val networkModule =
     module {
-        single(BaseUrl) { "http://192.168.1.137:3000" }
+        single(BaseUrl) { BuildConfig.MIRAILINK_BASE_URL }
         single(BaseApiUrl) { "${get<String>(BaseUrl)}/api/" }
 
         single { AuthInterceptor(get<SessionManager>()) }

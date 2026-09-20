@@ -389,3 +389,12 @@ Desarrollado con dedicacion como aplicacion estrella de portafolio de ingenieria
   <sub>Construido con pasion por el anime, los videojuegos y la ingenieria de software de clase mundial.</sub>
 </p>
 
+# Configuración local de Android
+
+La URL del backend no se guarda en el código. Añade esta propiedad a `local.properties` en la raíz del proyecto, junto a `sdk.dir`:
+
+```properties
+mirailink.baseUrl=http://192.168.1.137:3000
+```
+
+Gradle la expone como `BuildConfig.MIRAILINK_BASE_URL`. Retrofit, Socket.IO y las imágenes de perfil, incluido `Goku.webp`, reutilizan esa misma URL. Si no se define, el valor por defecto es `http://10.0.2.2:3000`, que apunta al host desde el emulador Android.
