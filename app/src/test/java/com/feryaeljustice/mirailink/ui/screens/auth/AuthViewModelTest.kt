@@ -8,6 +8,7 @@ import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
 import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
@@ -36,6 +37,7 @@ class AuthViewModelTest : KoinTest {
 
     private val loginUseCase: LoginUseCase by inject()
     private val registerUseCase: RegisterUseCase by inject()
+    private val checkIsVerifiedUseCase: CheckIsVerifiedUseCase by inject()
     private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase by inject()
     private val loginVerifyTwoFactorLastStepUseCase: LoginVerifyTwoFactorLastStepUseCase by inject()
     private val analytics: AnalyticsTracker by inject()
@@ -52,6 +54,7 @@ class AuthViewModelTest : KoinTest {
                 module {
                     single { mockk<LoginUseCase>() }
                     single { mockk<RegisterUseCase>() }
+                    single { mockk<CheckIsVerifiedUseCase>() }
                     single { mockk<GetTwoFactorStatusUseCase>() }
                     single { mockk<LoginVerifyTwoFactorLastStepUseCase>() }
                     single { mockk<AnalyticsTracker>(relaxed = true) }
@@ -71,6 +74,7 @@ class AuthViewModelTest : KoinTest {
             AuthViewModel(
                 lazy { loginUseCase },
                 lazy { registerUseCase },
+                lazy { checkIsVerifiedUseCase },
                 lazy { getTwoFactorStatusUseCase },
                 lazy { loginVerifyTwoFactorLastStepUseCase },
                 lazy { analytics },
@@ -105,6 +109,7 @@ class AuthViewModelTest : KoinTest {
                 MiraiLinkResult.Success(
                     false,
                 )
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(true)
 
             var sessionSaved = false
             viewModel.login(email, "", password) { _, _ -> sessionSaved = true }
@@ -152,6 +157,7 @@ class AuthViewModelTest : KoinTest {
                 MiraiLinkResult.Success(
                     false,
                 )
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(true)
 
             var sessionSaved = false
             viewModel.register(username, email, password) { _, _ -> sessionSaved = true }
@@ -160,6 +166,27 @@ class AuthViewModelTest : KoinTest {
 
             assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
             assert(sessionSaved)
+        }
+
+    @Test
+    fun `login with an unverified account waits for verification before saving the session`() =
+        runTest {
+            val email = "test@test.com"
+            val password = "password"
+            val token = "a-valid-jwt"
+            val userId = "1234567890"
+
+            every { JwtUtils.extractUserId(token) } returns userId
+            coEvery { loginUseCase.invoke(email, "", password) } returns MiraiLinkResult.Success(token)
+            coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns MiraiLinkResult.Success(false)
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(false)
+
+            var sessionSaved = false
+            viewModel.login(email, "", password) { _, _ -> sessionSaved = true }
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(viewModel.state.value is AuthViewModel.AuthUiState.VerificationRequired)
+            assert(!sessionSaved)
         }
 
     @Test

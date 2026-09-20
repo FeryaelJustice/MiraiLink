@@ -40,7 +40,6 @@ import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
-import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
 import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesScreen
@@ -146,15 +145,19 @@ fun NavWrapper(
         }
     }
 
-    // 2. Control Centralizado de Sesión (Login / Verificación / ProfilePic / Home)
+    // 2. Control Centralizado de Sesión (Login / ProfilePic / Home)
     // Este efecto es la única fuente de verdad para transicionar a "Main" cuando hay sesión.
     LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture) {
-        if (isAuthenticated) {
+        if (isAuthenticated && !isVerified) {
+            if (navigationState.topLevelRoute != ScreensSubgraphs.Auth) {
+                miraiLinkSession.clearSession()
+                showToast(context, context.getString(R.string.error_verification_required), Toast.LENGTH_SHORT)
+            }
+        } else if (isAuthenticated) {
             val userId = currentUserId ?: return@LaunchedEffect
             
             // Determinar destino correcto según estado del usuario
             val (targetTopLevel, targetFirstChild) = when {
-                !isVerified -> ScreensSubgraphs.Main to AppScreen.VerificationScreen(userId)
                 hasProfilePicture == false -> ScreensSubgraphs.Main to AppScreen.ProfilePictureScreen
                 else -> ScreensSubgraphs.Main to AppScreen.HomeScreen
             }
@@ -336,16 +339,6 @@ fun NavWrapper(
 
                 entry<AppScreen.ProfileScreen> {
                     ProfileScreen(miraiLinkSession = miraiLinkSession)
-                }
-
-                entry<AppScreen.VerificationScreen> { key ->
-                    VerificationScreen(
-                        miraiLinkSession = miraiLinkSession,
-                        userId = key.userId,
-                        onFinish = {
-                            navigator.resetToTopLevel(ScreensSubgraphs.Main, AppScreen.HomeScreen)
-                        },
-                    )
                 }
 
                 entry<AppScreen.SettingsScreen> {

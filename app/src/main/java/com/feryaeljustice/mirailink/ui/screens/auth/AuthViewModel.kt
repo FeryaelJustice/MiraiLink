@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
 import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.usecase.auth.LoginUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.RegisterUseCase
+import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorStatusUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
@@ -33,6 +34,7 @@ import kotlinx.coroutines.withContext
 class AuthViewModel(
     private val loginUseCase: Lazy<LoginUseCase>,
     private val registerUseCase: Lazy<RegisterUseCase>,
+    private val checkIsVerifiedUseCase: Lazy<CheckIsVerifiedUseCase>,
     private val getTwoFactorStatusUseCase: Lazy<GetTwoFactorStatusUseCase>,
     private val loginVerifyTwoFactorLastStepUseCase: Lazy<LoginVerifyTwoFactorLastStepUseCase>,
     private val analytics: Lazy<AnalyticsTracker>,
@@ -51,6 +53,10 @@ class AuthViewModel(
 
         data class IsAuthenticated(
             val userId: String?,
+        ) : AuthUiState()
+
+        data class VerificationRequired(
+            val userId: String,
         ) : AuthUiState()
 
         data class Error(val error: UiError) : AuthUiState()
@@ -245,9 +251,8 @@ class AuthViewModel(
                         withContext(mainDispatcher) {
                             showTwoFactorLastStepDialog.value = isTwoFactorEnabled
                         }
-                        // completeAuth switches to Main internally
                         if (!isTwoFactorEnabled) {
-                            completeAuth(
+                            resolveVerificationBeforeCompletingAuth(
                                 userId = userIdd,
                                 token = token,
                                 onSaveSession = onSaveTheSession,
@@ -288,6 +293,38 @@ class AuthViewModel(
             }
             state.value = AuthUiState.Success
             onSaveSession(userId, token)
+        }
+    }
+
+    fun completePendingVerification(onSaveTheSession: (String, String) -> Unit) {
+        completeAuth(userId.value, _loginToken.value, onSaveTheSession)
+    }
+
+    fun cancelPendingVerification() {
+        sessionManager.clearTemporaryToken()
+        _loginToken.value = null
+        userId.value = null
+        state.value = AuthUiState.Idle
+    }
+
+    private suspend fun resolveVerificationBeforeCompletingAuth(
+        userId: String,
+        token: String?,
+        onSaveSession: (String, String) -> Unit,
+    ) {
+        val verificationResult = withContext(ioDispatcher) { checkIsVerifiedUseCase.value() }
+        when (verificationResult) {
+            is MiraiLinkResult.Success -> withContext(mainDispatcher) {
+                if (verificationResult.data) {
+                    completeAuth(userId, token, onSaveSession)
+                } else {
+                    state.value = AuthUiState.VerificationRequired(userId)
+                }
+            }
+            is MiraiLinkResult.Error -> withContext(mainDispatcher) {
+                configureRecovery(verificationResult.error)
+                state.value = AuthUiState.Error(verificationResult.error.toUiError())
+            }
         }
     }
 
@@ -333,14 +370,12 @@ class AuthViewModel(
                 }
 
                 is MiraiLinkResult.Success -> {
-                    withContext(mainDispatcher) {
-                        resetTwoFaDiag()
-                        completeAuth(
-                            userId = userID,
-                            token = _loginToken.value,
-                            onSaveSession = onSaveTheSession,
-                        )
-                    }
+                    withContext(mainDispatcher) { resetTwoFaDiag() }
+                    resolveVerificationBeforeCompletingAuth(
+                        userId = userID,
+                        token = _loginToken.value,
+                        onSaveSession = onSaveTheSession,
+                    )
                 }
             }
         }

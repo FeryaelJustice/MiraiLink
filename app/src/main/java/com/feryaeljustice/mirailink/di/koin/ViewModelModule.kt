@@ -44,6 +44,7 @@ val viewModelModule =
             AuthViewModel(
                 loginUseCase = lazy { get() },
                 registerUseCase = lazy { get() },
+                checkIsVerifiedUseCase = lazy { get() },
                 getTwoFactorStatusUseCase = lazy { get() },
                 loginVerifyTwoFactorLastStepUseCase = lazy { get() },
                 analytics = lazy { get() },
