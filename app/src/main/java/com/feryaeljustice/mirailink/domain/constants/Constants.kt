@@ -12,11 +12,11 @@ val URL_REGEX = Regex(
 /**
  * TEMPORAL_PLACEHOLDER_PICTURE_URL.
  * This is the temporal URL for the placeholder picture.
- * Starts with http://10.0.2.2:3000 inside emulator before the /assets...
- * in production domain remove http://10.0.2.2:3000 and replace with https://mirailink.xyz
+ * Keep this aligned with the backend base URL used by NetworkModule in the
+ * current development build. Coil falls back to the local logo if it fails.
  */
 const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
-    "https://mirailink.xyz/assets/img/profiles/Goku.webp"
+    "http://192.168.1.137:3000/assets/img/profiles/Goku.webp"
 
 const val deepLinkBaseUrl = "https://mirailink.xyz"
 const val deepLinkPrivacyPolicyUrl = "$deepLinkBaseUrl/privacypolicy"
