@@ -8,6 +8,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -399,6 +400,7 @@ fun NavWrapper(
              * Scaffold general de la app
              */
             Scaffold(
+                modifier = Modifier.imePadding(),
                 topBar = {
                     Column {
                         if (topBarConfig.showTopBar) {
