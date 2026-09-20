@@ -16,7 +16,7 @@ val URL_REGEX = Regex(
  * in production domain remove http://10.0.2.2:3000 and replace with https://mirailink.xyz
  */
 const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
-    "https://mirailink.xyz/assets/img/profiles/Goku.jpeg"
+    "https://mirailink.xyz/assets/img/profiles/Goku.webp"
 
 const val deepLinkBaseUrl = "https://mirailink.xyz"
 const val deepLinkPrivacyPolicyUrl = "$deepLinkBaseUrl/privacypolicy"

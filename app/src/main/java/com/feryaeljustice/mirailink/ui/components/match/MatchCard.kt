@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -47,7 +49,12 @@ fun MatchCard(
     ) {
         Box {
             AsyncImage(
-                model = userAvatarUrl,
+                model =
+                    ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(userAvatarUrl)
+                        .error(drawableResId = R.drawable.logomirailink)
+                        .build(),
                 contentDescription = stringResource(R.string.user_avatar),
                 modifier =
                     Modifier

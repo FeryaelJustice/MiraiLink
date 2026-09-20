@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import kotlinx.coroutines.launch
 
@@ -93,7 +94,8 @@ fun PhotoCarousel(
                     .fillMaxSize(),
         ) { page ->
             val photoUrl = images[page]
-            val imageModel = if (photoUrl.isBlank()) R.drawable.logomirailink else photoUrl.getFormattedUrl()
+            val imageModel =
+                if (photoUrl.isBlank()) TEMPORAL_PLACEHOLDER_PICTURE_URL else photoUrl.getFormattedUrl()
             AsyncImage(
                 model =
                     ImageRequest
@@ -101,6 +103,7 @@ fun PhotoCarousel(
                         .data(imageModel)
                         .crossfade(true)
                         .placeholder(drawableResId = R.drawable.logomirailink)
+                        .error(drawableResId = R.drawable.logomirailink)
                         .build(),
                 contentDescription =
                     stringResource(
