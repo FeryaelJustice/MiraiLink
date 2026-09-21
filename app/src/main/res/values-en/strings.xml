@@ -223,6 +223,8 @@
     <string name="search_invalid_country_code">Enter a 2-letter uppercase ISO country code (e.g. ES, JP)</string>
     <string name="search_settings_map_preview_label">Search map preview</string>
     <string name="search_scope_local">Local radius</string>
+    <string name="search_scope_radius_residence">Radius from my residence</string>
+    <string name="search_scope_radius_active">Radius from my current location</string>
     <string name="search_scope_country">My country</string>
     <string name="search_scope_world">Whole world</string>
     <string name="search_scope_passport">Passport</string>
@@ -264,4 +266,6 @@
     <string name="profile_section_basic">Basic information</string>
     <string name="profile_section_residence">Residence</string>
     <string name="profile_section_interests">Interests</string>
+    <string name="error_location_required_for_radius">To search nearby, enable location or set your residence.</string>
+    <string name="error_residence_country_required">Set your residence country to search across your country.</string>
 </resources>

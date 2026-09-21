@@ -141,7 +141,7 @@ class ProfileViewModelTest : KoinTest {
 
             coEvery {
                 updateUserProfileUseCase
-                    .invoke(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+                    .invoke(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
             } returns
                 MiraiLinkResult.Success(Unit)
 

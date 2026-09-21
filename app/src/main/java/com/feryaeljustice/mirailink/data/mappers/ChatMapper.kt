@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.domain.util.parseDate
 fun ChatSummaryResponse.toDomain() = ChatSummary(
     id = id,
     type = ChatType.fromString(type),
+    name = name,
     createdBy = createdBy,
     createdAt = parseDate(createdAt),
     joinedAt = parseDate(joinedAt),

@@ -46,11 +46,10 @@ fun ChatList(
                     chatAvatarUrl = chat.avatarUrl,
                     chatUsername = chat.username,
                     chatNickname = chat.nickname,
+                    chatIsGroup = chat.isGroup,
                     chatIsBoosted = chat.isBoosted,
                     chatLastMessage = chat.lastMessage,
-                    onClick = {
-                        onNavigateToChat(it)
-                    },
+                    onClick = onNavigateToChat,
                 )
             }
         }

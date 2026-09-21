@@ -1,7 +1,5 @@
 package com.feryaeljustice.mirailink.ui.components.map
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +43,7 @@ import kotlin.math.asinh
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
+import kotlin.math.cos
 import kotlin.math.tan
 
 @Composable
@@ -63,9 +62,13 @@ fun SearchRadiusMinimap(
     val primaryColor = MaterialTheme.colorScheme.primary
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
 
-    // OSM se compone con tiles cuadrados para mantener la escala geografica.
-    val zoom = 10
-    val tilePosition = remember(latitude, longitude) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val displayedTileSizePx = with(density) { 128.dp.toPx() }
+    val viewportMinPx = with(density) { 210.dp.toPx() }
+    val zoom = remember(radiusKm, latitude, displayedTileSizePx, viewportMinPx) {
+        selectMapZoom(radiusKm.toDouble(), latitude, displayedTileSizePx, viewportMinPx)
+    }
+    val tilePosition = remember(latitude, longitude, zoom) {
         val worldSize = 1 shl zoom
         val normalizedX = ((longitude + 180.0) / 360.0 * worldSize)
         val latitudeRadians = Math.toRadians(latitude.coerceIn(-85.0511, 85.0511))
@@ -78,13 +81,6 @@ fun SearchRadiusMinimap(
             worldSize = worldSize,
         )
     }
-
-    // Animacion suave del radio en pantalla
-    val animatedRadiusFraction by animateFloatAsState(
-        targetValue = (radiusKm - minRadiusKm).toFloat() / (maxRadiusKm - minRadiusKm).toFloat(),
-        animationSpec = tween(durationMillis = 150),
-        label = "radiusAnim",
-    )
 
     Box(
         modifier = modifier
@@ -149,8 +145,10 @@ fun SearchRadiusMinimap(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerOffset = Offset(size.width / 2f, size.height / 2f)
             val maxPixelRadius = min(size.width, size.height) * 0.44f
-            val minPixelRadius = min(size.width, size.height) * 0.12f
-            val currentPixelRadius = minPixelRadius + (maxPixelRadius - minPixelRadius) * animatedRadiusFraction
+            val metersPerPixel = metersPerDisplayedPixel(latitude, zoom, displayedTileSizePx)
+            val currentPixelRadius = (radiusKm * 1_000.0 / metersPerPixel)
+                .toFloat()
+                .coerceAtMost(maxPixelRadius)
 
             // Lineas de guia concentricas tenues
             drawCircle(
@@ -258,3 +256,27 @@ private data class TilePosition(
     val fractionY: Double,
     val worldSize: Int,
 )
+
+private const val EARTH_CIRCUMFERENCE_METERS = 40_075_016.686
+
+internal fun metersPerDisplayedPixel(
+    latitude: Double,
+    zoom: Int,
+    displayedTileSizePx: Float,
+): Double =
+    cos(Math.toRadians(latitude.coerceIn(-85.0511, 85.0511))) * EARTH_CIRCUMFERENCE_METERS /
+        ((1 shl zoom) * displayedTileSizePx)
+
+internal fun selectMapZoom(
+    radiusKm: Double,
+    latitude: Double,
+    displayedTileSizePx: Float,
+    viewportMinPx: Float,
+): Int {
+    val targetRadiusPx = viewportMinPx * 0.42
+    return (1..18)
+        .takeWhile { zoom ->
+            radiusKm * 1_000.0 / metersPerDisplayedPixel(latitude, zoom, displayedTileSizePx) <= targetRadiusPx
+        }
+        .lastOrNull() ?: 1
+}

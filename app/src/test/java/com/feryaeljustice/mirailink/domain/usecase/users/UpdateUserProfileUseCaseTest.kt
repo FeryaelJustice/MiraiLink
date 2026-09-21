@@ -49,6 +49,8 @@ class UpdateUserProfileUseCaseTest {
                 any(),
                 any(),
                 any(),
+                any(),
+                any(),
                 any()
             )
         } returns MiraiLinkResult.Success(Unit)
@@ -62,6 +64,8 @@ class UpdateUserProfileUseCaseTest {
             "ES",
             "Islas Baleares",
             "Palma",
+            null,
+            null,
             "animes",
             "games",
             emptyList(),
@@ -88,6 +92,8 @@ class UpdateUserProfileUseCaseTest {
                 any(),
                 any(),
                 any(),
+                any(),
+                any(),
                 any()
             )
         } returns errorResult
@@ -101,6 +107,8 @@ class UpdateUserProfileUseCaseTest {
             "ES",
             "Islas Baleares",
             "Palma",
+            null,
+            null,
             "animes",
             "games",
             emptyList(),

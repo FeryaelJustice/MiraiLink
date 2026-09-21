@@ -5,6 +5,7 @@ import com.feryaeljustice.mirailink.domain.error.AppError
 import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.domain.error.LocationError
 import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -145,6 +146,9 @@ object NetworkErrorMapper {
             "INVALID_2FA_CODE",
             "INVALID_OTP",
             -> AuthError.INVALID_TWO_FACTOR_CODE
+
+            "LOCATION_REQUIRED" -> LocationError.LOCATION_REQUIRED
+            "RESIDENCE_COUNTRY_REQUIRED" -> LocationError.RESIDENCE_COUNTRY_REQUIRED
 
             else -> null
         }

@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.error.ValidationError
+import com.feryaeljustice.mirailink.domain.error.LocationError
 
 /** Maps every domain error to localized copy, action label and recovery semantics. */
 fun AppError.toUiError(): UiError {
@@ -19,6 +20,8 @@ fun AppError.toUiError(): UiError {
             ValidationError.INVALID_INPUT,
             ValidationError.INVALID_MEDIA,
             ValidationError.MISSING_REQUIRED_VALUE,
+            LocationError.LOCATION_REQUIRED,
+            LocationError.RESIDENCE_COUNTRY_REQUIRED,
             -> ErrorRecovery.REVIEW_INPUT
             else -> ErrorRecovery.RETRY
         }
@@ -74,6 +77,11 @@ private fun AppError.messageResource(): Int =
                 ValidationError.INVALID_INPUT -> R.string.error_invalid_input
                 ValidationError.INVALID_MEDIA -> R.string.error_invalid_media
                 ValidationError.MISSING_REQUIRED_VALUE -> R.string.error_missing_value
+            }
+        is LocationError ->
+            when (this) {
+                LocationError.LOCATION_REQUIRED -> R.string.error_location_required_for_radius
+                LocationError.RESIDENCE_COUNTRY_REQUIRED -> R.string.error_residence_country_required
             }
         UnknownError -> R.string.error_unknown
     }

@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
@@ -34,6 +35,7 @@ fun MessageListItem(
     chatAvatarUrl: String = "",
     chatUsername: String = "",
     chatNickname: String = "",
+    chatIsGroup: Boolean = false,
     chatIsBoosted: Boolean = false,
     chatLastMessage: String = "",
     chatReadsPending: Int = 0,
@@ -44,14 +46,17 @@ fun MessageListItem(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable { chatUserId?.let { uId -> onClick(uId) } }
+                .then(if (chatUserId != null && !chatIsGroup) Modifier.clickable { onClick(chatUserId) } else Modifier)
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
         //    with(sharedTransitionScope) {
         AsyncImage(
-            model = chatAvatarUrl,
+            model = ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                .data(chatAvatarUrl.ifBlank { R.drawable.logomirailink })
+                .error(R.drawable.logomirailink)
+                .build(),
             contentDescription = stringResource(R.string.user_avatar),
             contentScale = ContentScale.Crop,
             modifier =

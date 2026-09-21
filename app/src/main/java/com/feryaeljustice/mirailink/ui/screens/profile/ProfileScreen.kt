@@ -291,6 +291,9 @@ fun ProfileScreen(
                                         ),
                                     )
                                 },
+                                onResidenceCoordinatesSelected = { latitude, longitude ->
+                                    viewModel.onIntent(EditProfileIntent.UpdateResidenceCoordinates(latitude, longitude))
+                                },
                                 onTagSelect = { field, value ->
                                     Log.d(
                                         "ProfileScreen",
@@ -443,4 +446,5 @@ private fun ProfileViewModel.updateResidence(address: android.location.Address) 
     address.locality?.let { city ->
         onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_CITY, city))
     }
+    onIntent(EditProfileIntent.UpdateResidenceCoordinates(address.latitude, address.longitude))
 }

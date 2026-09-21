@@ -47,5 +47,10 @@ enum class ValidationError : AppError {
     MISSING_REQUIRED_VALUE,
 }
 
+enum class LocationError : AppError {
+    LOCATION_REQUIRED,
+    RESIDENCE_COUNTRY_REQUIRED,
+}
+
 /** Last resort used only when no safer stable classification is available. */
 data object UnknownError : AppError

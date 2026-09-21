@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 data class ChatSummaryResponse(
     @SerialName("chat_id") val id: String,
     @SerialName("type") val type: String,
+    @SerialName("name") val name: String? = null,
     @SerialName("created_by") val createdBy: String,
     @SerialName("created_at") val createdAt: String,
     @SerialName("joined_at") val joinedAt: String,

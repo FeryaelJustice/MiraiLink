@@ -21,6 +21,8 @@ data class UserViewEntry(
     val residenceCity: String? = null,
     val residenceRegion: String? = null,
     val residenceCountryCode: String? = null,
+    val residenceLatitude: Double? = null,
+    val residenceLongitude: Double? = null,
     val distanceKm: Double? = null,
     val isTraveler: Boolean = false,
 )

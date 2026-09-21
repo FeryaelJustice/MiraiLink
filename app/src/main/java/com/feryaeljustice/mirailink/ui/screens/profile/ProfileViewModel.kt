@@ -136,6 +136,8 @@ class ProfileViewModel(
                         }.orEmpty(),
                         residenceRegion = user.residenceRegion ?: "",
                         residenceCity = user.residenceCity ?: "",
+                        residenceLatitude = user.residenceLatitude,
+                        residenceLongitude = user.residenceLongitude,
                         selectedAnimes = user.animes,
                         selectedGames = user.games,
                         photos = photos,
@@ -157,6 +159,8 @@ class ProfileViewModel(
                         val residenceCountryCode = state.residenceCountryCode.ifBlank { null }
                         val residenceRegion = state.residenceRegion.ifBlank { null }
                         val residenceCity = state.residenceCity.ifBlank { null }
+                        val residenceLatitude = state.residenceLatitude
+                        val residenceLongitude = state.residenceLongitude
 
                         // validación mínima local (opcional)
                         val dateOk = birthdate?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) ?: true
@@ -188,6 +192,8 @@ class ProfileViewModel(
                                     residenceCountryCode = residenceCountryCode,
                                     residenceRegion = residenceRegion,
                                     residenceCity = residenceCity,
+                                    residenceLatitude = residenceLatitude,
+                                    residenceLongitude = residenceLongitude,
                                     animesJson = animesJson,
                                     gamesJson = gamesJson,
                                     photoUris = photoUris,
@@ -223,12 +229,28 @@ class ProfileViewModel(
                                 residenceCountryCode = country ?: "",
                                 residenceRegion = if (country == state.residenceCountryCode) state.residenceRegion else "",
                                 residenceCity = if (country == state.residenceCountryCode) state.residenceCity else "",
+                                residenceLatitude = if (country == state.residenceCountryCode) state.residenceLatitude else null,
+                                residenceLongitude = if (country == state.residenceCountryCode) state.residenceLongitude else null,
                             )
                         }
-                        TextFieldType.RESIDENCE_REGION -> state.copy(residenceRegion = intent.value, residenceCity = "")
-                        TextFieldType.RESIDENCE_CITY -> state.copy(residenceCity = intent.value)
+                        TextFieldType.RESIDENCE_REGION -> state.copy(
+                            residenceRegion = intent.value,
+                            residenceCity = "",
+                            residenceLatitude = null,
+                            residenceLongitude = null,
+                        )
+                        TextFieldType.RESIDENCE_CITY -> state.copy(
+                            residenceCity = intent.value,
+                            residenceLatitude = null,
+                            residenceLongitude = null,
+                        )
                     }
                 }
+
+                is EditProfileIntent.UpdateResidenceCoordinates -> state.copy(
+                    residenceLatitude = intent.latitude,
+                    residenceLongitude = intent.longitude,
+                )
 
                 is EditProfileIntent.UpdateTags -> {
                     when (intent.field) {

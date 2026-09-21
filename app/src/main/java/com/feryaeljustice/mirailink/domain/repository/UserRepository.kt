@@ -58,6 +58,8 @@ interface UserRepository {
         residenceCountryCode: String?,
         residenceRegion: String?,
         residenceCity: String?,
+        residenceLatitude: Double?,
+        residenceLongitude: Double?,
         animesJson: String,
         gamesJson: String,
         photoUris: List<Uri?>,
