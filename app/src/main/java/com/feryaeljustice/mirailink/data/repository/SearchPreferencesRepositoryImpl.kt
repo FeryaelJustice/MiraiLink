@@ -22,34 +22,36 @@ class SearchPreferencesRepositoryImpl(
             .map { prefs ->
                 SearchPreferences(
                     radiusKm = prefs.searchRadiusKm,
-                    scope = try {
-                        SearchScope.valueOf(prefs.searchScope.uppercase())
-                    } catch (_: Exception) {
-                        SearchScope.RADIUS
-                    },
+                    scope = SearchScope.fromWireValue(prefs.searchScope, prefs.searchMatchLiveLocation),
                     targetCountryCode = prefs.searchTargetCountry,
-                    matchByLiveLocation = prefs.searchMatchLiveLocation,
                     isPremiumActive = false,
                 )
             }
 
     override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> {
         return try {
+            val normalized = preferences.copy(
+                targetCountryCode = preferences.targetCountryCode.takeIf {
+                    preferences.scope == SearchScope.SPECIFIC_COUNTRY
+                },
+            )
+            if (userRemoteDataSource != null && demoModeManager?.isDemoMode?.value != true) {
+                when (val remoteResult = userRemoteDataSource.updateSearchSettings(
+                    radiusKm = normalized.radiusKm.toInt(),
+                    scope = normalized.scope.wireValue,
+                    targetCountry = normalized.targetCountryCode,
+                    matchLiveLocation = false,
+                )) {
+                    is MiraiLinkResult.Error -> return remoteResult
+                    is MiraiLinkResult.Success -> Unit
+                }
+            }
             dataStore.updateData { current ->
                 current.copy(
-                    searchRadiusKm = preferences.radiusKm,
-                    searchScope = preferences.scope.name.lowercase(),
-                    searchTargetCountry = preferences.targetCountryCode,
-                    searchMatchLiveLocation = preferences.matchByLiveLocation,
-                )
-            }
-            if (userRemoteDataSource != null && demoModeManager?.isDemoMode?.value != true) {
-                // Sync with remote backend in non-demo mode
-                userRemoteDataSource.updateSearchSettings(
-                    radiusKm = preferences.radiusKm.toInt(),
-                    scope = preferences.scope.name.lowercase(),
-                    targetCountry = preferences.targetCountryCode,
-                    matchLiveLocation = preferences.matchByLiveLocation,
+                    searchRadiusKm = normalized.radiusKm,
+                    searchScope = normalized.scope.wireValue,
+                    searchTargetCountry = normalized.targetCountryCode,
+                    searchMatchLiveLocation = false,
                 )
             }
             MiraiLinkResult.Success(Unit)

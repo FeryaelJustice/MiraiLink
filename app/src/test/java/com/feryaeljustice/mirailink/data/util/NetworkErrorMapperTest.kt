@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.util
 
 import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.DataError
+import com.feryaeljustice.mirailink.domain.error.LocationError
 import com.google.common.truth.Truth.assertThat
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -67,6 +68,22 @@ class NetworkErrorMapperTest {
             )
 
         assertThat(error).isEqualTo(AuthError.INVALID_TWO_FACTOR_CODE)
+    }
+
+    @Test
+    fun `geographic requirement codes remain actionable`() {
+        assertThat(
+            NetworkErrorMapper.map(
+                httpException(422, """{"code":"LOCATION_REQUIRED"}"""),
+                NetworkOperation.AUTHENTICATED,
+            ),
+        ).isEqualTo(LocationError.LOCATION_REQUIRED)
+        assertThat(
+            NetworkErrorMapper.map(
+                httpException(422, """{"code":"RESIDENCE_COUNTRY_REQUIRED"}"""),
+                NetworkOperation.AUTHENTICATED,
+            ),
+        ).isEqualTo(LocationError.RESIDENCE_COUNTRY_REQUIRED)
     }
 
     @Test

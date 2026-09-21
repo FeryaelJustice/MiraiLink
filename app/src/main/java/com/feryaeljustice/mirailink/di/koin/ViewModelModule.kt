@@ -96,6 +96,8 @@ val viewModelModule =
                 likeUser = get(),
                 dislikeUser = get(),
                 getCurrentUserUseCase = get(),
+                getSearchPreferencesUseCase = get(),
+                sendLocationPingUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }
@@ -128,6 +130,7 @@ val viewModelModule =
                 getSearchPreferencesUseCase = get(),
                 saveSearchPreferencesUseCase = get(),
                 getCurrentUserUseCase = get(),
+                sendLocationPingUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )

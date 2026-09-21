@@ -2,9 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.home.search
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +42,8 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.screens.settings.components.SearchSettingsSection
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.coroutines.launch
+import com.feryaeljustice.mirailink.ui.utils.readBestCurrentLocation
 
 @Composable
 fun SearchPreferencesScreen(
@@ -54,38 +55,25 @@ fun SearchPreferencesScreen(
     val radiusKm by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
     val scope by viewModel.draftScope.collectAsStateWithLifecycle()
     val targetCountry by viewModel.draftTargetCountry.collectAsStateWithLifecycle()
-    val matchLiveLocation by viewModel.draftMatchLiveLocation.collectAsStateWithLifecycle()
     val hasUnsavedChanges by viewModel.hasUnsavedChanges.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
     val latitude by viewModel.userLatitude.collectAsStateWithLifecycle()
     val longitude by viewModel.userLongitude.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     var isMapVisible by remember { mutableStateOf(false) }
     var isRefreshingLocation by remember { mutableStateOf(false) }
     var showLocationRationale by remember { mutableStateOf(false) }
 
     fun readCurrentLocation(onFinished: () -> Unit = {}) {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return onFinished()
         val fineGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarseGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (!fineGranted && !coarseGranted) return onFinished()
-        val providers = buildList {
-            if (fineGranted && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) add(LocationManager.GPS_PROVIDER)
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) add(LocationManager.NETWORK_PROVIDER)
-        }.distinct()
-        providers.mapNotNull(locationManager::getLastKnownLocation).maxByOrNull { it.time }?.let {
-            viewModel.updateUserCoordinates(it.latitude, it.longitude)
-        }
-        if (providers.isEmpty()) return onFinished()
-        try {
-            providers.forEach { provider ->
-                locationManager.getCurrentLocation(provider, null, ContextCompat.getMainExecutor(context)) { location ->
-                    location?.let { viewModel.updateUserCoordinates(it.latitude, it.longitude) }
-                    onFinished()
-                }
+        coroutineScope.launch {
+            context.readBestCurrentLocation()?.let { location ->
+                viewModel.updateUserCoordinates(location.latitude, location.longitude)
             }
-        } catch (_: SecurityException) {
             onFinished()
         }
     }
@@ -151,15 +139,16 @@ fun SearchPreferencesScreen(
         SearchSettingsSection(
             radiusKm = radiusKm,
             onRadiusChange = { radius ->
-                if (scope == SearchScope.RADIUS) isMapVisible = true
+                if (scope.isRadiusScope()) isMapVisible = true
                 viewModel.updateDraftRadius(radius)
             },
             scope = scope,
-            onScopeChange = viewModel::updateDraftScope,
+            onScopeChange = { selectedScope ->
+                if (selectedScope.isRadiusScope()) isMapVisible = true
+                viewModel.updateDraftScope(selectedScope)
+            },
             targetCountry = targetCountry,
             onTargetCountryChange = viewModel::updateDraftTargetCountry,
-            matchLiveLocation = matchLiveLocation,
-            onMatchLiveLocationChange = viewModel::updateDraftMatchLiveLocation,
             hasUnsavedChanges = hasUnsavedChanges,
             isSaving = isSaving,
             onSaveClick = {

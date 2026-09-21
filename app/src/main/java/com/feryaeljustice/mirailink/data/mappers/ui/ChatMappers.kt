@@ -8,8 +8,10 @@ import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
 fun ChatSummary.toChatPreviewViewEntry(): ChatPreviewViewEntry = ChatPreviewViewEntry(
     userId = destinatary?.id,
-    username = destinatary?.username.orEmpty(),
-    nickname = destinatary?.nickname.orEmpty(),
+    chatId = id,
+    isGroup = type == com.feryaeljustice.mirailink.domain.enums.ChatType.GROUP,
+    username = destinatary?.username ?: name.orEmpty(),
+    nickname = destinatary?.nickname ?: name.orEmpty(),
     avatarUrl = destinatary?.profilePhoto?.url.getFormattedUrl(),
     lastMessage = lastMessageText,
     isBoosted = false,

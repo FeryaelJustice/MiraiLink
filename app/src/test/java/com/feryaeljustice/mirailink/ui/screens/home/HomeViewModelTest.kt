@@ -2,6 +2,8 @@ package com.feryaeljustice.mirailink.ui.screens.home
 
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
+import com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase
+import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
@@ -9,9 +11,12 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,8 +34,11 @@ class HomeViewModelTest : KoinTest {
     private val likeUserUseCase: LikeUserUseCase by inject()
     private val dislikeUserUseCase: DislikeUserUseCase by inject()
     private val getCurrentUserUseCase: GetCurrentUserUseCase by inject()
+    private val getSearchPreferencesUseCase: GetSearchPreferencesUseCase by inject()
+    private val sendLocationPingUseCase: SendLocationPingUseCase by inject()
 
     private lateinit var viewModel: HomeViewModel
+    private val preferences = MutableStateFlow(SearchPreferences())
 
     @get:Rule
     val koinTestRule =
@@ -41,6 +49,8 @@ class HomeViewModelTest : KoinTest {
                     single { mockk<LikeUserUseCase>() }
                     single { mockk<DislikeUserUseCase>() }
                     single { mockk<GetCurrentUserUseCase>() }
+                    single { mockk<GetSearchPreferencesUseCase>() }
+                    single { mockk<SendLocationPingUseCase>(relaxed = true) }
                 },
             )
         }
@@ -77,6 +87,7 @@ class HomeViewModelTest : KoinTest {
     @Before
     fun setUp() {
         coEvery { getCurrentUserUseCase.invoke() } returns MiraiLinkResult.Success(user1)
+        every { getSearchPreferencesUseCase.invoke() } returns preferences
         coEvery { getFeedUseCase.invoke() } returns
             MiraiLinkResult.Success(
                 listOf(
@@ -91,6 +102,8 @@ class HomeViewModelTest : KoinTest {
                 likeUserUseCase,
                 dislikeUserUseCase,
                 getCurrentUserUseCase,
+                getSearchPreferencesUseCase,
+                sendLocationPingUseCase,
                 mainCoroutineRule.testDispatcher,
             )
         mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -102,6 +115,15 @@ class HomeViewModelTest : KoinTest {
             val state = viewModel.state.value
             assert(state is HomeViewModel.HomeUiState.Success)
             assert((state as HomeViewModel.HomeUiState.Success).visibleUsers.size == 2)
+        }
+
+    @Test
+    fun `saved search preference change automatically reloads feed`() =
+        runTest {
+            preferences.value = SearchPreferences(radiusKm = 80f)
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            coVerify(exactly = 2) { getFeedUseCase.invoke() }
         }
 
     @Test

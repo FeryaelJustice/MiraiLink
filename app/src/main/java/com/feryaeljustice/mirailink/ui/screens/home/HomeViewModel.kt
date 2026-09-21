@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
 import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
+import com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase
+import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
@@ -13,8 +15,11 @@ import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
@@ -25,6 +30,8 @@ class HomeViewModel(
     private val likeUser: LikeUserUseCase,
     private val dislikeUser: DislikeUserUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val getSearchPreferencesUseCase: GetSearchPreferencesUseCase,
+    private val sendLocationPingUseCase: SendLocationPingUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
     sealed class HomeUiState {
@@ -48,12 +55,26 @@ class HomeViewModel(
 
     private val _userQueue = mutableListOf<UserViewEntry>()
     private val swipeHistory = mutableListOf<UserViewEntry>()
+    private var feedLoadJob: Job? = null
 
     // TODO: Meter guardado en bdd local o en bdd remota para persistencia de calculo undo feature
     internal var lastUndoTime: Long = 0L
 
     init {
         reload()
+        observeSearchPreferences()
+    }
+
+    private fun observeSearchPreferences() {
+        viewModelScope.launch {
+            getSearchPreferencesUseCase()
+                .distinctUntilChanged()
+                .drop(1)
+                .collect {
+                    _userQueue.clear()
+                    loadUsers()
+                }
+        }
     }
 
     fun reload() {
@@ -78,7 +99,8 @@ class HomeViewModel(
     }
 
     fun loadUsers() {
-        viewModelScope.launch {
+        feedLoadJob?.cancel()
+        feedLoadJob = viewModelScope.launch {
             state.value = HomeUiState.Loading
 
             val result =
@@ -94,6 +116,12 @@ class HomeViewModel(
                 setRecoveryAction(::loadUsers)
                 state.value = HomeUiState.Error(result.error.toUiError())
             }
+        }
+    }
+
+    fun updateActiveLocation(latitude: Double, longitude: Double) {
+        viewModelScope.launch(ioDispatcher) {
+            sendLocationPingUseCase(latitude, longitude)
         }
     }
 

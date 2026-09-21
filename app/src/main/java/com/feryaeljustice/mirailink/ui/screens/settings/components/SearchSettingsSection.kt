@@ -19,7 +19,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +43,6 @@ fun SearchSettingsSection(
     onScopeChange: (SearchScope) -> Unit,
     targetCountry: String?,
     onTargetCountryChange: (String?) -> Unit,
-    matchLiveLocation: Boolean,
-    onMatchLiveLocationChange: (Boolean) -> Unit,
     hasUnsavedChanges: Boolean,
     isSaving: Boolean,
     onSaveClick: () -> Unit,
@@ -152,7 +149,7 @@ fun SearchSettingsSection(
                 valueRange = SearchPreferences.MIN_RADIUS_KM..SearchPreferences.MAX_RADIUS_KM,
                 steps = 28, // pasos aproximados de 10 km
                 modifier = Modifier.fillMaxWidth(),
-                enabled = scope == SearchScope.RADIUS,
+                enabled = scope.isRadiusScope(),
             )
 
             Row(
@@ -192,12 +189,18 @@ fun SearchSettingsSection(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 FilterChip(
-                    selected = scope == SearchScope.RADIUS,
+                    selected = scope == SearchScope.RADIUS_RESIDENCE,
+                    onClick = { onScopeChange(SearchScope.RADIUS_RESIDENCE) },
+                    label = { MiraiLinkText(text = stringResource(R.string.search_scope_radius_residence)) },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+                FilterChip(
+                    selected = scope == SearchScope.RADIUS_ACTIVE,
                     onClick = {
-                        onScopeChange(SearchScope.RADIUS)
+                        onScopeChange(SearchScope.RADIUS_ACTIVE)
                         onRequestLocationPermission?.invoke()
                     },
-                    label = { MiraiLinkText(text = stringResource(R.string.search_scope_local)) },
+                    label = { MiraiLinkText(text = stringResource(R.string.search_scope_radius_active)) },
                     colors = FilterChipDefaults.filterChipColors(),
                 )
                 FilterChip(
@@ -239,50 +242,6 @@ fun SearchSettingsSection(
                         } else null,
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Switch para viajeros
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        MiraiLinkText(
-                            text = stringResource(R.string.search_match_travelers_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                        ) {
-                            MiraiLinkText(
-                                text = "Beta",
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    MiraiLinkText(
-                        text = stringResource(R.string.search_match_travelers_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Switch(
-                    checked = matchLiveLocation,
-                    onCheckedChange = {
-                        onMatchLiveLocationChange(it)
-                        if (it) onRequestLocationPermission?.invoke()
-                    },
-                )
             }
 
             Spacer(modifier = Modifier.height(18.dp))

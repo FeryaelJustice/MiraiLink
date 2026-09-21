@@ -19,6 +19,8 @@ data class EditProfileUiState(
     val residenceCountryName: String = "",
     val residenceRegion: String = "",
     val residenceCity: String = "",
+    val residenceLatitude: Double? = null,
+    val residenceLongitude: Double? = null,
     val selectedAnimes: List<AnimeViewEntry> = emptyList(),
     val selectedGames: List<GameViewEntry> = emptyList(),
     val animeCatalog: List<AnimeViewEntry> = emptyList(),
@@ -35,6 +37,7 @@ sealed class EditProfileIntent {
     data class Initialize(val user: UserViewEntry) : EditProfileIntent()
     object Save : EditProfileIntent()
     data class UpdateTextField(val field: TextFieldType, val value: String) : EditProfileIntent()
+    data class UpdateResidenceCoordinates(val latitude: Double, val longitude: Double) : EditProfileIntent()
     data class UpdateTags(val field: TagType, val selected: List<String>) : EditProfileIntent()
     data class ReorderPhoto(val from: Int, val to: Int) : EditProfileIntent()
     data class RemovePhoto(val position: Int) : EditProfileIntent()

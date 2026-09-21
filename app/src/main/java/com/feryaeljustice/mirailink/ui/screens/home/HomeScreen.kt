@@ -22,13 +22,16 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -37,7 +40,10 @@ import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
+import com.feryaeljustice.mirailink.ui.utils.hasForegroundLocationPermission
+import com.feryaeljustice.mirailink.ui.utils.readBestCurrentLocation
 import org.koin.compose.viewmodel.koinViewModel
+import kotlinx.coroutines.launch
 
 @Suppress("ParamsComparedByRef", "ktlint:standard:function-naming", "EffectKeys")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +59,8 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val canUndo = viewModel.canUndo()
 
     LaunchedEffect(Unit) {
@@ -63,6 +71,17 @@ fun HomeScreen(
 
     LaunchedEffect(isDemoMode, currentUserId) {
         viewModel.loadUsers()
+    }
+
+    LifecycleResumeEffect(isDemoMode, currentUserId) {
+        if (!isDemoMode && currentUserId != null && context.hasForegroundLocationPermission()) {
+            coroutineScope.launch {
+                context.readBestCurrentLocation()?.let { location ->
+                    viewModel.updateActiveLocation(location.latitude, location.longitude)
+                }
+            }
+        }
+        onPauseOrDispose { }
     }
 
     PullToRefreshBox(

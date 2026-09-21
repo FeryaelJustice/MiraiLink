@@ -226,6 +226,8 @@
     <string name="search_invalid_country_code">Introduce un código ISO de 2 letras mayúsculas (ej. ES, JP)</string>
     <string name="search_settings_map_preview_label">Vista previa del mapa de búsqueda</string>
     <string name="search_scope_local">Radio local</string>
+    <string name="search_scope_radius_residence">Radio desde mi residencia</string>
+    <string name="search_scope_radius_active">Radio desde mi ubicación actual</string>
     <string name="search_scope_country">Mi país</string>
     <string name="search_scope_world">Todo el mundo</string>
     <string name="search_scope_passport">Pasaporte</string>
@@ -267,4 +269,6 @@
     <string name="profile_section_basic">Información básica</string>
     <string name="profile_section_residence">Residencia</string>
     <string name="profile_section_interests">Gustos</string>
+    <string name="error_location_required_for_radius">Para buscar por cercanía, activa la ubicación o configura una residencia.</string>
+    <string name="error_residence_country_required">Configura tu país de residencia para buscar en todo tu país.</string>
 </resources>

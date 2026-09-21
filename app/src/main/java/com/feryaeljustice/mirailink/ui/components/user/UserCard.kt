@@ -82,6 +82,7 @@ fun UserCard(
     isPreviewMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
+    onResidenceCoordinatesSelected: ((latitude: Double, longitude: Double) -> Unit)? = null,
     onTagSelect: ((type: TagType, newValue: List<String>) -> Unit)? = null,
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
@@ -240,6 +241,9 @@ fun UserCard(
                         city = editUiState.residenceCity,
                         countryCode = editUiState.residenceCountryCode,
                         onValueChange = { field, value -> onValueChange?.invoke(field, value) },
+                        onCoordinatesSelected = { latitude, longitude ->
+                            onResidenceCoordinatesSelected?.invoke(latitude, longitude)
+                        },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -30,6 +30,7 @@ import java.text.Normalizer
 import java.util.Locale
 
 private data class CountryOption(val code: String, val name: String)
+private data class PlaceOption(val name: String, val latitude: Double, val longitude: Double)
 
 private fun countryOptions(): List<CountryOption> =
     Locale.getISOCountries()
@@ -45,6 +46,7 @@ fun ResidenceSelector(
     region: String,
     city: String,
     onValueChange: (TextFieldType, String) -> Unit,
+    onCoordinatesSelected: (Double, Double) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     val countries = remember { countryOptions() }
@@ -64,9 +66,9 @@ fun ResidenceSelector(
             value = region,
             enabled = countryCode.isNotBlank(),
             options = geocoderSuggestions(region, country, "region"),
-            optionLabel = { it },
+            optionLabel = { it.name },
             onValueChange = { onValueChange(TextFieldType.RESIDENCE_REGION, it) },
-            onSelect = { option -> onValueChange(TextFieldType.RESIDENCE_REGION, option) },
+            onSelect = { option -> onValueChange(TextFieldType.RESIDENCE_REGION, option.name) },
         )
 
         ResidenceAutocompleteField(
@@ -74,15 +76,18 @@ fun ResidenceSelector(
             value = city,
             enabled = countryCode.isNotBlank() && region.isNotBlank(),
             options = geocoderSuggestions(city, "$region, $country", "city"),
-            optionLabel = { it },
+            optionLabel = { it.name },
             onValueChange = { onValueChange(TextFieldType.RESIDENCE_CITY, it) },
-            onSelect = { option -> onValueChange(TextFieldType.RESIDENCE_CITY, option) },
+            onSelect = { option ->
+                onValueChange(TextFieldType.RESIDENCE_CITY, option.name)
+                onCoordinatesSelected(option.latitude, option.longitude)
+            },
         )
     }
 }
 
 @Composable
-private fun geocoderSuggestions(query: String, contextText: String, kind: String): List<String> {
+private fun geocoderSuggestions(query: String, contextText: String, kind: String): List<PlaceOption> {
     val context = LocalContext.current
     val result by produceState(initialValue = emptyList(), query, contextText, kind) {
         value = if (query.length < 2 || !Geocoder.isPresent()) {
@@ -93,10 +98,12 @@ private fun geocoderSuggestions(query: String, contextText: String, kind: String
                     @Suppress("DEPRECATION")
                     Geocoder(context).getFromLocationName("$query, $contextText", 8)
                         ?.mapNotNull { address ->
-                            if (kind == "region") address.adminArea else address.locality
+                            val name = if (kind == "region") address.adminArea else address.locality
+                            name?.takeIf { it.isNotBlank() }?.let {
+                                PlaceOption(it, address.latitude, address.longitude)
+                            }
                         }
-                        ?.filter { it.isNotBlank() }
-                        ?.distinct()
+                        ?.distinctBy { it.name }
                         .orEmpty()
                 }.getOrDefault(emptyList())
             }

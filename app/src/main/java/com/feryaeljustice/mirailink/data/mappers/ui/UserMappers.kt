@@ -22,6 +22,8 @@ fun User.toUserViewEntry(): UserViewEntry = UserViewEntry(
     residenceCity = residenceCity,
     residenceRegion = residenceRegion,
     residenceCountryCode = residenceCountryCode,
+    residenceLatitude = residenceLatitude,
+    residenceLongitude = residenceLongitude,
     distanceKm = distanceKm,
     isTraveler = isTraveler,
 )

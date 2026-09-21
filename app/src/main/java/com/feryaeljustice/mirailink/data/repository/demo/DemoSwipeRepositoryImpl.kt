@@ -12,6 +12,7 @@ import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepositor
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.error.LocationError
 import kotlinx.coroutines.flow.first
 import java.util.UUID
 
@@ -37,22 +38,20 @@ class DemoSwipeRepositoryImpl(
 
         val searchPrefs = searchPreferencesRepository.getSearchPreferences().first()
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
-        val userLat = demoProfile?.currentLatitude ?: GeoUtils.DEFAULT_FALLBACK_LATITUDE
-        val userLon = demoProfile?.currentLongitude ?: GeoUtils.DEFAULT_FALLBACK_LONGITUDE
+        val useActiveLocation = searchPrefs.scope == SearchScope.RADIUS_ACTIVE
+        val userLat = if (useActiveLocation) demoProfile?.currentLatitude else demoProfile?.residenceLatitude
+        val userLon = if (useActiveLocation) demoProfile?.currentLongitude else demoProfile?.residenceLongitude
+        if (searchPrefs.scope.isRadiusScope() && (userLat == null || userLon == null)) {
+            return MiraiLinkResult.Error(LocationError.LOCATION_REQUIRED)
+        }
+        if (searchPrefs.scope == SearchScope.MY_COUNTRY && demoProfile?.residenceCountryCode.isNullOrBlank()) {
+            return MiraiLinkResult.Error(LocationError.RESIDENCE_COUNTRY_REQUIRED)
+        }
 
         val usersWithDistance = feedUsers.map { entity ->
             val user = entity.toDomainUser()
-            // Si es viajero y el ajuste matchByLiveLocation esta activo, calculamos con current coordinates
-            val targetLat = if (searchPrefs.matchByLiveLocation && user.isTraveler) {
-                user.currentLatitude ?: user.residenceLatitude
-            } else {
-                user.residenceLatitude ?: user.currentLatitude
-            }
-            val targetLon = if (searchPrefs.matchByLiveLocation && user.isTraveler) {
-                user.currentLongitude ?: user.residenceLongitude
-            } else {
-                user.residenceLongitude ?: user.currentLongitude
-            }
+            val targetLat = if (useActiveLocation) user.currentLatitude else user.residenceLatitude
+            val targetLon = if (useActiveLocation) user.currentLongitude else user.residenceLongitude
 
             val distance = GeoUtils.calculateDistanceKm(userLat, userLon, targetLat, targetLon)
             user.copy(distanceKm = distance)
@@ -60,19 +59,21 @@ class DemoSwipeRepositoryImpl(
 
         val filteredUsers = usersWithDistance.filter { user ->
             when (searchPrefs.scope) {
-                SearchScope.RADIUS -> {
+                SearchScope.RADIUS_RESIDENCE,
+                SearchScope.RADIUS_ACTIVE,
+                -> {
                     val distance = user.distanceKm
-                    distance != null && distance <= searchPrefs.radiusKm
+                    distance == null || distance <= searchPrefs.radiusKm
                 }
                 SearchScope.MY_COUNTRY -> {
-                    val myCountry = demoProfile?.residenceCountryCode ?: "ES"
-                    user.residenceCountryCode?.equals(myCountry, ignoreCase = true) == true
+                    val myCountry = demoProfile?.residenceCountryCode
+                    user.residenceCountryCode == null || user.residenceCountryCode.equals(myCountry, ignoreCase = true)
                 }
                 SearchScope.WORLD -> true
                 SearchScope.SPECIFIC_COUNTRY -> {
                     val target = searchPrefs.targetCountryCode
                     if (target.isNullOrBlank()) true
-                    else user.residenceCountryCode?.equals(target, ignoreCase = true) == true
+                    else user.residenceCountryCode == null || user.residenceCountryCode.equals(target, ignoreCase = true)
                 }
             }
         }.sortedBy { it.distanceKm ?: Double.MAX_VALUE }

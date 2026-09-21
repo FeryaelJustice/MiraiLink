@@ -63,6 +63,8 @@ class DemoUserRepositoryImplTest {
             residenceCountryCode = "ES",
             residenceRegion = "Islas Baleares",
             residenceCity = "Palma",
+            residenceLatitude = 39.5696,
+            residenceLongitude = 2.6502,
             animesJson = "[]",
             gamesJson = "[]",
             photoUris = emptyList(),

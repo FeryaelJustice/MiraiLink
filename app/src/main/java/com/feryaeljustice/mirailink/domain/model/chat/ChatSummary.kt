@@ -24,4 +24,5 @@ data class ChatSummary(
     val lastMessageSentAt: Date? = null,
     val unreadCount: Int = 0,
     val destinatary: MinimalUserInfo? = null,
+    val name: String? = null,
 )

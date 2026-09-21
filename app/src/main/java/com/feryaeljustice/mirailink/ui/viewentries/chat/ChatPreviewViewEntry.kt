@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ChatPreviewViewEntry(
     val userId: String? = null,
+    val chatId: String = "",
+    val isGroup: Boolean = false,
     val username: String = "",
     val nickname: String = "",
     val avatarUrl: String = "",

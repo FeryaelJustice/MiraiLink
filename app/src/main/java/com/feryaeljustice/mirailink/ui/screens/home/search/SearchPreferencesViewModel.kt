@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
 import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.settings.SaveSearchPreferencesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -29,32 +30,35 @@ class SearchPreferencesViewModel(
     private val getSearchPreferencesUseCase: GetSearchPreferencesUseCase,
     private val saveSearchPreferencesUseCase: SaveSearchPreferencesUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val sendLocationPingUseCase: SendLocationPingUseCase,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val savedPreferences = MutableStateFlow(SearchPreferences())
     private val _draftRadiusKm = MutableStateFlow(40f)
     val draftRadiusKm = _draftRadiusKm.asStateFlow()
-    private val _draftScope = MutableStateFlow(SearchScope.RADIUS)
+    private val _draftScope = MutableStateFlow(SearchScope.RADIUS_RESIDENCE)
     val draftScope = _draftScope.asStateFlow()
     private val _draftTargetCountry = MutableStateFlow<String?>(null)
     val draftTargetCountry = _draftTargetCountry.asStateFlow()
-    private val _draftMatchLiveLocation = MutableStateFlow(false)
-    val draftMatchLiveLocation = _draftMatchLiveLocation.asStateFlow()
     private val _userLatitude = MutableStateFlow(GeoUtils.DEFAULT_FALLBACK_LATITUDE)
     val userLatitude = _userLatitude.asStateFlow()
     private val _userLongitude = MutableStateFlow(GeoUtils.DEFAULT_FALLBACK_LONGITUDE)
     val userLongitude = _userLongitude.asStateFlow()
+    private var residenceLatitude: Double? = null
+    private var residenceLongitude: Double? = null
+    private var activeLatitude: Double? = null
+    private var activeLongitude: Double? = null
     private val _isSavingPreferences = MutableStateFlow(false)
     val isSavingPreferences = _isSavingPreferences.asStateFlow()
     private val _error = MutableStateFlow<UiError?>(null)
     val error = _error.asStateFlow()
 
     val hasUnsavedChanges: StateFlow<Boolean> = combine(
-        savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry, _draftMatchLiveLocation,
-    ) { saved, radius, scope, targetCountry, matchLiveLocation ->
+        savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry,
+    ) { saved, radius, scope, targetCountry ->
         saved.radiusKm != radius || saved.scope != scope ||
-            saved.targetCountryCode != targetCountry || saved.matchByLiveLocation != matchLiveLocation
+            saved.targetCountryCode != targetCountry
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
@@ -73,7 +77,6 @@ class SearchPreferencesViewModel(
                 _draftRadiusKm.value = preferences.radiusKm
                 _draftScope.value = preferences.scope
                 _draftTargetCountry.value = preferences.targetCountryCode
-                _draftMatchLiveLocation.value = preferences.matchByLiveLocation
             }
         }
     }
@@ -82,8 +85,11 @@ class SearchPreferencesViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
-                    _userLatitude.value = result.data.currentLatitude ?: result.data.residenceLatitude ?: GeoUtils.DEFAULT_FALLBACK_LATITUDE
-                    _userLongitude.value = result.data.currentLongitude ?: result.data.residenceLongitude ?: GeoUtils.DEFAULT_FALLBACK_LONGITUDE
+                    residenceLatitude = result.data.residenceLatitude
+                    residenceLongitude = result.data.residenceLongitude
+                    activeLatitude = result.data.currentLatitude
+                    activeLongitude = result.data.currentLongitude
+                    updateMapCenter(_draftScope.value)
                 }
                 is MiraiLinkResult.Error -> Unit
             }
@@ -91,8 +97,14 @@ class SearchPreferencesViewModel(
     }
 
     fun updateUserCoordinates(latitude: Double, longitude: Double) {
-        _userLatitude.value = latitude
-        _userLongitude.value = longitude
+        activeLatitude = latitude
+        activeLongitude = longitude
+        if (_draftScope.value == SearchScope.RADIUS_ACTIVE) {
+            updateMapCenter(_draftScope.value)
+        }
+        viewModelScope.launch(ioDispatcher) {
+            sendLocationPingUseCase(latitude, longitude)
+        }
     }
 
     fun updateDraftRadius(radius: Float) {
@@ -101,14 +113,18 @@ class SearchPreferencesViewModel(
 
     fun updateDraftScope(scope: SearchScope) {
         _draftScope.value = scope
+        updateMapCenter(scope)
+    }
+
+    private fun updateMapCenter(scope: SearchScope) {
+        val latitude = if (scope == SearchScope.RADIUS_ACTIVE) activeLatitude else residenceLatitude
+        val longitude = if (scope == SearchScope.RADIUS_ACTIVE) activeLongitude else residenceLongitude
+        _userLatitude.value = latitude ?: GeoUtils.DEFAULT_FALLBACK_LATITUDE
+        _userLongitude.value = longitude ?: GeoUtils.DEFAULT_FALLBACK_LONGITUDE
     }
 
     fun updateDraftTargetCountry(country: String?) {
         _draftTargetCountry.value = country?.trim()?.uppercase()
-    }
-
-    fun updateDraftMatchLiveLocation(enabled: Boolean) {
-        _draftMatchLiveLocation.value = enabled
     }
 
     fun save(onSuccess: () -> Unit) {
@@ -119,7 +135,11 @@ class SearchPreferencesViewModel(
             _error.value = UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)
             return
         }
-        val updated = SearchPreferences(_draftRadiusKm.value, _draftScope.value, targetCountry, _draftMatchLiveLocation.value)
+        val updated = SearchPreferences(
+            _draftRadiusKm.value,
+            _draftScope.value,
+            targetCountry.takeIf { _draftScope.value == SearchScope.SPECIFIC_COUNTRY },
+        )
         _isSavingPreferences.value = true
         viewModelScope.launch(ioDispatcher) {
             when (val result = saveSearchPreferencesUseCase(updated)) {

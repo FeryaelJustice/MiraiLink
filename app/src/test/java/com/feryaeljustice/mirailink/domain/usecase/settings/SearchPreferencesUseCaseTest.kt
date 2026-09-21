@@ -25,6 +25,14 @@ class SearchPreferencesUseCaseTest : UnitTest() {
     private val saveSearchPreferencesUseCase: SaveSearchPreferencesUseCase by inject()
     private val repository: SearchPreferencesRepository by inject()
 
+    @Test
+    fun `search scope uses canonical backend values and accepts legacy country value`() {
+        assertEquals("country", SearchScope.MY_COUNTRY.wireValue)
+        assertEquals(SearchScope.MY_COUNTRY, SearchScope.fromWireValue("country"))
+        assertEquals(SearchScope.MY_COUNTRY, SearchScope.fromWireValue("my_country"))
+        assertEquals(SearchScope.SPECIFIC_COUNTRY, SearchScope.fromWireValue("specific_country"))
+    }
+
     @get:Rule
     val koinTestRule =
         KoinTestRule.create {
@@ -50,7 +58,7 @@ class SearchPreferencesUseCaseTest : UnitTest() {
 
     @Test
     fun `saveSearchPreferences saves successfully`() = runTest {
-        val prefs = SearchPreferences(radiusKm = 25f, matchByLiveLocation = true)
+        val prefs = SearchPreferences(radiusKm = 25f, scope = SearchScope.RADIUS_ACTIVE)
         coEvery { repository.saveSearchPreferences(prefs) } returns MiraiLinkResult.Success(Unit)
 
         val result = saveSearchPreferencesUseCase(prefs)
