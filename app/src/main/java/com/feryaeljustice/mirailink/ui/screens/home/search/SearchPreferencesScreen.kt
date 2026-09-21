@@ -63,6 +63,7 @@ fun SearchPreferencesScreen(
     val latitude by viewModel.userLatitude.collectAsStateWithLifecycle()
     val longitude by viewModel.userLongitude.collectAsStateWithLifecycle()
     val residenceLabel by viewModel.residenceLabel.collectAsStateWithLifecycle()
+    val residenceCoordinatesMissing by viewModel.residenceCoordinatesMissing.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -70,11 +71,9 @@ fun SearchPreferencesScreen(
     var isRefreshingLocation by remember { mutableStateOf(false) }
     var showLocationRationale by remember { mutableStateOf(false) }
 
-    LaunchedEffect(residenceLabel) {
+    LaunchedEffect(residenceLabel, scope, residenceCoordinatesMissing) {
         val label = residenceLabel ?: return@LaunchedEffect
-        if (latitude != com.feryaeljustice.mirailink.domain.util.GeoUtils.DEFAULT_FALLBACK_LATITUDE ||
-            longitude != com.feryaeljustice.mirailink.domain.util.GeoUtils.DEFAULT_FALLBACK_LONGITUDE
-        ) return@LaunchedEffect
+        if (scope != SearchScope.RADIUS_RESIDENCE || !residenceCoordinatesMissing) return@LaunchedEffect
         if (!Geocoder.isPresent()) return@LaunchedEffect
         val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             runCatching {
