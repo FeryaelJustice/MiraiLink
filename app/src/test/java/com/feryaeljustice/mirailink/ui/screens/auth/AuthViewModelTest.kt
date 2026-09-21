@@ -15,6 +15,7 @@ import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -118,6 +119,7 @@ class AuthViewModelTest : KoinTest {
 
             assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
             assert(sessionSaved)
+            coVerify(exactly = 1) { credentialHelper.savePasswordCredential(email, password) }
         }
 
     @Test
@@ -137,6 +139,7 @@ class AuthViewModelTest : KoinTest {
             val state = viewModel.state.value
             assert(state is AuthViewModel.AuthUiState.Error)
             assert((state as AuthViewModel.AuthUiState.Error).error == UnknownError.toUiError())
+            coVerify(exactly = 0) { credentialHelper.savePasswordCredential(any(), any()) }
         }
 
     @Test

@@ -37,14 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -107,7 +103,6 @@ fun AuthScreen(
     val confirmPasswordErrorString = mapErrorToString(confirmPasswordError)
 
     val focusManager = LocalFocusManager.current
-    val autofillManager = LocalAutofillManager.current
 
     fun resetAuthUiState() {
         username = ""
@@ -153,7 +148,7 @@ fun AuthScreen(
                         username = event.username,
                         password = event.password,
                         onSaveSession = { userId, token ->
-                            miraiLinkSession.saveSession(token, userId)
+                            miraiLinkSession.saveSession(token, userId, verified = true)
                         },
                     )
                 }
@@ -309,8 +304,7 @@ fun AuthScreen(
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .semantics { contentType = ContentType.NewUsername },
+                        .fillMaxWidth(),
                 value = if (loginByUsername && isLogin) username else email,
                 onValueChange = {
                     if (loginByUsername && isLogin) {
@@ -390,8 +384,7 @@ fun AuthScreen(
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .semantics { contentType = ContentType.NewPassword },
+                        .fillMaxWidth(),
                 value = password,
                 onValueChange = {
                     password = it
@@ -424,7 +417,7 @@ fun AuthScreen(
                                 username,
                                 password,
                                 onSaveSession = { userId, token ->
-                                    miraiLinkSession.saveSession(token, userId)
+                                    miraiLinkSession.saveSession(token, userId, verified = true)
                                 },
                             )
                         },
@@ -467,7 +460,7 @@ fun AuthScreen(
                                 email,
                                 password,
                                 onSaveSession = { userId, token ->
-                                    miraiLinkSession.saveSession(token, userId)
+                                    miraiLinkSession.saveSession(token, userId, verified = true)
                                 },
                             )
                         }),
@@ -484,7 +477,6 @@ fun AuthScreen(
                     modifier = Modifier,
                     onClick = {
                         onRequestPasswordReset(email)
-                        autofillManager?.commit()
                     },
                     text = stringResource(R.string.auth_screen_text_btn_forgot_password),
                 )
@@ -513,7 +505,7 @@ fun AuthScreen(
                             username,
                             password,
                             onSaveSession = { userId, token ->
-                                miraiLinkSession.saveSession(token, userId)
+                                miraiLinkSession.saveSession(token, userId, verified = true)
                             },
                         )
                     } else {
@@ -522,7 +514,7 @@ fun AuthScreen(
                             email,
                             password,
                             onSaveSession = { userId, token ->
-                                miraiLinkSession.saveSession(token, userId)
+                                miraiLinkSession.saveSession(token, userId, verified = true)
                             },
                         )
                     }

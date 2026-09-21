@@ -90,6 +90,9 @@ class AuthViewModel(
     private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
 
+    private var credentialRetrievedFromProvider: Pair<String, String>? = null
+    private var credentialPendingSave: Pair<String, String>? = null
+
     val state: StateFlow<AuthUiState>
         field = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
 
@@ -142,11 +145,10 @@ class AuthViewModel(
     }
 
     fun autofillCredentials(onFound: (String, String) -> Unit) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(mainDispatcher) {
             credentialHelper.value.getSavedPasswordCredential()?.let {
-                withContext(mainDispatcher) {
-                    onFound(it.first, it.second)
-                }
+                credentialRetrievedFromProvider = it
+                onFound(it.first, it.second)
             }
         }
     }
@@ -168,16 +170,17 @@ class AuthViewModel(
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
             }
-            if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
-                credentialHelper.value.savePasswordCredential(
-                    email = email.ifBlank { username },
-                    password = password,
-                )
-            }
-
             val result = loginUseCase.value(email, username, password)
 
-            handleAuthResult(result, onSaveTheSession = onSaveSession)
+            handleAuthResult(
+                result = result,
+                credentialToSave = (email.ifBlank { username } to password)
+                    .takeIf { (identifier, savedPassword) ->
+                        identifier.isNotBlank() && savedPassword.isNotBlank() &&
+                            credentialRetrievedFromProvider != (identifier to savedPassword)
+                    },
+                onSaveTheSession = onSaveSession,
+            )
         }
     }
 
@@ -198,12 +201,7 @@ class AuthViewModel(
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
             }
-            if ((email.isNotBlank() || username.isNotBlank()) && password.isNotBlank()) {
-                credentialHelper.value.savePasswordCredential(
-                    email = email.ifBlank { username },
-                    password = password,
-                )
-            } else {
+            if (email.isBlank() || password.isBlank()) {
                 withContext(mainDispatcher) {
                     state.value = AuthUiState.Error(ValidationError.MISSING_REQUIRED_VALUE.toUiError())
                 }
@@ -211,12 +209,17 @@ class AuthViewModel(
             }
 
             val result = registerUseCase.value(username, email, password)
-            handleAuthResult(result, onSaveTheSession = onSaveSession)
+            handleAuthResult(
+                result = result,
+                credentialToSave = email to password,
+                onSaveTheSession = onSaveSession,
+            )
         }
     }
 
     private suspend fun handleAuthResult(
         result: MiraiLinkResult<String>,
+        credentialToSave: Pair<String, String>?,
         onSaveTheSession: (String, String) -> Unit,
     ) {
         when (result) {
@@ -234,6 +237,10 @@ class AuthViewModel(
                         state.value = AuthUiState.Error(UnknownError.toUiError())
                     }
                     return
+                }
+
+                withContext(mainDispatcher) {
+                    credentialPendingSave = credentialToSave
                 }
 
                 onLoginSuccess(userId = userIdd)
@@ -273,7 +280,8 @@ class AuthViewModel(
 
             is MiraiLinkResult.Error -> {
                 withContext(mainDispatcher) {
-                configureRecovery(result.error)
+                    credentialPendingSave = null
+                    configureRecovery(result.error)
                     state.value = AuthUiState.Error(result.error.toUiError())
                 }
                 onLoginError(result.error)
@@ -293,6 +301,10 @@ class AuthViewModel(
             }
             state.value = AuthUiState.Success
             onSaveSession(userId, token)
+            credentialPendingSave?.let { (identifier, password) ->
+                credentialPendingSave = null
+                credentialHelper.value.savePasswordCredential(identifier, password)
+            }
         }
     }
 
@@ -304,6 +316,7 @@ class AuthViewModel(
         sessionManager.clearTemporaryToken()
         _loginToken.value = null
         userId.value = null
+        credentialPendingSave = null
         state.value = AuthUiState.Idle
     }
 
