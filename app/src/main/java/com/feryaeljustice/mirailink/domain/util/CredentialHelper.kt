@@ -6,8 +6,6 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class CredentialHelper(
     private val context: Context,
@@ -19,25 +17,21 @@ class CredentialHelper(
         password: String,
     ) {
         val request = CreatePasswordRequest(id = email, password = password)
-        withContext(Dispatchers.IO) {
-            try {
-                credentialManager.createCredential(context = context, request = request)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        try {
+            credentialManager.createCredential(context = context, request = request)
+        } catch (_: Exception) {
+            // El usuario puede cancelar el dialogo o el proveedor puede no estar disponible.
         }
     }
 
     suspend fun getSavedPasswordCredential(): Pair<String, String>? {
         val request = GetCredentialRequest(listOf(GetPasswordOption()))
-        return withContext(Dispatchers.IO) {
-            try {
-                val result = credentialManager.getCredential(context = context, request = request)
-                val credential = result.credential as? PasswordCredential
-                credential?.let { it.id to it.password }
-            } catch (_: Exception) {
-                null
-            }
+        return try {
+            val result = credentialManager.getCredential(context = context, request = request)
+            val credential = result.credential as? PasswordCredential
+            credential?.let { it.id to it.password }
+        } catch (_: Exception) {
+            null
         }
     }
 }
