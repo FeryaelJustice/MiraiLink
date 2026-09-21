@@ -143,7 +143,7 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 MiraiLinkText(
-                                    text = stringResource(R.string.search_location_permission_needed_desc),
+                                    text = stringResource(R.string.search_no_results_for_preferences),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

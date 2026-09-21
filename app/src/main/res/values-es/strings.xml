@@ -235,6 +235,7 @@
     <string name="search_premium_radius_future_note">Radio ampliado (+250 km)</string>
     <string name="search_location_permission_needed_title">Descubre personas cerca de ti</string>
     <string name="search_location_permission_needed_desc">Activa la ubicación para que MiraiLink pueda calcular la distancia y mostrarte perfiles en tu zona.</string>
+    <string name="search_no_results_for_preferences">No hay perfiles que coincidan con tus preferencias de búsqueda en este momento.</string>
     <string name="search_location_enable_action">Activar ubicación</string>
     <string name="search_location_explore_world">Explorar todo el mundo</string>
     <string name="location_permission_rationale_title">Permiso de ubicación necesario</string>
