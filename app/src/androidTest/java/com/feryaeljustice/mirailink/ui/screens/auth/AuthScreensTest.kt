@@ -12,7 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
-import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
+import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationDialog
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.testing.setMiraiLinkContent
 import com.feryaeljustice.mirailink.ui.testing.testSession
@@ -91,11 +91,10 @@ class AuthScreensTest {
             every { state } returns MutableStateFlow(VerificationViewModel.VerificationState())
         }
         composeRule.setMiraiLinkContent {
-            VerificationScreen(
-                miraiLinkSession = testSession(userId = "42"),
+            VerificationDialog(
                 userId = "42",
-                onFinish = {},
-                modifier = Modifier.testTag("verification-screen"),
+                onVerified = {},
+                onClose = {},
                 viewModel = viewModel,
             )
         }
@@ -104,7 +103,8 @@ class AuthScreensTest {
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.send_code)).performClick()
 
         // Then
-        composeRule.onNodeWithTag("verification-screen").assertIsDisplayed()
+        composeRule.onNodeWithText(composeRule.activity.getString(R.string.error_verification_required))
+            .assertIsDisplayed()
         verify(exactly = 1) { viewModel.requestCode("42") }
     }
 
