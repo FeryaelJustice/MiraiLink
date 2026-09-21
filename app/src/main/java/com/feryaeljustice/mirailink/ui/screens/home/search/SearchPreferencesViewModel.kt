@@ -62,7 +62,7 @@ class SearchPreferencesViewModel(
         savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry,
     ) { saved, radius, scope, targetCountry ->
         saved.radiusKm != radius || saved.scope != scope ||
-            saved.targetCountryCode != targetCountry
+            saved.targetCountryId != targetCountry
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
@@ -80,7 +80,7 @@ class SearchPreferencesViewModel(
                 savedPreferences.value = preferences
                 _draftRadiusKm.value = preferences.radiusKm
                 _draftScope.value = preferences.scope
-                _draftTargetCountry.value = preferences.targetCountryCode
+                _draftTargetCountry.value = preferences.targetCountryId
             }
         }
     }
@@ -149,7 +149,7 @@ class SearchPreferencesViewModel(
     fun save(onSuccess: () -> Unit) {
         val targetCountry = _draftTargetCountry.value
         if (_draftScope.value == SearchScope.SPECIFIC_COUNTRY &&
-            (targetCountry.isNullOrBlank() || !targetCountry.isCountryCodeValid())
+            targetCountry.isNullOrBlank()
         ) {
             _error.value = UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)
             return

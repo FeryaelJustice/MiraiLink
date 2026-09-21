@@ -50,6 +50,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.enum.Gender
+import com.feryaeljustice.mirailink.domain.model.geography.GeographicPlace
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.domain.util.toBackendDate
@@ -64,8 +65,8 @@ import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
 import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
 import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectOption
-import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
+import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
@@ -83,6 +84,9 @@ fun UserCard(
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
     onResidenceCoordinatesSelected: ((latitude: Double, longitude: Double) -> Unit)? = null,
+    onResidencePlaceSelected: ((TextFieldType, GeographicPlace) -> Unit)? = null,
+    onResidenceTextChanged: ((TextFieldType, String) -> Unit)? = null,
+    onResidenceFieldCleared: ((TextFieldType) -> Unit)? = null,
     onTagSelect: ((type: TagType, newValue: List<String>) -> Unit)? = null,
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
@@ -236,14 +240,14 @@ fun UserCard(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     ResidenceSelector(
+                        countryId = editUiState.residenceCountryId,
                         country = editUiState.residenceCountryName,
+                        regionId = editUiState.residenceRegionId,
                         region = editUiState.residenceRegion,
                         city = editUiState.residenceCity,
-                        countryCode = editUiState.residenceCountryCode,
-                        onValueChange = { field, value -> onValueChange?.invoke(field, value) },
-                        onCoordinatesSelected = { latitude, longitude ->
-                            onResidenceCoordinatesSelected?.invoke(latitude, longitude)
-                        },
+                        onPlaceSelected = { field, place -> onResidencePlaceSelected?.invoke(field, place) },
+                        onTextChanged = { field, value -> onResidenceTextChanged?.invoke(field, value) },
+                        onClear = { field -> onResidenceFieldCleared?.invoke(field) },
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

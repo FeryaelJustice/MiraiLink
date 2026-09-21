@@ -34,7 +34,7 @@ enum class SearchScope(val wireValue: String) {
 data class SearchPreferences(
     val radiusKm: Float = DEFAULT_RADIUS_KM,
     val scope: SearchScope = SearchScope.RADIUS_RESIDENCE,
-    val targetCountryCode: String? = null,
+    val targetCountryId: String? = null,
     val isPremiumActive: Boolean = false,
 ) {
     companion object {

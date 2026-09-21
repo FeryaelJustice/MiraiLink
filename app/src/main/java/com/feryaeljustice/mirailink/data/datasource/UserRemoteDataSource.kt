@@ -136,9 +136,9 @@ class UserRemoteDataSource(
         bio: String,
         gender: String?,
         birthdate: String?,
-        residenceCountryCode: String?,
-        residenceRegion: String?,
-        residenceCity: String?,
+        residenceCountryId: String?,
+        residenceRegionId: String?,
+        residenceCityId: String?,
         residenceLatitude: Double?,
         residenceLongitude: Double?,
         animesJson: String,
@@ -174,9 +174,9 @@ class UserRemoteDataSource(
                         bio = bio.toRequestBody(),
                         gender = gender?.toRequestBody(),
                         birthdate = birthdate?.toRequestBody(),
-                        residenceCountryCode = residenceCountryCode?.toRequestBody(),
-                        residenceRegion = residenceRegion?.toRequestBody(),
-                        residenceCity = residenceCity?.toRequestBody(),
+                        residenceCountryId = residenceCountryId?.toRequestBody(),
+                        residenceRegionId = residenceRegionId?.toRequestBody(),
+                        residenceCityId = residenceCityId?.toRequestBody(),
                         residenceLatitude = residenceLatitude?.toString().orEmpty().toRequestBody(),
                         residenceLongitude = residenceLongitude?.toString().orEmpty().toRequestBody(),
                         animes = animesJson.toRequestBody(),
@@ -226,7 +226,7 @@ class UserRemoteDataSource(
     suspend fun updateSearchSettings(
         radiusKm: Int,
         scope: String,
-        targetCountry: String?,
+        targetCountryId: String?,
         matchLiveLocation: Boolean,
     ): MiraiLinkResult<Unit> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
@@ -234,7 +234,7 @@ class UserRemoteDataSource(
                 body = com.feryaeljustice.mirailink.data.model.request.settings.UpdateSearchSettingsRequest(
                     searchRadiusKm = radiusKm,
                     searchScope = scope,
-                    searchTargetCountry = targetCountry,
+                    searchTargetCountryId = targetCountryId,
                     searchMatchLiveLocation = matchLiveLocation,
                 ),
             )

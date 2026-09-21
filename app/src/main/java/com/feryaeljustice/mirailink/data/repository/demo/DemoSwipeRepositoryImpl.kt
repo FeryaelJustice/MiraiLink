@@ -71,7 +71,7 @@ class DemoSwipeRepositoryImpl(
                 }
                 SearchScope.WORLD -> true
                 SearchScope.SPECIFIC_COUNTRY -> {
-                    val target = searchPrefs.targetCountryCode
+                    val target = searchPrefs.targetCountryId
                     if (target.isNullOrBlank()) true
                     else user.residenceCountryCode == null || user.residenceCountryCode.equals(target, ignoreCase = true)
                 }

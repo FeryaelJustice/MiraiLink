@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -44,23 +43,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
-import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 
 // NO SE PUEDE porque las previews no tienen las librerias de android, van en jvm, hay que mockear: Define un Módulo de Koin para Previews
@@ -294,6 +293,23 @@ fun ProfileScreen(
                                 onResidenceCoordinatesSelected = { latitude, longitude ->
                                     viewModel.onIntent(EditProfileIntent.UpdateResidenceCoordinates(latitude, longitude))
                                 },
+                                onResidencePlaceSelected = { field, place ->
+                                    viewModel.onIntent(
+                                        EditProfileIntent.SelectResidencePlace(
+                                            field = field,
+                                            id = place.id,
+                                            name = place.name,
+                                            latitude = place.latitude,
+                                            longitude = place.longitude,
+                                        ),
+                                    )
+                                },
+                                onResidenceTextChanged = { field, value ->
+                                    viewModel.onIntent(EditProfileIntent.EditResidenceText(field, value))
+                                },
+                                onResidenceFieldCleared = { field ->
+                                    viewModel.onIntent(EditProfileIntent.ClearResidenceField(field))
+                                },
                                 onTagSelect = { field, value ->
                                     Log.d(
                                         "ProfileScreen",
@@ -437,7 +453,7 @@ private suspend fun residenceAddress(context: Context, location: Location) =
 
 private fun ProfileViewModel.updateResidence(address: android.location.Address) {
     address.countryCode?.let { code ->
-        val countryName = java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
+        val countryName = java.util.Locale.Builder().setRegion(code).build().getDisplayCountry(java.util.Locale.getDefault())
         onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_COUNTRY, countryName))
     }
     address.adminArea?.let { region ->
