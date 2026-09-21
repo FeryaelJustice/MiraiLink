@@ -221,8 +221,8 @@ class ProfileViewModel(
                             state.copy(
                                 residenceCountryName = intent.value,
                                 residenceCountryCode = country ?: "",
-                                residenceRegion = "",
-                                residenceCity = "",
+                                residenceRegion = if (country == state.residenceCountryCode) state.residenceRegion else "",
+                                residenceCity = if (country == state.residenceCountryCode) state.residenceCity else "",
                             )
                         }
                         TextFieldType.RESIDENCE_REGION -> state.copy(residenceRegion = intent.value, residenceCity = "")
