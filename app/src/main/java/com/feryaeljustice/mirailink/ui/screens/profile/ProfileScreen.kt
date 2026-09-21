@@ -1,8 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.profile
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -29,7 +32,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.util.createImageUri
@@ -93,6 +99,7 @@ fun ProfileScreen(
     val editState by viewModel.editState.collectAsStateWithLifecycle()
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
 
     // Galería
     val galleryLauncher =
@@ -138,6 +145,17 @@ fun ProfileScreen(
             }
         }
 
+    var locationPermissionRequestVersion by rememberSaveable { mutableIntStateOf(0) }
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+            ) {
+                locationPermissionRequestVersion++
+            }
+        }
+
     val profileSavedSuccessfullyText =
         stringResource(R.string.profile_screen_profile_saved_correctly)
     LaunchedEffect(Unit) {
@@ -158,39 +176,50 @@ fun ProfileScreen(
         }
     }
 
-    LaunchedEffect(editState.isEditing) {
+    LaunchedEffect(editState.isEditing, locationPermissionRequestVersion) {
         if (!editState.isEditing) {
             viewModel.cleanupTempPhotos()
         } else if (
-            editState.residenceCountryCode.isBlank() &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
         ) {
-            val locationManager = context.getSystemService(android.content.Context.LOCATION_SERVICE) as? android.location.LocationManager
-            val location = runCatching {
-                locationManager?.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
-                    ?: locationManager?.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
-            }.getOrNull()
-            if (location != null && Geocoder.isPresent()) {
-                val address = withContext(Dispatchers.IO) {
-                    runCatching {
-                        @Suppress("DEPRECATION")
-                        Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull()
-                    }.getOrNull()
-                }
-                address?.let {
-                    it.countryCode?.let { code ->
-                        val countryName = java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
-                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_COUNTRY, countryName))
-                    }
-                    it.adminArea?.let { region ->
-                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_REGION, region))
-                    }
-                    it.locality?.let { city ->
-                        viewModel.onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_CITY, city))
+            val locationManager =
+                context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+                    ?: return@LaunchedEffect
+            val providers = buildList {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) add(LocationManager.GPS_PROVIDER)
+                if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) add(LocationManager.NETWORK_PROVIDER)
+            }
+            providers
+                .mapNotNull(locationManager::getLastKnownLocation)
+                .maxByOrNull(Location::getTime)
+                ?.let { location -> residenceAddress(context, location)?.let(viewModel::updateResidence) }
+
+            providers.forEach { provider ->
+                runCatching {
+                    locationManager.getCurrentLocation(
+                        provider,
+                        null,
+                        ContextCompat.getMainExecutor(context),
+                    ) { location ->
+                        location ?: return@getCurrentLocation
+                        coroutineScope.launch {
+                            residenceAddress(context, location)?.let { address ->
+                                if (viewModel.editState.value.isEditing) viewModel.updateResidence(address)
+                            }
+                        }
                     }
                 }
             }
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ),
+            )
         }
     }
 
@@ -388,5 +417,30 @@ fun ProfileScreen(
                 }
             }
         }
+    }
+}
+
+private suspend fun residenceAddress(context: Context, location: Location) =
+    if (!Geocoder.isPresent()) {
+        null
+    } else {
+        withContext(Dispatchers.IO) {
+            runCatching {
+                @Suppress("DEPRECATION")
+                Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull()
+            }.getOrNull()
+        }
+    }
+
+private fun ProfileViewModel.updateResidence(address: android.location.Address) {
+    address.countryCode?.let { code ->
+        val countryName = java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
+        onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_COUNTRY, countryName))
+    }
+    address.adminArea?.let { region ->
+        onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_REGION, region))
+    }
+    address.locality?.let { city ->
+        onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_CITY, city))
     }
 }

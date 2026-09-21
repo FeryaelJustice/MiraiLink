@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.profile
 
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.model.user.User
+import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
@@ -15,6 +16,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import java.util.Locale
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -103,6 +105,30 @@ class ProfileViewModelTest : KoinTest {
             val editState = viewModel.editState.value
             assert(editState.isEditing)
             assert(editState.nickname == user.nickname)
+        }
+
+    @Test
+    fun `confirming the same residence country keeps its dependent values`() =
+        runTest {
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            val residentUser =
+                user.copy(
+                    residenceCountryCode = "ES",
+                    residenceRegion = "Comunidad de Madrid",
+                    residenceCity = "Madrid",
+                )
+
+            viewModel.onIntent(EditProfileIntent.Initialize(residentUser.toUserViewEntry()))
+            viewModel.onIntent(
+                EditProfileIntent.UpdateTextField(
+                    TextFieldType.RESIDENCE_COUNTRY,
+                    Locale("", "ES").getDisplayCountry(Locale.getDefault()),
+                ),
+            )
+
+            assert(viewModel.editState.value.residenceRegion == "Comunidad de Madrid")
+            assert(viewModel.editState.value.residenceCity == "Madrid")
         }
 
     @Test
