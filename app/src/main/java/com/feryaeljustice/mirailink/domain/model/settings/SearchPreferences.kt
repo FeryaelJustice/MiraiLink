@@ -39,10 +39,10 @@ data class SearchPreferences(
 ) {
     companion object {
         const val MIN_RADIUS_KM = 10f
-        const val MAX_RADIUS_KM = 300f
+        const val MAX_RADIUS_KM = 800f
         const val DEFAULT_RADIUS_KM = 40f
 
-        // Preparado para futuro modelo Premium: a partir de 150 km requerirá suscripción
-        const val PREMIUM_RADIUS_THRESHOLD_KM = 150f
+        // Preparado para futuro modelo Premium: a partir de 250 km requerirá suscripción
+        const val PREMIUM_RADIUS_THRESHOLD_KM = 250f
     }
 }

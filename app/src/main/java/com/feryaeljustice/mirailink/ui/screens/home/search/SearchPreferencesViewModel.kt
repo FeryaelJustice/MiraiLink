@@ -47,6 +47,8 @@ class SearchPreferencesViewModel(
     val userLongitude = _userLongitude.asStateFlow()
     private var residenceLatitude: Double? = null
     private var residenceLongitude: Double? = null
+    private val _residenceLabel = MutableStateFlow<String?>(null)
+    val residenceLabel = _residenceLabel.asStateFlow()
     private var activeLatitude: Double? = null
     private var activeLongitude: Double? = null
     private val _isSavingPreferences = MutableStateFlow(false)
@@ -85,6 +87,11 @@ class SearchPreferencesViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
+                    _residenceLabel.value = listOfNotNull(
+                        result.data.residenceCity,
+                        result.data.residenceRegion,
+                        result.data.residenceCountryCode,
+                    ).joinToString(", ").ifBlank { null }
                     residenceLatitude = result.data.residenceLatitude
                     residenceLongitude = result.data.residenceLongitude
                     activeLatitude = result.data.currentLatitude
@@ -95,6 +102,13 @@ class SearchPreferencesViewModel(
             }
         }
     }
+
+    fun updateResidenceCoordinates(latitude: Double, longitude: Double) {
+        residenceLatitude = latitude
+        residenceLongitude = longitude
+        if (_draftScope.value == SearchScope.RADIUS_RESIDENCE) updateMapCenter(_draftScope.value)
+    }
+
 
     fun updateUserCoordinates(latitude: Double, longitude: Double) {
         activeLatitude = latitude

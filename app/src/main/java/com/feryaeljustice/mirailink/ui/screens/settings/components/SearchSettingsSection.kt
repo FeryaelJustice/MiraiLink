@@ -112,7 +112,7 @@ fun SearchSettingsSection(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Slider de distancia en kilometros (10 km a 300 km)
+            // Slider de distancia en kilometros (10 km a 800 km)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -124,7 +124,7 @@ fun SearchSettingsSection(
                     fontWeight = FontWeight.SemiBold,
                 )
 
-                // Preparación para el futuro modelo Premium: a partir de 150 km
+                // Preparación para el futuro modelo Premium: a partir de 250 km
                 if (displayRadius >= SearchPreferences.PREMIUM_RADIUS_THRESHOLD_KM) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
@@ -147,7 +147,7 @@ fun SearchSettingsSection(
                     onRequestLocationPermission?.invoke()
                 },
                 valueRange = SearchPreferences.MIN_RADIUS_KM..SearchPreferences.MAX_RADIUS_KM,
-                steps = 28, // pasos aproximados de 10 km
+                steps = 78, // pasos de 10 km entre 10 y 800 km
                 modifier = Modifier.fillMaxWidth(),
                 enabled = scope.isRadiusScope(),
             )
@@ -162,7 +162,7 @@ fun SearchSettingsSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 MiraiLinkText(
-                    text = "150 km (Premium futuro)",
+                    text = "250 km (Premium futuro)",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
