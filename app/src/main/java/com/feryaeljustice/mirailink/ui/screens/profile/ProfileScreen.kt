@@ -115,17 +115,18 @@ fun ProfileScreen(
     // Cámara (usando URI temporal con FileProvider)
     val context = LocalContext.current
     var tempCameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var pendingCameraSlot by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 tempCameraUri?.let {
-                    val index =
-                        editState.selectedSlotForDialog ?: return@rememberLauncherForActivityResult
+                    val index = pendingCameraSlot ?: return@rememberLauncherForActivityResult
                     viewModel.onIntent(EditProfileIntent.UpdatePhoto(index, it))
-                    viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                 }
             }
+            tempCameraUri = null
+            pendingCameraSlot = null
         }
 
     val needsCameraPermissionText = stringResource(R.string.need_camera_permission)
@@ -137,6 +138,7 @@ fun ProfileScreen(
                 tempCameraUri = uri
                 cameraLauncher.launch(uri)
             } else {
+                pendingCameraSlot = null
                 showToast(
                     context,
                     needsCameraPermissionText,
@@ -390,6 +392,7 @@ fun ProfileScreen(
                                             onClick = {
                                                 // Aqui lanzas launcher de camara
                                                 Log.d("ProfileScreen", "Chosen: Camera")
+                                                pendingCameraSlot = editState.selectedSlotForDialog
                                                 if (ContextCompat.checkSelfPermission(
                                                         context,
                                                         Manifest.permission.CAMERA,
@@ -400,7 +403,6 @@ fun ProfileScreen(
                                                     cameraLauncher.launch(uri)
                                                 } else {
                                                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                                    viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
                                                 }
                                             },
                                             text = stringResource(R.string.camera),

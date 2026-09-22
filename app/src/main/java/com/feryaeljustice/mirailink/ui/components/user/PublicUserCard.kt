@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.components.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,18 +26,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.model.enum.Gender
@@ -44,6 +47,7 @@ import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
+import com.feryaeljustice.mirailink.ui.components.media.PhotoCarouselController
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
@@ -53,6 +57,7 @@ internal fun PublicUserCard(
     onLongPressOnImage: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val photoCarouselController = remember { PhotoCarouselController() }
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val overlayBase = if (isDark) Color(0xFF07111F) else Color(0xFFF8FAFF)
     val contentColor = if (isDark) Color.White else Color(0xFF10131A)
@@ -63,7 +68,19 @@ internal fun PublicUserCard(
             modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .testTag("userCard"),
+                .testTag("userCard")
+                .pointerInput(photoCarouselController) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            if (offset.x < size.width / 2f) {
+                                photoCarouselController.previous()
+                            } else {
+                                photoCarouselController.next()
+                            }
+                        },
+                        onLongPress = { photoCarouselController.openCurrent() },
+                    )
+                },
     ) {
         val publicContentTopPadding = maxHeight * 0.48f
 
@@ -72,6 +89,7 @@ internal fun PublicUserCard(
             onLongPressOnImage = onLongPressOnImage,
             modifier = Modifier.fillMaxSize(),
             immersive = true,
+            controller = photoCarouselController,
         )
 
         Box(

@@ -1,10 +1,7 @@
 package com.feryaeljustice.mirailink.ui.components.media
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,8 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -37,10 +34,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
-import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
+import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrl
 import kotlinx.coroutines.launch
+
+@Stable
+class PhotoCarouselController {
+    internal var goToPrevious: () -> Unit = {}
+    internal var goToNext: () -> Unit = {}
+    internal var openCurrentPhoto: () -> Unit = {}
+
+    fun previous() = goToPrevious()
+
+    fun next() = goToNext()
+
+    fun openCurrent() = openCurrentPhoto()
+}
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -49,6 +60,7 @@ fun PhotoCarousel(
     onLongPressOnImage: (String) -> Unit,
     modifier: Modifier = Modifier,
     immersive: Boolean = false,
+    controller: PhotoCarouselController? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
@@ -57,10 +69,22 @@ fun PhotoCarousel(
     val images = photoUrls.ifEmpty { listOf("") }
 
     val pagerState = rememberPagerState(pageCount = { images.size })
+    controller?.apply {
+        goToPrevious = {
+            scope.launch {
+                pagerState.animateScrollToPage((pagerState.currentPage - 1 + images.size) % images.size)
+            }
+        }
+        goToNext = {
+            scope.launch {
+                pagerState.animateScrollToPage((pagerState.currentPage + 1) % images.size)
+            }
+        }
+        openCurrentPhoto = {
+            if (hasPhotos) currentLongPressHandler(images[pagerState.currentPage])
+        }
+    }
 //    val pagerIsDragged by pagerState.interactionSource.collectIsDraggedAsState()
-
-    val pageInteractionSource = remember { MutableInteractionSource() }
-//    val pageIsPressed by pageInteractionSource.collectIsPressedAsState()
 
     // Stop auto-advancing when pager is dragged or one of the pages is pressed
 //    val autoAdvance = !pagerIsDragged && !pageIsPressed
@@ -95,7 +119,11 @@ fun PhotoCarousel(
         ) { page ->
             val photoUrl = images[page]
             val imageModel =
-                if (photoUrl.isBlank()) TEMPORAL_PLACEHOLDER_PICTURE_URL else photoUrl.getFormattedUrl()
+                if (photoUrl.isBlank()) {
+                    TEMPORAL_PLACEHOLDER_PICTURE_URL
+                } else {
+                    resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, photoUrl)
+                }
             AsyncImage(
                 model =
                     ImageRequest
@@ -121,23 +149,30 @@ fun PhotoCarousel(
                                 RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                             },
                         )
-                        .clickable(
-                            interactionSource = pageInteractionSource,
-                            indication = LocalIndication.current,
-                        ) {
-                            scope.launch {
-                                val nextPage = (pagerState.currentPage + 1) % images.size
-                                pagerState.animateScrollToPage(nextPage)
-                            }
-                        }.pointerInput(photoUrl) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    if (hasPhotos) {
-                                        currentLongPressHandler(photoUrl)
-                                    }
-                                },
-                            )
-                        },
+                        .then(
+                            if (controller == null) {
+                                Modifier.pointerInput(photoUrl, images.size) {
+                                    detectTapGestures(
+                                        onTap = { offset ->
+                                            scope.launch {
+                                                val targetPage =
+                                                    if (offset.x < size.width / 2f) {
+                                                        (pagerState.currentPage - 1 + images.size) % images.size
+                                                    } else {
+                                                        (pagerState.currentPage + 1) % images.size
+                                                    }
+                                                pagerState.animateScrollToPage(targetPage)
+                                            }
+                                        },
+                                        onLongPress = {
+                                            if (hasPhotos) currentLongPressHandler(photoUrl)
+                                        },
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
             )
         }
 
