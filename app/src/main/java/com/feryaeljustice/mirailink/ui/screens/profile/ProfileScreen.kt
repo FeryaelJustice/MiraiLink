@@ -50,6 +50,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorSnackbar
 import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
@@ -433,10 +434,9 @@ fun ProfileScreen(
 
         // Keep save errors above the editable card so the retry action remains visible.
         editState.error?.let { error ->
-            MiraiLinkErrorContent(
+            MiraiLinkErrorSnackbar(
                 error = error,
                 onAction = viewModel::performErrorAction,
-                modifier = Modifier.fillMaxSize(),
             )
         }
     }

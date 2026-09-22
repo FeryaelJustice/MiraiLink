@@ -145,6 +145,9 @@ class UserRemoteDataSource(
         gamesJson: String,
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>,
+        residenceCountryName: String?,
+        residenceRegion: String?,
+        residenceCity: String?,
     ): MiraiLinkResult<Unit> {
         val prepared =
             safeLocalCall(ioDispatcher) {
@@ -169,6 +172,7 @@ class UserRemoteDataSource(
             is MiraiLinkResult.Error -> prepared
             is MiraiLinkResult.Success ->
                 safeApiUnitResponse(NetworkOperation.AUTHENTICATED) {
+                    // Keep legacy residence parts while older deployed backends migrate to catalog IDs.
                     api.updateProfile(
                         nickname = nickname.toRequestBody(),
                         bio = bio.toRequestBody(),
@@ -177,6 +181,9 @@ class UserRemoteDataSource(
                         residenceCountryId = residenceCountryId?.toRequestBody(),
                         residenceRegionId = residenceRegionId?.toRequestBody(),
                         residenceCityId = residenceCityId?.toRequestBody(),
+                        residenceCountryCode = residenceCountryName?.toRequestBody(),
+                        residenceRegion = residenceRegion?.toRequestBody(),
+                        residenceCity = residenceCity?.toRequestBody(),
                         residenceLatitude = residenceLatitude?.toString().orEmpty().toRequestBody(),
                         residenceLongitude = residenceLongitude?.toString().orEmpty().toRequestBody(),
                         animes = animesJson.toRequestBody(),

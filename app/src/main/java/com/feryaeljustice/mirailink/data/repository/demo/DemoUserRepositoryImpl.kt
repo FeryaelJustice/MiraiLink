@@ -3,13 +3,11 @@ package com.feryaeljustice.mirailink.data.repository.demo
 import android.net.Uri
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
-import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.model.user.UserPhoto
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class DemoUserRepositoryImpl(
@@ -135,6 +133,9 @@ class DemoUserRepositoryImpl(
         gamesJson: String,
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>,
+        residenceCountryName: String?,
+        residenceRegion: String?,
+        residenceCity: String?,
     ): MiraiLinkResult<Unit> {
         val currentProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
             ?: return MiraiLinkResult.Success(Unit)
