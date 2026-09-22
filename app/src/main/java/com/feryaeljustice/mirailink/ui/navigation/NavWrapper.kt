@@ -162,13 +162,14 @@ fun NavWrapper(
                 else -> ScreensSubgraphs.Main to AppScreen.HomeScreen
             }
 
-            // Lógica para decidir si navegar:
-            // 1. Si NO estamos en Main (estamos en Auth o Splash) -> Navegar
-            // 2. Si estamos en Main pero deberíamos estar en Verification/ProfilePic -> Navegar
             val currentTopLevel = navigationState.topLevelRoute
             val currentMainChild = navigator.state.backStacks[ScreensSubgraphs.Main]?.lastOrNull()
-            val needsNavigation = currentTopLevel != ScreensSubgraphs.Main ||
-                    currentMainChild != targetFirstChild
+            val needsNavigation =
+                shouldResetAuthenticatedNavigation(
+                    currentTopLevel = currentTopLevel,
+                    currentMainChild = currentMainChild,
+                    hasProfilePicture = hasProfilePicture,
+                )
 
             if (needsNavigation) {
                 // Configurar UI Bars para sesión activa
