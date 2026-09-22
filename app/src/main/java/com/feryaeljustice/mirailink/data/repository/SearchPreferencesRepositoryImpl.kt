@@ -23,7 +23,7 @@ class SearchPreferencesRepositoryImpl(
                 SearchPreferences(
                     radiusKm = prefs.searchRadiusKm,
                     scope = SearchScope.fromWireValue(prefs.searchScope, prefs.searchMatchLiveLocation),
-                    targetCountryCode = prefs.searchTargetCountry,
+                    targetCountryId = prefs.searchTargetCountryId,
                     isPremiumActive = false,
                 )
             }
@@ -31,7 +31,7 @@ class SearchPreferencesRepositoryImpl(
     override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> {
         return try {
             val normalized = preferences.copy(
-                targetCountryCode = preferences.targetCountryCode.takeIf {
+                targetCountryId = preferences.targetCountryId.takeIf {
                     preferences.scope == SearchScope.SPECIFIC_COUNTRY
                 },
             )
@@ -39,7 +39,7 @@ class SearchPreferencesRepositoryImpl(
                 when (val remoteResult = userRemoteDataSource.updateSearchSettings(
                     radiusKm = normalized.radiusKm.toInt(),
                     scope = normalized.scope.wireValue,
-                    targetCountry = normalized.targetCountryCode,
+                    targetCountryId = normalized.targetCountryId,
                     matchLiveLocation = false,
                 )) {
                     is MiraiLinkResult.Error -> return remoteResult
@@ -50,7 +50,7 @@ class SearchPreferencesRepositoryImpl(
                 current.copy(
                     searchRadiusKm = normalized.radiusKm,
                     searchScope = normalized.scope.wireValue,
-                    searchTargetCountry = normalized.targetCountryCode,
+                    searchTargetCountryId = normalized.targetCountryId,
                     searchMatchLiveLocation = false,
                 )
             }

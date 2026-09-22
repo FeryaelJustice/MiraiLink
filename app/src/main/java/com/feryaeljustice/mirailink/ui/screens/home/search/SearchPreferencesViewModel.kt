@@ -47,6 +47,10 @@ class SearchPreferencesViewModel(
     val userLongitude = _userLongitude.asStateFlow()
     private var residenceLatitude: Double? = null
     private var residenceLongitude: Double? = null
+    private val _residenceLabel = MutableStateFlow<String?>(null)
+    val residenceLabel = _residenceLabel.asStateFlow()
+    private val _residenceCoordinatesMissing = MutableStateFlow(true)
+    val residenceCoordinatesMissing = _residenceCoordinatesMissing.asStateFlow()
     private var activeLatitude: Double? = null
     private var activeLongitude: Double? = null
     private val _isSavingPreferences = MutableStateFlow(false)
@@ -58,7 +62,7 @@ class SearchPreferencesViewModel(
         savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry,
     ) { saved, radius, scope, targetCountry ->
         saved.radiusKm != radius || saved.scope != scope ||
-            saved.targetCountryCode != targetCountry
+            saved.targetCountryId != targetCountry
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
@@ -76,7 +80,7 @@ class SearchPreferencesViewModel(
                 savedPreferences.value = preferences
                 _draftRadiusKm.value = preferences.radiusKm
                 _draftScope.value = preferences.scope
-                _draftTargetCountry.value = preferences.targetCountryCode
+                _draftTargetCountry.value = preferences.targetCountryId
             }
         }
     }
@@ -85,8 +89,15 @@ class SearchPreferencesViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
+                    _residenceLabel.value = listOfNotNull(
+                        result.data.residenceCity,
+                        result.data.residenceRegion,
+                        result.data.residenceCountryCode,
+                    ).joinToString(", ").ifBlank { null }
                     residenceLatitude = result.data.residenceLatitude
                     residenceLongitude = result.data.residenceLongitude
+                    _residenceCoordinatesMissing.value =
+                        result.data.residenceLatitude == null || result.data.residenceLongitude == null
                     activeLatitude = result.data.currentLatitude
                     activeLongitude = result.data.currentLongitude
                     updateMapCenter(_draftScope.value)
@@ -95,6 +106,14 @@ class SearchPreferencesViewModel(
             }
         }
     }
+
+    fun updateResidenceCoordinates(latitude: Double, longitude: Double) {
+        residenceLatitude = latitude
+        residenceLongitude = longitude
+        _residenceCoordinatesMissing.value = false
+        if (_draftScope.value == SearchScope.RADIUS_RESIDENCE) updateMapCenter(_draftScope.value)
+    }
+
 
     fun updateUserCoordinates(latitude: Double, longitude: Double) {
         activeLatitude = latitude
@@ -130,7 +149,7 @@ class SearchPreferencesViewModel(
     fun save(onSuccess: () -> Unit) {
         val targetCountry = _draftTargetCountry.value
         if (_draftScope.value == SearchScope.SPECIFIC_COUNTRY &&
-            (targetCountry.isNullOrBlank() || !targetCountry.isCountryCodeValid())
+            targetCountry.isNullOrBlank()
         ) {
             _error.value = UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)
             return

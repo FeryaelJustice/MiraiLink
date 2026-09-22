@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.widget.Toast
+import android.location.Geocoder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +45,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorConten
 import com.feryaeljustice.mirailink.ui.screens.settings.components.SearchSettingsSection
 import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.launch
+import java.util.Locale
 import com.feryaeljustice.mirailink.ui.utils.readBestCurrentLocation
 
 @Composable
@@ -59,12 +62,26 @@ fun SearchPreferencesScreen(
     val isSaving by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
     val latitude by viewModel.userLatitude.collectAsStateWithLifecycle()
     val longitude by viewModel.userLongitude.collectAsStateWithLifecycle()
+    val residenceLabel by viewModel.residenceLabel.collectAsStateWithLifecycle()
+    val residenceCoordinatesMissing by viewModel.residenceCoordinatesMissing.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isMapVisible by remember { mutableStateOf(false) }
     var isRefreshingLocation by remember { mutableStateOf(false) }
     var showLocationRationale by remember { mutableStateOf(false) }
+
+    LaunchedEffect(residenceLabel, scope, residenceCoordinatesMissing) {
+        val label = residenceLabel ?: return@LaunchedEffect
+        if (scope != SearchScope.RADIUS_RESIDENCE || !residenceCoordinatesMissing) return@LaunchedEffect
+        if (!Geocoder.isPresent()) return@LaunchedEffect
+        val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                Geocoder(context, Locale.getDefault()).getFromLocationName(label, 1)?.firstOrNull()
+            }.getOrNull()
+        }
+        result?.let { viewModel.updateResidenceCoordinates(it.latitude, it.longitude) }
+    }
 
     fun readCurrentLocation(onFinished: () -> Unit = {}) {
         val fineGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED

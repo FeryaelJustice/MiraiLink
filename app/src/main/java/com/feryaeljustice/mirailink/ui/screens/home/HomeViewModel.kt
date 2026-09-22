@@ -9,6 +9,8 @@ import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferences
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
+import com.feryaeljustice.mirailink.domain.error.LocationError
+import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
@@ -113,8 +116,18 @@ class HomeViewModel(
                 _userQueue.addAll(result.data.map { it.toUserViewEntry() })
                 updateUiState()
             } else if (result is MiraiLinkResult.Error) {
-                setRecoveryAction(::loadUsers)
-                state.value = HomeUiState.Error(result.error.toUiError())
+                val preferences = getSearchPreferencesUseCase().first()
+                if (result.error == LocationError.LOCATION_REQUIRED &&
+                    preferences.scope == SearchScope.RADIUS_RESIDENCE
+                ) {
+                    // Una residencia válida sin perfiles cercanos es un estado vacío,
+                    // no un error accionable de permisos o configuración.
+                    _userQueue.clear()
+                    updateUiState()
+                } else {
+                    setRecoveryAction(::loadUsers)
+                    state.value = HomeUiState.Error(result.error.toUiError())
+                }
             }
         }
     }

@@ -16,6 +16,9 @@ data class EditProfileUiState(
     val gender: String = "",            // guardaremos la clave ("male", etc.)
     val birthdate: String = "",         // "YYYY-MM-DD"
     val residenceCountryCode: String = "",
+    val residenceCountryId: String = "",
+    val residenceRegionId: String = "",
+    val residenceCityId: String = "",
     val residenceCountryName: String = "",
     val residenceRegion: String = "",
     val residenceCity: String = "",
@@ -38,6 +41,15 @@ sealed class EditProfileIntent {
     object Save : EditProfileIntent()
     data class UpdateTextField(val field: TextFieldType, val value: String) : EditProfileIntent()
     data class UpdateResidenceCoordinates(val latitude: Double, val longitude: Double) : EditProfileIntent()
+    data class SelectResidencePlace(
+        val field: TextFieldType,
+        val id: String,
+        val name: String,
+        val latitude: Double? = null,
+        val longitude: Double? = null,
+    ) : EditProfileIntent()
+    data class EditResidenceText(val field: TextFieldType, val value: String) : EditProfileIntent()
+    data class ClearResidenceField(val field: TextFieldType) : EditProfileIntent()
     data class UpdateTags(val field: TagType, val selected: List<String>) : EditProfileIntent()
     data class ReorderPhoto(val from: Int, val to: Int) : EditProfileIntent()
     data class RemovePhoto(val position: Int) : EditProfileIntent()

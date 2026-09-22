@@ -234,9 +234,10 @@
     <string name="search_settings_save">Save settings</string>
     <string name="search_settings_saved_success">Search preferences saved successfully</string>
     <string name="search_premium_badge">Premium (Free in beta)</string>
-    <string name="search_premium_radius_future_note">Extended radius (+150 km)</string>
+    <string name="search_premium_radius_future_note">Extended radius (+250 km)</string>
     <string name="search_location_permission_needed_title">Discover people near you</string>
     <string name="search_location_permission_needed_desc">Enable location to let MiraiLink calculate distance and show profiles in your area.</string>
+    <string name="search_no_results_for_preferences">No profiles match your search preferences right now.</string>
     <string name="search_location_enable_action">Enable location</string>
     <string name="search_location_explore_world">Explore worldwide</string>
     <string name="location_permission_rationale_title">Location permission required</string>

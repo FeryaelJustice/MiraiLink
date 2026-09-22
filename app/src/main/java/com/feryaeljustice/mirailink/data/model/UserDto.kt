@@ -29,12 +29,20 @@ data class UserDto(
     val photos: List<UserPhotoDto> = emptyList(),
     @SerialName("fcm_token")
     val fcmToken: String = "",
+    @SerialName("residence_country_id")
+    val residenceCountryId: String? = null,
+    @SerialName("residence_region_id")
+    val residenceRegionId: String? = null,
+    @SerialName("residence_city_id")
+    val residenceCityId: String? = null,
     @SerialName("residence_city")
     val residenceCity: String? = null,
     @SerialName("residence_region")
     val residenceRegion: String? = null,
     @SerialName("residence_country_code")
     val residenceCountryCode: String? = null,
+    @SerialName("residence_country")
+    val residenceCountry: String? = null,
     @SerialName("residence_latitude")
     val residenceLatitude: Double? = null,
     @SerialName("residence_longitude")
@@ -51,8 +59,8 @@ data class UserDto(
     val searchRadiusKm: Int? = null,
     @SerialName("search_scope")
     val searchScope: String? = null,
-    @SerialName("search_target_country")
-    val searchTargetCountry: String? = null,
+    @SerialName("search_target_country_id")
+    val searchTargetCountryId: String? = null,
     @SerialName("search_match_live_location")
     val searchMatchLiveLocation: Boolean = false,
 )

@@ -56,7 +56,7 @@ fun SearchRadiusMinimap(
     onRefreshLocation: () -> Unit = {},
     isRefreshingLocation: Boolean = false,
     minRadiusKm: Int = 10,
-    maxRadiusKm: Int = 300,
+    maxRadiusKm: Int = 800,
 ) {
     val context = LocalContext.current
     val primaryColor = MaterialTheme.colorScheme.primary

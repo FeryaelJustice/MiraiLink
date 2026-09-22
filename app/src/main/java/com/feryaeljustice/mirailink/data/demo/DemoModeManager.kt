@@ -24,7 +24,11 @@ class DemoModeManager(
         // persistida contiene el token demo. Evita tratarla como sesion real.
         scope.launch {
             sessionManager.tokenFlow.collect { token ->
-                _isDemoMode.value = token == "DEMO_TOKEN"
+                if (token == "DEMO_TOKEN") {
+                    _isDemoMode.value = true
+                } else if (!_isDemoMode.value) {
+                    _isDemoMode.value = false
+                }
             }
         }
     }

@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import java.util.Locale
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -131,9 +130,10 @@ class ProfileViewModel(
                         gender = user.gender ?: "",
                         birthdate = user.birthdate ?: "",
                         residenceCountryCode = user.residenceCountryCode ?: "",
-                        residenceCountryName = user.residenceCountryCode?.let { code ->
-                            Locale("", code).getDisplayCountry(Locale.getDefault())
-                        }.orEmpty(),
+                        residenceCountryId = user.residenceCountryId ?: "",
+                        residenceRegionId = user.residenceRegionId ?: "",
+                        residenceCityId = user.residenceCityId ?: "",
+                        residenceCountryName = user.residenceCountry.orEmpty(),
                         residenceRegion = user.residenceRegion ?: "",
                         residenceCity = user.residenceCity ?: "",
                         residenceLatitude = user.residenceLatitude,
@@ -156,9 +156,9 @@ class ProfileViewModel(
                         val bio = state.bio
                         val gender = state.gender.ifBlank { null }
                         val birthdate = state.birthdate.ifBlank { null } // "YYYY-MM-DD"
-                        val residenceCountryCode = state.residenceCountryCode.ifBlank { null }
-                        val residenceRegion = state.residenceRegion.ifBlank { null }
-                        val residenceCity = state.residenceCity.ifBlank { null }
+                        val residenceCountryId = state.residenceCountryId.ifBlank { null }
+                        val residenceRegionId = state.residenceRegionId.ifBlank { null }
+                        val residenceCityId = state.residenceCityId.ifBlank { null }
                         val residenceLatitude = state.residenceLatitude
                         val residenceLongitude = state.residenceLongitude
 
@@ -189,9 +189,9 @@ class ProfileViewModel(
                                     bio = bio,
                                     gender = gender,
                                     birthdate = birthdate,
-                                    residenceCountryCode = residenceCountryCode,
-                                    residenceRegion = residenceRegion,
-                                    residenceCity = residenceCity,
+                                    residenceCountryId = residenceCountryId,
+                                    residenceRegionId = residenceRegionId,
+                                    residenceCityId = residenceCityId,
                                     residenceLatitude = residenceLatitude,
                                     residenceLongitude = residenceLongitude,
                                     animesJson = animesJson,
@@ -219,32 +219,87 @@ class ProfileViewModel(
                         TextFieldType.BIO -> state.copy(bio = intent.value)
                         TextFieldType.GENDER -> state.copy(gender = intent.value)
                         TextFieldType.BIRTHDATE -> state.copy(birthdate = intent.value)
-                        TextFieldType.RESIDENCE_COUNTRY -> {
-                            val country = Locale.getISOCountries().firstOrNull { code ->
-                                Locale("", code).getDisplayCountry(Locale.getDefault())
-                                    .equals(intent.value.trim(), ignoreCase = true)
-                            }
-                            state.copy(
-                                residenceCountryName = intent.value,
-                                residenceCountryCode = country ?: "",
-                                residenceRegion = if (country == state.residenceCountryCode) state.residenceRegion else "",
-                                residenceCity = if (country == state.residenceCountryCode) state.residenceCity else "",
-                                residenceLatitude = if (country == state.residenceCountryCode) state.residenceLatitude else null,
-                                residenceLongitude = if (country == state.residenceCountryCode) state.residenceLongitude else null,
-                            )
-                        }
-                        TextFieldType.RESIDENCE_REGION -> state.copy(
-                            residenceRegion = intent.value,
-                            residenceCity = "",
-                            residenceLatitude = null,
-                            residenceLongitude = null,
-                        )
-                        TextFieldType.RESIDENCE_CITY -> state.copy(
-                            residenceCity = intent.value,
-                            residenceLatitude = null,
-                            residenceLongitude = null,
-                        )
+                        TextFieldType.RESIDENCE_COUNTRY,
+                        TextFieldType.RESIDENCE_REGION,
+                        TextFieldType.RESIDENCE_CITY,
+                        -> state
                     }
+                }
+
+                is EditProfileIntent.SelectResidencePlace -> when (intent.field) {
+                    TextFieldType.RESIDENCE_COUNTRY -> state.copy(
+                        residenceCountryId = intent.id,
+                        residenceCountryName = intent.name,
+                        residenceCountryCode = "",
+                        residenceRegionId = "",
+                        residenceRegion = "",
+                        residenceCityId = "",
+                        residenceCity = "",
+                        residenceLatitude = null,
+                        residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_REGION -> state.copy(
+                        residenceRegionId = intent.id,
+                        residenceRegion = intent.name,
+                        residenceCityId = "",
+                        residenceCity = "",
+                        residenceLatitude = null,
+                        residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_CITY -> state.copy(
+                        residenceCityId = intent.id,
+                        residenceCity = intent.name,
+                        residenceLatitude = intent.latitude,
+                        residenceLongitude = intent.longitude,
+                    )
+                    else -> state
+                }
+
+                is EditProfileIntent.EditResidenceText -> when (intent.field) {
+                    TextFieldType.RESIDENCE_COUNTRY -> state.copy(
+                        residenceCountryName = intent.value,
+                        residenceCountryId = "",
+                        residenceRegion = "",
+                        residenceRegionId = "",
+                        residenceCity = "",
+                        residenceCityId = "",
+                        residenceLatitude = null,
+                        residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_REGION -> state.copy(
+                        residenceRegion = intent.value,
+                        residenceRegionId = "",
+                        residenceCity = "",
+                        residenceCityId = "",
+                        residenceLatitude = null,
+                        residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_CITY -> state.copy(
+                        residenceCity = intent.value,
+                        residenceCityId = "",
+                        residenceLatitude = null,
+                        residenceLongitude = null,
+                    )
+                    else -> state
+                }
+
+                is EditProfileIntent.ClearResidenceField -> when (intent.field) {
+                    TextFieldType.RESIDENCE_COUNTRY -> state.copy(
+                        residenceCountryName = "", residenceCountryId = "",
+                        residenceRegion = "", residenceRegionId = "",
+                        residenceCity = "", residenceCityId = "",
+                        residenceLatitude = null, residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_REGION -> state.copy(
+                        residenceRegion = "", residenceRegionId = "",
+                        residenceCity = "", residenceCityId = "",
+                        residenceLatitude = null, residenceLongitude = null,
+                    )
+                    TextFieldType.RESIDENCE_CITY -> state.copy(
+                        residenceCity = "", residenceCityId = "",
+                        residenceLatitude = null, residenceLongitude = null,
+                    )
+                    else -> state
                 }
 
                 is EditProfileIntent.UpdateResidenceCoordinates -> state.copy(
