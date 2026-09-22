@@ -242,12 +242,6 @@ fun ProfileScreen(
                     },
                 ),
     ) {
-        editState.error?.let { error ->
-            MiraiLinkErrorContent(
-                error = error,
-                onAction = viewModel::performErrorAction,
-            )
-        }
         AnimatedContent(
             targetState = state,
             modifier = Modifier.fillMaxSize(),
@@ -435,6 +429,15 @@ fun ProfileScreen(
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
+        }
+
+        // Keep save errors above the editable card so the retry action remains visible.
+        editState.error?.let { error ->
+            MiraiLinkErrorContent(
+                error = error,
+                onAction = viewModel::performErrorAction,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

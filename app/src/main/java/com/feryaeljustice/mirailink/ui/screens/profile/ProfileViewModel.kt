@@ -12,8 +12,8 @@ import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
-import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
+import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
@@ -140,6 +140,7 @@ class ProfileViewModel(
                         residenceLongitude = user.residenceLongitude,
                         selectedAnimes = user.animes,
                         selectedGames = user.games,
+                        error = null,
                         photos = photos,
                     )
                 }

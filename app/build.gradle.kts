@@ -58,10 +58,10 @@ android {
     defaultConfig {
         applicationId = "com.feryaeljustice.mirailink"
 
-        minSdk = 26
+        minSdk = 30
         targetSdk = 37
-        versionCode = 33
-        versionName = "2.3.0"
+        versionCode = 34
+        versionName = "3.0.0"
 
         buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
 
