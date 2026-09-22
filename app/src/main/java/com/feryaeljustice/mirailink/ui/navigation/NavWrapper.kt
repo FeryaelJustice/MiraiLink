@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +37,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.demo.DemoModeBanner
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkSnackbarRequest
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
@@ -89,10 +92,17 @@ fun NavWrapper(
     // Handlers
     val copiedToClipboardTxt = stringResource(R.string.copied_to_clipboard)
 
-    val showSnackbar: (String) -> Unit = { msg ->
+    val showSnackbar: (MiraiLinkSnackbarRequest) -> Unit = { request ->
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()
-            snackbarHostState.showSnackbar(message = msg)
+            val result = snackbarHostState.showSnackbar(
+                message = request.message,
+                actionLabel = request.actionLabel,
+                duration = SnackbarDuration.Long,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                request.onAction?.invoke()
+            }
         }
     }
 
@@ -444,7 +454,9 @@ fun NavWrapper(
                                 navState = navigationState,
                                 enabled = !topBarConfig.disableBottomBar,
                                 onDestinationClick = {
-                                    if (topBarConfig.disableBottomBar) showSnackbar("Bottom bar is disabled")
+                                    if (topBarConfig.disableBottomBar) {
+                                        showSnackbar(MiraiLinkSnackbarRequest(message = "Bottom bar is disabled"))
+                                    }
                                 },
                             )
                         }

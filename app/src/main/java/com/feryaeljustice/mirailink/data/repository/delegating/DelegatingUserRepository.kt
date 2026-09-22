@@ -78,6 +78,9 @@ class DelegatingUserRepository(
         gamesJson: String,
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>,
+        residenceCountryName: String?,
+        residenceRegion: String?,
+        residenceCity: String?,
     ): MiraiLinkResult<Unit> = targetRepo().updateProfile(
         nickname,
         bio,
@@ -92,6 +95,9 @@ class DelegatingUserRepository(
         gamesJson,
         photoUris,
         existingPhotoUrls,
+        residenceCountryName,
+        residenceRegion,
+        residenceCity,
     )
 
     override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> =

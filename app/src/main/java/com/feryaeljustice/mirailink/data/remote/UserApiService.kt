@@ -108,6 +108,10 @@ interface UserApiService {
         @Part("residence_country_id") residenceCountryId: RequestBody?,
         @Part("residence_region_id") residenceRegionId: RequestBody?,
         @Part("residence_city_id") residenceCityId: RequestBody?,
+        // Legacy fields remain during the backend rollout so existing clients can still update profiles.
+        @Part("residence_country_code") residenceCountryCode: RequestBody?,
+        @Part("residence_region") residenceRegion: RequestBody?,
+        @Part("residence_city") residenceCity: RequestBody?,
         @Part("residence_latitude") residenceLatitude: RequestBody,
         @Part("residence_longitude") residenceLongitude: RequestBody,
         @Part("animes") animes: RequestBody,

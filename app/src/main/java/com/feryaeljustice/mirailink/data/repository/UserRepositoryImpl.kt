@@ -98,6 +98,9 @@ class UserRepositoryImpl(
         gamesJson: String,
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>,
+        residenceCountryName: String?,
+        residenceRegion: String?,
+        residenceCity: String?,
     ): MiraiLinkResult<Unit> =
         remote.updateProfile(
             nickname = nickname,
@@ -107,12 +110,15 @@ class UserRepositoryImpl(
             residenceCountryId = residenceCountryId,
             residenceRegionId = residenceRegionId,
             residenceCityId = residenceCityId,
+            residenceCountryName = residenceCountryName,
+            residenceRegion = residenceRegion,
+            residenceCity = residenceCity,
             residenceLatitude = residenceLatitude,
             residenceLongitude = residenceLongitude,
             animesJson = animesJson,
             gamesJson = gamesJson,
             photoUris = photoUris,
-            existingPhotoUrls,
+            existingPhotoUrls = existingPhotoUrls,
         )
 
     override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> = remote.hasProfilePicture(userId)

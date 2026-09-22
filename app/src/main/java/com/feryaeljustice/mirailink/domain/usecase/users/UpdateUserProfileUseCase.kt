@@ -21,6 +21,9 @@ class UpdateUserProfileUseCase(
         gamesJson: String,
         photoUris: List<Uri?>,
         existingPhotoUrls: List<String?>,
+        residenceCountryName: String? = null,
+        residenceRegion: String? = null,
+        residenceCity: String? = null,
     ): MiraiLinkResult<Unit> =
         repository.updateProfile(
             nickname = nickname,
@@ -30,6 +33,9 @@ class UpdateUserProfileUseCase(
             residenceCountryId = residenceCountryId,
             residenceRegionId = residenceRegionId,
             residenceCityId = residenceCityId,
+            residenceCountryName = residenceCountryName,
+            residenceRegion = residenceRegion,
+            residenceCity = residenceCity,
             residenceLatitude = residenceLatitude,
             residenceLongitude = residenceLongitude,
             animesJson = animesJson,
