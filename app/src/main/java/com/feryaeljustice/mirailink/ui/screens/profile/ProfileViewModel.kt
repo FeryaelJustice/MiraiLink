@@ -182,7 +182,13 @@ class ProfileViewModel(
                                 }
                             }
 
-                        val existingPhotoUrls = editState.value.photos.map { it.url }
+                        // Only server URLs belong to the reorderedPositions payload. Local content
+                        // URIs are uploaded in their multipart photo_N field and are not valid URLs
+                        // for the backend to reorder.
+                        val existingPhotoUrls =
+                            state.photos.map { slot ->
+                                slot.url?.takeIf { slot.uri == null && it.startsWith("http") }
+                            }
                         val result =
                             withContext(ioDispatcher) {
                                 updateUserProfileUseCase(
