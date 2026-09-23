@@ -13,8 +13,10 @@ import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
 import com.feryaeljustice.mirailink.data.remote.UsersApiService
 import com.feryaeljustice.mirailink.data.remote.interceptor.AuthInterceptor
+import com.feryaeljustice.mirailink.data.remote.interceptor.ImageDomainSecurityInterceptor
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseApiUrl
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseUrl
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.ImageOkHttpClient
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -31,6 +33,24 @@ val networkModule =
         single(BaseApiUrl) { "${get<String>(BaseUrl)}/api/" }
 
         single { AuthInterceptor(get<SessionManager>()) }
+        single { ImageDomainSecurityInterceptor() }
+
+        single(ImageOkHttpClient) {
+            OkHttpClient
+                .Builder()
+                .apply {
+                    if (BuildConfig.DEBUG) {
+                        addInterceptor(
+                            HttpLoggingInterceptor().apply {
+                                level = HttpLoggingInterceptor.Level.HEADERS
+                            },
+                        )
+                    }
+                    addInterceptor(get<ImageDomainSecurityInterceptor>())
+                    connectTimeout(15, TimeUnit.SECONDS)
+                    readTimeout(20, TimeUnit.SECONDS)
+                }.build()
+        }
 
         single {
             OkHttpClient

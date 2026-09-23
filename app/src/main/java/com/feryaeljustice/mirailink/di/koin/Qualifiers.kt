@@ -13,6 +13,7 @@ object Qualifiers {
     // Network
     val BaseUrl = named("BaseUrl")
     val BaseApiUrl = named("BaseApiUrl")
+    val ImageOkHttpClient = named("ImageOkHttpClient")
 
     // DataStore
     val PrefsDataStore = named("PrefsDataStore")

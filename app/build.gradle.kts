@@ -45,6 +45,10 @@ android {
         localProperties.getProperty("admob.interstitial.productionAdUnitId")?.trim()
             ?.takeIf { it.isNotEmpty() }
             ?: ""
+    val imageAllowedDomains =
+        localProperties.getProperty("mirailink.imageAllowedDomains")?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com"
 
     sourceSets {
         getByName("test") {
@@ -64,6 +68,7 @@ android {
         versionName = "3.0.0"
 
         buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
+        buildConfigField("String", "IMAGE_ALLOWED_DOMAINS", "\"${imageAllowedDomains.replace("\"", "\\\"")}\"")
 
         testInstrumentationRunner = "com.feryaeljustice.mirailink.MiraiLinkTestRunner"
     }
