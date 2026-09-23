@@ -319,6 +319,7 @@ class ProfileViewModel(
                             val mappedAnimes =
                                 intent.selected.mapNotNull { animeId ->
                                     state.animeCatalog.find { it.id == animeId }
+                                        ?: state.selectedAnimes.find { it.id == animeId }
                                 }
                             state.copy(selectedAnimes = mappedAnimes)
                         }
@@ -327,6 +328,7 @@ class ProfileViewModel(
                             val mappedGames =
                                 intent.selected.mapNotNull { gameId ->
                                     state.gameCatalog.find { it.id == gameId }
+                                        ?: state.selectedGames.find { it.id == gameId }
                                 }
                             state.copy(selectedGames = mappedGames)
                         }

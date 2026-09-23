@@ -276,4 +276,12 @@
     <string name="profile_section_interests">Interests</string>
     <string name="error_location_required_for_radius">To search nearby, enable location or set your residence.</string>
     <string name="error_residence_country_required">Set your residence country to search across your country.</string>
+    <string name="interest_picker_search_hint">Search by name...</string>
+    <string name="interest_picker_empty_search">No results found for your search</string>
+    <string name="interest_picker_empty_catalog">No items available at this time</string>
+    <string name="interest_picker_selected_count">Selected: %1$d</string>
+    <string name="interest_picker_confirm">Done</string>
+    <string name="interest_picker_clear_search">Clear search</string>
+    <string name="interest_picker_manage_animes">Choose favorite anime</string>
+    <string name="interest_picker_manage_games">Choose favorite games</string>
 </resources>

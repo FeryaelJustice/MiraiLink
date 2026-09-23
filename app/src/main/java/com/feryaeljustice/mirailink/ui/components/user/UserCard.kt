@@ -29,8 +29,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,15 +60,15 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.catalog.InterestsGrid
+import com.feryaeljustice.mirailink.ui.components.catalog.VisualInterestPickerModal
+import com.feryaeljustice.mirailink.ui.components.catalog.toInterestItemData
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
 import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
-import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectDropdown
-import com.feryaeljustice.mirailink.ui.components.molecules.MultiSelectOption
 import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
-import com.feryaeljustice.mirailink.ui.components.molecules.TagsSection
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
@@ -74,6 +76,7 @@ import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UserCard(
@@ -111,6 +114,33 @@ fun UserCard(
             modifier = modifier,
         )
         return
+    }
+
+    var showAnimePicker by remember { mutableStateOf(false) }
+    var showGamePicker by remember { mutableStateOf(false) }
+
+    if (showAnimePicker && editUiState != null) {
+        VisualInterestPickerModal(
+            title = stringResource(R.string.user_card_fav_animes),
+            options = editUiState.animeCatalog.map { it.toInterestItemData() },
+            selectedIds = editUiState.selectedAnimes.map { it.id },
+            onSelectionChange = { selectedIds ->
+                onTagSelect?.invoke(TagType.ANIME, selectedIds)
+            },
+            onDismiss = { showAnimePicker = false },
+        )
+    }
+
+    if (showGamePicker && editUiState != null) {
+        VisualInterestPickerModal(
+            title = stringResource(R.string.user_card_fav_games),
+            options = editUiState.gameCatalog.map { it.toInterestItemData() },
+            selectedIds = editUiState.selectedGames.map { it.id },
+            onSelectionChange = { selectedIds ->
+                onTagSelect?.invoke(TagType.GAME, selectedIds)
+            },
+            onDismiss = { showGamePicker = false },
+        )
     }
 
     val (focusRequester) = FocusRequester.createRefs()
@@ -257,22 +287,74 @@ fun UserCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Dropdowns de anime/videojuegos (con MultiSelect o Chips según preferencia visual)
-                    MultiSelectDropdown(
-                        label = stringResource(id = R.string.user_card_fav_animes),
-                        options = editUiState.animeCatalog.map { MultiSelectOption(it.id, it.name) },
-                        selected = editUiState.selectedAnimes.map { it.id },
-                        onSelectionChange = { onTagSelect?.invoke(TagType.ANIME, it) },
-                    )
-
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    MultiSelectDropdown(
-                        label = stringResource(id = R.string.user_card_fav_games),
-                        options = editUiState.gameCatalog.map { MultiSelectOption(it.id, it.name) },
-                        selected = editUiState.selectedGames.map { it.id },
-                        onSelectionChange = { onTagSelect?.invoke(TagType.GAME, it) },
+                    // Animes favoritos (Edición visual)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        MiraiLinkText(
+                            text = stringResource(id = R.string.user_card_fav_animes),
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        MiraiLinkButton(
+                            onClick = { showAnimePicker = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            MiraiLinkText(text = stringResource(R.string.interest_picker_manage_animes))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    InterestsGrid(
+                        items = editUiState.selectedAnimes.map { it.toInterestItemData() },
+                        emptyText = stringResource(id = R.string.user_card_fav_animes_empty),
+                        onRemoveItem = { itemToRemove ->
+                            val updated = editUiState.selectedAnimes.filter { it.id != itemToRemove.id }.map { it.id }
+                            onTagSelect?.invoke(TagType.ANIME, updated)
+                        },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Videojuegos favoritos (Edición visual)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        MiraiLinkText(
+                            text = stringResource(id = R.string.user_card_fav_games),
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        MiraiLinkButton(
+                            onClick = { showGamePicker = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            MiraiLinkText(text = stringResource(R.string.interest_picker_manage_games))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    InterestsGrid(
+                        items = editUiState.selectedGames.map { it.toInterestItemData() },
+                        emptyText = stringResource(id = R.string.user_card_fav_games_empty),
+                        onRemoveItem = { itemToRemove ->
+                            val updated = editUiState.selectedGames.filter { it.id != itemToRemove.id }.map { it.id }
+                            onTagSelect?.invoke(TagType.GAME, updated)
+                        },
                     )
 
                     Spacer(modifier = Modifier.height(64.dp))
@@ -417,18 +499,10 @@ fun UserCard(
                             text = stringResource(id = R.string.user_card_fav_animes),
                             fontWeight = FontWeight.SemiBold,
                         )
-                        user.animes.takeIf { it.isNotEmpty() }?.let { animes ->
-                            TagsSection(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(4.dp),
-                                tags = animes.map { it.name },
-                            )
-                        } ?: MiraiLinkText(
-                            text = stringResource(id = R.string.user_card_fav_animes_empty),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
+                        Spacer(modifier = Modifier.height(8.dp))
+                        InterestsGrid(
+                            items = user.animes.map { it.toInterestItemData() },
+                            emptyText = stringResource(id = R.string.user_card_fav_animes_empty),
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -436,18 +510,10 @@ fun UserCard(
                             text = stringResource(id = R.string.user_card_fav_games),
                             fontWeight = FontWeight.SemiBold,
                         )
-                        user.games.takeIf { it.isNotEmpty() }?.let { games ->
-                            TagsSection(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(4.dp),
-                                tags = games.map { it.name },
-                            )
-                        } ?: MiraiLinkText(
-                            text = stringResource(id = R.string.user_card_fav_games_empty),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontStyle = MaterialTheme.typography.labelSmall.fontStyle,
+                        Spacer(modifier = Modifier.height(8.dp))
+                        InterestsGrid(
+                            items = user.games.map { it.toInterestItemData() },
+                            emptyText = stringResource(id = R.string.user_card_fav_games_empty),
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

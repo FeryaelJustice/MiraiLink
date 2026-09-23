@@ -2,7 +2,10 @@ package com.feryaeljustice.mirailink.ui.screens.profile
 
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.model.user.User
+import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
+import com.feryaeljustice.mirailink.domain.model.catalog.Anime
+import com.feryaeljustice.mirailink.domain.model.catalog.Game
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
@@ -242,5 +245,43 @@ class ProfileViewModelTest : KoinTest {
             assert(photos[1].url == "http://example.com/photo3.jpg")
             assert(photos[2].url == null)
             assert(photos[3].url == null)
+        }
+
+    @Test
+    fun `update tags updates selected animes and games correctly`() =
+        runTest {
+            val animeList = listOf(
+                Anime("a1", "Frieren", "https://example.com/frieren.jpg"),
+                Anime("a2", "Steins;Gate", "https://example.com/steins.jpg"),
+            )
+            val gameList = listOf(
+                Game("g1", "Persona 5 Royal", "https://example.com/p5r.jpg"),
+                Game("g2", "Elden Ring", "https://example.com/elden.jpg"),
+            )
+
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(animeList)
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(gameList)
+
+            viewModel.onIntent(EditProfileIntent.Initialize(user.toUserViewEntry()))
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            // Update animes
+            viewModel.onIntent(EditProfileIntent.UpdateTags(TagType.ANIME, listOf("a1", "a2")))
+            val selectedAnimes = viewModel.editState.value.selectedAnimes
+            assert(selectedAnimes.size == 2)
+            assert(selectedAnimes[0].name == "Frieren")
+            assert(selectedAnimes[1].name == "Steins;Gate")
+
+            // Remove one anime
+            viewModel.onIntent(EditProfileIntent.UpdateTags(TagType.ANIME, listOf("a2")))
+            val updatedAnimes = viewModel.editState.value.selectedAnimes
+            assert(updatedAnimes.size == 1)
+            assert(updatedAnimes[0].name == "Steins;Gate")
+
+            // Update games
+            viewModel.onIntent(EditProfileIntent.UpdateTags(TagType.GAME, listOf("g1")))
+            val selectedGames = viewModel.editState.value.selectedGames
+            assert(selectedGames.size == 1)
+            assert(selectedGames[0].name == "Persona 5 Royal")
         }
 }
