@@ -108,16 +108,12 @@ class ProfileViewModel(
             when (intent) {
                 is EditProfileIntent.Initialize -> {
                     val user = intent.user
-                    val photos = MutableList(4) { PhotoSlotViewEntry() }
-
-                    user.photos.forEach {
-                        // Importante aqui este sync con la bdd si empieza las position en 0 o 1
-                        // Hacemos -1 porque la posicion empiezan en 1 y no en 0 en bdd,
-                        // pero aqui empiezan en 0
-                        if (it.position in 1..4) {
-                            photos[it.position - 1] = it.toPhotoSlotViewEntry()
+                    val sortedPhotos = user.photos.sortedBy { it.position }
+                    val photos = MutableList(4) { PhotoSlotViewEntry(position = it) }
+                    sortedPhotos.forEachIndexed { index, photo ->
+                        if (index in 0..3) {
+                            photos[index] = photo.toPhotoSlotViewEntry().copy(position = index)
                         }
-                        // RECORDAR!! : Al subir las imagenes sumar +1 a la posicion para la bdd
                     }
 
                     // Cargar catalogo
@@ -339,53 +335,90 @@ class ProfileViewModel(
 
                 is EditProfileIntent.ReorderPhoto -> {
                     val photos = state.photos.toMutableList()
-                    val temp = photos[intent.from]
-                    photos[intent.from] = photos[intent.to].copy(position = intent.from)
-                    photos[intent.to] = temp.copy(position = intent.to)
-                    state.copy(photos = photos)
+                    if (intent.from in photos.indices && intent.to in photos.indices && intent.from != intent.to) {
+                        val temp = photos[intent.from]
+                        photos[intent.from] = photos[intent.to].copy(position = intent.from)
+                        photos[intent.to] = temp.copy(position = intent.to)
+                        state.copy(photos = photos)
+                    } else {
+                        state
+                    }
                 }
 
                 is EditProfileIntent.RemovePhoto -> {
                     setRecoveryAction { onIntent(intent) }
                     viewModelScope.launch {
-                        val result =
-                            withContext(ioDispatcher) {
-                                deleteUserPhotoUseCase(intent.position + 1) // posición real
+                        val slotToRemove = state.photos.getOrNull(intent.position)
+                        val isServerPhoto = slotToRemove?.url?.startsWith("http") == true && slotToRemove.uri == null
+                        if (isServerPhoto) {
+                            val result =
+                                withContext(ioDispatcher) {
+                                    deleteUserPhotoUseCase(intent.position + 1) // posición real en backend
+                                }
+
+                            if (result is MiraiLinkResult.Error) {
+                                editState.update { it.copy(error = result.error.toUiError()) }
+                                return@launch
                             }
-
-                        if (result is MiraiLinkResult.Success) {
-                            // Actualiza el estado UI eliminando la foto
-                            val updatedPhotos = state.photos.toMutableList()
-                            updatedPhotos[intent.position] =
-                                PhotoSlotViewEntry(position = intent.position)
-                            editState.update { it.copy(photos = updatedPhotos, error = null) }
-
-                            getCurrentUser()
-                        } else if (result is MiraiLinkResult.Error) {
-                            editState.update { it.copy(error = result.error.toUiError()) }
                         }
+
+                        // Compactar la lista en la UI desplazando hacia la izquierda para evitar huecos
+                        val remaining = state.photos.filterIndexed { index, slot ->
+                            index != intent.position && (slot.url != null || slot.uri != null)
+                        }
+                        val updatedPhotos = List(4) { idx ->
+                            if (idx < remaining.size) {
+                                remaining[idx].copy(position = idx)
+                            } else {
+                                PhotoSlotViewEntry(position = idx)
+                            }
+                        }
+                        editState.update { it.copy(photos = updatedPhotos, error = null) }
+
+                        getCurrentUser()
                     }
 
                     return@update state
                 }
 
                 is EditProfileIntent.UpdatePhoto -> {
-                    val photos = state.photos.toMutableList()
-                    photos[intent.position] =
+                    val currentPhotos = state.photos
+                    val isReplacing = intent.position in currentPhotos.indices &&
+                        (currentPhotos[intent.position].url != null || currentPhotos[intent.position].uri != null)
+
+                    val newEntry =
                         PhotoSlotViewEntry(
                             uri = intent.uri,
                             url = intent.uri.toString(),
                             position = intent.position,
                         )
+
+                    val newPhotos = if (isReplacing) {
+                        currentPhotos.mapIndexed { idx, slot ->
+                            if (idx == intent.position) newEntry.copy(position = idx) else slot
+                        }
+                    } else {
+                        val filled = currentPhotos.filter { it.url != null || it.uri != null }.toMutableList()
+                        filled.add(newEntry)
+                        List(4) { idx ->
+                            if (idx < filled.size) {
+                                filled[idx].copy(position = idx)
+                            } else {
+                                PhotoSlotViewEntry(position = idx)
+                            }
+                        }
+                    }
+
                     state.copy(
-                        photos = photos,
+                        photos = newPhotos,
                         showPhotoSourceDialog = false,
                         selectedSlotForDialog = null,
                     )
                 }
 
                 is EditProfileIntent.OpenPhotoActionDialog -> {
-                    val hasPhoto = state.photos.getOrNull(intent.position)?.url != null
+                    val hasPhoto = state.photos.getOrNull(intent.position)?.url != null ||
+                        state.photos.getOrNull(intent.position)?.uri != null
                     if (hasPhoto) {
                         state.copy(
                             selectedSlotForDialog = intent.position,
@@ -393,8 +426,10 @@ class ProfileViewModel(
                             showPhotoSourceDialog = false,
                         )
                     } else {
+                        val firstEmptySlot = state.photos.indexOfFirst { it.url == null && it.uri == null }
+                            .takeIf { it != -1 } ?: intent.position.coerceIn(0, 3)
                         state.copy(
-                            selectedSlotForDialog = intent.position,
+                            selectedSlotForDialog = firstEmptySlot,
                             showActionDialog = false,
                             showPhotoSourceDialog = true,
                         )
