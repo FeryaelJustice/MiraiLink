@@ -25,7 +25,16 @@ import org.koin.core.logger.Level
 import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 
-class MiraiLinkApp : Application() {
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.ImageOkHttpClient
+import okhttp3.OkHttpClient
+import org.koin.android.ext.android.inject
+
+class MiraiLinkApp : Application(), ImageLoaderFactory {
+
+    private val imageOkHttpClient: OkHttpClient by inject(ImageOkHttpClient)
+
     override fun onCreate() {
         super.onCreate()
         initKoin {
@@ -33,6 +42,13 @@ class MiraiLinkApp : Application() {
             androidLogger(Level.DEBUG)
             analytics()
         }
+    }
+
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .okHttpClient(imageOkHttpClient)
+            .crossfade(true)
+            .build()
     }
 
     companion object {
