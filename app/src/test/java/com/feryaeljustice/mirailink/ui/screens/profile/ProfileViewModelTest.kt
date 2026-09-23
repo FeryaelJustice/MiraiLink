@@ -161,4 +161,86 @@ class ProfileViewModelTest : KoinTest {
 
             // Normally, getCurrentUser would be called again, but we just check the use case was called
         }
+
+    @Test
+    fun `uploading photo to slot 3 or 4 when only first photo exists inserts into 2nd position`() =
+        runTest {
+            val singlePhotoUser = user.copy(
+                photos = listOf(
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo1.jpg", 1),
+                ),
+            )
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            viewModel.onIntent(EditProfileIntent.Initialize(singlePhotoUser.toUserViewEntry()))
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            val mockUri = mockk<android.net.Uri>(relaxed = true)
+            io.mockk.every { mockUri.toString() } returns "content://media/new_photo.jpg"
+
+            // Tapping slot 3 (index 2) when only slot 1 (index 0) exists
+            viewModel.onIntent(EditProfileIntent.UpdatePhoto(position = 2, uri = mockUri))
+
+            val photos = viewModel.editState.value.photos
+            // Should be inserted at index 1 (2nd position)
+            assert(photos[0].url == "http://example.com/photo1.jpg")
+            assert(photos[1].uri == mockUri)
+            assert(photos[1].position == 1)
+            assert(photos[2].url == null && photos[2].uri == null)
+            assert(photos[3].url == null && photos[3].uri == null)
+        }
+
+    @Test
+    fun `reordering photo swaps positions directly between from and to slots`() =
+        runTest {
+            val fourPhotosUser = user.copy(
+                photos = listOf(
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo1.jpg", 1),
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo2.jpg", 2),
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo3.jpg", 3),
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo4.jpg", 4),
+                ),
+            )
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            viewModel.onIntent(EditProfileIntent.Initialize(fourPhotosUser.toUserViewEntry()))
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            // User drags photo 4 (index 3) to position 2 (index 1): they must SWAP!
+            viewModel.onIntent(EditProfileIntent.ReorderPhoto(from = 3, to = 1))
+
+            val photos = viewModel.editState.value.photos
+            assert(photos[0].url == "http://example.com/photo1.jpg")
+            assert(photos[1].url == "http://example.com/photo4.jpg")
+            assert(photos[2].url == "http://example.com/photo3.jpg")
+            assert(photos[3].url == "http://example.com/photo2.jpg")
+        }
+
+    @Test
+    fun `removing middle photo compacts subsequent photos leftward`() =
+        runTest {
+            val threePhotosUser = user.copy(
+                photos = listOf(
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo1.jpg", 1),
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo2.jpg", 2),
+                    com.feryaeljustice.mirailink.domain.model.user.UserPhoto("1", "http://example.com/photo3.jpg", 3),
+                ),
+            )
+            coEvery { getAnimesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { getGamesUseCase.invoke() } returns MiraiLinkResult.Success(emptyList())
+            coEvery { deleteUserPhotoUseCase.invoke(2) } returns MiraiLinkResult.Success(Unit)
+
+            viewModel.onIntent(EditProfileIntent.Initialize(threePhotosUser.toUserViewEntry()))
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            // Remove photo at index 1 (photo2, 2nd position)
+            viewModel.onIntent(EditProfileIntent.RemovePhoto(position = 1))
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            val photos = viewModel.editState.value.photos
+            assert(photos[0].url == "http://example.com/photo1.jpg")
+            assert(photos[1].url == "http://example.com/photo3.jpg")
+            assert(photos[2].url == null)
+            assert(photos[3].url == null)
+        }
 }

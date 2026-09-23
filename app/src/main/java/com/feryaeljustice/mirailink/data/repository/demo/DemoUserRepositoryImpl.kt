@@ -140,16 +140,19 @@ class DemoUserRepositoryImpl(
         val currentProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
             ?: return MiraiLinkResult.Success(Unit)
 
-        val currentPhotos: MutableList<UserPhoto> = runCatching {
-            json.decodeFromString<List<UserPhoto>>(currentProfile.photosJson).toMutableList()
-        }.getOrDefault(mutableListOf())
-
-        photoUris.forEachIndexed { index, uri ->
+        val finalPhotos = mutableListOf<UserPhoto>()
+        for (index in 0 until 4) {
             val position = index + 1
+            val uri = photoUris.getOrNull(index)
+            val existingUrl = existingPhotoUrls.getOrNull(index)
             if (uri != null) {
-                currentPhotos.removeAll { it.position == position }
-                currentPhotos.add(UserPhoto(DemoDataSeeder.DEMO_USER_ID, uri.toString(), position))
+                finalPhotos.add(UserPhoto(DemoDataSeeder.DEMO_USER_ID, uri.toString(), position))
+            } else if (existingUrl != null) {
+                finalPhotos.add(UserPhoto(DemoDataSeeder.DEMO_USER_ID, existingUrl, position))
             }
+        }
+        val compactedPhotos = finalPhotos.mapIndexed { idx, photo ->
+            photo.copy(position = idx + 1)
         }
 
         val updatedProfile = currentProfile.copy(
@@ -164,7 +167,7 @@ class DemoUserRepositoryImpl(
             residenceLongitude = residenceLongitude ?: currentProfile.residenceLongitude,
             animesJson = animesJson,
             gamesJson = gamesJson,
-            photosJson = json.encodeToString(currentPhotos),
+            photosJson = json.encodeToString(compactedPhotos),
         )
 
         database.userDao().updateUserProfile(updatedProfile)

@@ -11,6 +11,13 @@
     <string name="content_description_user_card_close_edit_mode">Cerrar modo de edición</string>
     <string name="content_description_editable_photo_grid_user_photo">Foto del usuario</string>
     <string name="content_description_editable_photo_grid_add_photo">Añadir foto</string>
+    <string name="photo_slot_main">Foto principal, posición 1 de 4</string>
+    <string name="photo_slot_position">Foto, posición %1$d de 4</string>
+    <string name="photo_slot_empty_description">Espacio de foto %1$d de 4, vacío. Toca para añadir foto.</string>
+    <string name="photo_slot_drop_target">Soltar aquí</string>
+    <string name="photo_slot_move_forward">Mover a la posición siguiente</string>
+    <string name="photo_slot_move_backward">Mover a la posición anterior</string>
+    <string name="photo_badge_main">Principal</string>
     <string name="content_description_photo_carousel_pager_image">Foto %1$d</string>
     <string name="content_description_profile_picture_screen_profilepicplaceholder">Foto de perfil placeholder</string>
     <string name="content_description_settings_screen_img_logo">Imagen del logo en settings</string>
