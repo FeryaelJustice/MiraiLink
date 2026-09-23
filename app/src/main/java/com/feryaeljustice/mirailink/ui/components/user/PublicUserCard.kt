@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +22,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.feryaeljustice.mirailink.ui.components.catalog.InterestsGrid
+import com.feryaeljustice.mirailink.ui.components.catalog.toInterestItemData
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -182,16 +182,37 @@ internal fun PublicUserCard(
 
                 PublicResidence(user = user, contentColor = contentColor)
 
-                PublicSectionHeader(
-                    title = stringResource(R.string.profile_section_interests),
-                    icon = Icons.Default.Favorite,
-                    contentColor = contentColor,
-                )
-                PublicInterestChips(
-                    labels = (user.animes.map { it.name } + user.games.map { it.name }).distinct(),
-                    contentColor = contentColor,
-                    isDark = isDark,
-                )
+                val animeItems = remember(user.animes) { user.animes.map { it.toInterestItemData() } }
+                val gameItems = remember(user.games) { user.games.map { it.toInterestItemData() } }
+                val hasInterests = animeItems.isNotEmpty() || gameItems.isNotEmpty()
+
+                if (hasInterests) {
+                    PublicSectionHeader(
+                        title = stringResource(R.string.profile_section_interests),
+                        icon = Icons.Default.Favorite,
+                        contentColor = contentColor,
+                    )
+
+                    if (animeItems.isNotEmpty()) {
+                        Text(
+                            text = stringResource(R.string.user_card_fav_animes),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = contentColor,
+                        )
+                        InterestsGrid(items = animeItems)
+                    }
+
+                    if (gameItems.isNotEmpty()) {
+                        Text(
+                            text = stringResource(R.string.user_card_fav_games),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = contentColor,
+                        )
+                        InterestsGrid(items = gameItems)
+                    }
+                }
                 Spacer(modifier = Modifier.height(116.dp))
             }
         }
@@ -257,33 +278,6 @@ private fun PublicInfoLine(
         color = color,
         modifier = Modifier.padding(start = 4.dp),
     )
-}
-
-@Composable
-private fun PublicInterestChips(
-    labels: List<String>,
-    contentColor: Color,
-    isDark: Boolean,
-) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        labels.forEach { label ->
-            Surface(
-                color = if (isDark) Color.Black.copy(alpha = 0.46f) else Color.White.copy(alpha = 0.64f),
-                contentColor = contentColor,
-                shape = RoundedCornerShape(50),
-            ) {
-                Text(
-                    text = label,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-        }
-    }
 }
 
 @Composable

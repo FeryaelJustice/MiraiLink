@@ -279,4 +279,12 @@
     <string name="profile_section_interests">Gustos</string>
     <string name="error_location_required_for_radius">Para buscar por cercanía, activa la ubicación o configura una residencia.</string>
     <string name="error_residence_country_required">Configura tu país de residencia para buscar en todo tu país.</string>
+    <string name="interest_picker_search_hint">Buscar por nombre...</string>
+    <string name="interest_picker_empty_search">No se encontraron resultados para tu búsqueda</string>
+    <string name="interest_picker_empty_catalog">No hay elementos disponibles en este momento</string>
+    <string name="interest_picker_selected_count">Seleccionados: %1$d</string>
+    <string name="interest_picker_confirm">Listo</string>
+    <string name="interest_picker_clear_search">Limpiar búsqueda</string>
+    <string name="interest_picker_manage_animes">Elegir animes favoritos</string>
+    <string name="interest_picker_manage_games">Elegir juegos favoritos</string>
 </resources>
