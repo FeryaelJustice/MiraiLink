@@ -92,6 +92,7 @@ internal fun PublicUserCard(
             controller = photoCarouselController,
         )
 
+        // Bottom gradient for read-only user info and action buttons (preserved)
         Box(
             modifier =
                 Modifier
@@ -100,11 +101,31 @@ internal fun PublicUserCard(
                         Brush.verticalGradient(
                             colorStops =
                                 arrayOf(
-                                    0f to Color.Black.copy(alpha = 0.34f),
-                                    0.18f to Color.Transparent,
+                                    0f to Color.Transparent,
                                     0.48f to Color.Transparent,
                                     0.72f to overlayBase.copy(alpha = 0.5f),
                                     1f to overlayBase.copy(alpha = 0.98f),
+                                ),
+                        ),
+                    ),
+        )
+
+        // Compact top gradient blending into app background
+        val backgroundColor = MaterialTheme.colorScheme.background
+        val topDarkColor = if (isDark) Color.Black.copy(alpha = 0.75f) else Color.Black.copy(alpha = 0.45f)
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(84.dp)
+                    .align(Alignment.TopCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            colorStops =
+                                arrayOf(
+                                    0f to topDarkColor,
+                                    0.45f to backgroundColor.copy(alpha = 0.40f),
+                                    1f to Color.Transparent,
                                 ),
                         ),
                     ),
