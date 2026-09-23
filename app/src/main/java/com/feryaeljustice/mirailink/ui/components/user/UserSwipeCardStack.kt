@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -83,6 +85,18 @@ fun UserSwipeCardStack(
                 offsetX.value <= -SwipeConfirmationThresholdPx -> SwipeDirection.Dislike
                 else -> null
             }
+        val dragDistance = kotlin.math.hypot(offsetX.value, offsetY.value)
+        val dragProgress = (dragDistance / 50f).coerceIn(0f, 1f)
+        val cornerRadius = (28 * dragProgress).dp
+        val cardShape = RoundedCornerShape(cornerRadius)
+        val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+        val borderColor =
+            if (isDark) {
+                Color.White.copy(alpha = 0.32f * dragProgress)
+            } else {
+                Color.White.copy(alpha = 0.85f * dragProgress)
+            }
+        val cardScale = 1.02f - (0.06f * dragProgress)
 
         fun settleCard() {
             scope.launch {
@@ -105,7 +119,12 @@ fun UserSwipeCardStack(
         Box(modifier = modifier.fillMaxSize()) {
             users.getOrNull(1)?.let { nextUser ->
                 UserCard(
-                    modifier = Modifier.alpha(0.5f),
+                    modifier =
+                        Modifier
+                            .graphicsLayer {
+                                scaleX = 1.02f
+                                scaleY = 1.02f
+                            }.alpha(0.5f),
                     user = nextUser,
                     onSave = {},
                     isPublicPresentation = true,
@@ -115,11 +134,25 @@ fun UserSwipeCardStack(
             UserCard(
                 modifier =
                     Modifier
-                        .graphicsLayer(
-                            translationX = offsetX.value,
-                            translationY = offsetY.value,
-                            rotationZ = rotation,
-                        ).graphicsLayer { alpha = alphaAnim }
+                        .graphicsLayer {
+                            translationX = offsetX.value
+                            translationY = offsetY.value
+                            rotationZ = rotation
+                            scaleX = cardScale
+                            scaleY = cardScale
+                            alpha = alphaAnim
+                        }
+                        .shadow(
+                            elevation = 16.dp * dragProgress,
+                            shape = cardShape,
+                            clip = false,
+                        )
+                        .clip(cardShape)
+                        .border(
+                            width = 1.5.dp,
+                            color = borderColor,
+                            shape = cardShape,
+                        )
                         .pointerInput(topUser.id) {
                             detectDragGestures(
                                 onDragEnd = {
