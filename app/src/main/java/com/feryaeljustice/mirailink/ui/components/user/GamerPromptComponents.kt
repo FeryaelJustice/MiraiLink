@@ -108,20 +108,142 @@ fun ChipFlowRow(items: List<String>, modifier: Modifier = Modifier) {
     }
 }
 
+fun resolveLanguageFlag(language: String): String {
+    val clean = language.trim().lowercase()
+    return when {
+        clean.contains("español") || clean.contains("spanish") || clean == "es" -> "🇪🇸"
+        clean.contains("inglés") || clean.contains("ingles") || clean.contains("english") || clean == "en" -> "🇬🇧"
+        clean.contains("japonés") || clean.contains("japones") || clean.contains("japanese") || clean == "ja" -> "🇯🇵"
+        clean.contains("francés") || clean.contains("frances") || clean.contains("french") || clean == "fr" -> "🇫🇷"
+        clean.contains("alemán") || clean.contains("aleman") || clean.contains("german") || clean == "de" -> "🇩🇪"
+        clean.contains("italiano") || clean.contains("italian") || clean == "it" -> "🇮🇹"
+        clean.contains("portugués") || clean.contains("portugues") || clean.contains("portuguese") || clean == "pt" -> "🇵🇹"
+        clean.contains("chino") || clean.contains("chinese") || clean == "zh" -> "🇨🇳"
+        clean.contains("coreano") || clean.contains("korean") || clean == "ko" -> "🇰🇷"
+        clean.contains("ruso") || clean.contains("russian") || clean == "ru" -> "🇷🇺"
+        else -> "🗣️"
+    }
+}
+
+data class PersonalCategoryData(
+    val title: String,
+    val iconEmoji: String,
+    val items: List<String>,
+)
+
+fun buildCategorizedPersonalInfo(user: UserViewEntry): List<PersonalCategoryData> {
+    val categories = mutableListOf<PersonalCategoryData>()
+
+    // 1. Idiomas con banderas
+    if (user.spokenLanguages.isNotEmpty()) {
+        val languageChips = user.spokenLanguages.map { lang ->
+            val flag = resolveLanguageFlag(lang)
+            "$flag $lang"
+        }
+        categories.add(
+            PersonalCategoryData(
+                title = "Idiomas",
+                iconEmoji = "🌐",
+                items = languageChips,
+            ),
+        )
+    }
+
+    // 2. Qué busco y planes de familia
+    val goalChips = mutableListOf<String>()
+    goalChips.addAll(user.relationshipGoals.map { "🎯 $it" })
+    goalChips.addAll(user.familyOptions.map { "👨‍👩‍👧 $it" })
+    if (goalChips.isNotEmpty()) {
+        categories.add(
+            PersonalCategoryData(
+                title = "Qué busco y planes",
+                iconEmoji = "🎯",
+                items = goalChips,
+            ),
+        )
+    }
+
+    // 3. Laboral y estudios
+    val workEduChips = mutableListOf<String>()
+    user.profession?.takeIf { it.isNotBlank() }?.let { workEduChips.add("💼 $it") }
+    user.educationLevel?.takeIf { it.isNotBlank() }?.let { workEduChips.add("🎓 $it") }
+    if (workEduChips.isNotEmpty()) {
+        categories.add(
+            PersonalCategoryData(
+                title = "Laboral y estudios",
+                iconEmoji = "💼",
+                items = workEduChips,
+            ),
+        )
+    }
+
+    // 4. Estilo de vida
+    val lifestyleChips = mutableListOf<String>()
+    user.smokingHabit?.takeIf { it.isNotBlank() }?.let { lifestyleChips.add("🚭 $it") }
+    user.drinkingHabit?.takeIf { it.isNotBlank() }?.let { lifestyleChips.add("🍷 $it") }
+    if (lifestyleChips.isNotEmpty()) {
+        categories.add(
+            PersonalCategoryData(
+                title = "Estilo de vida",
+                iconEmoji = "🌿",
+                items = lifestyleChips,
+            ),
+        )
+    }
+
+    // 5. Identidad y creencias
+    val identityChips = mutableListOf<String>()
+    user.zodiacSign?.takeIf { it.isNotBlank() }?.let { identityChips.add("✨ $it") }
+    user.religion?.takeIf { it.isNotBlank() }?.let { identityChips.add("🕊️ $it") }
+    user.politicalStance?.takeIf { it.isNotBlank() }?.let { identityChips.add("⚖️ $it") }
+    user.sexualOrientation?.takeIf { it.isNotBlank() }?.let { identityChips.add("🌈 $it") }
+    if (identityChips.isNotEmpty()) {
+        categories.add(
+            PersonalCategoryData(
+                title = "Identidad y creencias",
+                iconEmoji = "✨",
+                items = identityChips,
+            ),
+        )
+    }
+
+    return categories
+}
+
 fun buildPersonalChips(user: UserViewEntry): List<String> {
-    val list = mutableListOf<String>()
-    user.profession?.takeIf { it.isNotBlank() }?.let { list.add("💼 $it") }
-    list.addAll(user.relationshipGoals.map { "🎯 $it" })
-    list.addAll(user.familyOptions.map { "👨‍👩‍👧 $it" })
-    user.sexualOrientation?.takeIf { it.isNotBlank() }?.let { list.add("🌈 $it") }
-    user.zodiacSign?.takeIf { it.isNotBlank() }?.let { list.add("✨ $it") }
-    user.educationLevel?.takeIf { it.isNotBlank() }?.let { list.add("🎓 $it") }
-    user.religion?.takeIf { it.isNotBlank() }?.let { list.add("🕊️ $it") }
-    user.politicalStance?.takeIf { it.isNotBlank() }?.let { list.add("⚖️ $it") }
-    user.smokingHabit?.takeIf { it.isNotBlank() }?.let { list.add("🚭 $it") }
-    user.drinkingHabit?.takeIf { it.isNotBlank() }?.let { list.add("🍷 $it") }
-    list.addAll(user.spokenLanguages.map { "🗣️ $it" })
-    return list
+    return buildCategorizedPersonalInfo(user).flatMap { it.items }
+}
+
+@Composable
+fun CategorizedPersonalInfoSection(
+    user: UserViewEntry,
+    modifier: Modifier = Modifier,
+    headerColor: androidx.compose.ui.graphics.Color? = null,
+) {
+    val categories = remember(user) { buildCategorizedPersonalInfo(user) }
+    if (categories.isEmpty()) return
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        categories.forEach { category ->
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    MiraiLinkText(
+                        text = "${category.iconEmoji} ${category.title}",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = headerColor ?: MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                ChipFlowRow(items = category.items)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

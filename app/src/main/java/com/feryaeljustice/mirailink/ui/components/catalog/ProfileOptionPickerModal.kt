@@ -67,7 +67,7 @@ fun ProfileSingleOptionPickerModal(
     var searchQuery by remember { mutableStateOf("") }
 
     val filteredOptions = remember(searchQuery, options) {
-        if (!showSearch || searchQuery.isBlank()) {
+        if (searchQuery.isBlank()) {
             options
         } else {
             val query = searchQuery.trim().lowercase()
@@ -111,7 +111,7 @@ fun ProfileSingleOptionPickerModal(
                 }
             }
 
-            if (showSearch || options.size > 8) {
+            if (showSearch || options.size >= 5) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = searchQuery,
@@ -240,10 +240,41 @@ fun ProfileMultiOptionPickerModal(
 ) {
     val actualSheetState = sheetState ?: rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val localSelected = remember { mutableStateListOf(*selectedIds.toTypedArray()) }
+    fun isIndeterminateOption(opt: CatalogItemOptionDto): Boolean {
+        val codeLower = opt.code.lowercase()
+        val labelLower = (opt.label ?: opt.question ?: "").lowercase()
+        return codeLower.contains("not_sure") ||
+            codeLower.contains("undecided") ||
+            codeLower == "none" ||
+            labelLower.contains("no lo tengo claro") ||
+            labelLower.contains("no sé si quiero") ||
+            labelLower.contains("no se si quiero") ||
+            labelLower.contains("todavía no lo sé") ||
+            labelLower.contains("todavia no lo se")
+    }
+
     var searchQuery by remember { mutableStateOf("") }
 
+    fun handleToggleOption(option: CatalogItemOptionDto) {
+        val isCurrentlyChecked = localSelected.contains(option.id)
+        if (isCurrentlyChecked) {
+            localSelected.remove(option.id)
+        } else {
+            if (isIndeterminateOption(option)) {
+                // Si marcamos "No lo tengo claro aún", desmarcamos todas las demás opciones
+                localSelected.clear()
+                localSelected.add(option.id)
+            } else {
+                // Si marcamos una opción concreta, quitamos cualquier opción indeterminada ("No lo tengo claro")
+                val indeterminateIds = options.filter { isIndeterminateOption(it) }.map { it.id }.toSet()
+                localSelected.removeAll(indeterminateIds)
+                localSelected.add(option.id)
+            }
+        }
+    }
+
     val filteredOptions = remember(searchQuery, options) {
-        if (!showSearch || searchQuery.isBlank()) {
+        if (searchQuery.isBlank()) {
             options
         } else {
             val query = searchQuery.trim().lowercase()
@@ -287,7 +318,7 @@ fun ProfileMultiOptionPickerModal(
                 }
             }
 
-            if (showSearch || options.size > 8) {
+            if (showSearch || options.size >= 5) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = searchQuery,
@@ -330,11 +361,7 @@ fun ProfileMultiOptionPickerModal(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (isChecked) {
-                                    localSelected.remove(option.id)
-                                } else {
-                                    localSelected.add(option.id)
-                                }
+                                handleToggleOption(option)
                             },
                         shape = RoundedCornerShape(12.dp),
                         color = if (isChecked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
@@ -347,12 +374,8 @@ fun ProfileMultiOptionPickerModal(
                         ) {
                             Checkbox(
                                 checked = isChecked,
-                                onCheckedChange = { checked ->
-                                    if (checked) {
-                                        if (!localSelected.contains(option.id)) localSelected.add(option.id)
-                                    } else {
-                                        localSelected.remove(option.id)
-                                    }
+                                onCheckedChange = { _ ->
+                                    handleToggleOption(option)
                                 },
                             )
                             Spacer(modifier = Modifier.width(12.dp))

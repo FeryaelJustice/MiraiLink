@@ -213,6 +213,33 @@ internal fun PublicUserCard(
                         InterestsGrid(items = gameItems)
                     }
                 }
+
+                // Curiosidades Gamer
+                if (user.prompts.isNotEmpty()) {
+                    PublicSectionHeader(
+                        title = stringResource(R.string.profile_section_facts),
+                        icon = Icons.Default.Info,
+                        contentColor = contentColor,
+                    )
+                    user.prompts.take(3).forEach { prompt ->
+                        GamerPromptCard(prompt = prompt)
+                    }
+                }
+
+                // Información personal categorizada (Sobre mí)
+                val personalCategories = remember(user) { buildCategorizedPersonalInfo(user) }
+                if (personalCategories.isNotEmpty()) {
+                    PublicSectionHeader(
+                        title = stringResource(R.string.profile_section_personal),
+                        icon = Icons.Default.Info,
+                        contentColor = contentColor,
+                    )
+                    CategorizedPersonalInfoSection(
+                        user = user,
+                        headerColor = contentColor,
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(116.dp))
             }
         }

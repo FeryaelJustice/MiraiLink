@@ -62,6 +62,8 @@ import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
 import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
 import com.feryaeljustice.mirailink.ui.components.user.buildPersonalChips
+import com.feryaeljustice.mirailink.ui.components.user.buildCategorizedPersonalInfo
+import com.feryaeljustice.mirailink.ui.components.user.CategorizedPersonalInfoSection
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.calculateAge
@@ -341,8 +343,8 @@ private fun UserProfileDetailContent(
             }
 
             // Personal Information
-            val personalChips = buildPersonalChips(user)
-            if (personalChips.isNotEmpty()) {
+            val personalCategories = buildCategorizedPersonalInfo(user)
+            if (personalCategories.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))
                 MiraiLinkText(
                     text = stringResource(R.string.profile_section_personal),
@@ -351,7 +353,7 @@ private fun UserProfileDetailContent(
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                ChipFlowRow(items = personalChips)
+                CategorizedPersonalInfoSection(user = user)
             }
 
             // Interests: Animes & Games
