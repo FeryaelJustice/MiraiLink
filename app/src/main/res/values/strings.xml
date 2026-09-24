@@ -333,4 +333,11 @@
     <string name="profile_option_clear">Borrar selección</string>
     <string name="profile_option_select">Seleccionar</string>
     <string name="profile_select_options_dialog_title">Selecciona las opciones</string>
+
+    <!-- Subcategorías de Sobre Mí -->
+    <string name="profile_subcategory_languages">Idiomas</string>
+    <string name="profile_subcategory_goals">Qué busco y planes</string>
+    <string name="profile_subcategory_work_edu">Laboral y estudios</string>
+    <string name="profile_subcategory_lifestyle">Estilo de vida</string>
+    <string name="profile_subcategory_identity">Identidad y creencias</string>
 </resources>

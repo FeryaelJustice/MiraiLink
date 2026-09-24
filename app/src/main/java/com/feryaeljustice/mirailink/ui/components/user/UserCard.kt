@@ -58,6 +58,8 @@ import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
 import com.feryaeljustice.mirailink.ui.components.user.GamerPromptEditSection
 import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
 import com.feryaeljustice.mirailink.ui.components.user.buildPersonalChips
+import com.feryaeljustice.mirailink.ui.components.user.buildCategorizedPersonalInfo
+import com.feryaeljustice.mirailink.ui.components.user.CategorizedPersonalInfoSection
 import androidx.compose.material3.Surface
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
@@ -735,9 +737,9 @@ fun UserCard(
                             }
                         }
 
-                        // Informacion personal
-                        val personalChips = buildPersonalChips(user)
-                        if (personalChips.isNotEmpty()) {
+                        // Informacion personal categorizada
+                        val categories = buildCategorizedPersonalInfo(user)
+                        if (categories.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(20.dp))
                             androidx.compose.material3.HorizontalDivider(
                                 modifier = Modifier.fillMaxWidth(),
@@ -749,7 +751,7 @@ fun UserCard(
                                 icon = Icons.Default.Info,
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            ChipFlowRow(items = personalChips)
+                            CategorizedPersonalInfoSection(user = user)
                         }
                     }
 
