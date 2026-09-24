@@ -14,6 +14,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.SetupTwoFacto
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.VerifyTwoFactorUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.catalog.GetProfileOptionsUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.chat.ConnectSocketUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.CreateGroupChatUseCase
@@ -34,12 +35,14 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.GetReceivedLikesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetUserByIdUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetUserProfileByUsernameUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
@@ -66,6 +69,7 @@ val useCaseModule =
         // Catalog
         factory { GetAnimesUseCase(get()) }
         factory { GetGamesUseCase(get()) }
+        factory { GetProfileOptionsUseCase(get()) }
 
         // Chat
         factory { ChatUseCases(get(), get(), get(), get(), get(), get(), get()) }
@@ -105,6 +109,7 @@ val useCaseModule =
         // Swipe
         factory { DislikeUserUseCase(get()) }
         factory { LikeUserUseCase(get()) }
+        factory { GetReceivedLikesUseCase(get()) }
 
         // Users
         factory { ConfirmPasswordResetUseCase(get()) }
@@ -112,6 +117,7 @@ val useCaseModule =
         factory { DeleteAccountUseCase(get()) }
         factory { GetCurrentUserUseCase(get()) }
         factory { GetUserByIdUseCase(get()) }
+        factory { GetUserProfileByUsernameUseCase(get()) }
         factory { RequestPasswordResetUseCase(get()) }
         factory { RequestVerificationCodeUseCase(get()) }
         factory { UpdateUserProfileUseCase(get()) }

@@ -45,6 +45,7 @@ enum class ValidationError : AppError {
     INVALID_INPUT,
     INVALID_MEDIA,
     MISSING_REQUIRED_VALUE,
+    UNDERAGE,
 }
 
 enum class LocationError : AppError {

@@ -148,13 +148,15 @@ class AuthViewModelTest : KoinTest {
             val email = "test@test.com"
             val password = "password"
             val username = "testuser"
+            val gender = "male"
+            val birthdate = "2000-01-01"
             val token = "a-valid-jwt"
             val userId = "1234567890"
 
             // Stub the static call to extractUserId
             every { JwtUtils.extractUserId(token) } returns userId
             coEvery {
-                registerUseCase.invoke(username, email, password)
+                registerUseCase.invoke(username, email, password, gender, birthdate)
             } returns MiraiLinkResult.Success(token)
             coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns
                 MiraiLinkResult.Success(
@@ -163,7 +165,7 @@ class AuthViewModelTest : KoinTest {
             coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(true)
 
             var sessionSaved = false
-            viewModel.register(username, email, password) { _, _ -> sessionSaved = true }
+            viewModel.register(username, email, password, gender, birthdate) { _, _ -> sessionSaved = true }
 
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -220,6 +222,8 @@ class AuthViewModelTest : KoinTest {
                 email = "test@example.com",
                 password = "12345678",
                 confirmPassword = "12345678",
+                gender = "male",
+                birthdate = "2000-01-01",
             )
 
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -237,11 +241,31 @@ class AuthViewModelTest : KoinTest {
                 email = "test@example.com",
                 password = "SecurePassword2026!",
                 confirmPassword = "SecurePassword2026!",
+                gender = "male",
+                birthdate = "2000-01-01",
             )
 
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(valid)
             assert(viewModel.passwordError.value == null)
+        }
+
+    @Test
+    fun `validateFields rejects underage birthdate on registration`() =
+        runTest {
+            val valid = viewModel.validateFields(
+                isLogin = false,
+                username = "testuser",
+                email = "test@example.com",
+                password = "SecurePassword2026!",
+                confirmPassword = "SecurePassword2026!",
+                gender = "male",
+                birthdate = "2020-01-01",
+            )
+
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(!valid)
         }
 }

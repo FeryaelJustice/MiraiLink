@@ -46,10 +46,12 @@ import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScree
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
 import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesScreen
+import com.feryaeljustice.mirailink.ui.screens.likes.ReceivedLikesScreen
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesScreen
 import com.feryaeljustice.mirailink.ui.screens.onboarding.OnboardingScreen
 import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureScreen
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileScreen
+import com.feryaeljustice.mirailink.ui.screens.profile.detail.UserProfileDetailScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
@@ -196,6 +198,27 @@ fun NavWrapper(
         }
     }
 
+    // Deep Link Navigation: mirailink.com/user/<username>
+    LaunchedEffect(isAuthenticated) {
+        val activity = context as? android.app.Activity
+        val data = activity?.intent?.data
+        if (data != null && isAuthenticated) {
+            val segments = data.pathSegments
+            if (segments.size >= 2 && segments[0] == "user") {
+                val username = segments[1]
+                if (username.isNotBlank()) {
+                    activity.intent?.data = null
+                    navigator.navigate(
+                        AppScreen.UserProfileDetailScreen(
+                            username = username,
+                            canInteract = false,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
     // Analytics: log “ruta” estable por key
     LaunchedEffect(currentKey) {
         navAnalyticsVm.logScreen(currentKey.debugRouteName())
@@ -333,11 +356,41 @@ fun NavWrapper(
                     )
                 }
 
+                entry<AppScreen.ReceivedLikesScreen> {
+                    ReceivedLikesScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        onNavigateToUserDetail = { username ->
+                            navigator.navigate(
+                                AppScreen.UserProfileDetailScreen(
+                                    username = username,
+                                    canInteract = true,
+                                ),
+                            )
+                        },
+                    )
+                }
+
+                entry<AppScreen.UserProfileDetailScreen> { key ->
+                    UserProfileDetailScreen(
+                        username = key.username,
+                        canInteract = key.canInteract,
+                        onBackClick = { navigator.goBack() },
+                    )
+                }
+
                 entry<AppScreen.ChatScreen> { key ->
                     ChatScreen(
                         miraiLinkSession = miraiLinkSession,
                         userId = key.userId,
                         onBackClick = { navigator.goBack() },
+                        onNavigateToProfileDetail = { username ->
+                            navigator.navigate(
+                                AppScreen.UserProfileDetailScreen(
+                                    username = username,
+                                    canInteract = false,
+                                )
+                            )
+                        },
                     )
                 }
 

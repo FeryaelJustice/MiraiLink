@@ -16,6 +16,7 @@ import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.catalog.GetProfileOptionsUseCase
 import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
@@ -27,7 +28,10 @@ import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileMultiAttributeType
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileSingleAttributeType
 import com.feryaeljustice.mirailink.ui.viewentries.media.PhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,6 +51,7 @@ class ProfileViewModel(
     private val deleteUserPhotoUseCase: DeleteUserPhotoUseCase,
     private val getAnimesUseCase: GetAnimesUseCase,
     private val getGamesUseCase: GetGamesUseCase,
+    private val getProfileOptionsUseCase: GetProfileOptionsUseCase,
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
@@ -123,8 +128,6 @@ class ProfileViewModel(
                         isEditing = true,
                         nickname = user.nickname,
                         bio = user.bio ?: "",
-                        gender = user.gender ?: "",
-                        birthdate = user.birthdate ?: "",
                         residenceCountryCode = user.residenceCountryCode ?: "",
                         residenceCountryId = user.residenceCountryId ?: "",
                         residenceRegionId = user.residenceRegionId ?: "",
@@ -136,6 +139,18 @@ class ProfileViewModel(
                         residenceLongitude = user.residenceLongitude,
                         selectedAnimes = user.animes,
                         selectedGames = user.games,
+                        profession = user.profession.orEmpty(),
+                        religionId = user.religionId,
+                        zodiacSignId = user.zodiacSignId,
+                        politicalStanceId = user.politicalStanceId,
+                        smokingHabitId = user.smokingHabitId,
+                        drinkingHabitId = user.drinkingHabitId,
+                        sexualOrientationId = user.sexualOrientationId,
+                        educationLevelId = user.educationLevelId,
+                        selectedRelationshipGoalIds = user.relationshipGoalIds,
+                        selectedFamilyOptionIds = user.familyOptionIds,
+                        selectedSpokenLanguageIds = user.spokenLanguageIds,
+                        prompts = user.prompts,
                         error = null,
                         photos = photos,
                     )
@@ -151,23 +166,30 @@ class ProfileViewModel(
                     viewModelScope.launch {
                         val nickname = state.nickname
                         val bio = state.bio
-                        val gender = state.gender.ifBlank { null }
-                        val birthdate = state.birthdate.ifBlank { null } // "YYYY-MM-DD"
                         val residenceCountryId = state.residenceCountryId.ifBlank { null }
                         val residenceRegionId = state.residenceRegionId.ifBlank { null }
                         val residenceCityId = state.residenceCityId.ifBlank { null }
                         val residenceLatitude = state.residenceLatitude
                         val residenceLongitude = state.residenceLongitude
 
-                        // validación mínima local (opcional)
-                        val dateOk = birthdate?.matches(Regex("""\d{4}-\d{2}-\d{2}""")) ?: true
-                        if (!dateOk) {
-                            editState.update { it.copy(error = ValidationError.INVALID_INPUT.toUiError()) }
-                            return@launch
-                        }
-
                         val animesJson = state.selectedAnimes.let { Json.encodeToString(it) }
                         val gamesJson = state.selectedGames.let { Json.encodeToString(it) }
+
+                        val profession = state.profession.trim().ifBlank { null }
+                        val religionId = state.religionId?.ifBlank { null }
+                        val zodiacSignId = state.zodiacSignId?.ifBlank { null }
+                        val politicalStanceId = state.politicalStanceId?.ifBlank { null }
+                        val smokingHabitId = state.smokingHabitId?.ifBlank { null }
+                        val drinkingHabitId = state.drinkingHabitId?.ifBlank { null }
+                        val sexualOrientationId = state.sexualOrientationId?.ifBlank { null }
+                        val educationLevelId = state.educationLevelId?.ifBlank { null }
+
+                        val relationshipGoalsJson = state.selectedRelationshipGoalIds.let { Json.encodeToString(it) }
+                        val familyOptionsJson = state.selectedFamilyOptionIds.let { Json.encodeToString(it) }
+                        val spokenLanguagesJson = state.selectedSpokenLanguageIds.let { Json.encodeToString(it) }
+                        val promptsJson = state.prompts.filter { it.answer.isNotBlank() }.map {
+                            mapOf("prompt_id" to it.promptId, "answer" to it.answer.trim())
+                        }.let { Json.encodeToString(it) }
 
                         val photoUris =
                             state.photos.map { slot ->
@@ -190,8 +212,6 @@ class ProfileViewModel(
                                 updateUserProfileUseCase(
                                     nickname = nickname,
                                     bio = bio,
-                                    gender = gender,
-                                    birthdate = birthdate,
                                     residenceCountryId = residenceCountryId,
                                     residenceRegionId = residenceRegionId,
                                     residenceCityId = residenceCityId,
@@ -204,6 +224,18 @@ class ProfileViewModel(
                                     gamesJson = gamesJson,
                                     photoUris = photoUris,
                                     existingPhotoUrls = existingPhotoUrls,
+                                    profession = profession,
+                                    religionId = religionId,
+                                    zodiacSignId = zodiacSignId,
+                                    politicalStanceId = politicalStanceId,
+                                    smokingHabitId = smokingHabitId,
+                                    drinkingHabitId = drinkingHabitId,
+                                    sexualOrientationId = sexualOrientationId,
+                                    educationLevelId = educationLevelId,
+                                    relationshipGoalsJson = relationshipGoalsJson,
+                                    familyOptionsJson = familyOptionsJson,
+                                    spokenLanguagesJson = spokenLanguagesJson,
+                                    promptsJson = promptsJson,
                                 )
                             }
 
@@ -223,8 +255,8 @@ class ProfileViewModel(
                     when (intent.field) {
                         TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
                         TextFieldType.BIO -> state.copy(bio = intent.value)
-                        TextFieldType.GENDER -> state.copy(gender = intent.value)
-                        TextFieldType.BIRTHDATE -> state.copy(birthdate = intent.value)
+                        TextFieldType.GENDER,
+                        TextFieldType.BIRTHDATE,
                         TextFieldType.RESIDENCE_COUNTRY,
                         TextFieldType.RESIDENCE_REGION,
                         TextFieldType.RESIDENCE_CITY,
@@ -452,6 +484,57 @@ class ProfileViewModel(
                         showPhotoSourceDialog = false,
                     )
                 }
+
+                is EditProfileIntent.UpdateProfession -> {
+                    state.copy(profession = intent.value)
+                }
+
+                is EditProfileIntent.SelectSingleAttribute -> {
+                    when (intent.type) {
+                        ProfileSingleAttributeType.RELIGION -> state.copy(religionId = intent.optionId)
+                        ProfileSingleAttributeType.ZODIAC_SIGN -> state.copy(zodiacSignId = intent.optionId)
+                        ProfileSingleAttributeType.POLITICAL_STANCE -> state.copy(politicalStanceId = intent.optionId)
+                        ProfileSingleAttributeType.SMOKING_HABIT -> state.copy(smokingHabitId = intent.optionId)
+                        ProfileSingleAttributeType.DRINKING_HABIT -> state.copy(drinkingHabitId = intent.optionId)
+                        ProfileSingleAttributeType.SEXUAL_ORIENTATION -> state.copy(sexualOrientationId = intent.optionId)
+                        ProfileSingleAttributeType.EDUCATION_LEVEL -> state.copy(educationLevelId = intent.optionId)
+                    }
+                }
+
+                is EditProfileIntent.UpdateMultiAttribute -> {
+                    when (intent.type) {
+                        ProfileMultiAttributeType.RELATIONSHIP_GOALS -> state.copy(selectedRelationshipGoalIds = intent.selectedIds)
+                        ProfileMultiAttributeType.FAMILY_OPTIONS -> state.copy(selectedFamilyOptionIds = intent.selectedIds)
+                        ProfileMultiAttributeType.SPOKEN_LANGUAGES -> state.copy(selectedSpokenLanguageIds = intent.selectedIds)
+                    }
+                }
+
+                is EditProfileIntent.AddOrUpdatePrompt -> {
+                    val existingIndex = state.prompts.indexOfFirst { it.promptId == intent.promptId }
+                    val updated = if (existingIndex >= 0) {
+                        state.prompts.toMutableList().apply {
+                            this[existingIndex] = GamerPromptAnswerViewEntry(intent.promptId, intent.question, intent.answer)
+                        }
+                    } else {
+                        (state.prompts + GamerPromptAnswerViewEntry(intent.promptId, intent.question, intent.answer)).take(3)
+                    }
+                    state.copy(prompts = updated)
+                }
+
+                is EditProfileIntent.RemovePrompt -> {
+                    state.copy(prompts = state.prompts.filter { it.promptId != intent.promptId })
+                }
+
+                is EditProfileIntent.ChangePromptQuestion -> {
+                    val updated = state.prompts.map {
+                        if (it.promptId == intent.oldPromptId) {
+                            GamerPromptAnswerViewEntry(intent.newPromptId, intent.newQuestion, it.answer)
+                        } else {
+                            it
+                        }
+                    }
+                    state.copy(prompts = updated)
+                }
             }
         }
     }
@@ -468,32 +551,43 @@ class ProfileViewModel(
 
     fun loadCatalogIfNeeded() {
         val currentState = editState.value
-        if (currentState.animeCatalog.isNotEmpty() && currentState.gameCatalog.isNotEmpty()) return
+        val hasInterests = currentState.animeCatalog.isNotEmpty() && currentState.gameCatalog.isNotEmpty()
+        val hasOptions = currentState.profileOptions != null
+        if (hasInterests && hasOptions) return
 
         setRecoveryAction(::loadCatalogIfNeeded)
         viewModelScope.launch {
-            val animesResult = withContext(ioDispatcher) { getAnimesUseCase() }
-            val animes =
-                when (animesResult) {
-                    is MiraiLinkResult.Success -> animesResult.data.map { it.toAnimeViewEntry() }
-                    is MiraiLinkResult.Error -> {
-                        editState.update { it.copy(error = animesResult.error.toUiError()) }
-                        return@launch
+            if (!hasInterests) {
+                val animesResult = withContext(ioDispatcher) { getAnimesUseCase() }
+                val animes =
+                    when (animesResult) {
+                        is MiraiLinkResult.Success -> animesResult.data.map { it.toAnimeViewEntry() }
+                        is MiraiLinkResult.Error -> {
+                            editState.update { it.copy(error = animesResult.error.toUiError()) }
+                            return@launch
+                        }
                     }
-                }
 
-            val gamesResult = withContext(ioDispatcher) { getGamesUseCase() }
-            val games =
-                when (gamesResult) {
-                    is MiraiLinkResult.Success -> gamesResult.data.map { it.toGameViewEntry() }
-                    is MiraiLinkResult.Error -> {
-                        editState.update { it.copy(error = gamesResult.error.toUiError()) }
-                        return@launch
+                val gamesResult = withContext(ioDispatcher) { getGamesUseCase() }
+                val games =
+                    when (gamesResult) {
+                        is MiraiLinkResult.Success -> gamesResult.data.map { it.toGameViewEntry() }
+                        is MiraiLinkResult.Error -> {
+                            editState.update { it.copy(error = gamesResult.error.toUiError()) }
+                            return@launch
+                        }
                     }
-                }
 
-            editState.update {
-                it.copy(animeCatalog = animes, gameCatalog = games, error = null)
+                editState.update {
+                    it.copy(animeCatalog = animes, gameCatalog = games, error = null)
+                }
+            }
+
+            if (!hasOptions) {
+                val optionsResult = withContext(ioDispatcher) { getProfileOptionsUseCase() }
+                if (optionsResult is MiraiLinkResult.Success) {
+                    editState.update { it.copy(profileOptions = optionsResult.data) }
+                }
             }
         }
     }

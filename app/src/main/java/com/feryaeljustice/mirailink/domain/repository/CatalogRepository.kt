@@ -11,4 +11,5 @@ interface CatalogRepository {
     suspend fun getCountries(): MiraiLinkResult<List<GeographicPlace>>
     suspend fun getRegions(countryId: String): MiraiLinkResult<List<GeographicPlace>>
     suspend fun getCities(regionId: String, query: String): MiraiLinkResult<List<GeographicPlace>>
+    suspend fun getProfileOptions(): MiraiLinkResult<com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto>
 }

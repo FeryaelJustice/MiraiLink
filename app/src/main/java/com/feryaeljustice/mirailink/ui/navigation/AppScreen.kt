@@ -54,6 +54,17 @@ sealed class AppScreen : NavKey {
     data object MessagesScreen : AppScreen()
 
     @Serializable
+    @SerialName("received_likes")
+    data object ReceivedLikesScreen : AppScreen()
+
+    @Serializable
+    @SerialName("user_profile_detail")
+    data class UserProfileDetailScreen(
+        val username: String,
+        val canInteract: Boolean = true,
+    ) : AppScreen()
+
+    @Serializable
     @SerialName("chat")
     data class ChatScreen(
         val userId: String,

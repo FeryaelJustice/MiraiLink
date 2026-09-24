@@ -102,12 +102,12 @@ class UserRemoteDataSourceTest : UnitTest() {
     fun `register should return token on success`() =
         runTest {
             // Given
-            val request = RegisterRequest("testuser", "test@test.com", "password")
+            val request = RegisterRequest("testuser", "test@test.com", "password", "male", "2000-01-01")
             val response = RegisterResponse("User created", "token456")
             coEvery { userApiService.register(request) } returns response
 
             // When
-            val result = userRemoteDataSource.register(request.username, request.email, request.password)
+            val result = userRemoteDataSource.register(request.username, request.email, request.password, request.gender, request.birthdate)
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)

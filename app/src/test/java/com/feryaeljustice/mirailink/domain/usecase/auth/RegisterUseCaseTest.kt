@@ -41,17 +41,36 @@ class RegisterUseCaseTest {
         val username = "test"
         val email = "test@test.com"
         val password = "password"
+        val gender = "male"
+        val birthdate = "2000-01-01"
         val token = "token"
-        coEvery { repository.register(username, email, password) } returns MiraiLinkResult.Success(
+        coEvery { repository.register(username, email, password, gender, birthdate) } returns MiraiLinkResult.Success(
             token
         )
 
         // When
-        val result = registerUseCase(username, email, password)
+        val result = registerUseCase(username, email, password, gender, birthdate)
 
         // Then
         assertTrue(result is MiraiLinkResult.Success)
         assertEquals(token, (result as MiraiLinkResult.Success).data)
+    }
+
+    @Test
+    fun `when birthdate is underage, return underage error without calling repository`() = runTest {
+        // Given
+        val username = "test"
+        val email = "test@test.com"
+        val password = "password"
+        val gender = "male"
+        val birthdate = "2020-01-01"
+
+        // When
+        val result = registerUseCase(username, email, password, gender, birthdate)
+
+        // Then
+        assertTrue(result is MiraiLinkResult.Error)
+        assertEquals(com.feryaeljustice.mirailink.domain.error.ValidationError.UNDERAGE, (result as MiraiLinkResult.Error).error)
     }
 
     @Test
@@ -60,11 +79,13 @@ class RegisterUseCaseTest {
         val username = "test"
         val email = "test@test.com"
         val password = "password"
+        val gender = "male"
+        val birthdate = "2000-01-01"
         val errorResult = MiraiLinkResult.Error(UnknownError)
-        coEvery { repository.register(username, email, password) } returns errorResult
+        coEvery { repository.register(username, email, password, gender, birthdate) } returns errorResult
 
         // When
-        val result = registerUseCase(username, email, password)
+        val result = registerUseCase(username, email, password, gender, birthdate)
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
@@ -77,11 +98,13 @@ class RegisterUseCaseTest {
         val username = "test"
         val email = "test@test.com"
         val password = "password"
+        val gender = "male"
+        val birthdate = "2000-01-01"
         val exception = RuntimeException("Network error")
-        coEvery { repository.register(username, email, password) } throws exception
+        coEvery { repository.register(username, email, password, gender, birthdate) } throws exception
 
         // When
-        val result = registerUseCase(username, email, password)
+        val result = registerUseCase(username, email, password, gender, birthdate)
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)

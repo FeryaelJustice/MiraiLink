@@ -77,6 +77,7 @@ private fun AppError.messageResource(): Int =
                 ValidationError.INVALID_INPUT -> R.string.error_invalid_input
                 ValidationError.INVALID_MEDIA -> R.string.error_invalid_media
                 ValidationError.MISSING_REQUIRED_VALUE -> R.string.error_missing_value
+                ValidationError.UNDERAGE -> R.string.error_underage
             }
         is LocationError ->
             when (this) {

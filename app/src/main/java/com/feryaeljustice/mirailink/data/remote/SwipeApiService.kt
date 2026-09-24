@@ -13,6 +13,12 @@ interface SwipeApiService {
     @GET("swipe/feed")
     suspend fun getFeed(@Query("limit") limit: Int = 10, @Query("offset") offset: Int = 0): List<UserDto>
 
+    @GET("swipe/likes-received")
+    suspend fun getReceivedLikes(
+        @Query("limit") limit: Int = 20,
+        @Query("offset") offset: Int = 0,
+    ): List<com.feryaeljustice.mirailink.data.model.response.swipe.ReceivedLikeDto>
+
     @POST("swipe/like")
     suspend fun likeUser(@Body request: SwipeRequest): SwipeResponse
 

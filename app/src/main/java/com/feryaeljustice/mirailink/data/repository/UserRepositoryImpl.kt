@@ -31,7 +31,9 @@ class UserRepositoryImpl(
         username: String,
         email: String,
         password: String,
-    ): MiraiLinkResult<String> = remote.register(username, email, password)
+        gender: String,
+        birthdate: String,
+    ): MiraiLinkResult<String> = remote.register(username, email, password, gender, birthdate)
 
     override suspend fun deleteAccount(): MiraiLinkResult<Unit> = remote.deleteAccount()
 
@@ -84,11 +86,21 @@ class UserRepositoryImpl(
             is MiraiLinkResult.Error -> result
         }
 
+    override suspend fun getUserByUsername(username: String): MiraiLinkResult<User> =
+        when (val result = remote.getUserByUsername(username)) {
+            is MiraiLinkResult.Success -> {
+                val userDto = result.data
+                val orderedPhotos = resolvePhotoUrls(baseUrl, userDto.photos.map { it.toDomain() })
+                val user = userDto.toDomain().copy(photos = orderedPhotos)
+                MiraiLinkResult.Success(user)
+            }
+
+            is MiraiLinkResult.Error -> result
+        }
+
     override suspend fun updateProfile(
         nickname: String,
         bio: String,
-        gender: String?,
-        birthdate: String?,
         residenceCountryId: String?,
         residenceRegionId: String?,
         residenceCityId: String?,
@@ -101,12 +113,22 @@ class UserRepositoryImpl(
         residenceCountryName: String?,
         residenceRegion: String?,
         residenceCity: String?,
+        profession: String?,
+        religionId: String?,
+        zodiacSignId: String?,
+        politicalStanceId: String?,
+        smokingHabitId: String?,
+        drinkingHabitId: String?,
+        sexualOrientationId: String?,
+        educationLevelId: String?,
+        relationshipGoalsJson: String?,
+        familyOptionsJson: String?,
+        spokenLanguagesJson: String?,
+        promptsJson: String?,
     ): MiraiLinkResult<Unit> =
         remote.updateProfile(
             nickname = nickname,
             bio = bio,
-            gender = gender,
-            birthdate = birthdate,
             residenceCountryId = residenceCountryId,
             residenceRegionId = residenceRegionId,
             residenceCityId = residenceCityId,
@@ -119,6 +141,18 @@ class UserRepositoryImpl(
             gamesJson = gamesJson,
             photoUris = photoUris,
             existingPhotoUrls = existingPhotoUrls,
+            profession = profession,
+            religionId = religionId,
+            zodiacSignId = zodiacSignId,
+            politicalStanceId = politicalStanceId,
+            smokingHabitId = smokingHabitId,
+            drinkingHabitId = drinkingHabitId,
+            sexualOrientationId = sexualOrientationId,
+            educationLevelId = educationLevelId,
+            relationshipGoalsJson = relationshipGoalsJson,
+            familyOptionsJson = familyOptionsJson,
+            spokenLanguagesJson = spokenLanguagesJson,
+            promptsJson = promptsJson,
         )
 
     override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> = remote.hasProfilePicture(userId)

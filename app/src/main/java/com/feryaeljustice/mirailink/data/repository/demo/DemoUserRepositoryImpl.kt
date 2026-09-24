@@ -38,6 +38,8 @@ class DemoUserRepositoryImpl(
         username: String,
         email: String,
         password: String,
+        gender: String,
+        birthdate: String,
     ): MiraiLinkResult<String> {
         seeder.seedInitialDataIfEmpty()
         return MiraiLinkResult.Success(DemoDataSeeder.DEMO_USER_ID)
@@ -119,11 +121,23 @@ class DemoUserRepositoryImpl(
         }
     }
 
+    override suspend fun getUserByUsername(username: String): MiraiLinkResult<User> {
+        seeder.seedInitialDataIfEmpty()
+        val allUsers = database.userDao().getAllFeedUsers()
+        val found = allUsers.find { it.username.equals(username, ignoreCase = true) }
+        if (found != null) {
+            return MiraiLinkResult.Success(found.toDomainUser())
+        }
+        val myProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
+        if (myProfile != null && (myProfile.username.equals(username, ignoreCase = true) || username.equals("me", ignoreCase = true))) {
+            return MiraiLinkResult.Success(myProfile.toDomainUser())
+        }
+        return MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.NOT_FOUND)
+    }
+
     override suspend fun updateProfile(
         nickname: String,
         bio: String,
-        gender: String?,
-        birthdate: String?,
         residenceCountryId: String?,
         residenceRegionId: String?,
         residenceCityId: String?,
@@ -136,6 +150,18 @@ class DemoUserRepositoryImpl(
         residenceCountryName: String?,
         residenceRegion: String?,
         residenceCity: String?,
+        profession: String?,
+        religionId: String?,
+        zodiacSignId: String?,
+        politicalStanceId: String?,
+        smokingHabitId: String?,
+        drinkingHabitId: String?,
+        sexualOrientationId: String?,
+        educationLevelId: String?,
+        relationshipGoalsJson: String?,
+        familyOptionsJson: String?,
+        spokenLanguagesJson: String?,
+        promptsJson: String?,
     ): MiraiLinkResult<Unit> {
         val currentProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
             ?: return MiraiLinkResult.Success(Unit)
@@ -158,8 +184,6 @@ class DemoUserRepositoryImpl(
         val updatedProfile = currentProfile.copy(
             nickname = nickname,
             bio = bio,
-            gender = gender ?: currentProfile.gender,
-            birthdate = birthdate ?: currentProfile.birthdate,
             residenceCountryCode = currentProfile.residenceCountryCode,
             residenceRegion = currentProfile.residenceRegion,
             residenceCity = currentProfile.residenceCity,

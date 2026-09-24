@@ -29,7 +29,9 @@ class DelegatingUserRepository(
         username: String,
         email: String,
         password: String,
-    ): MiraiLinkResult<String> = targetRepo().register(username, email, password)
+        gender: String,
+        birthdate: String,
+    ): MiraiLinkResult<String> = targetRepo().register(username, email, password, gender, birthdate)
 
     override suspend fun deleteAccount(): MiraiLinkResult<Unit> = targetRepo().deleteAccount()
 
@@ -64,11 +66,12 @@ class DelegatingUserRepository(
     override suspend fun getUserById(userId: String): MiraiLinkResult<User> =
         targetRepo().getUserById(userId)
 
+    override suspend fun getUserByUsername(username: String): MiraiLinkResult<User> =
+        targetRepo().getUserByUsername(username)
+
     override suspend fun updateProfile(
         nickname: String,
         bio: String,
-        gender: String?,
-        birthdate: String?,
         residenceCountryId: String?,
         residenceRegionId: String?,
         residenceCityId: String?,
@@ -81,11 +84,21 @@ class DelegatingUserRepository(
         residenceCountryName: String?,
         residenceRegion: String?,
         residenceCity: String?,
+        profession: String?,
+        religionId: String?,
+        zodiacSignId: String?,
+        politicalStanceId: String?,
+        smokingHabitId: String?,
+        drinkingHabitId: String?,
+        sexualOrientationId: String?,
+        educationLevelId: String?,
+        relationshipGoalsJson: String?,
+        familyOptionsJson: String?,
+        spokenLanguagesJson: String?,
+        promptsJson: String?,
     ): MiraiLinkResult<Unit> = targetRepo().updateProfile(
         nickname,
         bio,
-        gender,
-        birthdate,
         residenceCountryId,
         residenceRegionId,
         residenceCityId,
@@ -98,6 +111,18 @@ class DelegatingUserRepository(
         residenceCountryName,
         residenceRegion,
         residenceCity,
+        profession,
+        religionId,
+        zodiacSignId,
+        politicalStanceId,
+        smokingHabitId,
+        drinkingHabitId,
+        sexualOrientationId,
+        educationLevelId,
+        relationshipGoalsJson,
+        familyOptionsJson,
+        spokenLanguagesJson,
+        promptsJson,
     )
 
     override suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean> =

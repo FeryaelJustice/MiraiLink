@@ -29,6 +29,26 @@ class SwipeRepositoryImpl(
             is MiraiLinkResult.Error -> result
         }
 
+    override suspend fun getReceivedLikes(
+        limit: Int,
+        offset: Int,
+    ): MiraiLinkResult<List<com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike>> =
+        when (val result = remote.getReceivedLikes(limit, offset)) {
+            is MiraiLinkResult.Success -> {
+                val list = result.data.map { dto ->
+                    val user = dto.user.toDomain()
+                    val orderedPhotos = resolvePhotoUrls(baseUrl, user.photos)
+                    com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
+                        likeId = dto.likeId,
+                        likedAt = dto.likedAt,
+                        user = user.copy(photos = orderedPhotos),
+                    )
+                }
+                MiraiLinkResult.Success(list)
+            }
+            is MiraiLinkResult.Error -> result
+        }
+
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
         if (toUserId.isCanonicalUuid()) remote.likeUser(toUserId)
         else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)

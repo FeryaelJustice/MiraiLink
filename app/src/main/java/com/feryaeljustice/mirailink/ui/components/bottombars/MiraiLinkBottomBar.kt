@@ -31,6 +31,7 @@ fun MiraiLinkBottomBar(
         listOf(
             BottomNavItem(AppScreen.HomeScreen, R.drawable.ic_home, R.string.nav_home),
             BottomNavItem(AppScreen.MessagesScreen, R.drawable.ic_chat, R.string.nav_messages),
+            BottomNavItem(AppScreen.ReceivedLikesScreen, R.drawable.ic_heart, R.string.nav_likes),
             BottomNavItem(AppScreen.ProfileScreen, R.drawable.ic_user, R.string.nav_profile),
         )
     NavigationBar(

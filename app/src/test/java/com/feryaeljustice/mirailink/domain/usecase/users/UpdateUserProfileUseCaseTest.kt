@@ -39,37 +39,25 @@ class UpdateUserProfileUseCaseTest {
         // Given
         coEvery {
             repo.updateProfile(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(),
             )
         } returns MiraiLinkResult.Success(Unit)
 
         // When
         val result = updateUserProfileUseCase(
-            "nickname",
-            "bio",
-            "gender",
-            "birthdate",
-            "ES",
-            "Islas Baleares",
-            "Palma",
-            null,
-            null,
-            "animes",
-            "games",
-            emptyList(),
-            emptyList()
+            nickname = "nickname",
+            bio = "bio",
+            residenceCountryId = "ES",
+            residenceRegionId = "Islas Baleares",
+            residenceCityId = "Palma",
+            residenceLatitude = null,
+            residenceLongitude = null,
+            animesJson = "animes",
+            gamesJson = "games",
+            photoUris = emptyList(),
+            existingPhotoUrls = emptyList(),
         )
 
         // Then
@@ -82,37 +70,25 @@ class UpdateUserProfileUseCaseTest {
         val errorResult = MiraiLinkResult.Error(UnknownError)
         coEvery {
             repo.updateProfile(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(),
             )
         } returns errorResult
 
         // When
         val result = updateUserProfileUseCase(
-            "nickname",
-            "bio",
-            "gender",
-            "birthdate",
-            "ES",
-            "Islas Baleares",
-            "Palma",
-            null,
-            null,
-            "animes",
-            "games",
-            emptyList(),
-            emptyList()
+            nickname = "nickname",
+            bio = "bio",
+            residenceCountryId = "ES",
+            residenceRegionId = "Islas Baleares",
+            residenceCityId = "Palma",
+            residenceLatitude = null,
+            residenceLongitude = null,
+            animesJson = "animes",
+            gamesJson = "games",
+            photoUris = emptyList(),
+            existingPhotoUrls = emptyList(),
         )
 
         // Then

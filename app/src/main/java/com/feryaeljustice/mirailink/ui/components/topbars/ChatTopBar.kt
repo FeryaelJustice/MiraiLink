@@ -40,11 +40,13 @@ fun ChatTopBar(
     onReportClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onAvatarClick: (() -> Unit)? = null,
     // receiverId: String? = null,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
+    val currentAvatarClickHandler by rememberUpdatedState(newValue = onAvatarClick)
 
     // val sharedTransitionScope = LocalSharedTransitionScope.current
     // val animatedVisibilityScope = LocalMiraiAnimatedScope.current
@@ -96,6 +98,9 @@ fun ChatTopBar(
                     .clip(CircleShape)
                     .pointerInput(receiverUrlPhoto) {
                         detectTapGestures(
+                            onTap = {
+                                currentAvatarClickHandler?.invoke()
+                            },
                             onLongPress = {
                                 receiverUrlPhoto?.let { _ ->
                                     currentLongPressHandler(receiverUrlPhoto)

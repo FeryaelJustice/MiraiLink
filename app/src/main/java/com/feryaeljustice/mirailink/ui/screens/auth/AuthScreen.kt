@@ -62,6 +62,13 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRe
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthEvent
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationDialog
+import androidx.compose.ui.platform.LocalContext
+import com.feryaeljustice.mirailink.domain.model.enum.Gender
+import com.feryaeljustice.mirailink.domain.util.isAtLeast16YearsOld
+import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
+import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkSnackbarRequest
+import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import org.koin.compose.viewmodel.koinViewModel
@@ -78,6 +85,8 @@ fun AuthScreen(
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
+    val context = LocalContext.current
+    val showSnackbar = LocalShowSnackbar.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val userId by viewModel.userId.collectAsStateWithLifecycle()
@@ -92,6 +101,8 @@ fun AuthScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var gender by remember { mutableStateOf(Gender.Male) }
+    var birthdateIso by remember { mutableStateOf("") }
 
     val usernameError by viewModel.usernameError.collectAsStateWithLifecycle()
     val emailError by viewModel.emailError.collectAsStateWithLifecycle()
@@ -110,6 +121,8 @@ fun AuthScreen(
         password = ""
         confirmPassword = ""
         passwordVisible = false
+        gender = Gender.Male
+        birthdateIso = ""
     }
 
     LaunchedEffect(Unit) {
@@ -449,21 +462,25 @@ fun AuthScreen(
                     supportingText = confirmPasswordErrorString,
                     keyboardOptions =
                         KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
+                            keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done,
                         ),
                     keyboardActions =
                         KeyboardActions(onDone = {
                             focusManager.clearFocus()
-                            viewModel.register(
-                                username,
-                                email,
-                                password,
-                                onSaveSession = { userId, token ->
-                                    miraiLinkSession.saveSession(token, userId, verified = true)
-                                },
-                            )
                         }),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                BirthdateField(
+                    birthdateIso = birthdateIso,
+                    onChange = { birthdateIso = it },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                GenderSelector(
+                    gender = gender,
+                    onChange = { gender = it },
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -486,6 +503,17 @@ fun AuthScreen(
 
             MiraiLinkButton(
                 onClick = {
+                    if (!isLogin) {
+                        if (birthdateIso.isBlank()) {
+                            showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_missing_value)))
+                            return@MiraiLinkButton
+                        }
+                        if (!isAtLeast16YearsOld(birthdateIso)) {
+                            showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_underage)))
+                            return@MiraiLinkButton
+                        }
+                    }
+
                     // VALIDACIONES AUTH PREVIAS
                     if (!viewModel.validateFields(
                             isLogin = isLogin,
@@ -493,6 +521,8 @@ fun AuthScreen(
                             username = username,
                             password = password,
                             confirmPassword = confirmPassword,
+                            gender = gender.realValue,
+                            birthdate = birthdateIso,
                         )
                     ) {
                         return@MiraiLinkButton
@@ -510,9 +540,11 @@ fun AuthScreen(
                         )
                     } else {
                         viewModel.register(
-                            username,
-                            email,
-                            password,
+                            username = username,
+                            email = email,
+                            password = password,
+                            gender = gender.realValue,
+                            birthdate = birthdateIso,
                             onSaveSession = { userId, token ->
                                 miraiLinkSession.saveSession(token, userId, verified = true)
                             },

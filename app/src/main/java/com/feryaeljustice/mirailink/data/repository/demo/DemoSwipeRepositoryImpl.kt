@@ -81,6 +81,27 @@ class DemoSwipeRepositoryImpl(
         return MiraiLinkResult.Success(filteredUsers)
     }
 
+    override suspend fun getReceivedLikes(
+        limit: Int,
+        offset: Int,
+    ): MiraiLinkResult<List<com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike>> {
+        seeder.seedInitialDataIfEmpty()
+        val allUsers = database.userDao().getAllFeedUsers()
+        val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
+        val receivedLikes = allUsers
+            .filter { !it.isLiked && !it.isDisliked && it.id !in matchedIds }
+            .drop(offset)
+            .take(limit)
+            .map { entity ->
+                com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
+                    likeId = "demo_like_${entity.id}",
+                    likedAt = "2026-09-23T12:00:00Z",
+                    user = entity.toDomainUser(),
+                )
+            }
+        return MiraiLinkResult.Success(receivedLikes)
+    }
+
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> {
         database.userDao().markLiked(toUserId)
         val feedUser = database.userDao().getFeedUserById(toUserId)

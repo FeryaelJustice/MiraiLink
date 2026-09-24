@@ -12,6 +12,7 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.DeleteUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.UpdateUserProfileUseCase
 import com.feryaeljustice.mirailink.domain.util.Logger
+import com.feryaeljustice.mirailink.domain.usecase.catalog.GetProfileOptionsUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
@@ -38,6 +39,7 @@ class ProfileViewModelTest : KoinTest {
     private val deleteUserPhotoUseCase: DeleteUserPhotoUseCase by inject()
     private val getAnimesUseCase: GetAnimesUseCase by inject()
     private val getGamesUseCase: GetGamesUseCase by inject()
+    private val getProfileOptionsUseCase: GetProfileOptionsUseCase by inject()
     private val logger: Logger by inject()
 
     private lateinit var viewModel: ProfileViewModel
@@ -52,6 +54,7 @@ class ProfileViewModelTest : KoinTest {
                     single { mockk<DeleteUserPhotoUseCase>() }
                     single { mockk<GetAnimesUseCase>() }
                     single { mockk<GetGamesUseCase>() }
+                    single { mockk<GetProfileOptionsUseCase>(relaxed = true) }
                     single { mockk<Logger>(relaxed = true) }
                 },
             )
@@ -83,6 +86,7 @@ class ProfileViewModelTest : KoinTest {
                 deleteUserPhotoUseCase,
                 getAnimesUseCase,
                 getGamesUseCase,
+                getProfileOptionsUseCase,
                 logger,
                 mainCoroutineRule.testDispatcher,
             )
@@ -143,10 +147,12 @@ class ProfileViewModelTest : KoinTest {
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             coEvery {
-                updateUserProfileUseCase
-                    .invoke(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
-            } returns
-                MiraiLinkResult.Success(Unit)
+                updateUserProfileUseCase.invoke(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    any(), any(), any(), any(), any(), any(),
+                )
+            } returns MiraiLinkResult.Success(Unit)
 
             viewModel.onIntent(EditProfileIntent.Save)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()

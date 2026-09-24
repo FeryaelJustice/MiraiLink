@@ -52,9 +52,12 @@
                 <data android:scheme="https" />
                 <data android:host="mirailink.xyz" />
                 <data android:host="www.mirailink.xyz" />
+                <data android:host="mirailink.com" />
+                <data android:host="www.mirailink.com" />
                 <data android:pathPrefix="/verification" />
                 <data android:pathPrefix="/recover_password" />
                 <data android:pathPrefix="/login" />
+                <data android:pathPrefix="/user" />
             </intent-filter>
         </activity>
 

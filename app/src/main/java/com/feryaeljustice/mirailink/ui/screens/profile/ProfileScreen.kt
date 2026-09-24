@@ -339,6 +339,24 @@ fun ProfileScreen(
                                     )
                                     viewModel.onIntent(EditProfileIntent.OpenPhotoActionDialog(position))
                                 },
+                                onProfessionChange = { value ->
+                                    viewModel.onIntent(EditProfileIntent.UpdateProfession(value))
+                                },
+                                onSingleAttributeSelect = { type, optionId ->
+                                    viewModel.onIntent(EditProfileIntent.SelectSingleAttribute(type, optionId))
+                                },
+                                onMultiAttributeUpdate = { type, selectedIds ->
+                                    viewModel.onIntent(EditProfileIntent.UpdateMultiAttribute(type, selectedIds))
+                                },
+                                onAddOrUpdatePrompt = { promptId, question, answer ->
+                                    viewModel.onIntent(EditProfileIntent.AddOrUpdatePrompt(promptId, question, answer))
+                                },
+                                onRemovePrompt = { promptId ->
+                                    viewModel.onIntent(EditProfileIntent.RemovePrompt(promptId))
+                                },
+                                onChangePromptQuestion = { oldId, newId, newQ ->
+                                    viewModel.onIntent(EditProfileIntent.ChangePromptQuestion(oldId, newId, newQ))
+                                },
                             )
 
                             // 1. Dialogo: Actualizar o Borrar

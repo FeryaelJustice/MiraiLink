@@ -16,6 +16,7 @@ import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.GetTwoFactorS
 import com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.LoginVerifyTwoFactorLastStepUseCase
 import com.feryaeljustice.mirailink.domain.util.CredentialHelper
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.isAtLeast16YearsOld
 import com.feryaeljustice.mirailink.domain.util.isEmailValid
 import com.feryaeljustice.mirailink.domain.util.isNotTrivialPassword
 import com.feryaeljustice.mirailink.domain.util.isPasswordValid
@@ -188,6 +189,8 @@ class AuthViewModel(
         username: String,
         email: String,
         password: String,
+        gender: String,
+        birthdate: String,
         onSaveSession: (String, String) -> Unit,
     ) {
         // Si el registro falla y el usuario pulsa la accion de recuperacion, la UI
@@ -201,14 +204,21 @@ class AuthViewModel(
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
             }
-            if (email.isBlank() || password.isBlank()) {
+            if (email.isBlank() || password.isBlank() || gender.isBlank() || birthdate.isBlank()) {
                 withContext(mainDispatcher) {
                     state.value = AuthUiState.Error(ValidationError.MISSING_REQUIRED_VALUE.toUiError())
                 }
                 return@launch
             }
 
-            val result = registerUseCase.value(username, email, password)
+            val result =
+                registerUseCase.value(
+                    username = username,
+                    email = email,
+                    password = password,
+                    gender = gender,
+                    birthdate = birthdate,
+                )
             handleAuthResult(
                 result = result,
                 credentialToSave = email to password,
@@ -445,6 +455,8 @@ class AuthViewModel(
         email: String,
         password: String,
         confirmPassword: String = "", // Opcional, solo para registro
+        gender: String = "",
+        birthdate: String = "",
     ): Boolean {
         // Reseteamos errores previos
         viewModelScope.launch(mainDispatcher) {
@@ -475,6 +487,9 @@ class AuthViewModel(
                 viewModelScope.launch(mainDispatcher) {
                     confirmPasswordError.value = AuthFieldError.PasswordsDoNotMatch
                 }
+                isValid = false
+            }
+            if (gender.isBlank() || birthdate.isBlank() || !isAtLeast16YearsOld(birthdate)) {
                 isValid = false
             }
         }

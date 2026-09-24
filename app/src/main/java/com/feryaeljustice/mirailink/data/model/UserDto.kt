@@ -63,4 +63,42 @@ data class UserDto(
     val searchTargetCountryId: String? = null,
     @SerialName("search_match_live_location")
     val searchMatchLiveLocation: Boolean = false,
+    @SerialName("profession")
+    val profession: String? = null,
+    @SerialName("religion_id")
+    val religionId: String? = null,
+    @SerialName("religion")
+    val religion: String? = null,
+    @SerialName("zodiac_sign_id")
+    val zodiacSignId: String? = null,
+    @SerialName("zodiac_sign")
+    val zodiacSign: String? = null,
+    @SerialName("political_stance_id")
+    val politicalStanceId: String? = null,
+    @SerialName("political_stance")
+    val politicalStance: String? = null,
+    @SerialName("smoking_habit_id")
+    val smokingHabitId: String? = null,
+    @SerialName("smoking_habit")
+    val smokingHabit: String? = null,
+    @SerialName("drinking_habit_id")
+    val drinkingHabitId: String? = null,
+    @SerialName("drinking_habit")
+    val drinkingHabit: String? = null,
+    @SerialName("sexual_orientation_id")
+    val sexualOrientationId: String? = null,
+    @SerialName("sexual_orientation")
+    val sexualOrientation: String? = null,
+    @SerialName("education_level_id")
+    val educationLevelId: String? = null,
+    @SerialName("education_level")
+    val educationLevel: String? = null,
+    @SerialName("relationship_goals")
+    val relationshipGoals: List<com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto> = emptyList(),
+    @SerialName("family_options")
+    val familyOptions: List<com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto> = emptyList(),
+    @SerialName("spoken_languages")
+    val spokenLanguages: List<com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto> = emptyList(),
+    @SerialName("prompts")
+    val prompts: List<UserPromptAnswerDto> = emptyList(),
 )

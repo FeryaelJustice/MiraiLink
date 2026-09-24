@@ -98,13 +98,16 @@ interface UserApiService {
         @Body request: ByIdRequest,
     ): UserDto
 
+    @GET("user/by-username/{username}")
+    suspend fun getUserByUsername(
+        @Path("username") username: String,
+    ): UserDto
+
     @Multipart
     @PUT("user")
     suspend fun updateProfile(
         @Part("nickname") nickname: RequestBody,
         @Part("bio") bio: RequestBody,
-        @Part("gender") gender: RequestBody?,
-        @Part("birthdate") birthdate: RequestBody?,
         @Part("residence_country_id") residenceCountryId: RequestBody?,
         @Part("residence_region_id") residenceRegionId: RequestBody?,
         @Part("residence_city_id") residenceCityId: RequestBody?,
@@ -117,6 +120,18 @@ interface UserApiService {
         @Part("animes") animes: RequestBody,
         @Part("games") games: RequestBody,
         @Part("reorderedPositions") reorderedPositions: RequestBody?,
+        @Part("profession") profession: RequestBody? = null,
+        @Part("religion_id") religionId: RequestBody? = null,
+        @Part("zodiac_sign_id") zodiacSignId: RequestBody? = null,
+        @Part("political_stance_id") politicalStanceId: RequestBody? = null,
+        @Part("smoking_habit_id") smokingHabitId: RequestBody? = null,
+        @Part("drinking_habit_id") drinkingHabitId: RequestBody? = null,
+        @Part("sexual_orientation_id") sexualOrientationId: RequestBody? = null,
+        @Part("education_level_id") educationLevelId: RequestBody? = null,
+        @Part("relationship_goals") relationshipGoals: RequestBody? = null,
+        @Part("family_options") familyOptions: RequestBody? = null,
+        @Part("spoken_languages") spokenLanguages: RequestBody? = null,
+        @Part("prompts") prompts: RequestBody? = null,
         @Part photo_0: MultipartBody.Part? = null, // Solo si existe nuevo archivo
         @Part photo_1: MultipartBody.Part? = null,
         @Part photo_2: MultipartBody.Part? = null,

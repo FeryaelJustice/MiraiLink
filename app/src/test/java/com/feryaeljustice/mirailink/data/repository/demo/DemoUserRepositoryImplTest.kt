@@ -58,8 +58,6 @@ class DemoUserRepositoryImplTest {
         val updateResult = repository.updateProfile(
             nickname = "Hikari_Modificada",
             bio = "Nueva bio demo",
-            gender = "Mujer",
-            birthdate = "2003-05-14",
             residenceCountryId = "00000000-0000-0000-0000-000000000001",
             residenceRegionId = "00000000-0000-0000-0000-000000000002",
             residenceCityId = "00000000-0000-0000-0000-000000000003",
