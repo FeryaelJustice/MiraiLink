@@ -131,7 +131,7 @@ class DemoExploreRepositoryImpl(
         val userLat = demoProfile?.residenceLatitude ?: demoProfile?.currentLatitude
         val userLon = demoProfile?.residenceLongitude ?: demoProfile?.currentLongitude
 
-        val feedUsers = database.userDao().getAllFeedUsers().map { it.toDomainUser() }
+        val feedUsers = database.userDao().getFeedUsers().map { it.toDomainUser() }
 
         val resolvedCategories = staticCategories.map { category ->
             val pref = database.categoryDao().getPreference(DemoDataSeeder.DEMO_USER_ID, category.id)

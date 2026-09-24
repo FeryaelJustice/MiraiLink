@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -63,6 +64,11 @@ fun ExploreScreen(
         miraiLinkSession.showBars()
         miraiLinkSession.enableBars()
         miraiLinkSession.showTopBarSettingsIcon()
+    }
+
+    LifecycleResumeEffect(Unit) {
+        viewModel.loadExploreHub()
+        onPauseOrDispose { }
     }
 
     PullToRefreshBox(
