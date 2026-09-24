@@ -279,4 +279,50 @@
     <string name="interest_picker_clear_search">Limpiar búsqueda</string>
     <string name="interest_picker_manage_animes">Elegir animes favoritos</string>
     <string name="interest_picker_manage_games">Elegir juegos favoritos</string>
+
+    <!-- Received Likes & Profile Details & Extended Profile -->
+    <string name="nav_likes">Likes</string>
+    <string name="received_likes_title">Personas a las que les gustas</string>
+    <string name="received_likes_empty">Aún no tienes likes recibidos. ¡Sigue interactuando!</string>
+    <string name="received_likes_match_button">Hacer match</string>
+    <string name="received_likes_match_success">¡Es un match con %1$s!</string>
+    <string name="premium_locked_title">Descubre a quién le gustas</string>
+    <string name="premium_locked_desc">Esta función estará disponible próximamente para miembros MiraiLink Premium.</string>
+    <string name="error_underage">Debes tener al menos 16 años para registrarte.</string>
+    <string name="share_profile_text">¡Mira el perfil de @%1$s en MiraiLink! https://mirailink.com/user/%1$s</string>
+    <string name="profile_section_facts">Curiosidades Gamer</string>
+    <string name="profile_section_personal">Sobre mí</string>
+    <string name="profile_detail_like">Me gusta</string>
+    <string name="profile_detail_reject">Pasar</string>
+    <string name="profile_detail_matched">Ya sois match</string>
+    <string name="action_share">Compartir</string>
+
+    <!-- Extended Profile Edit & Display Strings -->
+    <string name="profile_edit_section_prompts">Curiosidades Gamer</string>
+    <string name="profile_edit_prompts_subtitle">Destaca hasta 3 preguntas gamer en tu perfil</string>
+    <string name="profile_edit_add_prompt">+ Añadir curiosidad gamer</string>
+    <string name="profile_edit_change_question">Cambiar</string>
+    <string name="profile_edit_prompt_answer_hint">Escribe aquí tu respuesta...</string>
+    <string name="profile_edit_prompt_select_title">Elige una curiosidad gamer</string>
+    <string name="profile_edit_section_work_edu">Profesión y educación</string>
+    <string name="profile_profession_label">Profesión u ocupación</string>
+    <string name="profile_profession_hint">¿A qué te dedicas o qué estudias?</string>
+    <string name="profile_education_label">Nivel de educación</string>
+    <string name="profile_edit_section_goals">Qué busco y planes</string>
+    <string name="profile_relationship_goals_label">Qué busco en MiraiLink</string>
+    <string name="profile_family_options_label">Planes de familia</string>
+    <string name="profile_edit_section_lifestyle">Estilo de vida</string>
+    <string name="profile_smoking_label">Hábito de fumar</string>
+    <string name="profile_drinking_label">Hábito de beber</string>
+    <string name="profile_edit_section_identity">Identidad y valores</string>
+    <string name="profile_zodiac_label">Signo del zodiaco</string>
+    <string name="profile_religion_label">Religión / Creencias</string>
+    <string name="profile_political_label">Postura política</string>
+    <string name="profile_sexual_orientation_label">Orientación sexual</string>
+    <string name="profile_edit_section_languages">Idiomas que hablo</string>
+    <string name="profile_languages_label">Idiomas</string>
+    <string name="profile_option_not_specified">Sin especificar</string>
+    <string name="profile_option_clear">Borrar selección</string>
+    <string name="profile_option_select">Seleccionar</string>
+    <string name="profile_select_options_dialog_title">Selecciona las opciones</string>
 </resources>

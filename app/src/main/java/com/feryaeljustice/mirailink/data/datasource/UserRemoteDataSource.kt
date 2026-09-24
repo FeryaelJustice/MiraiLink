@@ -64,9 +64,11 @@ class UserRemoteDataSource(
         username: String,
         email: String,
         password: String,
+        gender: String,
+        birthdate: String,
     ): MiraiLinkResult<String> =
         safeApiCall(NetworkOperation.REGISTER) {
-            api.register(RegisterRequest(username, email, password)).token
+            api.register(RegisterRequest(username, email, password, gender, birthdate)).token
         }
 
     suspend fun deleteAccount(): MiraiLinkResult<Unit> =
@@ -131,11 +133,14 @@ class UserRemoteDataSource(
             user to api.getUserPhotos(userId = user.id)
         }
 
+    suspend fun getUserByUsername(username: String): MiraiLinkResult<UserDto> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.getUserByUsername(username)
+        }
+
     suspend fun updateProfile(
         nickname: String,
         bio: String,
-        gender: String?,
-        birthdate: String?,
         residenceCountryId: String?,
         residenceRegionId: String?,
         residenceCityId: String?,
@@ -148,6 +153,18 @@ class UserRemoteDataSource(
         residenceCountryName: String?,
         residenceRegion: String?,
         residenceCity: String?,
+        profession: String? = null,
+        religionId: String? = null,
+        zodiacSignId: String? = null,
+        politicalStanceId: String? = null,
+        smokingHabitId: String? = null,
+        drinkingHabitId: String? = null,
+        sexualOrientationId: String? = null,
+        educationLevelId: String? = null,
+        relationshipGoalsJson: String? = null,
+        familyOptionsJson: String? = null,
+        spokenLanguagesJson: String? = null,
+        promptsJson: String? = null,
     ): MiraiLinkResult<Unit> {
         val prepared =
             safeLocalCall(ioDispatcher) {
@@ -176,8 +193,6 @@ class UserRemoteDataSource(
                     api.updateProfile(
                         nickname = nickname.toRequestBody(),
                         bio = bio.toRequestBody(),
-                        gender = gender?.toRequestBody(),
-                        birthdate = birthdate?.toRequestBody(),
                         residenceCountryId = residenceCountryId?.toRequestBody(),
                         residenceRegionId = residenceRegionId?.toRequestBody(),
                         residenceCityId = residenceCityId?.toRequestBody(),
@@ -189,6 +204,18 @@ class UserRemoteDataSource(
                         animes = animesJson.toRequestBody(),
                         games = gamesJson.toRequestBody(),
                         reorderedPositions = prepared.data.reorderedPositions,
+                        profession = profession?.toRequestBody(),
+                        religionId = religionId?.toRequestBody(),
+                        zodiacSignId = zodiacSignId?.toRequestBody(),
+                        politicalStanceId = politicalStanceId?.toRequestBody(),
+                        smokingHabitId = smokingHabitId?.toRequestBody(),
+                        drinkingHabitId = drinkingHabitId?.toRequestBody(),
+                        sexualOrientationId = sexualOrientationId?.toRequestBody(),
+                        educationLevelId = educationLevelId?.toRequestBody(),
+                        relationshipGoals = relationshipGoalsJson?.toRequestBody(),
+                        familyOptions = familyOptionsJson?.toRequestBody(),
+                        spokenLanguages = spokenLanguagesJson?.toRequestBody(),
+                        prompts = promptsJson?.toRequestBody(),
                         photo_0 = prepared.data.photoParts.getOrNull(0),
                         photo_1 = prepared.data.photoParts.getOrNull(1),
                         photo_2 = prepared.data.photoParts.getOrNull(2),

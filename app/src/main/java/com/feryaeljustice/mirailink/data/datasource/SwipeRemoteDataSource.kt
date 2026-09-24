@@ -15,6 +15,11 @@ class SwipeRemoteDataSource(
             api.getFeed()
         }
 
+    suspend fun getReceivedLikes(limit: Int = 20, offset: Int = 0): MiraiLinkResult<List<com.feryaeljustice.mirailink.data.model.response.swipe.ReceivedLikeDto>> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.getReceivedLikes(limit, offset)
+        }
+
     suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
             api.likeUser(SwipeRequest(toUserId)).match

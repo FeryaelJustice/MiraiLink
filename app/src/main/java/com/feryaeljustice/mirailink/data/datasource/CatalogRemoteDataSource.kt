@@ -28,4 +28,7 @@ class CatalogRemoteDataSource(
 
     suspend fun getCities(regionId: String, query: String): MiraiLinkResult<List<GeographicPlaceDto>> =
         safeApiCall { api.getCities(regionId, query) }
+
+    suspend fun getProfileOptions(): MiraiLinkResult<com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto> =
+        safeApiCall { api.getProfileOptions() }
 }

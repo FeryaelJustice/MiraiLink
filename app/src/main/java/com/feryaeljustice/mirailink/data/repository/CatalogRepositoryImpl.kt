@@ -46,6 +46,9 @@ class CatalogRepositoryImpl(
     override suspend fun getCities(regionId: String, query: String): MiraiLinkResult<List<GeographicPlace>> =
         remote.getCities(regionId, query).toGeographicPlaces()
 
+    override suspend fun getProfileOptions(): MiraiLinkResult<com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto> =
+        remote.getProfileOptions()
+
     private fun MiraiLinkResult<List<com.feryaeljustice.mirailink.data.model.GeographicPlaceDto>>.toGeographicPlaces(): MiraiLinkResult<List<GeographicPlace>> =
         when (this) {
             is MiraiLinkResult.Success -> MiraiLinkResult.Success(data.map { GeographicPlace(it.id, it.name, it.latitude, it.longitude, it.aliases) })

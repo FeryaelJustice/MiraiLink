@@ -30,6 +30,34 @@ fun User.toUserViewEntry(): UserViewEntry = UserViewEntry(
     residenceLongitude = residenceLongitude,
     distanceKm = distanceKm,
     isTraveler = isTraveler,
+    profession = profession,
+    religionId = religionId,
+    religion = religion,
+    zodiacSignId = zodiacSignId,
+    zodiacSign = zodiacSign,
+    politicalStanceId = politicalStanceId,
+    politicalStance = politicalStance,
+    smokingHabitId = smokingHabitId,
+    smokingHabit = smokingHabit,
+    drinkingHabitId = drinkingHabitId,
+    drinkingHabit = drinkingHabit,
+    sexualOrientationId = sexualOrientationId,
+    sexualOrientation = sexualOrientation,
+    educationLevelId = educationLevelId,
+    educationLevel = educationLevel,
+    relationshipGoalIds = relationshipGoalIds,
+    relationshipGoals = relationshipGoals,
+    familyOptionIds = familyOptionIds,
+    familyOptions = familyOptions,
+    spokenLanguageIds = spokenLanguageIds,
+    spokenLanguages = spokenLanguages,
+    prompts = prompts.map {
+        com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry(
+            promptId = it.promptId,
+            question = it.question,
+            answer = it.answer,
+        )
+    },
 )
 
 fun User.toMatchUserViewEntry() = MatchUserViewEntry(

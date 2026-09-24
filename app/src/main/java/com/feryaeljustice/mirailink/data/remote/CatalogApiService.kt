@@ -25,4 +25,7 @@ interface CatalogApiService {
         @Path("regionId") regionId: String,
         @Query("query") query: String,
     ): List<GeographicPlaceDto>
+
+    @GET("catalog/profile-options")
+    suspend fun getProfileOptions(): com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto
 }

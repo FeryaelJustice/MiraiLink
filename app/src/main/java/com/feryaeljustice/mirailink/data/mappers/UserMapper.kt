@@ -33,6 +33,34 @@ fun UserDto.toDomain(): User =
         currentLongitude = currentLongitude,
         distanceKm = distanceKm,
         isTraveler = isTraveler,
+        profession = profession,
+        religionId = religionId,
+        religion = religion,
+        zodiacSignId = zodiacSignId,
+        zodiacSign = zodiacSign,
+        politicalStanceId = politicalStanceId,
+        politicalStance = politicalStance,
+        smokingHabitId = smokingHabitId,
+        smokingHabit = smokingHabit,
+        drinkingHabitId = drinkingHabitId,
+        drinkingHabit = drinkingHabit,
+        sexualOrientationId = sexualOrientationId,
+        sexualOrientation = sexualOrientation,
+        educationLevelId = educationLevelId,
+        educationLevel = educationLevel,
+        relationshipGoalIds = relationshipGoals.map { it.id },
+        relationshipGoals = relationshipGoals.map { it.label ?: it.code },
+        familyOptionIds = familyOptions.map { it.id },
+        familyOptions = familyOptions.map { it.label ?: it.code },
+        spokenLanguageIds = spokenLanguages.map { it.id },
+        spokenLanguages = spokenLanguages.map { it.label ?: it.code },
+        prompts = prompts.map {
+            com.feryaeljustice.mirailink.domain.model.user.GamerPromptAnswer(
+                promptId = it.promptId,
+                question = it.question.orEmpty(),
+                answer = it.answer,
+            )
+        },
     )
 
 fun MinimalUserInfoResponse.toMinimalUserInfo(): MinimalUserInfo =

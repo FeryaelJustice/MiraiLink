@@ -29,4 +29,33 @@ data class UserViewEntry(
     val residenceLongitude: Double? = null,
     val distanceKm: Double? = null,
     val isTraveler: Boolean = false,
+    val profession: String? = null,
+    val religionId: String? = null,
+    val religion: String? = null,
+    val zodiacSignId: String? = null,
+    val zodiacSign: String? = null,
+    val politicalStanceId: String? = null,
+    val politicalStance: String? = null,
+    val smokingHabitId: String? = null,
+    val smokingHabit: String? = null,
+    val drinkingHabitId: String? = null,
+    val drinkingHabit: String? = null,
+    val sexualOrientationId: String? = null,
+    val sexualOrientation: String? = null,
+    val educationLevelId: String? = null,
+    val educationLevel: String? = null,
+    val relationshipGoalIds: List<String> = emptyList(),
+    val relationshipGoals: List<String> = emptyList(),
+    val familyOptionIds: List<String> = emptyList(),
+    val familyOptions: List<String> = emptyList(),
+    val spokenLanguageIds: List<String> = emptyList(),
+    val spokenLanguages: List<String> = emptyList(),
+    val prompts: List<GamerPromptAnswerViewEntry> = emptyList(),
+)
+
+@Serializable
+data class GamerPromptAnswerViewEntry(
+    val promptId: String,
+    val question: String,
+    val answer: String,
 )

@@ -16,6 +16,12 @@ class DelegatingSwipeRepository(
 
     override suspend fun getFeed(): MiraiLinkResult<List<User>> = targetRepo().getFeed()
 
+    override suspend fun getReceivedLikes(
+        limit: Int,
+        offset: Int,
+    ): MiraiLinkResult<List<com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike>> =
+        targetRepo().getReceivedLikes(limit, offset)
+
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
         targetRepo().likeUser(toUserId)
 

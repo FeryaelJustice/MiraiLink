@@ -12,9 +12,11 @@ import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationVie
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesViewModel
+import com.feryaeljustice.mirailink.ui.screens.likes.ReceivedLikesViewModel
 import com.feryaeljustice.mirailink.ui.screens.messages.MessagesViewModel
 import com.feryaeljustice.mirailink.ui.screens.photo.ProfilePictureViewModel
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel
+import com.feryaeljustice.mirailink.ui.screens.profile.detail.UserProfileDetailViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
@@ -109,6 +111,19 @@ val viewModelModule =
             )
         }
         viewModel {
+            ReceivedLikesViewModel(
+                getReceivedLikesUseCase = get(),
+                likeUserUseCase = get(),
+            )
+        }
+        viewModel {
+            UserProfileDetailViewModel(
+                getUserProfileByUsernameUseCase = get(),
+                likeUserUseCase = get(),
+                dislikeUserUseCase = get(),
+            )
+        }
+        viewModel {
             ProfilePictureViewModel(
                 uploadUserPhotoUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
@@ -121,6 +136,7 @@ val viewModelModule =
                 deleteUserPhotoUseCase = get(),
                 getAnimesUseCase = get(),
                 getGamesUseCase = get(),
+                getProfileOptionsUseCase = get(),
                 logger = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )

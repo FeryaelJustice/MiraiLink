@@ -19,6 +19,8 @@ interface UserRepository {
         username: String,
         email: String,
         password: String,
+        gender: String,
+        birthdate: String,
     ): MiraiLinkResult<String>
 
     suspend fun deleteAccount(): MiraiLinkResult<Unit>
@@ -50,11 +52,11 @@ interface UserRepository {
 
     suspend fun getUserById(userId: String): MiraiLinkResult<User>
 
+    suspend fun getUserByUsername(username: String): MiraiLinkResult<User>
+
     suspend fun updateProfile(
         nickname: String,
         bio: String,
-        gender: String?,
-        birthdate: String?,
         residenceCountryId: String?,
         residenceRegionId: String?,
         residenceCityId: String?,
@@ -67,6 +69,18 @@ interface UserRepository {
         residenceCountryName: String? = null,
         residenceRegion: String? = null,
         residenceCity: String? = null,
+        profession: String? = null,
+        religionId: String? = null,
+        zodiacSignId: String? = null,
+        politicalStanceId: String? = null,
+        smokingHabitId: String? = null,
+        drinkingHabitId: String? = null,
+        sexualOrientationId: String? = null,
+        educationLevelId: String? = null,
+        relationshipGoalsJson: String? = null,
+        familyOptionsJson: String? = null,
+        spokenLanguagesJson: String? = null,
+        promptsJson: String? = null,
     ): MiraiLinkResult<Unit>
 
     suspend fun hasProfilePicture(userId: String): MiraiLinkResult<Boolean>

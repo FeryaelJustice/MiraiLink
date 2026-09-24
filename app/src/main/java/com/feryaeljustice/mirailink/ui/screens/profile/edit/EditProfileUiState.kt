@@ -1,20 +1,36 @@
 package com.feryaeljustice.mirailink.ui.screens.profile.edit
 
 import android.net.Uri
+import com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.media.PhotoSlotViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
+
+enum class ProfileSingleAttributeType {
+    RELIGION,
+    ZODIAC_SIGN,
+    POLITICAL_STANCE,
+    SMOKING_HABIT,
+    DRINKING_HABIT,
+    SEXUAL_ORIENTATION,
+    EDUCATION_LEVEL,
+}
+
+enum class ProfileMultiAttributeType {
+    RELATIONSHIP_GOALS,
+    FAMILY_OPTIONS,
+    SPOKEN_LANGUAGES,
+}
 
 data class EditProfileUiState(
     val isEditing: Boolean = false,
     val nickname: String = "",
     val bio: String = "",
-    val gender: String = "",            // guardaremos la clave ("male", etc.)
-    val birthdate: String = "",         // "YYYY-MM-DD"
     val residenceCountryCode: String = "",
     val residenceCountryId: String = "",
     val residenceRegionId: String = "",
@@ -28,6 +44,19 @@ data class EditProfileUiState(
     val selectedGames: List<GameViewEntry> = emptyList(),
     val animeCatalog: List<AnimeViewEntry> = emptyList(),
     val gameCatalog: List<GameViewEntry> = emptyList(),
+    val profession: String = "",
+    val religionId: String? = null,
+    val zodiacSignId: String? = null,
+    val politicalStanceId: String? = null,
+    val smokingHabitId: String? = null,
+    val drinkingHabitId: String? = null,
+    val sexualOrientationId: String? = null,
+    val educationLevelId: String? = null,
+    val selectedRelationshipGoalIds: List<String> = emptyList(),
+    val selectedFamilyOptionIds: List<String> = emptyList(),
+    val selectedSpokenLanguageIds: List<String> = emptyList(),
+    val prompts: List<GamerPromptAnswerViewEntry> = emptyList(),
+    val profileOptions: ProfileOptionsResponseDto? = null,
     val error: UiError? = null,
     val photos: List<PhotoSlotViewEntry> = List(4) { PhotoSlotViewEntry() }, // index = position
     val selectedSlotForDialog: Int? = null, // el slot que ha sido clicado
@@ -57,6 +86,14 @@ sealed class EditProfileIntent {
     data class OpenPhotoActionDialog(val position: Int) : EditProfileIntent()
     object ClosePhotoDialogs : EditProfileIntent()
     object ShowPhotoSourceDialog : EditProfileIntent()
+
+    // Campos extendidos
+    data class UpdateProfession(val value: String) : EditProfileIntent()
+    data class SelectSingleAttribute(val type: ProfileSingleAttributeType, val optionId: String?) : EditProfileIntent()
+    data class UpdateMultiAttribute(val type: ProfileMultiAttributeType, val selectedIds: List<String>) : EditProfileIntent()
+    data class AddOrUpdatePrompt(val promptId: String, val question: String, val answer: String) : EditProfileIntent()
+    data class RemovePrompt(val promptId: String) : EditProfileIntent()
+    data class ChangePromptQuestion(val oldPromptId: String, val newPromptId: String, val newQuestion: String) : EditProfileIntent()
 }
 
 sealed class EditProfileUiEvent {

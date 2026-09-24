@@ -90,7 +90,8 @@ class UserApiServiceTest : KoinTest {
             val mockResponse =
                 MockResponse().setResponseCode(201).setBody(Json.encodeToString(response))
             mockWebServer.enqueue(mockResponse)
-            val registerRequest = RegisterRequest("testuser", "test@test.com", "password")
+            val registerRequest =
+                RegisterRequest("testuser", "test@test.com", "password", "male", "2000-01-01")
 
             // When
             val result = userApiService.register(registerRequest)

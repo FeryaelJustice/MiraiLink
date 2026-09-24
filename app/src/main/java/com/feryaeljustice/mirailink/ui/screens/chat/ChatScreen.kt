@@ -83,6 +83,7 @@ fun ChatScreen(
     userId: String,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToProfileDetail: ((String) -> Unit)? = null,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -169,6 +170,11 @@ fun ChatScreen(
             // receiverId = receiver?.id,
             receiverName = receiver?.nicknameElseUsername(),
             receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
+            onAvatarClick = {
+                receiver?.username?.let { username ->
+                    onNavigateToProfileDetail?.invoke(username)
+                }
+            },
             onLongPressOnImage = { url ->
                 setFullscreenImageUrl(url)
             },

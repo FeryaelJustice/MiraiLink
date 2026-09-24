@@ -49,6 +49,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto
+import com.feryaeljustice.mirailink.ui.components.catalog.ProfileMultiOptionPickerModal
+import com.feryaeljustice.mirailink.ui.components.catalog.ProfileSingleOptionPickerModal
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileMultiAttributeType
+import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileSingleAttributeType
+import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
+import com.feryaeljustice.mirailink.ui.components.user.GamerPromptEditSection
+import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
+import com.feryaeljustice.mirailink.ui.components.user.buildPersonalChips
+import androidx.compose.material3.Surface
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
 import com.feryaeljustice.mirailink.domain.model.enum.Gender
@@ -95,6 +105,12 @@ fun UserCard(
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null,
     isPublicPresentation: Boolean = false,
+    onProfessionChange: ((String) -> Unit)? = null,
+    onSingleAttributeSelect: ((ProfileSingleAttributeType, String?) -> Unit)? = null,
+    onMultiAttributeUpdate: ((ProfileMultiAttributeType, List<String>) -> Unit)? = null,
+    onAddOrUpdatePrompt: ((promptId: String, question: String, answer: String) -> Unit)? = null,
+    onRemovePrompt: ((promptId: String) -> Unit)? = null,
+    onChangePromptQuestion: ((oldPromptId: String, newPromptId: String, newQuestion: String) -> Unit)? = null,
 ) {
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
 
@@ -118,6 +134,8 @@ fun UserCard(
 
     var showAnimePicker by remember { mutableStateOf(false) }
     var showGamePicker by remember { mutableStateOf(false) }
+    var activeSinglePicker by remember { mutableStateOf<ProfileSingleAttributeType?>(null) }
+    var activeMultiPicker by remember { mutableStateOf<ProfileMultiAttributeType?>(null) }
 
     if (showAnimePicker && editUiState != null) {
         VisualInterestPickerModal(
@@ -141,6 +159,81 @@ fun UserCard(
             },
             onDismiss = { showGamePicker = false },
         )
+    }
+
+    activeSinglePicker?.let { singleType ->
+        if (editUiState != null) {
+            val options = editUiState.profileOptions
+            val titleRes = when (singleType) {
+                ProfileSingleAttributeType.EDUCATION_LEVEL -> R.string.profile_education_label
+                ProfileSingleAttributeType.SMOKING_HABIT -> R.string.profile_smoking_label
+                ProfileSingleAttributeType.DRINKING_HABIT -> R.string.profile_drinking_label
+                ProfileSingleAttributeType.ZODIAC_SIGN -> R.string.profile_zodiac_label
+                ProfileSingleAttributeType.RELIGION -> R.string.profile_religion_label
+                ProfileSingleAttributeType.POLITICAL_STANCE -> R.string.profile_political_label
+                ProfileSingleAttributeType.SEXUAL_ORIENTATION -> R.string.profile_sexual_orientation_label
+            }
+            val items = when (singleType) {
+                ProfileSingleAttributeType.EDUCATION_LEVEL -> options?.educationLevels ?: emptyList()
+                ProfileSingleAttributeType.SMOKING_HABIT -> options?.smokingHabits ?: emptyList()
+                ProfileSingleAttributeType.DRINKING_HABIT -> options?.drinkingHabits ?: emptyList()
+                ProfileSingleAttributeType.ZODIAC_SIGN -> options?.zodiacSigns ?: emptyList()
+                ProfileSingleAttributeType.RELIGION -> options?.religions ?: emptyList()
+                ProfileSingleAttributeType.POLITICAL_STANCE -> options?.politicalStances ?: emptyList()
+                ProfileSingleAttributeType.SEXUAL_ORIENTATION -> options?.sexualOrientations ?: emptyList()
+            }
+            val selectedId = when (singleType) {
+                ProfileSingleAttributeType.EDUCATION_LEVEL -> editUiState.educationLevelId
+                ProfileSingleAttributeType.SMOKING_HABIT -> editUiState.smokingHabitId
+                ProfileSingleAttributeType.DRINKING_HABIT -> editUiState.drinkingHabitId
+                ProfileSingleAttributeType.ZODIAC_SIGN -> editUiState.zodiacSignId
+                ProfileSingleAttributeType.RELIGION -> editUiState.religionId
+                ProfileSingleAttributeType.POLITICAL_STANCE -> editUiState.politicalStanceId
+                ProfileSingleAttributeType.SEXUAL_ORIENTATION -> editUiState.sexualOrientationId
+            }
+
+            ProfileSingleOptionPickerModal(
+                title = stringResource(titleRes),
+                options = items,
+                selectedId = selectedId,
+                onSelect = { optionId ->
+                    onSingleAttributeSelect?.invoke(singleType, optionId)
+                },
+                onDismiss = { activeSinglePicker = null },
+            )
+        }
+    }
+
+    activeMultiPicker?.let { multiType ->
+        if (editUiState != null) {
+            val options = editUiState.profileOptions
+            val titleRes = when (multiType) {
+                ProfileMultiAttributeType.RELATIONSHIP_GOALS -> R.string.profile_relationship_goals_label
+                ProfileMultiAttributeType.FAMILY_OPTIONS -> R.string.profile_family_options_label
+                ProfileMultiAttributeType.SPOKEN_LANGUAGES -> R.string.profile_languages_label
+            }
+            val items = when (multiType) {
+                ProfileMultiAttributeType.RELATIONSHIP_GOALS -> options?.relationshipGoals ?: emptyList()
+                ProfileMultiAttributeType.FAMILY_OPTIONS -> options?.familyOptions ?: emptyList()
+                ProfileMultiAttributeType.SPOKEN_LANGUAGES -> options?.spokenLanguages ?: emptyList()
+            }
+            val selectedIds = when (multiType) {
+                ProfileMultiAttributeType.RELATIONSHIP_GOALS -> editUiState.selectedRelationshipGoalIds
+                ProfileMultiAttributeType.FAMILY_OPTIONS -> editUiState.selectedFamilyOptionIds
+                ProfileMultiAttributeType.SPOKEN_LANGUAGES -> editUiState.selectedSpokenLanguageIds
+            }
+
+            ProfileMultiOptionPickerModal(
+                title = stringResource(titleRes),
+                options = items,
+                selectedIds = selectedIds,
+                onConfirm = { newSelectedIds ->
+                    onMultiAttributeUpdate?.invoke(multiType, newSelectedIds)
+                },
+                onDismiss = { activeMultiPicker = null },
+                showSearch = multiType == ProfileMultiAttributeType.SPOKEN_LANGUAGES,
+            )
+        }
     }
 
     val (focusRequester) = FocusRequester.createRefs()
@@ -245,24 +338,6 @@ fun UserCard(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Selector de género
-                    GenderSelector(
-                        gender = Gender.fromRealValue(editUiState.gender) ?: Gender.Other,
-                        onChange = { genderEnum ->
-                            onValueChange?.invoke(TextFieldType.GENDER, genderEnum.realValue)
-                        },
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // TextField para fecha de nacimiento
-                    BirthdateField(
-                        birthdateIso = toBackendDate(editUiState.birthdate),
-                        onChange = { onValueChange?.invoke(TextFieldType.BIRTHDATE, it) },
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     MiraiLinkText(
                         text = stringResource(R.string.profile_section_residence),
                         style = MaterialTheme.typography.titleMedium,
@@ -280,7 +355,131 @@ fun UserCard(
                         onClear = { field -> onResidenceFieldCleared?.invoke(field) },
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_work_edu),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    MiraiLinkOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = editUiState.profession,
+                        onValueChange = { onProfessionChange?.invoke(it) },
+                        label = stringResource(R.string.profile_profession_label),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_education_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.educationLevels, editUiState.educationLevelId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.EDUCATION_LEVEL },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_prompts),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_prompts_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    GamerPromptEditSection(
+                        prompts = editUiState.prompts,
+                        availableCatalogPrompts = editUiState.profileOptions?.prompts ?: emptyList(),
+                        onAddOrUpdatePrompt = { pId, q, a -> onAddOrUpdatePrompt?.invoke(pId, q, a) },
+                        onChangePromptQuestion = { oldId, newId, newQ -> onChangePromptQuestion?.invoke(oldId, newId, newQ) },
+                        onRemovePrompt = { pId -> onRemovePrompt?.invoke(pId) },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_goals),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_relationship_goals_label),
+                        currentValue = getMultiOptionLabels(editUiState.profileOptions?.relationshipGoals, editUiState.selectedRelationshipGoalIds),
+                        onClick = { activeMultiPicker = ProfileMultiAttributeType.RELATIONSHIP_GOALS },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_family_options_label),
+                        currentValue = getMultiOptionLabels(editUiState.profileOptions?.familyOptions, editUiState.selectedFamilyOptionIds),
+                        onClick = { activeMultiPicker = ProfileMultiAttributeType.FAMILY_OPTIONS },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_lifestyle),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_smoking_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.smokingHabits, editUiState.smokingHabitId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.SMOKING_HABIT },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_drinking_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.drinkingHabits, editUiState.drinkingHabitId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.DRINKING_HABIT },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_identity),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_zodiac_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.zodiacSigns, editUiState.zodiacSignId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.ZODIAC_SIGN },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_religion_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.religions, editUiState.religionId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.RELIGION },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_political_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.politicalStances, editUiState.politicalStanceId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.POLITICAL_STANCE },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_sexual_orientation_label),
+                        currentValue = getSingleOptionLabel(editUiState.profileOptions?.sexualOrientations, editUiState.sexualOrientationId),
+                        onClick = { activeSinglePicker = ProfileSingleAttributeType.SEXUAL_ORIENTATION },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_edit_section_languages),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ProfileAttributeSelectRow(
+                        label = stringResource(R.string.profile_languages_label),
+                        currentValue = getMultiOptionLabels(editUiState.profileOptions?.spokenLanguages, editUiState.selectedSpokenLanguageIds),
+                        onClick = { activeMultiPicker = ProfileMultiAttributeType.SPOKEN_LANGUAGES },
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     MiraiLinkText(
                         text = stringResource(R.string.profile_section_interests),
@@ -516,9 +715,45 @@ fun UserCard(
                             emptyText = stringResource(id = R.string.user_card_fav_games_empty),
                         )
                         Spacer(modifier = Modifier.height(8.dp))
+
+                        // Curiosidades Gamer
+                        if (user.prompts.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            androidx.compose.material3.HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ProfileReadOnlySectionHeader(
+                                title = stringResource(R.string.profile_section_facts),
+                                icon = Icons.Default.Info,
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            user.prompts.take(3).forEach { prompt ->
+                                GamerPromptCard(prompt = prompt)
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                        }
+
+                        // Informacion personal
+                        val personalChips = buildPersonalChips(user)
+                        if (personalChips.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            androidx.compose.material3.HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ProfileReadOnlySectionHeader(
+                                title = stringResource(R.string.profile_section_personal),
+                                icon = Icons.Default.Info,
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            ChipFlowRow(items = personalChips)
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(64.dp))
                 }
             }
 
@@ -599,7 +834,59 @@ private fun ProfileReadOnlySectionHeader(
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
+}
 
+@Composable
+private fun ProfileAttributeSelectRow(
+    label: String,
+    currentValue: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                MiraiLinkText(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                MiraiLinkText(
+                    text = currentValue ?: stringResource(R.string.profile_option_not_specified),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (currentValue != null) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (currentValue != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    }
+}
+
+private fun getSingleOptionLabel(options: List<CatalogItemOptionDto>?, id: String?): String? =
+    options?.find { it.id == id }?.let { it.label ?: it.question ?: it.code }
+
+private fun getMultiOptionLabels(options: List<CatalogItemOptionDto>?, ids: List<String>): String? {
+    if (ids.isEmpty() || options == null) return null
+    val labels = ids.mapNotNull { id -> options.find { it.id == id }?.let { it.label ?: it.question ?: it.code } }
+    return if (labels.isNotEmpty()) labels.joinToString(", ") else null
 }
 
 @Suppress("ktlint:standard:function-naming")
