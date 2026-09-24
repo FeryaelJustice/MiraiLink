@@ -2,9 +2,11 @@ package com.feryaeljustice.mirailink.data.local.demo
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.feryaeljustice.mirailink.data.local.demo.dao.DemoCategoryDao
 import com.feryaeljustice.mirailink.data.local.demo.dao.DemoChatDao
 import com.feryaeljustice.mirailink.data.local.demo.dao.DemoMatchDao
 import com.feryaeljustice.mirailink.data.local.demo.dao.DemoUserDao
+import com.feryaeljustice.mirailink.data.local.demo.entity.DemoCategoryPreferenceEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoFeedUserEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMatchEntity
@@ -18,14 +20,16 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
         DemoMatchEntity::class,
         DemoChatEntity::class,
         DemoMessageEntity::class,
+        DemoCategoryPreferenceEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class MiraiLinkDemoDatabase : RoomDatabase() {
     abstract fun userDao(): DemoUserDao
     abstract fun matchDao(): DemoMatchDao
     abstract fun chatDao(): DemoChatDao
+    abstract fun categoryDao(): DemoCategoryDao
 
     companion object {
         const val DATABASE_NAME = "mirailink_demo_db"

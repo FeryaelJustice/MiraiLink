@@ -6,11 +6,13 @@ import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.repository.demo.DemoChatRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoMatchRepositoryImpl
+import com.feryaeljustice.mirailink.data.repository.demo.DemoExploreRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoSwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoUserRepositoryImpl
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.Demo
 import com.feryaeljustice.mirailink.domain.repository.ChatRepository
+import com.feryaeljustice.mirailink.domain.repository.ExploreRepository
 import com.feryaeljustice.mirailink.domain.repository.MatchRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
@@ -30,6 +32,7 @@ val demoModule =
         single { get<MiraiLinkDemoDatabase>().userDao() }
         single { get<MiraiLinkDemoDatabase>().matchDao() }
         single { get<MiraiLinkDemoDatabase>().chatDao() }
+        single { get<MiraiLinkDemoDatabase>().categoryDao() }
 
         single { DemoDataSeeder(database = get()) }
         single { DemoModeManager(seeder = get(), sessionManager = get(), scope = get(ApplicationScope)) }
@@ -43,5 +46,6 @@ val demoModule =
                 searchPreferencesRepository = get(),
             )
         }
+        single<ExploreRepository>(Demo) { DemoExploreRepositoryImpl(database = get(), seeder = get()) }
         single<ChatRepository>(Demo) { DemoChatRepositoryImpl(database = get(), scope = get(ApplicationScope)) }
     }

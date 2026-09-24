@@ -340,4 +340,23 @@
     <string name="profile_subcategory_work_edu">Laboral y estudios</string>
     <string name="profile_subcategory_lifestyle">Estilo de vida</string>
     <string name="profile_subcategory_identity">Identidad y creencias</string>
+
+    <!-- Explore Feature -->
+    <string name="nav_explore">Explorar</string>
+    <string name="explore_title">Explorar</string>
+    <string name="explore_subtitle">Encuentra gente que busca lo mismo que tú</string>
+    <string name="explore_section_recommended">Recomendadas para ti</string>
+    <string name="explore_section_otaku">Otaku &amp; Anime</string>
+    <string name="explore_section_gaming">Videojuegos &amp; Gaming</string>
+    <string name="explore_section_connections">Conexiones &amp; Metas</string>
+    <string name="explore_people_count">%1$d personas</string>
+    <string name="explore_category_feed_empty_title">No hay más perfiles por ahora</string>
+    <string name="explore_category_feed_empty_desc">Prueba a ampliar la distancia en los ajustes de esta categoría</string>
+    <string name="category_settings_title">Ajustes de %1$s</string>
+    <string name="category_settings_distance_label">Distancia en Discovery</string>
+    <string name="category_settings_distance_value">%1$d km</string>
+    <string name="category_settings_notice">Estos ajustes solo se aplican en %1$s</string>
+    <string name="category_settings_update_button">Actualizar ajustes</string>
+    <string name="category_settings_updated_toast">Ajustes de %1$s actualizados</string>
+    <string name="content_description_category_settings">Ajustes de categoría</string>
 </resources>

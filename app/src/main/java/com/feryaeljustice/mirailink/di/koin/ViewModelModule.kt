@@ -10,6 +10,8 @@ import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordViewModel
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationViewModel
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatViewModel
+import com.feryaeljustice.mirailink.ui.screens.explore.ExploreViewModel
+import com.feryaeljustice.mirailink.ui.screens.explore.feed.CategoryFeedViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesViewModel
 import com.feryaeljustice.mirailink.ui.screens.likes.ReceivedLikesViewModel
@@ -177,6 +179,24 @@ val viewModelModule =
                 verifyTwoFactorUseCase = get(),
                 getTwoFactorStatusUseCase = get(),
                 disableTwoFactorUseCase = get(),
+                ioDispatcher = get(qualifier = IoDispatcher),
+            )
+        }
+        viewModel {
+            ExploreViewModel(
+                getExploreSectionsUseCase = get(),
+                ioDispatcher = get(qualifier = IoDispatcher),
+            )
+        }
+        viewModel { (categoryId: String, categoryName: String) ->
+            CategoryFeedViewModel(
+                categoryId = categoryId,
+                categoryName = categoryName,
+                getCategoryFeedUseCase = get(),
+                getCategoryPreferencesUseCase = get(),
+                updateCategoryPreferencesUseCase = get(),
+                likeUserUseCase = get(),
+                dislikeUserUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }

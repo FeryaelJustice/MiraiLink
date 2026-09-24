@@ -25,6 +25,10 @@ import com.feryaeljustice.mirailink.domain.usecase.chat.GetChatsFromUser
 import com.feryaeljustice.mirailink.domain.usecase.chat.ListenForMessagesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.MarkChatAsReadUseCase
 import com.feryaeljustice.mirailink.domain.usecase.chat.SendMessageUseCase
+import com.feryaeljustice.mirailink.domain.usecase.explore.GetCategoryFeedUseCase
+import com.feryaeljustice.mirailink.domain.usecase.explore.GetCategoryPreferencesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.explore.GetExploreSectionsUseCase
+import com.feryaeljustice.mirailink.domain.usecase.explore.UpdateCategoryPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.feedback.SendFeedbackUseCase
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
@@ -82,6 +86,12 @@ val useCaseModule =
         factory { ListenForMessagesUseCase(get()) }
         factory { MarkChatAsReadUseCase(get()) }
         factory { SendMessageUseCase(get()) }
+
+        // Explore
+        factory { GetCategoryFeedUseCase(get()) }
+        factory { GetCategoryPreferencesUseCase(get()) }
+        factory { GetExploreSectionsUseCase(get()) }
+        factory { UpdateCategoryPreferencesUseCase(get()) }
 
         // Feed
         factory { GetFeedUseCase(get()) }

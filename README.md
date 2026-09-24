@@ -130,6 +130,12 @@ MiraiLink cuenta con un sistema de inversion de dependencias dinamico que permit
   - Cruce de compatibilidad segun animes favoritos, generos de manga y videojuegos.
   - Notificacion y desbloqueo instantaneo de coincidencia mutua (Match).
 
+- **Seccion Explorar (Explore Hub) y Feeds Tematicos**:
+  - Hub central hibrido inspirado en Bumble (carrusel superior de recomendaciones destacadas) y Tinder (cuadriculas tematicas de dos columnas).
+  - Agrupacion por categorias de interes: Otaku & Anime (amantes del anime, cosplay, ramen lovers, manga), Videojuegos & Gaming (duos competitivos, coop, casual) y Conexiones & Metas (amistad, citas, charlar).
+  - Feeds tematicos dedicados con navegacion completa de swipes y contadores reales agregados con cache de 5 minutos.
+  - Ajustes de descubrimiento independientes por categoria (radio de distancia 10-500 km) mediante hoja modal que preserva las preferencias globales de busqueda del usuario.
+
 - **Chat en Tiempo Real y Mensajeria**:
   - Comunicacion bidireccional instantanea con WebSockets y fallback REST continuo.
   - Persistencia del historial de conversacion estructurado por fecha y participante.
