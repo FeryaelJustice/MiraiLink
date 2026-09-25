@@ -5,6 +5,7 @@ import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.data.remote.AppConfigApiService
 import com.feryaeljustice.mirailink.data.remote.CatalogApiService
 import com.feryaeljustice.mirailink.data.remote.ChatApiService
+import com.feryaeljustice.mirailink.data.remote.ExploreApiService
 import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
@@ -90,6 +91,7 @@ val networkModule =
         single { get<Retrofit>().create(UsersApiService::class.java) }
         single { get<Retrofit>().create(TwoFactorApiService::class.java) }
         single { get<Retrofit>().create(SwipeApiService::class.java) }
+        single { get<Retrofit>().create(ExploreApiService::class.java) }
         single { get<Retrofit>().create(ChatApiService::class.java) }
         single { get<Retrofit>().create(MatchApiService::class.java) }
         single { get<Retrofit>().create(CatalogApiService::class.java) }

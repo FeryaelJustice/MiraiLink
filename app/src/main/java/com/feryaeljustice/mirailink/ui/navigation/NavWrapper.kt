@@ -44,6 +44,9 @@ import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
+import com.feryaeljustice.mirailink.ui.screens.explore.ExploreScreen
+import com.feryaeljustice.mirailink.ui.screens.explore.feed.CategoryFeedScreen
+import com.feryaeljustice.mirailink.ui.screens.explore.feed.CategoryFeedViewModel
 import com.feryaeljustice.mirailink.ui.screens.home.HomeScreen
 import com.feryaeljustice.mirailink.ui.screens.home.search.SearchPreferencesScreen
 import com.feryaeljustice.mirailink.ui.screens.likes.ReceivedLikesScreen
@@ -60,6 +63,7 @@ import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 
 @Suppress("ktlint:standard:function-naming", "EffectKeys")
 @Composable
@@ -157,13 +161,15 @@ fun NavWrapper(
         }
     }
 
+    val verificationRequired = stringResource(R.string.error_verification_required)
+
     // 2. Control Centralizado de Sesión (Login / ProfilePic / Home)
     // Este efecto es la única fuente de verdad para transicionar a "Main" cuando hay sesión.
     LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture) {
         if (isAuthenticated && !isVerified) {
             if (navigationState.topLevelRoute != ScreensSubgraphs.Auth) {
                 miraiLinkSession.clearSession()
-                showToast(context, context.getString(R.string.error_verification_required), Toast.LENGTH_SHORT)
+                showToast(context, verificationRequired, Toast.LENGTH_SHORT)
             }
         } else if (isAuthenticated) {
             val userId = currentUserId ?: return@LaunchedEffect
@@ -342,6 +348,32 @@ fun NavWrapper(
                     }
 
                     HomeScreen(miraiLinkSession = miraiLinkSession)
+                }
+
+                entry<AppScreen.ExploreScreen> {
+                    ExploreScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        onNavigateToCategoryFeed = { categoryId, categoryName ->
+                            navigator.navigate(
+                                AppScreen.CategoryFeedScreen(
+                                    categoryId = categoryId,
+                                    categoryName = categoryName,
+                                ),
+                            )
+                        },
+                    )
+                }
+
+                entry<AppScreen.CategoryFeedScreen> { key ->
+                    val feedViewModel: CategoryFeedViewModel = koinViewModel(
+                        key = key.categoryId,
+                        parameters = { parametersOf(key.categoryId, key.categoryName) },
+                    )
+                    CategoryFeedScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        viewModel = feedViewModel,
+                        onBackClick = { navigator.goBack() },
+                    )
                 }
 
                 entry<AppScreen.MessagesScreen> {

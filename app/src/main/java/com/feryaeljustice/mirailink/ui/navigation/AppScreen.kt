@@ -50,6 +50,17 @@ sealed class AppScreen : NavKey {
     data object HomeScreen : AppScreen()
 
     @Serializable
+    @SerialName("explore")
+    data object ExploreScreen : AppScreen()
+
+    @Serializable
+    @SerialName("category_feed")
+    data class CategoryFeedScreen(
+        val categoryId: String,
+        val categoryName: String,
+    ) : AppScreen()
+
+    @Serializable
     @SerialName("messages")
     data object MessagesScreen : AppScreen()
 
@@ -98,6 +109,7 @@ sealed class AppScreen : NavKey {
 private fun AppScreen.topLevelTab(): AppScreen =
     when (this) {
         is AppScreen.ChatScreen -> AppScreen.MessagesScreen
+        is AppScreen.CategoryFeedScreen -> AppScreen.ExploreScreen
         else -> this
     }
 

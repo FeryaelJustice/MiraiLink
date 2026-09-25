@@ -330,4 +330,23 @@
     <string name="profile_option_clear">Clear selection</string>
     <string name="profile_option_select">Select</string>
     <string name="profile_select_options_dialog_title">Select options</string>
+
+    <!-- Explore Feature -->
+    <string name="nav_explore">Explore</string>
+    <string name="explore_title">Explore</string>
+    <string name="explore_subtitle">Find people looking for the same as you</string>
+    <string name="explore_section_recommended">Recommended for you</string>
+    <string name="explore_section_otaku">Otaku &amp; Anime</string>
+    <string name="explore_section_gaming">Gaming &amp; Esports</string>
+    <string name="explore_section_connections">Dating &amp; Goals</string>
+    <string name="explore_people_count">%1$d people</string>
+    <string name="explore_category_feed_empty_title">No more profiles for now</string>
+    <string name="explore_category_feed_empty_desc">Try expanding the distance in this category\'s settings</string>
+    <string name="category_settings_title">Settings for %1$s</string>
+    <string name="category_settings_distance_label">Distance in Discovery</string>
+    <string name="category_settings_distance_value">%1$d km</string>
+    <string name="category_settings_notice">These settings only apply to %1$s</string>
+    <string name="category_settings_update_button">Update settings</string>
+    <string name="category_settings_updated_toast">Settings for %1$s updated</string>
+    <string name="content_description_category_settings">Category settings</string>
 </resources>

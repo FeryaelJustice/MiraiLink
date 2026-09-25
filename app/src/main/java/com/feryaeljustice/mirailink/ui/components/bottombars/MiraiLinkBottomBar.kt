@@ -30,6 +30,7 @@ fun MiraiLinkBottomBar(
     val bottomNavDestinations =
         listOf(
             BottomNavItem(AppScreen.HomeScreen, R.drawable.ic_home, R.string.nav_home),
+            BottomNavItem(AppScreen.ExploreScreen, R.drawable.ic_explore, R.string.nav_explore),
             BottomNavItem(AppScreen.MessagesScreen, R.drawable.ic_chat, R.string.nav_messages),
             BottomNavItem(AppScreen.ReceivedLikesScreen, R.drawable.ic_heart, R.string.nav_likes),
             BottomNavItem(AppScreen.ProfileScreen, R.drawable.ic_user, R.string.nav_profile),
@@ -39,9 +40,14 @@ fun MiraiLinkBottomBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
     ) {
+        val currentRoute = navState.currentKey() as? AppScreen
         bottomNavDestinations.forEach { item ->
-            // En Nav3, “tab seleccionado” es el topLevelRoute actual
-            val selected = (navState.topLevelRoute == item.appScreen)
+            val selected =
+                when (currentRoute) {
+                    is AppScreen.CategoryFeedScreen -> item.appScreen == AppScreen.ExploreScreen
+                    is AppScreen.ChatScreen -> item.appScreen == AppScreen.MessagesScreen
+                    else -> navState.topLevelRoute == item.appScreen || currentRoute == item.appScreen
+                }
 
             NavigationBarItem(
                 selected = selected,
