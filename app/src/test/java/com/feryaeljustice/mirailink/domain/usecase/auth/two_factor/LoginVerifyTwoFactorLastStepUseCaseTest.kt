@@ -5,6 +5,7 @@
 
 package com.feryaeljustice.mirailink.domain.usecase.auth.two_factor
 
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -36,36 +37,41 @@ class LoginVerifyTwoFactorLastStepUseCaseTest {
     }
 
     @Test
-    fun `when repository verifies successfully, return success with token`() = runTest {
+    fun `when repository verifies successfully, return success with LoginResponse`() = runTest {
         // Given
-        val userId = "userId"
+        val challengeToken = "challengeToken"
         val code = "123456"
-        val token = "newAuthToken"
+        val response = LoginResponse(
+            token = "newAuthToken",
+            userId = "userId",
+            requires2FA = false,
+            isVerified = true,
+        )
         coEvery {
             repository.loginVerifyTwoFactorLastStep(
-                userId,
-                code
+                challengeToken,
+                code,
             )
-        } returns MiraiLinkResult.Success(Unit)
+        } returns MiraiLinkResult.Success(response)
 
         // When
-        val result = useCase(userId, code)
+        val result = useCase(challengeToken, code)
 
         // Then
         assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(Unit, (result as MiraiLinkResult.Success).data)
+        assertEquals(response, (result as MiraiLinkResult.Success).data)
     }
 
     @Test
     fun `when repository fails to verify, return error`() = runTest {
         // Given
-        val userId = "userId"
+        val challengeToken = "challengeToken"
         val code = "123456"
         val errorResult = MiraiLinkResult.Error(UnknownError)
-        coEvery { repository.loginVerifyTwoFactorLastStep(userId, code) } returns errorResult
+        coEvery { repository.loginVerifyTwoFactorLastStep(challengeToken, code) } returns errorResult
 
         // When
-        val result = useCase(userId, code)
+        val result = useCase(challengeToken, code)
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
@@ -73,22 +79,14 @@ class LoginVerifyTwoFactorLastStepUseCaseTest {
     }
 
     @Test(expected = RuntimeException::class)
-    fun `when repository throws an exception, return error`() = runTest {
+    fun `when repository throws an exception, propagate exception`() = runTest {
         // Given
-        val userId = "userId"
+        val challengeToken = "challengeToken"
         val code = "123456"
         val exception = RuntimeException("Network error")
-        coEvery { repository.loginVerifyTwoFactorLastStep(userId, code) } throws exception
+        coEvery { repository.loginVerifyTwoFactorLastStep(challengeToken, code) } throws exception
 
         // When
-        val result = useCase(userId, code)
-
-        // Then
-        assertTrue(result is MiraiLinkResult.Error)
-        assertEquals(
-            "An error occurred during 2FA login verification",
-            (result as MiraiLinkResult.Error).error
-        )
-        assertEquals(exception, result.error)
+        useCase(challengeToken, code)
     }
 }

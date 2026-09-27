@@ -44,7 +44,7 @@ fun SplashScreen(
         UpdateGate(
             modifier = modifier,
             message = updateDiagInfo?.message,
-            force = updateDiagInfo?.mustUpdate == true && updateDiagInfo?.shouldUpdate == false,
+            force = updateDiagInfo?.mustUpdate == true,
             onDismiss = viewModel::onDismissUpdateGate,
             onOpenStore = {
                 // Abre Play Store

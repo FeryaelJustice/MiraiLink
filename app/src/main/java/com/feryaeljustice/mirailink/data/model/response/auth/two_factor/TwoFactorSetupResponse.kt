@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class TwoFactorSetupResponse(
     @SerialName("otpauth_url") val otpAuthUrl: String,
     @SerialName("base32") val baseCode: String,
-    @SerialName("recovery_codes") val recoveryCodes: List<String>
+    @SerialName("recovery_codes") val recoveryCodes: List<String> = emptyList(),
 )

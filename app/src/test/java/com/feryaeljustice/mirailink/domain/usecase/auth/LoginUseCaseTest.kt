@@ -6,6 +6,7 @@
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
 import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery
@@ -36,14 +37,14 @@ class LoginUseCaseTest {
     }
 
     @Test
-    fun `when repository logs in successfully, return success with token`() = runTest {
+    fun `when repository logs in successfully, return success with authSessionInfo`() = runTest {
         // Given
         val email = "test@test.com"
         val username = "test"
         val password = "password"
-        val token = "token"
+        val authSessionInfo = AuthSessionInfo(token = "token", userId = "user1", isVerified = true)
         coEvery { repository.login(email, username, password) } returns MiraiLinkResult.Success(
-            token
+            authSessionInfo
         )
 
         // When
@@ -51,7 +52,7 @@ class LoginUseCaseTest {
 
         // Then
         assertTrue(result is MiraiLinkResult.Success)
-        assertEquals(token, (result as MiraiLinkResult.Success).data)
+        assertEquals(authSessionInfo, (result as MiraiLinkResult.Success).data)
     }
 
     @Test

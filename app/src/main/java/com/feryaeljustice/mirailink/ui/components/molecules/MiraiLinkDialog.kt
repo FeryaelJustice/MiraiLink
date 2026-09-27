@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.DialogProperties
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -36,6 +37,7 @@ fun MiraiLinkDialog(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     buttonTextColor: Color = MaterialTheme.colorScheme.onPrimary,
     textAlign: TextAlign = TextAlign.Start,
+    properties: DialogProperties = DialogProperties(),
     iconContent: @Composable (() -> Unit)? = null,
     titleContent: @Composable (() -> Unit)? = null,
     messageContent: @Composable (() -> Unit)? = null,
@@ -49,6 +51,7 @@ fun MiraiLinkDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss ?: {},
+        properties = properties,
         confirmButton = {
             confirmButtonContent?.invoke() ?: AnimatedVisibility(showConfirmButton) {
                 MiraiLinkButton(onClick = onAccept ?: {}) {

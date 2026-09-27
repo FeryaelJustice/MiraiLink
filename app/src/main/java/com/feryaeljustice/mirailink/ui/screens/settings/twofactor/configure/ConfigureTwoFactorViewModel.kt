@@ -146,13 +146,14 @@ class ConfigureTwoFactorViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (
                 val result =
-                    disableTwoFactorUseCase(codeOrRecoveryCode = disable2FACode.value)
+                    disableTwoFactorUseCase(codeOrRecoveryCode = disable2FACode.value.ifBlank { "" })
             ) {
                 is MiraiLinkResult.Success -> {
                     errorString.value = null
                     isDisable2FALoading.value = false
                     showDisableTwoFactorDialog.value = false
-                    checkTwoFacStatus(userID = userID)
+                    isTwoFactorEnabled.value = false
+                    checkTwoFacStatus(userID = userID, showDialog = false)
                 }
 
                 is MiraiLinkResult.Error -> {

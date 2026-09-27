@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.data.datasource.TwoFactorRemoteDataSource
 import com.feryaeljustice.mirailink.data.mappers.toTwoFactorAuthInfo
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.domain.model.auth.TwoFactorAuthInfo
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -24,10 +25,11 @@ class TwoFactorRepositoryImpl(
 
     override suspend fun verify2FA(code: String): MiraiLinkResult<Unit> = remote.verify2FA(code)
 
-    override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> = remote.disable2FA(codeOrRecoveryCode)
+    override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
+        remote.disable2FA(codeOrRecoveryCode)
 
     override suspend fun loginVerifyTwoFactorLastStep(
-        userId: String,
+        challengeToken: String,
         code: String,
-    ): MiraiLinkResult<Unit> = remote.loginVerifyTwoFactorLastStep(userId, code)
+    ): MiraiLinkResult<LoginResponse> = remote.loginVerifyTwoFactorLastStep(challengeToken, code)
 }

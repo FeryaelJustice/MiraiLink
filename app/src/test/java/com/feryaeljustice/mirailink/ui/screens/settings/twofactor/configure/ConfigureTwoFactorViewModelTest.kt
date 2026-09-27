@@ -93,7 +93,7 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
         runTest {
             val userId = "userId"
             val code = "123456"
-            coEvery { disableTwoFactorUseCase.invoke(code) } returns MiraiLinkResult.Success(Unit)
+            coEvery { disableTwoFactorUseCase.invoke(any()) } returns MiraiLinkResult.Success(Unit)
             coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns
                 MiraiLinkResult.Success(
                     false,

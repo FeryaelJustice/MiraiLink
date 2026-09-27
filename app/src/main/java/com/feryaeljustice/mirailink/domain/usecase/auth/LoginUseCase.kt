@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.usecase.auth
 
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
@@ -10,6 +11,6 @@ class LoginUseCase(
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String> =
+    ): MiraiLinkResult<AuthSessionInfo> =
         repository.login(email, username, password)
 }

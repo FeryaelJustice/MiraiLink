@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.core.UnitTest
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorStatusResponse
 import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
@@ -111,22 +112,26 @@ class TwoFactorRemoteDataSourceTest : UnitTest() {
         }
 
     @Test
-    fun `loginVerifyTwoFactorLastStep should return success message`() =
+    fun `loginVerifyTwoFactorLastStep should return success login response`() =
         runTest {
             // Given
-            val userId = "user123"
+            val challengeToken = "challenge123"
             val code = "123456"
-            val response = BasicResponse("Success")
+            val response = LoginResponse(
+                token = "jwt_token",
+                userId = "user123",
+                isVerified = true,
+            )
             coEvery {
-                twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("userId" to userId, "code" to code))
+                twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("challengeToken" to challengeToken, "code" to code))
             } returns response
 
             // When
-            val result = twoFactorRemoteDataSource.loginVerifyTwoFactorLastStep(userId, code)
+            val result = twoFactorRemoteDataSource.loginVerifyTwoFactorLastStep(challengeToken, code)
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)
-            assertEquals(Unit, (result as MiraiLinkResult.Success).data)
-            coVerify { twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("userId" to userId, "code" to code)) }
+            assertEquals(response, (result as MiraiLinkResult.Success).data)
+            coVerify { twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("challengeToken" to challengeToken, "code" to code)) }
         }
 }

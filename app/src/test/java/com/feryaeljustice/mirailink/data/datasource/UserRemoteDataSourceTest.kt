@@ -79,7 +79,7 @@ class UserRemoteDataSourceTest : UnitTest() {
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)
-            assertEquals("token123", (result as MiraiLinkResult.Success).data)
+            assertEquals(response, (result as MiraiLinkResult.Success).data)
             coVerify { userApiService.login(request) }
         }
 

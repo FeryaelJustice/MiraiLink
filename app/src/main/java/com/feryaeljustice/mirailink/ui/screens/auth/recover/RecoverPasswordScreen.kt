@@ -35,6 +35,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -46,8 +47,9 @@ fun RecoverPasswordScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     email: String,
     onConfirmedRecoverPassword: () -> Unit,
-    onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
+    token: String = "",
+    onBack: () -> Unit = {},
     viewModel: RecoverPasswordViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -62,6 +64,9 @@ fun RecoverPasswordScreen(
         miraiLinkSession.hideTopBarSettingsIcon()
         miraiLinkSession.disableBars()
         viewModel.initEmail(email)
+        if (token.isNotBlank()) {
+            viewModel.initToken(token, email)
+        }
     }
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
@@ -128,56 +133,78 @@ fun RecoverPasswordScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 when (uiState.step) {
-            1 -> {
-                MiraiLinkOutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.email,
-                    onValueChange = viewModel::onEmailChanged,
-                    label = stringResource(R.string.recover_password_screen_mail),
-                    maxLines = 1,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                MiraiLinkButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = viewModel::requestReset,
-                ) {
-                    MiraiLinkText(
-                        text = stringResource(R.string.send_code),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                }
-            }
+                    1 -> {
+                        MiraiLinkOutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.email,
+                            onValueChange = viewModel::onEmailChanged,
+                            label = stringResource(R.string.recover_password_screen_mail),
+                            maxLines = 1,
+                        )
+                        if (uiState.error == null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = viewModel::requestReset,
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.send_code),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                        }
+                    }
 
-            2 -> {
-                MiraiLinkOutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.token,
-                    onValueChange = viewModel::onTokenChanged,
-                    label = stringResource(R.string.code),
-                    maxLines = 1,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                MiraiLinkOutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.newPassword,
-                    onValueChange = viewModel::onPasswordChanged,
-                    label = stringResource(R.string.new_password),
-                    maxLines = 1,
-                    visualTransformation = PasswordVisualTransformation(),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                MiraiLinkButton(
-                    onClick = {
-                        viewModel.confirmReset(onConfirmed = onConfirmedRecoverPassword)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    MiraiLinkText(
-                        text = stringResource(R.string.confirm),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                }
-            }
+                    2 -> {
+                        MiraiLinkOutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.token,
+                            onValueChange = viewModel::onTokenChanged,
+                            label = stringResource(R.string.code),
+                            maxLines = 1,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MiraiLinkOutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.newPassword,
+                            onValueChange = viewModel::onPasswordChanged,
+                            label = stringResource(R.string.new_password),
+                            maxLines = 1,
+                            visualTransformation = PasswordVisualTransformation(),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MiraiLinkOutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.confirmPassword,
+                            onValueChange = viewModel::onConfirmPasswordChanged,
+                            label = stringResource(R.string.confirm_password),
+                            maxLines = 1,
+                            visualTransformation = PasswordVisualTransformation(),
+                            isError = !uiState.passwordsMatch,
+                            supportingText = if (!uiState.passwordsMatch) {
+                                stringResource(R.string.error_passwords_do_not_match)
+                            } else null,
+                        )
+                        if (uiState.error == null) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            val isSubmitEnabled = uiState.token.isNotBlank() &&
+                                uiState.newPassword.isNotBlank() &&
+                                uiState.confirmPassword.isNotBlank() &&
+                                uiState.passwordsMatch
+                            MiraiLinkButton(
+                                onClick = {
+                                    viewModel.confirmReset()
+                                },
+                                enabled = isSubmitEnabled,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.confirm),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                        }
+                    }
                 }
 
                 uiState.error?.let { error ->
@@ -186,5 +213,20 @@ fun RecoverPasswordScreen(
                 }
             }
         }
+    }
+
+    if (uiState.isResetSuccess) {
+        MiraiLinkDialog(
+            title = stringResource(R.string.password_reset_success_title),
+            message = stringResource(R.string.password_reset_success_body),
+            acceptText = stringResource(R.string.done),
+            showCancelButton = false,
+            onAccept = {
+                viewModel.dismissSuccessDialog(onConfirmedRecoverPassword)
+            },
+            onDismiss = {
+                viewModel.dismissSuccessDialog(onConfirmedRecoverPassword)
+            },
+        )
     }
 }

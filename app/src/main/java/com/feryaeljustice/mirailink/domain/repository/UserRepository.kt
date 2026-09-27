@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.domain.repository
 
 import android.net.Uri
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
@@ -11,7 +12,7 @@ interface UserRepository {
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String>
+    ): MiraiLinkResult<AuthSessionInfo>
 
     suspend fun logout(): MiraiLinkResult<Boolean>
 

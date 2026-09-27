@@ -2,6 +2,8 @@ package com.feryaeljustice.mirailink.ui.screens.auth
 
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.mappers.toAuthSessionInfo
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.error.AppError
 import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
@@ -129,6 +131,9 @@ class AuthViewModel(
     val twoFactorCode: StateFlow<String>
         field = MutableStateFlow<String>("")
 
+    val challengeToken: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
+
     fun resetUsernameError() {
         usernameError.value = null
     }
@@ -173,15 +178,30 @@ class AuthViewModel(
             }
             val result = loginUseCase.value(email, username, password)
 
-            handleAuthResult(
-                result = result,
-                credentialToSave = (email.ifBlank { username } to password)
-                    .takeIf { (identifier, savedPassword) ->
-                        identifier.isNotBlank() && savedPassword.isNotBlank() &&
-                            credentialRetrievedFromProvider != (identifier to savedPassword)
-                    },
-                onSaveTheSession = onSaveSession,
-            )
+            val credential = (email.ifBlank { username } to password)
+                .takeIf { (identifier, savedPassword) ->
+                    identifier.isNotBlank() && savedPassword.isNotBlank() &&
+                        credentialRetrievedFromProvider != (identifier to savedPassword)
+                }
+
+            when (result) {
+                is MiraiLinkResult.Success -> {
+                    handleAuthSession(
+                        session = result.data,
+                        credentialToSave = credential,
+                        onSaveTheSession = onSaveSession,
+                    )
+                }
+
+                is MiraiLinkResult.Error -> {
+                    withContext(mainDispatcher) {
+                        credentialPendingSave = null
+                        configureRecovery(result.error)
+                        state.value = AuthUiState.Error(result.error.toUiError())
+                    }
+                    onLoginError(result.error)
+                }
+            }
         }
     }
 
@@ -219,83 +239,77 @@ class AuthViewModel(
                     gender = gender,
                     birthdate = birthdate,
                 )
-            handleAuthResult(
-                result = result,
-                credentialToSave = email to password,
-                onSaveTheSession = onSaveSession,
-            )
+            when (result) {
+                is MiraiLinkResult.Success -> {
+                    val token = result.data
+                    val userIdd = extractUserId(token)
+                    val session = AuthSessionInfo(
+                        token = token,
+                        userId = userIdd,
+                        requires2FA = false,
+                        isVerified = false,
+                    )
+                    handleAuthSession(
+                        session = session,
+                        credentialToSave = email to password,
+                        onSaveTheSession = onSaveSession,
+                    )
+                }
+
+                is MiraiLinkResult.Error -> {
+                    withContext(mainDispatcher) {
+                        credentialPendingSave = null
+                        configureRecovery(result.error)
+                        state.value = AuthUiState.Error(result.error.toUiError())
+                    }
+                    onLoginError(result.error)
+                }
+            }
         }
     }
 
-    private suspend fun handleAuthResult(
-        result: MiraiLinkResult<String>,
+    private suspend fun handleAuthSession(
+        session: AuthSessionInfo,
         credentialToSave: Pair<String, String>?,
         onSaveTheSession: (String, String) -> Unit,
     ) {
-        when (result) {
-            is MiraiLinkResult.Success -> {
-                val token = result.data
-                val userIdd = extractUserId(token)
-
-                withContext(mainDispatcher) {
-                    _loginToken.value = token
-                    userId.value = userIdd
-                }
-
-                if (userIdd == null) {
-                    withContext(mainDispatcher) {
-                        state.value = AuthUiState.Error(UnknownError.toUiError())
-                    }
-                    return
-                }
-
-                withContext(mainDispatcher) {
-                    credentialPendingSave = credentialToSave
-                }
-
-                onLoginSuccess(userId = userIdd)
-
-                // El AuthInterceptor lee el token de SessionManager.cachedToken sincrónicamente.
-                // Si no lo cacheamos aquí antes de llamar a getTwoFactorStatus, la request irá
-                // sin Authorization header (token aún no en DataStore) y el servidor responderá
-                // 401 -> SESSION_EXPIRED aunque el login haya sido exitoso.
-                sessionManager.cacheTokenTemporarily(token)
-
-                // Check 2fa is enabled to show dialog
-                when (val twoFactorResult = getTwoFactorStatusUseCase.value(userID = userIdd)) {
-                    is MiraiLinkResult.Success -> {
-                        val isTwoFactorEnabled = twoFactorResult.data
-                        withContext(mainDispatcher) {
-                            showTwoFactorLastStepDialog.value = isTwoFactorEnabled
-                        }
-                        if (!isTwoFactorEnabled) {
-                            resolveVerificationBeforeCompletingAuth(
-                                userId = userIdd,
-                                token = token,
-                                onSaveSession = onSaveTheSession,
-                            )
-                        }
-                    }
-
-                    is MiraiLinkResult.Error -> {
-                        withContext(mainDispatcher) {
-                        configureRecovery(twoFactorResult.error)
-                            showTwoFactorLastStepDialog.value = false
-                            state.value =
-                                AuthUiState.Error(twoFactorResult.error.toUiError())
-                        }
-                    }
-                }
+        if (session.requires2FA) {
+            withContext(mainDispatcher) {
+                challengeToken.value = session.challengeToken
+                showTwoFactorLastStepDialog.value = true
+                state.value = AuthUiState.Idle
             }
+            return
+        }
 
-            is MiraiLinkResult.Error -> {
-                withContext(mainDispatcher) {
-                    credentialPendingSave = null
-                    configureRecovery(result.error)
-                    state.value = AuthUiState.Error(result.error.toUiError())
-                }
-                onLoginError(result.error)
+        val token = session.token
+        val userIdd = session.userId ?: token?.let { extractUserId(it) }
+
+        withContext(mainDispatcher) {
+            _loginToken.value = token
+            userId.value = userIdd
+        }
+
+        if (token == null || userIdd == null) {
+            withContext(mainDispatcher) {
+                state.value = AuthUiState.Error(UnknownError.toUiError())
             }
+            return
+        }
+
+        withContext(mainDispatcher) {
+            credentialPendingSave = credentialToSave
+        }
+
+        onLoginSuccess(userId = userIdd)
+        sessionManager.cacheTokenTemporarily(token)
+
+        if (!session.isVerified) {
+            withContext(mainDispatcher) {
+                state.value = AuthUiState.VerificationRequired(userIdd)
+            }
+        } else {
+            completeAuth(userIdd, token, onSaveTheSession)
         }
     }
 
@@ -330,38 +344,15 @@ class AuthViewModel(
         state.value = AuthUiState.Idle
     }
 
-    private suspend fun resolveVerificationBeforeCompletingAuth(
-        userId: String,
-        token: String?,
-        onSaveSession: (String, String) -> Unit,
-    ) {
-        val verificationResult = withContext(ioDispatcher) { checkIsVerifiedUseCase.value() }
-        when (verificationResult) {
-            is MiraiLinkResult.Success -> withContext(mainDispatcher) {
-                if (verificationResult.data) {
-                    completeAuth(userId, token, onSaveSession)
-                } else {
-                    state.value = AuthUiState.VerificationRequired(userId)
-                }
-            }
-            is MiraiLinkResult.Error -> withContext(mainDispatcher) {
-                configureRecovery(verificationResult.error)
-                state.value = AuthUiState.Error(verificationResult.error.toUiError())
-            }
-        }
-    }
-
     // 2FA (si procede)
     fun dismissTwoFactorDiag() {
-        viewModelScope.launch(mainDispatcher) {
-            showTwoFactorLastStepDialog.value = false
-        }
+        resetTwoFaDiag()
     }
 
     fun confirmTwoFactorDiag(onSaveTheSession: (String, String) -> Unit) {
         setRecoveryAction { confirmTwoFactorDiag(onSaveTheSession) }
-        val userID = userId.value
-        if (userID == null) {
+        val challenge = challengeToken.value
+        if (challenge.isNullOrBlank()) {
             viewModelScope.launch(mainDispatcher) {
                 state.value = AuthUiState.Error(UnknownError.toUiError())
             }
@@ -380,24 +371,25 @@ class AuthViewModel(
             when (
                 val twoFactorLoginVerify =
                     loginVerifyTwoFactorLastStepUseCase.value(
-                        userId = userID,
-                        code = twoFactorCode.value,
+                        challengeToken = challenge,
+                        code = twoFactorCode.value.trim(),
                     )
             ) {
                 is MiraiLinkResult.Error -> {
                     withContext(mainDispatcher) {
-                    configureRecovery(twoFactorLoginVerify.error)
-                        resetTwoFaDiag()
+                        configureRecovery(twoFactorLoginVerify.error)
+                        twoFactorLastStepDialogIsLoading.value = false
                         state.value = AuthUiState.Error(twoFactorLoginVerify.error.toUiError())
                     }
                 }
 
                 is MiraiLinkResult.Success -> {
+                    val sessionInfo = twoFactorLoginVerify.data.toAuthSessionInfo()
                     withContext(mainDispatcher) { resetTwoFaDiag() }
-                    resolveVerificationBeforeCompletingAuth(
-                        userId = userID,
-                        token = _loginToken.value,
-                        onSaveSession = onSaveTheSession,
+                    handleAuthSession(
+                        session = sessionInfo,
+                        credentialToSave = credentialPendingSave,
+                        onSaveTheSession = onSaveTheSession,
                     )
                 }
             }
@@ -433,6 +425,7 @@ class AuthViewModel(
             showTwoFactorLastStepDialog.value = false
             twoFactorCode.value = ""
             twoFactorLastStepDialogIsLoading.value = false
+            challengeToken.value = null
         }
     }
 

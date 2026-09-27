@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.repository.delegating
 
 import android.net.Uri
 import com.feryaeljustice.mirailink.data.demo.DemoModeManager
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -21,7 +22,7 @@ class DelegatingUserRepository(
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String> = targetRepo().login(email, username, password)
+    ): MiraiLinkResult<AuthSessionInfo> = targetRepo().login(email, username, password)
 
     override suspend fun logout(): MiraiLinkResult<Boolean> = targetRepo().logout()
 

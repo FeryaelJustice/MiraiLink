@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.repository
 
 import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.datasource.TwoFactorRemoteDataSource
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.google.common.truth.Truth.assertThat
@@ -101,16 +102,20 @@ class TwoFactorRepositoryImplTest : UnitTest() {
     fun `loginVerifyTwoFactorLastStep returns success`() =
         runTest {
             // Given
-            val userId = "user1"
+            val challengeToken = "challenge123"
             val code = "123456"
-            val token = "jwt_token"
-            coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(userId, code) } returns MiraiLinkResult.Success(Unit)
+            val response = LoginResponse(
+                token = "jwt_token",
+                userId = "user1",
+                isVerified = true,
+            )
+            coEvery { remoteDataSource.loginVerifyTwoFactorLastStep(challengeToken, code) } returns MiraiLinkResult.Success(response)
 
             // When
-            val result = twoFactorRepository.loginVerifyTwoFactorLastStep(userId, code)
+            val result = twoFactorRepository.loginVerifyTwoFactorLastStep(challengeToken, code)
 
             // Then
             assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)
-            assertThat((result as MiraiLinkResult.Success).data).isEqualTo(Unit)
+            assertThat((result as MiraiLinkResult.Success).data).isEqualTo(response)
         }
 }

@@ -43,6 +43,7 @@ import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
 import com.feryaeljustice.mirailink.ui.screens.ai.chat.AiChatScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthScreen
 import com.feryaeljustice.mirailink.ui.screens.auth.recover.RecoverPasswordScreen
+import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationScreen
 import com.feryaeljustice.mirailink.ui.screens.chat.ChatScreen
 import com.feryaeljustice.mirailink.ui.screens.explore.ExploreScreen
 import com.feryaeljustice.mirailink.ui.screens.explore.feed.CategoryFeedScreen
@@ -60,6 +61,7 @@ import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -91,6 +93,7 @@ fun NavWrapper(
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsStateWithLifecycle()
     val isVerified by miraiLinkSession.isVerified.collectAsStateWithLifecycle()
+    val forceUpdateBlocking by miraiLinkSession.forceUpdateBlocking.collectAsStateWithLifecycle()
 
     // Session events
     val onLogout = miraiLinkSession.onLogout
@@ -142,7 +145,7 @@ fun NavWrapper(
     // Current key (equivalente a currentDestination)
     val currentKey = navigationState.currentKey()
 
-    // 1. Reacción a logout
+    // 1. Reaccion a logout
     LaunchedEffect(Unit) {
         onLogout.collect {
             miraiLinkSession.hideBars()
@@ -163,18 +166,28 @@ fun NavWrapper(
 
     val verificationRequired = stringResource(R.string.error_verification_required)
 
-    // 2. Control Centralizado de Sesión (Login / ProfilePic / Home)
-    // Este efecto es la única fuente de verdad para transicionar a "Main" cuando hay sesión.
-    LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture) {
+    // 2. Control Centralizado de Sesion (Login / ProfilePic / Home)
+    // Este efecto es la unica fuente de verdad para transicionar a "Main" cuando hay sesion.
+    // Se bloquea mientras forceUpdateBlocking sea true para no destruir el UpdateGate dialog.
+    LaunchedEffect(isAuthenticated, currentUserId, isVerified, hasProfilePicture, forceUpdateBlocking) {
+        // Do not navigate while a forced update gate is active
+        if (forceUpdateBlocking) return@LaunchedEffect
+
         if (isAuthenticated && !isVerified) {
-            if (navigationState.topLevelRoute != ScreensSubgraphs.Auth) {
-                miraiLinkSession.clearSession()
-                showToast(context, verificationRequired, Toast.LENGTH_SHORT)
+            val userId = currentUserId ?: return@LaunchedEffect
+            val currentChild = navigator.state.backStacks[ScreensSubgraphs.Auth]?.lastOrNull()
+            if (currentChild !is AppScreen.VerificationScreen) {
+                miraiLinkSession.hideBars()
+                miraiLinkSession.disableBars()
+                navigator.resetToTopLevel(
+                    topLevel = ScreensSubgraphs.Auth,
+                    firstChild = AppScreen.VerificationScreen(userId = userId),
+                )
             }
         } else if (isAuthenticated) {
             val userId = currentUserId ?: return@LaunchedEffect
             
-            // Determinar destino correcto según estado del usuario
+            // Determinar destino correcto segun estado del usuario
             val (targetTopLevel, targetFirstChild) = when {
                 hasProfilePicture == false -> ScreensSubgraphs.Main to AppScreen.ProfilePictureScreen
                 else -> ScreensSubgraphs.Main to AppScreen.HomeScreen
@@ -190,7 +203,7 @@ fun NavWrapper(
                 )
 
             if (needsNavigation) {
-                // Configurar UI Bars para sesión activa
+                // Configurar UI Bars para sesion activa
                 miraiLinkSession.showBars()
                 miraiLinkSession.enableBars()
                 miraiLinkSession.showTopBarSettingsIcon()
@@ -204,22 +217,94 @@ fun NavWrapper(
         }
     }
 
-    // Deep Link Navigation: mirailink.com/user/<username>
-    LaunchedEffect(isAuthenticated) {
-        val activity = context as? android.app.Activity
-        val data = activity?.intent?.data
-        if (data != null && isAuthenticated) {
+    // Deep Link Navigation: mirailink:// and https://
+    LaunchedEffect(Unit) {
+        miraiLinkSession.pendingDeepLinkUri.collectLatest { data ->
+            val scheme = data.scheme
+            val host = data.host
             val segments = data.pathSegments
-            if (segments.size >= 2 && segments[0] == "user") {
-                val username = segments[1]
-                if (username.isNotBlank()) {
-                    activity.intent?.data = null
-                    navigator.navigate(
-                        AppScreen.UserProfileDetailScreen(
-                            username = username,
-                            canInteract = false,
+
+            when {
+                // Custom scheme mirailink://verify?token=...
+                scheme == "mirailink" && host == "verify" -> {
+                    val token = data.getQueryParameter("token").orEmpty()
+                    val targetUserId = (data.getQueryParameter("userId") ?: data.getQueryParameter("user_id")).orEmpty().ifBlank { currentUserId.orEmpty() }
+                    miraiLinkSession.clearPendingDeepLink()
+                    miraiLinkSession.hideBars()
+                    miraiLinkSession.disableBars()
+                    navigator.resetToTopLevel(
+                        topLevel = ScreensSubgraphs.Auth,
+                        firstChild = AppScreen.VerificationScreen(
+                            userId = targetUserId,
+                            token = token,
                         ),
                     )
+                }
+
+                // Custom scheme mirailink://reset-password?token=...
+                scheme == "mirailink" && (host == "reset-password" || host == "recover-password") -> {
+                    val token = data.getQueryParameter("token").orEmpty()
+                    val email = data.getQueryParameter("email").orEmpty()
+                    miraiLinkSession.clearPendingDeepLink()
+                    miraiLinkSession.hideBars()
+                    miraiLinkSession.disableBars()
+                    navigator.resetToTopLevel(
+                        topLevel = ScreensSubgraphs.Auth,
+                        firstChild = AppScreen.RecoverPasswordScreen(
+                            email = email,
+                            token = token,
+                        ),
+                    )
+                }
+
+                // HTTPS deep links
+                (scheme == "https" || scheme == "http") && segments.isNotEmpty() -> {
+                    when (segments[0]) {
+                        "verify", "verification" -> {
+                            val token = data.getQueryParameter("token").orEmpty()
+                            val targetUserId = (data.getQueryParameter("userId") ?: data.getQueryParameter("user_id")).orEmpty().ifBlank { currentUserId.orEmpty() }
+                            miraiLinkSession.clearPendingDeepLink()
+                            miraiLinkSession.hideBars()
+                            miraiLinkSession.disableBars()
+                            navigator.resetToTopLevel(
+                                topLevel = ScreensSubgraphs.Auth,
+                                firstChild = AppScreen.VerificationScreen(
+                                    userId = targetUserId,
+                                    token = token,
+                                ),
+                            )
+                        }
+
+                        "reset-password", "recover_password", "recover-password" -> {
+                            val token = data.getQueryParameter("token").orEmpty()
+                            val email = data.getQueryParameter("email").orEmpty()
+                            miraiLinkSession.clearPendingDeepLink()
+                            miraiLinkSession.hideBars()
+                            miraiLinkSession.disableBars()
+                            navigator.resetToTopLevel(
+                                topLevel = ScreensSubgraphs.Auth,
+                                firstChild = AppScreen.RecoverPasswordScreen(
+                                    email = email,
+                                    token = token,
+                                ),
+                            )
+                        }
+
+                        "user" -> {
+                            if (isAuthenticated && segments.size >= 2) {
+                                val username = segments[1]
+                                if (username.isNotBlank()) {
+                                    miraiLinkSession.clearPendingDeepLink()
+                                    navigator.navigate(
+                                        AppScreen.UserProfileDetailScreen(
+                                            username = username,
+                                            canInteract = false,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -241,10 +326,13 @@ fun NavWrapper(
                         onInitialNavigation = { action ->
                             when (action) {
                                 InitialNavigationAction.GoToAuth -> {
-                                    navigator.resetToTopLevel(
-                                        ScreensSubgraphs.Auth,
-                                        AppScreen.AuthScreen,
-                                    )
+                                    val currentAuthChild = navigator.state.backStacks[ScreensSubgraphs.Auth]?.lastOrNull()
+                                    if (currentAuthChild !is AppScreen.VerificationScreen && currentAuthChild !is AppScreen.RecoverPasswordScreen) {
+                                        navigator.resetToTopLevel(
+                                            ScreensSubgraphs.Auth,
+                                            AppScreen.AuthScreen,
+                                        )
+                                    }
                                 }
 
                                 InitialNavigationAction.GoToHome -> {
@@ -323,11 +411,31 @@ fun NavWrapper(
                     RecoverPasswordScreen(
                         miraiLinkSession = miraiLinkSession,
                         email = key.email,
+                        token = key.token,
                         onConfirmedRecoverPassword = {
                             // Vuelves a Auth
                             navigator.resetToTopLevel(ScreensSubgraphs.Auth, AppScreen.AuthScreen)
                         },
                         onBack = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.VerificationScreen> { key ->
+                    VerificationScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        userId = key.userId.ifBlank { currentUserId.orEmpty() },
+                        token = key.token,
+                        onVerified = {
+                            miraiLinkSession.saveIsVerified(true)
+                            if (isAuthenticated) {
+                                navigator.resetToTopLevel(ScreensSubgraphs.Main, AppScreen.HomeScreen)
+                            } else {
+                                navigator.resetToTopLevel(ScreensSubgraphs.Auth, AppScreen.AuthScreen)
+                            }
+                        },
+                        onBack = {
+                            navigator.resetToTopLevel(ScreensSubgraphs.Auth, AppScreen.AuthScreen)
+                        },
                     )
                 }
 
