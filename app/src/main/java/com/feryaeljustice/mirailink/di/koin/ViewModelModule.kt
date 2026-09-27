@@ -42,6 +42,7 @@ val viewModelModule =
                 mainDispatcher = get(qualifier = MainDispatcher),
                 store = get(),
                 isInChristmasMode = isInChristmasMode,
+                miraiLinkSession = get(),
             )
         }
         viewModel {

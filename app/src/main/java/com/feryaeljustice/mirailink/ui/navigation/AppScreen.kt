@@ -33,12 +33,14 @@ sealed class AppScreen : NavKey {
     @SerialName("recover_password")
     data class RecoverPasswordScreen(
         val email: String = "",
+        val token: String = "",
     ) : AppScreen()
 
     @Serializable
     @SerialName("verification")
     data class VerificationScreen(
         val userId: String = "",
+        val token: String = "",
     ) : AppScreen()
 
     @Serializable

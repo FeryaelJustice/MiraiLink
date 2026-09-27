@@ -33,9 +33,10 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkBasicText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkCard
-import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
-import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupCompletedDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -119,14 +120,25 @@ fun ConfigureTwoFactorScreen(
     }
 
     if (showDisableTwoFactorDialog) {
-        TwoFactorPutCodeOrRecoveryCDialog(
-            code = disableTwoFactorCode,
-            isLoading = isDisable2FADialogLoading,
-            onCodeChange = viewModel::onDisableTwoFactorCodeChanged,
-            onDismiss = viewModel::dismissDisableTwoFactorDialog,
-            onConfirm = {
+        MiraiLinkDialog(
+            title = stringResource(R.string.two_factor_disable_confirm_title),
+            message = stringResource(R.string.two_factor_disable_confirm_message),
+            acceptText = stringResource(R.string.disable_two_factor),
+            cancelText = stringResource(R.string.cancel),
+            showCancelButton = true,
+            onAccept = {
                 viewModel.confirmDisableTwoFactor(userID = userID.value)
             },
+            onCancel = viewModel::dismissDisableTwoFactorDialog,
+            onDismiss = viewModel::dismissDisableTwoFactorDialog,
+        )
+    }
+
+    val showSetupCompletedDialog by viewModel.showSetupCompletedDialog.collectAsStateWithLifecycle()
+    if (showSetupCompletedDialog) {
+        TwoFactorSetupCompletedDialog(
+            recoveryCodes = recoveryCodes,
+            onDismiss = viewModel::dismissSetupCompletedDialog,
         )
     }
 

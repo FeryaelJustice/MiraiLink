@@ -3,10 +3,13 @@ package com.feryaeljustice.mirailink.data.repository
 import android.net.Uri
 import com.feryaeljustice.mirailink.data.datasource.UserRemoteDataSource
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.mappers.toAuthSessionInfo
 import com.feryaeljustice.mirailink.data.mappers.toDomain
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.util.map
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
 
 class UserRepositoryImpl(
@@ -20,7 +23,8 @@ class UserRepositoryImpl(
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String> = remote.login(email, username, password)
+    ): MiraiLinkResult<AuthSessionInfo> =
+        remote.login(email, username, password).map { it.toAuthSessionInfo() }
 
     override suspend fun logout(): MiraiLinkResult<Boolean> {
         sessionManager.clearSession()

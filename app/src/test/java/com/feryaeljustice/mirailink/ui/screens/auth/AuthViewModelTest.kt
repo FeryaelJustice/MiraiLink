@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.auth
 
 import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.core.JwtUtils
@@ -104,7 +105,12 @@ class AuthViewModelTest : KoinTest {
             every { JwtUtils.extractUserId(token) } returns userId
             coEvery { loginUseCase.invoke(email, "", password) } returns
                 MiraiLinkResult.Success(
-                    token,
+                    AuthSessionInfo(
+                        token = token,
+                        userId = userId,
+                        requires2FA = false,
+                        isVerified = true,
+                    ),
                 )
             coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns
                 MiraiLinkResult.Success(
@@ -169,8 +175,8 @@ class AuthViewModelTest : KoinTest {
 
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
-            assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
-            assert(sessionSaved)
+            assert(viewModel.state.value is AuthViewModel.AuthUiState.VerificationRequired)
+            assert(!sessionSaved)
         }
 
     @Test
@@ -182,7 +188,15 @@ class AuthViewModelTest : KoinTest {
             val userId = "1234567890"
 
             every { JwtUtils.extractUserId(token) } returns userId
-            coEvery { loginUseCase.invoke(email, "", password) } returns MiraiLinkResult.Success(token)
+            coEvery { loginUseCase.invoke(email, "", password) } returns
+                MiraiLinkResult.Success(
+                    AuthSessionInfo(
+                        token = token,
+                        userId = userId,
+                        requires2FA = false,
+                        isVerified = false,
+                    ),
+                )
             coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns MiraiLinkResult.Success(false)
             coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(false)
 
@@ -191,6 +205,33 @@ class AuthViewModelTest : KoinTest {
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(viewModel.state.value is AuthViewModel.AuthUiState.VerificationRequired)
+            assert(!sessionSaved)
+        }
+
+    @Test
+    fun `login requires 2fa challenge`() =
+        runTest {
+            val email = "test@test.com"
+            val password = "password"
+            val challenge = "challenge-token-xyz"
+
+            coEvery { loginUseCase.invoke(email, "", password) } returns
+                MiraiLinkResult.Success(
+                    AuthSessionInfo(
+                        token = null,
+                        userId = null,
+                        requires2FA = true,
+                        challengeToken = challenge,
+                    ),
+                )
+
+            var sessionSaved = false
+            viewModel.login(email, "", password) { _, _ -> sessionSaved = true }
+
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(viewModel.showTwoFactorLastStepDialog.value)
+            assert(viewModel.challengeToken.value == challenge)
             assert(!sessionSaved)
         }
 

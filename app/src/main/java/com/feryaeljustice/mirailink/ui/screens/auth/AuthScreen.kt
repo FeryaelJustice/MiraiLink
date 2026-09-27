@@ -188,10 +188,14 @@ fun AuthScreen(
     if (verificationRequired != null) {
         VerificationDialog(
             userId = verificationRequired.userId,
-            onVerified = {
-                viewModel.completePendingVerification { userId, token ->
-                    miraiLinkSession.saveSession(token, userId, verified = true)
-                }
+            onConfirmSendEmail = {
+                viewModel.cancelPendingVerification()
+                resetAuthUiState()
+                showSnackbar(
+                    MiraiLinkSnackbarRequest(
+                        message = context.getString(R.string.verification_email_sent_check_inbox),
+                    ),
+                )
             },
             onClose = {
                 viewModel.cancelPendingVerification()
@@ -501,70 +505,72 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            MiraiLinkButton(
-                onClick = {
-                    if (!isLogin) {
-                        if (birthdateIso.isBlank()) {
-                            showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_missing_value)))
+            if (state !is AuthUiState.Error) {
+                MiraiLinkButton(
+                    onClick = {
+                        if (!isLogin) {
+                            if (birthdateIso.isBlank()) {
+                                showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_missing_value)))
+                                return@MiraiLinkButton
+                            }
+                            if (!isAtLeast16YearsOld(birthdateIso)) {
+                                showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_underage)))
+                                return@MiraiLinkButton
+                            }
+                        }
+
+                        // VALIDACIONES AUTH PREVIAS
+                        if (!viewModel.validateFields(
+                                isLogin = isLogin,
+                                email = email,
+                                username = username,
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                gender = gender.realValue,
+                                birthdate = birthdateIso,
+                            )
+                        ) {
                             return@MiraiLinkButton
                         }
-                        if (!isAtLeast16YearsOld(birthdateIso)) {
-                            showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_underage)))
-                            return@MiraiLinkButton
+
+                        // ACCION AUTH
+                        if (isLogin) {
+                            viewModel.login(
+                                email,
+                                username,
+                                password,
+                                onSaveSession = { userId, token ->
+                                    miraiLinkSession.saveSession(token, userId, verified = true)
+                                },
+                            )
+                        } else {
+                            viewModel.register(
+                                username = username,
+                                email = email,
+                                password = password,
+                                gender = gender.realValue,
+                                birthdate = birthdateIso,
+                                onSaveSession = { userId, token ->
+                                    miraiLinkSession.saveSession(token, userId, verified = true)
+                                },
+                            )
                         }
-                    }
-
-                    // VALIDACIONES AUTH PREVIAS
-                    if (!viewModel.validateFields(
-                            isLogin = isLogin,
-                            email = email,
-                            username = username,
-                            password = password,
-                            confirmPassword = confirmPassword,
-                            gender = gender.realValue,
-                            birthdate = birthdateIso,
+                    },
+                    content = {
+                        MiraiLinkText(
+                            text =
+                                if (isLogin) {
+                                    stringResource(R.string.auth_screen_login)
+                                } else {
+                                    stringResource(
+                                        R.string.auth_screen_register,
+                                    )
+                                },
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
-                    ) {
-                        return@MiraiLinkButton
-                    }
-
-                    // ACCION AUTH
-                    if (isLogin) {
-                        viewModel.login(
-                            email,
-                            username,
-                            password,
-                            onSaveSession = { userId, token ->
-                                miraiLinkSession.saveSession(token, userId, verified = true)
-                            },
-                        )
-                    } else {
-                        viewModel.register(
-                            username = username,
-                            email = email,
-                            password = password,
-                            gender = gender.realValue,
-                            birthdate = birthdateIso,
-                            onSaveSession = { userId, token ->
-                                miraiLinkSession.saveSession(token, userId, verified = true)
-                            },
-                        )
-                    }
-                },
-                content = {
-                    MiraiLinkText(
-                        text =
-                            if (isLogin) {
-                                stringResource(R.string.auth_screen_login)
-                            } else {
-                                stringResource(
-                                    R.string.auth_screen_register,
-                                )
-                            },
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                },
-            )
+                    },
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

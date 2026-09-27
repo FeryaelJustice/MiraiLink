@@ -4,6 +4,7 @@ import android.net.Uri
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
+import com.feryaeljustice.mirailink.domain.model.auth.AuthSessionInfo
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.model.user.UserPhoto
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
@@ -25,9 +26,16 @@ class DemoUserRepositoryImpl(
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String> {
+    ): MiraiLinkResult<AuthSessionInfo> {
         seeder.seedInitialDataIfEmpty()
-        return MiraiLinkResult.Success(DemoDataSeeder.DEMO_USER_ID)
+        return MiraiLinkResult.Success(
+            AuthSessionInfo(
+                token = "demo-token",
+                userId = DemoDataSeeder.DEMO_USER_ID,
+                isVerified = true,
+                requires2FA = false,
+            ),
+        )
     }
 
     override suspend fun logout(): MiraiLinkResult<Boolean> {

@@ -9,6 +9,7 @@ import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
@@ -30,6 +31,7 @@ class SplashScreenViewModel(
     private val mainDispatcher: CoroutineDispatcher,
     private val store: FeatureFlagStore,
     private val isInChristmasMode: Boolean,
+    private val miraiLinkSession: GlobalMiraiLinkSession,
 ) : ViewModel() {
     private val _updateDiagInfo = MutableStateFlow<VersionCheckResultViewEntry?>(null)
     val updateDiagInfo = _updateDiagInfo.asStateFlow()
@@ -47,9 +49,10 @@ class SplashScreenViewModel(
     val uiState: StateFlow<SplashUiState>
     field = MutableStateFlow<SplashUiState>(SplashUiState.Idle)
 
+    private var pendingNavigationState: SplashUiState.Navigate? = null
+
     init {
         viewModelScope.launch {
-
             uiState.value = SplashUiState.Loading
 
             /**
@@ -61,13 +64,19 @@ class SplashScreenViewModel(
                 withContext(ioDispatcher) {
                     checkAppVersionUseCase(BuildConfig.VERSION_CODE)
                 }
+
+            var hasOptionalUpdateGate = false
             when (versionResult) {
                 is MiraiLinkResult.Success -> {
                     val info = versionResult.data
-                    if (info.mustUpdate || info.shouldUpdate) {
-                        // Deja que la UI muestre el diálogo forzando update
+                    if (info.mustUpdate) {
+                        miraiLinkSession.setForceUpdateBlocking()
                         _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
                         uiState.value = SplashUiState.Idle
+                        return@launch
+                    } else if (info.shouldUpdate) {
+                        _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
+                        hasOptionalUpdateGate = true
                     }
                 }
 
@@ -88,35 +97,42 @@ class SplashScreenViewModel(
                 val onboardingResult = onboardingDeferred.await()
                 val autologinResult = autologinDeferred.await()
 
-                withContext(mainDispatcher) {
-                    uiState.value =
-                        when {
-                            onboardingResult is MiraiLinkResult.Success && onboardingResult.data -> {
-                                if (autologinResult is MiraiLinkResult.Success) {
-                                    SplashUiState.Navigate(
-                                        InitialNavigationAction.GoToHome,
-                                    )
-                                } else {
-                                    SplashUiState.Navigate(
-                                        InitialNavigationAction.GoToAuth,
-                                    )
-                                }
-                            }
-
-                            onboardingResult is MiraiLinkResult.Success && !onboardingResult.data -> {
+                val nextNavigation =
+                    when {
+                        onboardingResult is MiraiLinkResult.Success && onboardingResult.data -> {
+                            if (autologinResult is MiraiLinkResult.Success) {
                                 SplashUiState.Navigate(
-                                    InitialNavigationAction.GoToOnboarding,
+                                    InitialNavigationAction.GoToHome,
+                                )
+                            } else {
+                                SplashUiState.Navigate(
+                                    InitialNavigationAction.GoToAuth,
                                 )
                             }
-
-                            autologinResult is MiraiLinkResult.Success -> {
-                                SplashUiState.Navigate(InitialNavigationAction.GoToHome)
-                            }
-
-                            else -> {
-                                SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
-                            }
                         }
+
+                        onboardingResult is MiraiLinkResult.Success && !onboardingResult.data -> {
+                            SplashUiState.Navigate(
+                                InitialNavigationAction.GoToOnboarding,
+                            )
+                        }
+
+                        autologinResult is MiraiLinkResult.Success -> {
+                            SplashUiState.Navigate(InitialNavigationAction.GoToHome)
+                        }
+
+                        else -> {
+                            SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
+                        }
+                    }
+
+                withContext(mainDispatcher) {
+                    if (hasOptionalUpdateGate && _updateDiagInfo.value?.shouldUpdate == true) {
+                        pendingNavigationState = nextNavigation
+                        uiState.value = SplashUiState.Idle
+                    } else {
+                        uiState.value = nextNavigation
+                    }
                 }
             }
         }
@@ -124,5 +140,9 @@ class SplashScreenViewModel(
 
     fun onDismissUpdateGate() {
         _updateDiagInfo.update { it?.copy(mustUpdate = false, shouldUpdate = false) }
+        pendingNavigationState?.let { next ->
+            uiState.value = next
+            pendingNavigationState = null
+        }
     }
 }

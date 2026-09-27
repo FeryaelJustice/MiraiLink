@@ -2,6 +2,7 @@
 
 package com.feryaeljustice.mirailink.domain.usecase.auth.two_factor
 
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
@@ -9,8 +10,8 @@ class LoginVerifyTwoFactorLastStepUseCase(
     private val repo: TwoFactorRepository,
 ) {
     suspend operator fun invoke(
-        userId: String,
+        challengeToken: String,
         code: String,
-    ): MiraiLinkResult<Unit> =
-        repo.loginVerifyTwoFactorLastStep(userId = userId, code = code)
+    ): MiraiLinkResult<LoginResponse> =
+        repo.loginVerifyTwoFactorLastStep(challengeToken = challengeToken, code = code)
 }

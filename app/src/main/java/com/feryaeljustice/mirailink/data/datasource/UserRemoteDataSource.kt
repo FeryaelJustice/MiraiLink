@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.data.model.ReorderedPhotoDto
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.UserPhotoDto
 import com.feryaeljustice.mirailink.data.model.request.auth.LoginRequest
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.request.auth.PasswordResetConfirmRequest
 import com.feryaeljustice.mirailink.data.model.request.auth.RegisterRequest
 import com.feryaeljustice.mirailink.data.model.request.generic.ByIdRequest
@@ -43,7 +44,7 @@ class UserRemoteDataSource(
         email: String,
         username: String,
         password: String,
-    ): MiraiLinkResult<String> =
+    ): MiraiLinkResult<LoginResponse> =
         safeApiCall(NetworkOperation.LOGIN) {
             api.login(
                 LoginRequest(
@@ -51,7 +52,7 @@ class UserRemoteDataSource(
                     username = username.ifBlank { null },
                     password = password,
                 ),
-            ).token
+            )
         }
 
     suspend fun logout(): MiraiLinkResult<Boolean> =

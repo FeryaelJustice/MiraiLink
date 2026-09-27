@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.data.datasource
 
+import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
 import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.util.NetworkOperation
@@ -25,18 +26,22 @@ class TwoFactorRemoteDataSource(
             api.verifyTwoFactor(mapOf("token" to code))
         }
 
-    suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
+    suspend fun disable2FA(codeOrRecoveryCode: String = ""): MiraiLinkResult<Unit> =
         safeApiUnitResponse(NetworkOperation.TWO_FACTOR) {
-            api.disableTwoFactor(mapOf("code" to codeOrRecoveryCode))
+            if (codeOrRecoveryCode.isNotBlank()) {
+                api.disableTwoFactor(mapOf("code" to codeOrRecoveryCode))
+            } else {
+                api.disableTwoFactor(emptyMap())
+            }
         }
 
     suspend fun loginVerifyTwoFactorLastStep(
-        userId: String,
+        challengeToken: String,
         code: String,
-    ): MiraiLinkResult<Unit> =
+    ): MiraiLinkResult<LoginResponse> =
         safeApiCall(NetworkOperation.TWO_FACTOR) {
             api.loginVerifyTwoFactorLastStep(
-                mapOf("userId" to userId, "code" to code),
+                mapOf("challengeToken" to challengeToken, "code" to code),
             )
         }
 }

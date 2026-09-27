@@ -77,12 +77,21 @@ class MainActivity : ComponentActivity() {
         // Google Ads (AdMob)
         initializeAds()
 
+        // Deep links
+        intent?.data?.let { globalMiraiLinkSession.handleDeepLink(it) }
+
         setContent {
             val flags by mainViewModel.featureFlagFlow.collectAsStateWithLifecycle(
                 initialValue = emptyMap(),
             )
             MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        intent.data?.let { globalMiraiLinkSession.handleDeepLink(it) }
     }
 
     private fun initializeAds() {

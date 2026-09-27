@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.CheckAppVersionUseCase
 import com.feryaeljustice.mirailink.domain.usecase.auth.AutologinUseCase
 import com.feryaeljustice.mirailink.domain.usecase.onboarding.CheckOnboardingIsCompleted
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
@@ -31,6 +32,7 @@ class SplashScreenViewModelTest : KoinTest {
 
     private lateinit var viewModel: SplashScreenViewModel
     private val store: FeatureFlagStore = mockk(relaxed = true)
+    private val miraiLinkSession: GlobalMiraiLinkSession = mockk(relaxed = true)
 
     @get:Rule
     val koinTestRule =
@@ -70,6 +72,7 @@ class SplashScreenViewModelTest : KoinTest {
                     mainCoroutineRule.testDispatcher,
                     store,
                     false,
+                    miraiLinkSession,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -104,6 +107,7 @@ class SplashScreenViewModelTest : KoinTest {
                     mainCoroutineRule.testDispatcher,
                     store,
                     false,
+                    miraiLinkSession,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -138,6 +142,7 @@ class SplashScreenViewModelTest : KoinTest {
                     mainCoroutineRule.testDispatcher,
                     store,
                     false,
+                    miraiLinkSession,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
@@ -172,9 +177,11 @@ class SplashScreenViewModelTest : KoinTest {
                     mainCoroutineRule.testDispatcher,
                     store,
                     false,
+                    miraiLinkSession,
                 )
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(viewModel.updateDiagInfo.value?.mustUpdate == true)
         }
 }
+

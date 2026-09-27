@@ -9,10 +9,13 @@ import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -57,11 +60,42 @@ class GlobalMiraiLinkSession(
     val hasProfilePicture: StateFlow<Boolean?>
         field = MutableStateFlow<Boolean?>(null)
 
+    // Force update gate: blocks NavWrapper session navigation until splash version check completes.
+    // Starts as true (blocked) - SplashScreenViewModel clears it when no forced update is needed.
+    val forceUpdateBlocking: StateFlow<Boolean>
+        field = MutableStateFlow(true)
+
+    private val _pendingDeepLinkUri = MutableSharedFlow<android.net.Uri>(
+        replay = 1,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    val pendingDeepLinkUri: SharedFlow<android.net.Uri> = _pendingDeepLinkUri.asSharedFlow()
+
+    fun handleDeepLink(uri: android.net.Uri?) {
+        if (uri != null) {
+            _pendingDeepLinkUri.tryEmit(uri)
+        }
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    fun clearPendingDeepLink() {
+        _pendingDeepLinkUri.resetReplayCache()
+    }
+
     private var observeHasProfilePictureJob: Job? = null
 
     // UI TopBarConfig
     val topBarConfig: StateFlow<TopBarConfig>
         field = MutableStateFlow<TopBarConfig>(TopBarConfig())
+
+    fun setForceUpdateBlocking() {
+        forceUpdateBlocking.value = true
+    }
+
+    fun clearForceUpdateBlocking() {
+        forceUpdateBlocking.value = false
+    }
 
     fun clearSession() = appScope.launch {
         demoModeManager?.disableDemoMode()

@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.ui.components.twofactor
 
+import android.content.ClipData
+import android.widget.Toast
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,9 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -18,6 +26,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextFie
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.QrCodeImage
+import kotlinx.coroutines.launch
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -32,6 +41,11 @@ fun TwoFactorSetupDialog(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+    val secretCopiedText = stringResource(R.string.two_factor_secret_copied)
+
     MiraiLinkDialog(
         modifier = modifier,
         onDismiss = onDismiss,
@@ -76,6 +90,16 @@ fun TwoFactorSetupDialog(
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
+                    modifier = Modifier.pointerInput(base32) {
+                        detectTapGestures(
+                            onLongPress = {
+                                coroutineScope.launch {
+                                    clipboard.setClipEntry(ClipData.newPlainText("2FA Secret", base32).toClipEntry())
+                                    Toast.makeText(context, secretCopiedText, Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                        )
+                    },
                 )
                 if (recoveryCodes.isNotEmpty()) {
                     MiraiLinkText(
