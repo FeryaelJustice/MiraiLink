@@ -304,12 +304,27 @@ class AuthViewModel(
         onLoginSuccess(userId = userIdd)
         sessionManager.cacheTokenTemporarily(token)
 
-        if (!session.isVerified) {
-            withContext(mainDispatcher) {
-                state.value = AuthUiState.VerificationRequired(userIdd)
-            }
-        } else {
+        if (session.isVerified) {
             completeAuth(userIdd, token, onSaveTheSession)
+        } else {
+            // Si el backend no envió isVerified = true en el login, comprobamos con el endpoint de verificación
+            val verificationResult = withContext(ioDispatcher) { checkIsVerifiedUseCase.value() }
+            when (verificationResult) {
+                is MiraiLinkResult.Success -> {
+                    if (verificationResult.data) {
+                        completeAuth(userIdd, token, onSaveTheSession)
+                    } else {
+                        withContext(mainDispatcher) {
+                            state.value = AuthUiState.VerificationRequired(userIdd)
+                        }
+                    }
+                }
+                is MiraiLinkResult.Error -> {
+                    // Si el endpoint de verificación falla con error de red o no existe,
+                    // y el login ya fue exitoso, completamos auth para no dejar al usuario bloqueado.
+                    completeAuth(userIdd, token, onSaveTheSession)
+                }
+            }
         }
     }
 

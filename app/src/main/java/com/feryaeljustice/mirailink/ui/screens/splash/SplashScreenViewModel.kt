@@ -70,18 +70,22 @@ class SplashScreenViewModel(
                 is MiraiLinkResult.Success -> {
                     val info = versionResult.data
                     if (info.mustUpdate) {
-                        miraiLinkSession.setForceUpdateBlocking()
-                        _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
+                        val viewEntry = info.toVersionCheckResultViewEntry()
+                        miraiLinkSession.setForcedUpdate(viewEntry)
+                        _updateDiagInfo.value = viewEntry
                         uiState.value = SplashUiState.Idle
                         return@launch
                     } else if (info.shouldUpdate) {
                         _updateDiagInfo.value = info.toVersionCheckResultViewEntry()
                         hasOptionalUpdateGate = true
+                    } else {
+                        miraiLinkSession.clearForcedUpdate()
                     }
                 }
 
                 is MiraiLinkResult.Error -> {
                     // En error de red/config: NO bloquear, continúa normal
+                    miraiLinkSession.clearForcedUpdate()
                 }
             }
 

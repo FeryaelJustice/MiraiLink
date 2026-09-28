@@ -60,10 +60,13 @@ class GlobalMiraiLinkSession(
     val hasProfilePicture: StateFlow<Boolean?>
         field = MutableStateFlow<Boolean?>(null)
 
-    // Force update gate: blocks NavWrapper session navigation until splash version check completes.
-    // Starts as true (blocked) - SplashScreenViewModel clears it when no forced update is needed.
+    // Force update gate: blocks NavWrapper session navigation only when a forced update is active.
     val forceUpdateBlocking: StateFlow<Boolean>
-        field = MutableStateFlow(true)
+        field = MutableStateFlow(false)
+
+    // Forced update gate view entry: when non-null and mustUpdate == true, NavWrapper displays the UpdateGate globally.
+    val forcedUpdateInfo: StateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>
+        field = MutableStateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>(null)
 
     private val _pendingDeepLinkUri = MutableSharedFlow<android.net.Uri>(
         replay = 1,
@@ -97,6 +100,18 @@ class GlobalMiraiLinkSession(
         forceUpdateBlocking.value = false
     }
 
+    fun setForcedUpdate(info: com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?) {
+        forcedUpdateInfo.value = info
+        if (info != null && info.mustUpdate) {
+            forceUpdateBlocking.value = true
+        }
+    }
+
+    fun clearForcedUpdate() {
+        forcedUpdateInfo.value = null
+        forceUpdateBlocking.value = false
+    }
+
     fun clearSession() = appScope.launch {
         demoModeManager?.disableDemoMode()
         sessionManager.clearSession()
@@ -106,7 +121,10 @@ class GlobalMiraiLinkSession(
         token: String,
         userId: String,
         verified: Boolean = false,
-    ) = appScope.launch { sessionManager.saveSession(token, userId, verified) }
+    ) = appScope.launch {
+        forceUpdateBlocking.value = false
+        sessionManager.saveSession(token, userId, verified)
+    }
 
     fun enterDemoMode(onComplete: (() -> Unit)? = null) {
         demoModeManager?.enableDemoMode {
