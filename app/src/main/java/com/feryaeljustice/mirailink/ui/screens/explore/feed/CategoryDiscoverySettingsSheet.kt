@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +41,8 @@ fun CategoryDiscoverySettingsSheet(
     onDismiss: () -> Unit,
     onSaveRadius: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    isRadiusUnlocked: Boolean = false,
+    onNavigateToPaywall: (() -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var sliderValue by remember(initialRadiusKm) {
@@ -115,11 +120,49 @@ fun CategoryDiscoverySettingsSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            val isRadiusLockedForSave = sliderValue > 250f && !isRadiusUnlocked
+            if (isRadiusLockedForSave) {
+                Spacer(modifier = Modifier.height(14.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.search_radius_free_limit_note),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                        if (onNavigateToPaywall != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                onClick = {
+                                    onDismiss()
+                                    onNavigateToPaywall()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_upgrade_to_unlock),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             MiraiLinkButton(
                 onClick = { onSaveRadius(sliderValue.roundToInt()) },
-                enabled = !isSaving,
+                enabled = !isSaving && !isRadiusLockedForSave,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

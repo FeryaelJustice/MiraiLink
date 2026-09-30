@@ -18,4 +18,5 @@ val appModule =
         // Remote Config Manager
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }
         single { com.feryaeljustice.mirailink.data.manager.AdMobManager(androidContext()) }
+        single { com.feryaeljustice.mirailink.data.billing.BillingClientManager(androidContext(), get(ApplicationScope)) }
     }

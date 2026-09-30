@@ -15,7 +15,7 @@ kotlin = "2.4.10"
 kotlinx-serialization = "1.11.0"
 koinBom = "4.2.2"
 koinAnnotations = "4.2.2"
-koinKspCompiler = "2.3.1"
+#koinKspCompiler = "2.3.1"
 kotzilla = "2.3.6"
 ksp = "2.3.8"
 lifecycleRuntimeKtx = "2.11.0"
@@ -41,6 +41,7 @@ google-services = "4.5.0"
 crashlytics-gradle = "3.0.8"
 ump = "4.0.0"
 credentials = "1.6.0"
+playBilling = "9.1.0"
 
 # Testing
 junit = "4.13.2"
@@ -182,6 +183,9 @@ play-services-ads = { module = "com.google.android.gms:play-services-ads", versi
 
 # Google UMP
 google-ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }
+
+# Google Play Billing
+play-billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "playBilling" }
 
 # Androidx Credentials
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }

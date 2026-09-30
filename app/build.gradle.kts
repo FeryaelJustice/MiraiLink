@@ -283,6 +283,8 @@ dependencies {
     implementation(libs.play.services.ads)
     // UMP (consent)
     implementation(libs.google.ump)
+    // Google Play Billing
+    implementation(libs.play.billing.ktx)
 
     // Androidx Credentials
     implementation(libs.androidx.credentials)

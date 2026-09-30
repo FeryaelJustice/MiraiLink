@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -62,6 +63,14 @@ fun HomeScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val canUndo = viewModel.canUndo()
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is HomeViewModel.HomeEvent.NavigateToPaywall -> onNavigateToPaywall()
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         miraiLinkSession.showBars()

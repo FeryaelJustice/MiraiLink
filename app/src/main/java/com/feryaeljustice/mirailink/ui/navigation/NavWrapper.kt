@@ -31,10 +31,12 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkBaseUrl
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkPrefs
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
+import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.demo.DemoModeBanner
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkSnackbarRequest
@@ -59,7 +61,10 @@ import com.feryaeljustice.mirailink.ui.screens.profile.detail.UserProfileDetailS
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionManageScreen
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionPaywallScreen
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
+import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -94,6 +99,8 @@ fun NavWrapper(
     val hasProfilePicture by miraiLinkSession.hasProfilePicture.collectAsStateWithLifecycle()
     val isVerified by miraiLinkSession.isVerified.collectAsStateWithLifecycle()
     val forceUpdateBlocking by miraiLinkSession.forceUpdateBlocking.collectAsStateWithLifecycle()
+    val forcedUpdateInfo by miraiLinkSession.forcedUpdateInfo.collectAsStateWithLifecycle()
+    val isMandatoryUpdateActive = forcedUpdateInfo != null && forcedUpdateInfo?.mustUpdate == true
 
     // Session events
     val onLogout = miraiLinkSession.onLogout
@@ -455,7 +462,12 @@ fun NavWrapper(
                         navAnalyticsVm.logDeepLink(deepLinkBaseUrl)
                     }
 
-                    HomeScreen(miraiLinkSession = miraiLinkSession)
+                    HomeScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
+                    )
                 }
 
                 entry<AppScreen.ExploreScreen> {
@@ -481,6 +493,9 @@ fun NavWrapper(
                         miraiLinkSession = miraiLinkSession,
                         viewModel = feedViewModel,
                         onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
                     )
                 }
 
@@ -506,6 +521,9 @@ fun NavWrapper(
                                     canInteract = true,
                                 ),
                             )
+                        },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
                         },
                     )
                 }
@@ -553,6 +571,25 @@ fun NavWrapper(
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
                         onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
+                        onNavigateToManageSubscription = {
+                            navigator.navigate(AppScreen.SubscriptionManageScreen)
+                        },
+                    )
+                }
+
+                entry<AppScreen.SubscriptionPaywallScreen> {
+                    SubscriptionPaywallScreen(
+                        onBackClick = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.SubscriptionManageScreen> {
+                    SubscriptionManageScreen(
+                        onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = { navigator.navigate(AppScreen.SubscriptionPaywallScreen) },
                     )
                 }
 
@@ -560,6 +597,7 @@ fun NavWrapper(
                     SearchPreferencesScreen(
                         onBackClick = { navigator.goBack() },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
+                        onNavigateToPaywall = { navigator.navigate(AppScreen.SubscriptionPaywallScreen) },
                     )
                 }
 
@@ -600,7 +638,7 @@ fun NavWrapper(
                 modifier = Modifier.imePadding(),
                 topBar = {
                     Column {
-                        if (topBarConfig.showTopBar) {
+                        if (topBarConfig.showTopBar && !isMandatoryUpdateActive) {
                             val isAuthUi =
                                 navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
                             MiraiLinkTopBar(
@@ -632,13 +670,13 @@ fun NavWrapper(
                                 },
                             )
                         }
-                        if (isAuthenticated && isDemoMode) {
+                        if (isAuthenticated && isDemoMode && !isMandatoryUpdateActive) {
                             DemoModeBanner(visible = true)
                         }
                     }
                 },
                 bottomBar = {
-                    if (topBarConfig.showBottomBar) {
+                    if (topBarConfig.showBottomBar && !isMandatoryUpdateActive) {
                         // Solo tiene sentido mostrarlo en Main (y cuando no estén forzadas barras off)
                         val showBottom = navigationState.topLevelRoute == ScreensSubgraphs.Main
                         if (showBottom) {
@@ -698,6 +736,21 @@ fun NavWrapper(
                 )
             }
         }
+
+        // Global forced update gate: renders on top of the entire app hierarchy
+        // and cannot be bypassed or dismissed.
+        if (isMandatoryUpdateActive) {
+            UpdateGate(
+                message = forcedUpdateInfo?.message,
+                force = true,
+                onDismiss = null,
+                onOpenStore = {
+                    val playStoreUrl =
+                        "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
+                    context.openPlayStore(playStoreUrl)
+                },
+            )
+        }
     }
     //    }
     //}
@@ -724,5 +777,7 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.SettingsScreen -> "settings"
         is AppScreen.ProfileScreen -> "profile"
         is AppScreen.FeedbackScreen -> "feedback"
+        is AppScreen.SubscriptionPaywallScreen -> "subscription_paywall"
+        is AppScreen.SubscriptionManageScreen -> "subscription_manage"
         else -> this::class.simpleName ?: "unknown"
     }

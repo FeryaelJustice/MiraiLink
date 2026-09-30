@@ -209,6 +209,66 @@ class AuthViewModelTest : KoinTest {
         }
 
     @Test
+    fun `login with unverified session completes auth when checkIsVerified returns true`() =
+        runTest {
+            val email = "test@test.com"
+            val password = "password"
+            val token = "a-valid-jwt"
+            val userId = "1234567890"
+
+            every { JwtUtils.extractUserId(token) } returns userId
+            coEvery { loginUseCase.invoke(email, "", password) } returns
+                MiraiLinkResult.Success(
+                    AuthSessionInfo(
+                        token = token,
+                        userId = userId,
+                        requires2FA = false,
+                        isVerified = false,
+                    ),
+                )
+            coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns MiraiLinkResult.Success(false)
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Success(true)
+
+            var sessionSaved = false
+            viewModel.login(email, "", password) { _, _ -> sessionSaved = true }
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
+            assert(sessionSaved)
+            coVerify(exactly = 1) { credentialHelper.savePasswordCredential(email, password) }
+        }
+
+    @Test
+    fun `login with unverified session completes auth when checkIsVerified returns error to avoid lockout`() =
+        runTest {
+            val email = "test@test.com"
+            val password = "password"
+            val token = "a-valid-jwt"
+            val userId = "1234567890"
+
+            every { JwtUtils.extractUserId(token) } returns userId
+            coEvery { loginUseCase.invoke(email, "", password) } returns
+                MiraiLinkResult.Success(
+                    AuthSessionInfo(
+                        token = token,
+                        userId = userId,
+                        requires2FA = false,
+                        isVerified = false,
+                    ),
+                )
+            coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns MiraiLinkResult.Success(false)
+            coEvery { checkIsVerifiedUseCase.invoke() } returns MiraiLinkResult.Error(UnknownError)
+
+            var sessionSaved = false
+            viewModel.login(email, "", password) { _, _ -> sessionSaved = true }
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            assert(viewModel.state.value is AuthViewModel.AuthUiState.Success)
+            assert(sessionSaved)
+            coVerify(exactly = 1) { credentialHelper.savePasswordCredential(email, password) }
+        }
+
+    @Test
     fun `login requires 2fa challenge`() =
         runTest {
             val email = "test@test.com"

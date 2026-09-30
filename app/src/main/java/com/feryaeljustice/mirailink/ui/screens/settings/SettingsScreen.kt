@@ -60,6 +60,7 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRe
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupCompletedDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
+import com.feryaeljustice.mirailink.ui.screens.settings.components.CurrentPlanCard
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -75,6 +76,8 @@ fun SettingsScreen(
     copyToClipBoard: (String) -> Unit,
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit = {},
+    onNavigateToManageSubscription: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
     twoFactorViewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
@@ -216,6 +219,8 @@ fun SettingsScreen(
     }
 
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
+    val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
+    val isPlus by miraiLinkSession.isPlus.collectAsStateWithLifecycle()
     val resetDemoDoneText = stringResource(R.string.demo_mode_reset_data_done)
 
     val scrollState = rememberScrollState()
@@ -309,6 +314,20 @@ fun SettingsScreen(
                 onClick = miraiLinkSession::clearSession,
             )
         } else {
+            SettingsSectionTitle(stringResource(R.string.settings_section_subscription))
+            CurrentPlanCard(
+                isPremium = isPremium,
+                isPlus = isPlus,
+                onClick = {
+                    if (isPremium || isPlus) {
+                        onNavigateToManageSubscription()
+                    } else {
+                        onNavigateToPaywall()
+                    }
+                },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
             SettingsSectionTitle(stringResource(R.string.settings_section_account))
             SettingsActionCard(
                 icon = Icons.Default.Favorite,

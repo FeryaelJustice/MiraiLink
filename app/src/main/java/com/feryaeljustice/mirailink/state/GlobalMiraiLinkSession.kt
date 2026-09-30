@@ -1,15 +1,15 @@
 package com.feryaeljustice.mirailink.state
 
-import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,10 +60,32 @@ class GlobalMiraiLinkSession(
     val hasProfilePicture: StateFlow<Boolean?>
         field = MutableStateFlow<Boolean?>(null)
 
-    // Force update gate: blocks NavWrapper session navigation until splash version check completes.
-    // Starts as true (blocked) - SplashScreenViewModel clears it when no forced update is needed.
+    val isPremium: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    val isPlus: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    fun setPremium(premium: Boolean) {
+        isPremium.value = premium
+    }
+
+    fun setPlus(plus: Boolean) {
+        isPlus.value = plus
+    }
+
+    fun setSubscriptionState(premium: Boolean, plus: Boolean) {
+        isPremium.value = premium
+        isPlus.value = plus
+    }
+
+    // Force update gate: blocks NavWrapper session navigation only when a forced update is active.
     val forceUpdateBlocking: StateFlow<Boolean>
-        field = MutableStateFlow(true)
+        field = MutableStateFlow(false)
+
+    // Forced update gate view entry: when non-null and mustUpdate == true, NavWrapper displays the UpdateGate globally.
+    val forcedUpdateInfo: StateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>
+        field = MutableStateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>(null)
 
     private val _pendingDeepLinkUri = MutableSharedFlow<android.net.Uri>(
         replay = 1,
@@ -97,8 +119,21 @@ class GlobalMiraiLinkSession(
         forceUpdateBlocking.value = false
     }
 
+    fun setForcedUpdate(info: com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?) {
+        forcedUpdateInfo.value = info
+        if (info != null && info.mustUpdate) {
+            forceUpdateBlocking.value = true
+        }
+    }
+
+    fun clearForcedUpdate() {
+        forcedUpdateInfo.value = null
+        forceUpdateBlocking.value = false
+    }
+
     fun clearSession() = appScope.launch {
         demoModeManager?.disableDemoMode()
+        setSubscriptionState(premium = false, plus = false)
         sessionManager.clearSession()
     }
 
@@ -106,7 +141,10 @@ class GlobalMiraiLinkSession(
         token: String,
         userId: String,
         verified: Boolean = false,
-    ) = appScope.launch { sessionManager.saveSession(token, userId, verified) }
+    ) = appScope.launch {
+        forceUpdateBlocking.value = false
+        sessionManager.saveSession(token, userId, verified)
+    }
 
     fun enterDemoMode(onComplete: (() -> Unit)? = null) {
         demoModeManager?.enableDemoMode {

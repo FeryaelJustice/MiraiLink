@@ -23,6 +23,8 @@ import com.feryaeljustice.mirailink.ui.screens.settings.SettingsViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackViewModel
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionManageViewModel
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionPaywallViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -117,6 +119,7 @@ val viewModelModule =
             ReceivedLikesViewModel(
                 getReceivedLikesUseCase = get(),
                 likeUserUseCase = get(),
+                globalMiraiLinkSession = get(),
             )
         }
         viewModel {
@@ -199,6 +202,19 @@ val viewModelModule =
                 likeUserUseCase = get(),
                 dislikeUserUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+            )
+        }
+        viewModel {
+            SubscriptionPaywallViewModel(
+                launchBillingFlowUseCase = get(),
+                restorePurchasesUseCase = get(),
+                subscriptionRepository = get(),
+            )
+        }
+        viewModel {
+            SubscriptionManageViewModel(
+                getSubscriptionStatusUseCase = get(),
+                cancelSubscriptionIntentUseCase = get(),
             )
         }
         viewModelOf(::NavAnalyticsViewModel)

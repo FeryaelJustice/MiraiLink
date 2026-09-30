@@ -21,6 +21,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class FcmService :
     FirebaseMessagingService(),
@@ -41,6 +42,7 @@ class FcmService :
         showChatNotification(message = message)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.i("FCM", "Tenemos nuevo token desde el FirebaseMessaginService: $token")
@@ -53,7 +55,7 @@ class FcmService :
                 if (snapshot) {
                     true
                 } else {
-                    withTimeoutOrNull(1_500) {
+                    withTimeoutOrNull(1_500.milliseconds) {
                         globalMiraiLinkSession.isAuthenticated.first { it }
                     } ?: false
                 }

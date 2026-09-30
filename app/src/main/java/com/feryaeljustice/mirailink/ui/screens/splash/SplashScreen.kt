@@ -39,12 +39,12 @@ fun SplashScreen(
         miraiLinkSession.disableBars()
     }
 
-    // 1. Chequeo: si hay bloqueador de versión, mostramos ForceUpdateGate y no navegamos
-    if (showUpdateDialog) {
+    // 1. Chequeo: si hay diálogo de versión opcional en Splash, mostramos UpdateGate (los obligatorios se manejan a nivel raíz en NavWrapper)
+    if (showUpdateDialog && updateDiagInfo?.mustUpdate != true) {
         UpdateGate(
             modifier = modifier,
             message = updateDiagInfo?.message,
-            force = updateDiagInfo?.mustUpdate == true,
+            force = false,
             onDismiss = viewModel::onDismissUpdateGate,
             onOpenStore = {
                 // Abre Play Store
@@ -54,6 +54,11 @@ fun SplashScreen(
             },
         )
         return // Salimos para no seguir evaluando navegación
+    }
+
+    if (updateDiagInfo?.mustUpdate == true) {
+        // Bloqueo total: el diálogo se muestra a nivel raíz (NavWrapper)
+        return
     }
 
     // 2. Flujo normal de splash

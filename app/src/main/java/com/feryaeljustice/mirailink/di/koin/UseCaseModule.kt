@@ -140,4 +140,10 @@ val useCaseModule =
         factory { com.feryaeljustice.mirailink.domain.usecase.settings.SaveSearchPreferencesUseCase(get()) }
         factory { com.feryaeljustice.mirailink.domain.usecase.faq.GetFaqItemsUseCase(get()) }
         factory { com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase(get()) }
+
+        // Subscription
+        factory { com.feryaeljustice.mirailink.domain.usecase.subscription.GetSubscriptionStatusUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.subscription.LaunchBillingFlowUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.subscription.RestorePurchasesUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.subscription.CancelSubscriptionIntentUseCase(get()) }
     }

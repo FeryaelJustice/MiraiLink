@@ -252,6 +252,7 @@ class AuthViewModel(
                     handleAuthSession(
                         session = session,
                         credentialToSave = email to password,
+                        isRegistration = true,
                         onSaveTheSession = onSaveSession,
                     )
                 }
@@ -271,6 +272,7 @@ class AuthViewModel(
     private suspend fun handleAuthSession(
         session: AuthSessionInfo,
         credentialToSave: Pair<String, String>?,
+        isRegistration: Boolean = false,
         onSaveTheSession: (String, String) -> Unit,
     ) {
         if (session.requires2FA) {
@@ -304,12 +306,34 @@ class AuthViewModel(
         onLoginSuccess(userId = userIdd)
         sessionManager.cacheTokenTemporarily(token)
 
-        if (!session.isVerified) {
+        if (isRegistration) {
             withContext(mainDispatcher) {
                 state.value = AuthUiState.VerificationRequired(userIdd)
             }
-        } else {
+            return
+        }
+
+        if (session.isVerified) {
             completeAuth(userIdd, token, onSaveTheSession)
+        } else {
+            // Si el backend no envió isVerified = true en el login, comprobamos con el endpoint de verificación
+            val verificationResult = withContext(ioDispatcher) { checkIsVerifiedUseCase.value() }
+            when (verificationResult) {
+                is MiraiLinkResult.Success -> {
+                    if (verificationResult.data) {
+                        completeAuth(userIdd, token, onSaveTheSession)
+                    } else {
+                        withContext(mainDispatcher) {
+                            state.value = AuthUiState.VerificationRequired(userIdd)
+                        }
+                    }
+                }
+                is MiraiLinkResult.Error -> {
+                    // Si el endpoint de verificación falla con error de red o no existe,
+                    // y el login ya fue exitoso, completamos auth para no dejar al usuario bloqueado.
+                    completeAuth(userIdd, token, onSaveTheSession)
+                }
+            }
         }
     }
 

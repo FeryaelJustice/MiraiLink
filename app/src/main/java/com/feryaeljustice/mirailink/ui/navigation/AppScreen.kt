@@ -106,6 +106,14 @@ sealed class AppScreen : NavKey {
     @Serializable
     @SerialName("faq")
     data object FaqScreen : AppScreen()
+
+    @Serializable
+    @SerialName("subscription_paywall")
+    data object SubscriptionPaywallScreen : AppScreen()
+
+    @Serializable
+    @SerialName("subscription_manage")
+    data object SubscriptionManageScreen : AppScreen()
 }
 
 private fun AppScreen.topLevelTab(): AppScreen =

@@ -8,6 +8,7 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.calculateAge
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,19 +42,38 @@ sealed interface ReceivedLikesUiEvent {
 class ReceivedLikesViewModel(
     private val getReceivedLikesUseCase: GetReceivedLikesUseCase,
     private val likeUserUseCase: LikeUserUseCase,
+    private val globalMiraiLinkSession: GlobalMiraiLinkSession,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ReceivedLikesUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(
+        ReceivedLikesUiState(
+            isLoading = globalMiraiLinkSession.isPremium.value,
+            isPremiumLocked = !globalMiraiLinkSession.isPremium.value,
+        ),
+    )
     val uiState: StateFlow<ReceivedLikesUiState> = _uiState.asStateFlow()
 
     private val _events = Channel<ReceivedLikesUiEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
     init {
-        loadLikes()
+        viewModelScope.launch {
+            globalMiraiLinkSession.isPremium.collect { isPrem ->
+                _uiState.update { it.copy(isPremiumLocked = !isPrem) }
+                if (isPrem) {
+                    loadLikes()
+                } else {
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false, likes = emptyList()) }
+                }
+            }
+        }
     }
 
     fun loadLikes(refresh: Boolean = false) {
+        if (!globalMiraiLinkSession.isPremium.value) {
+            _uiState.update { it.copy(isLoading = false, isRefreshing = false, isPremiumLocked = true) }
+            return
+        }
         viewModelScope.launch {
             if (refresh) {
                 _uiState.update { it.copy(isRefreshing = true, error = null) }

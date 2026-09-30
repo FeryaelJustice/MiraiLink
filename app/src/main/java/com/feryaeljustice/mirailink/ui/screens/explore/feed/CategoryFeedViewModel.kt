@@ -12,10 +12,14 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +37,10 @@ class CategoryFeedViewModel(
     private val ioDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
 
+    sealed interface CategoryFeedEvent {
+        data object NavigateToPaywall : CategoryFeedEvent
+    }
+
     sealed class CategoryFeedUiState {
         data object Idle : CategoryFeedUiState()
         data object Loading : CategoryFeedUiState()
@@ -43,6 +51,9 @@ class CategoryFeedViewModel(
         data object Empty : CategoryFeedUiState()
         data class Error(val error: UiError) : CategoryFeedUiState()
     }
+
+    private val _events = MutableSharedFlow<CategoryFeedEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<CategoryFeedEvent> = _events.asSharedFlow()
 
     private val _state = MutableStateFlow<CategoryFeedUiState>(CategoryFeedUiState.Idle)
     val state: StateFlow<CategoryFeedUiState> = _state.asStateFlow()
@@ -133,6 +144,9 @@ class CategoryFeedViewModel(
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
+                    if (result.error == SubscriptionError.DAILY_LIKES_LIMIT_REACHED) {
+                        _events.tryEmit(CategoryFeedEvent.NavigateToPaywall)
+                    }
                     setRecoveryAction(::swipeRight)
                     _state.value = CategoryFeedUiState.Error(result.error.toUiError())
                 }

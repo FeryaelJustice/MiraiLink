@@ -24,3 +24,10 @@ data class UiError(
     val actionLabel: UiText,
     val recovery: ErrorRecovery,
 )
+
+fun UiText.asString(context: android.content.Context): String = when (this) {
+    is UiText.Resource -> if (args.isEmpty()) context.getString(id) else context.getString(id, *args.toTypedArray())
+}
+
+fun UiError.asString(context: android.content.Context): String = message.asString(context)
+
