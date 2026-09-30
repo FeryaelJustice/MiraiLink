@@ -252,6 +252,7 @@ class AuthViewModel(
                     handleAuthSession(
                         session = session,
                         credentialToSave = email to password,
+                        isRegistration = true,
                         onSaveTheSession = onSaveSession,
                     )
                 }
@@ -271,6 +272,7 @@ class AuthViewModel(
     private suspend fun handleAuthSession(
         session: AuthSessionInfo,
         credentialToSave: Pair<String, String>?,
+        isRegistration: Boolean = false,
         onSaveTheSession: (String, String) -> Unit,
     ) {
         if (session.requires2FA) {
@@ -303,6 +305,13 @@ class AuthViewModel(
 
         onLoginSuccess(userId = userIdd)
         sessionManager.cacheTokenTemporarily(token)
+
+        if (isRegistration) {
+            withContext(mainDispatcher) {
+                state.value = AuthUiState.VerificationRequired(userIdd)
+            }
+            return
+        }
 
         if (session.isVerified) {
             completeAuth(userIdd, token, onSaveTheSession)
