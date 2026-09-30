@@ -13,7 +13,6 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.navigation.InitialNavigationAction
 import com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -92,18 +91,22 @@ class SplashScreenViewModel(
             // Enable Christmas
             store.setChristmasEnabled(isInChristmasMode)
 
-            // 2) Onboarding + autologin en paralelo
+            // 2) Comprobación de Onboarding y Autologin optimizada
             withContext(ioDispatcher) {
-                val onboardingDeferred =
-                    async { checkOnboardingIsCompletedUseCase() }
-                val autologinDeferred = async { autologinUseCase() }
-
-                val onboardingResult = onboardingDeferred.await()
-                val autologinResult = autologinDeferred.await()
+                val onboardingResult = checkOnboardingIsCompletedUseCase()
 
                 val nextNavigation =
                     when {
-                        onboardingResult is MiraiLinkResult.Success && onboardingResult.data -> {
+                        // Si el onboarding NO está completado, navegamos de inmediato sin esperar a la red
+                        onboardingResult is MiraiLinkResult.Success && !onboardingResult.data -> {
+                            SplashUiState.Navigate(
+                                InitialNavigationAction.GoToOnboarding,
+                            )
+                        }
+
+                        // Si el onboarding ya está completado (o falló su lectura local), evaluamos autologin
+                        else -> {
+                            val autologinResult = autologinUseCase()
                             if (autologinResult is MiraiLinkResult.Success) {
                                 SplashUiState.Navigate(
                                     InitialNavigationAction.GoToHome,
@@ -113,20 +116,6 @@ class SplashScreenViewModel(
                                     InitialNavigationAction.GoToAuth,
                                 )
                             }
-                        }
-
-                        onboardingResult is MiraiLinkResult.Success && !onboardingResult.data -> {
-                            SplashUiState.Navigate(
-                                InitialNavigationAction.GoToOnboarding,
-                            )
-                        }
-
-                        autologinResult is MiraiLinkResult.Success -> {
-                            SplashUiState.Navigate(InitialNavigationAction.GoToHome)
-                        }
-
-                        else -> {
-                            SplashUiState.Navigate(InitialNavigationAction.GoToAuth)
                         }
                     }
 
