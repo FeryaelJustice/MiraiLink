@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.screens.profile.detail
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,6 +60,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
+import com.feryaeljustice.mirailink.domain.model.haptics.HeartbeatAffinity
+import com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
+import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.components.haptics.HapticHeartbeatOverlay
+import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
+import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
+import org.koin.compose.koinInject
 import coil.compose.AsyncImage
 import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
 import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
@@ -72,7 +84,6 @@ import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry
-import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,49 +131,104 @@ fun UserProfileDetailScreen(
         context.startActivity(Intent.createChooser(shareIntent, shareActionTitle))
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        contentWindowInsets = WindowInsets(0.dp),
-        topBar = {
-            TopAppBar(
-                title = {
-                    MiraiLinkText(
-                        text = "@$username",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(R.string.back),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onShare) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = stringResource(R.string.action_share),
-                        )
-                    }
-                },
-                windowInsets = WindowInsets(0.dp),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
-            )
-        },
-        bottomBar = {
-            if (canInteract && uiState.user != null && !uiState.isInteracted) {
-                BottomInteractionBar(
-                    onLike = { viewModel.likeUser() },
-                    onDislike = { viewModel.dislikeUser() },
+    val hapticController: HapticHeartbeatController = koinInject()
+    val affinityUseCase: CalculateHeartbeatAffinityUseCase = koinInject()
+    val getCurrentUserUseCase: GetCurrentUserUseCase = koinInject()
+
+    var currentUser by remember { mutableStateOf<UserViewEntry?>(null) }
+    LaunchedEffect(Unit) {
+        val res = getCurrentUserUseCase()
+        if (res is MiraiLinkResult.Success) {
+            currentUser = res.data.toUserViewEntry()
+        }
+    }
+
+    val targetUser = uiState.user
+    val affinity =
+        remember(targetUser?.id, currentUser?.id) {
+            if (targetUser == null) {
+                HeartbeatAffinity.DefaultNeutral
+            } else {
+                affinityUseCase(
+                    userGameIds = currentUser?.games?.map { it.id }?.toSet().orEmpty(),
+                    userAnimeIds = currentUser?.animes?.map { it.id }?.toSet().orEmpty(),
+                    userGoalIds = currentUser?.relationshipGoalIds?.toSet().orEmpty(),
+                    candidateGameIds = targetUser.games.map { it.id }.toSet(),
+                    candidateAnimeIds = targetUser.animes.map { it.id }.toSet(),
+                    candidateGoalIds = targetUser.relationshipGoalIds.toSet(),
                 )
             }
-        },
-    ) { innerPadding ->
+        }
+
+    var isOverlayVisible by remember { mutableStateOf(false) }
+    var holdProgress by remember { mutableFloatStateOf(0f) }
+
+    val likeGestureModifier =
+        Modifier.hapticHeartbeatLikeTrigger(
+            onTap = { viewModel.likeUser() },
+            onHoldStart = {
+                isOverlayVisible = true
+                hapticController.startHeartbeat(affinity.ratio)
+            },
+            onHoldProgress = { holdProgress = it },
+            onHoldComplete = {
+                isOverlayVisible = false
+                holdProgress = 0f
+                hapticController.triggerLikeConfirmation()
+                viewModel.likeUser()
+            },
+            onHoldCancel = {
+                isOverlayVisible = false
+                holdProgress = 0f
+                hapticController.stopHeartbeat()
+            },
+        )
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            contentWindowInsets = WindowInsets(0.dp),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        MiraiLinkText(
+                            text = "@$username",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_arrow_back),
+                                contentDescription = stringResource(R.string.back),
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onShare) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = stringResource(R.string.action_share),
+                            )
+                        }
+                    },
+                    windowInsets = WindowInsets(0.dp),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                )
+            },
+            bottomBar = {
+                if (canInteract && uiState.user != null && !uiState.isInteracted) {
+                    BottomInteractionBar(
+                        onLike = { viewModel.likeUser() },
+                        onDislike = { viewModel.dislikeUser() },
+                        likeGestureModifier = likeGestureModifier,
+                    )
+                }
+            },
+        ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -194,6 +260,19 @@ fun UserProfileDetailScreen(
             imageContentDescription = username,
         )
     }
+
+    HapticHeartbeatOverlay(
+        visible = isOverlayVisible,
+        affinity = affinity,
+        progress = holdProgress,
+        targetNickname = targetUser?.nickname.orEmpty(),
+        onDismiss = {
+            isOverlayVisible = false
+            holdProgress = 0f
+            hapticController.stopHeartbeat()
+        },
+    )
+}
 }
 
 @Composable
@@ -380,6 +459,7 @@ private fun BottomInteractionBar(
     onLike: () -> Unit,
     onDislike: () -> Unit,
     modifier: Modifier = Modifier,
+    likeGestureModifier: Modifier? = null,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -387,19 +467,21 @@ private fun BottomInteractionBar(
         shadowElevation = 8.dp,
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FilledTonalButton(
                 onClick = onDislike,
                 shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = MaterialTheme.colorScheme.error,
-                ),
+                colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             ) {
                 Icon(
@@ -414,26 +496,33 @@ private fun BottomInteractionBar(
                 )
             }
 
-            Button(
-                onClick = onLike,
+            Surface(
                 shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shadowElevation = 2.dp,
+                modifier =
+                    likeGestureModifier
+                        ?: Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .clickable(onClick = onLike),
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_heart),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                MiraiLinkText(
-                    text = stringResource(R.string.profile_detail_like),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_heart),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    MiraiLinkText(
+                        text = stringResource(R.string.profile_detail_like),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
             }
         }
     }

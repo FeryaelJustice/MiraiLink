@@ -60,6 +60,7 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
+    val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val canUndo = viewModel.canUndo()
@@ -135,6 +136,7 @@ fun HomeScreen(
                                 onSwipeLeft = { viewModel.swipeLeft() },
                                 onGoBack = { viewModel.undoSwipe() },
                                 onSwipeRight = { viewModel.swipeRight() },
+                                currentUser = currentUser,
                             )
                         }
                     } else {

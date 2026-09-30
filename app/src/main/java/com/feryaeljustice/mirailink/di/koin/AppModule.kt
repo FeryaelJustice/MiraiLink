@@ -19,4 +19,7 @@ val appModule =
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }
         single { com.feryaeljustice.mirailink.data.manager.AdMobManager(androidContext()) }
         single { com.feryaeljustice.mirailink.data.billing.BillingClientManager(androidContext(), get(ApplicationScope)) }
+        single<com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController> {
+            com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatControllerImpl(androidContext())
+        }
     }

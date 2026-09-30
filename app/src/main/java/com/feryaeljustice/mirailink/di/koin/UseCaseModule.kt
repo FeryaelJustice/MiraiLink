@@ -146,4 +146,7 @@ val useCaseModule =
         factory { com.feryaeljustice.mirailink.domain.usecase.subscription.LaunchBillingFlowUseCase(get()) }
         factory { com.feryaeljustice.mirailink.domain.usecase.subscription.RestorePurchasesUseCase(get()) }
         factory { com.feryaeljustice.mirailink.domain.usecase.subscription.CancelSubscriptionIntentUseCase(get()) }
+
+        // Haptic Heartbeat
+        factory { com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase() }
     }

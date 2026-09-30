@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -64,8 +65,8 @@ class HomeViewModel(
     private val _events = kotlinx.coroutines.flow.MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
     val events: kotlinx.coroutines.flow.SharedFlow<HomeEvent> = _events.asSharedFlow()
 
-    var currentUser: UserViewEntry? = null
-        private set
+    private val _currentUser = MutableStateFlow<UserViewEntry?>(null)
+    val currentUser: StateFlow<UserViewEntry?> = _currentUser.asStateFlow()
 
     private val _userQueue = mutableListOf<UserViewEntry>()
     private val swipeHistory = mutableListOf<UserViewEntry>()
@@ -104,7 +105,7 @@ class HomeViewModel(
                 }
 
             if (result is MiraiLinkResult.Success) {
-                currentUser = result.data.toUserViewEntry()
+                _currentUser.value = result.data.toUserViewEntry()
             } else if (result is MiraiLinkResult.Error) {
                 setRecoveryAction(::reload)
                 state.value = HomeUiState.Error(result.error.toUiError())

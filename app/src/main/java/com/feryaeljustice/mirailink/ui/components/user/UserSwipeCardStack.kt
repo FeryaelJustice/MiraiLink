@@ -30,6 +30,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,8 +47,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
+import com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
+import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.components.haptics.HapticHeartbeatOverlay
+import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
+import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import kotlin.math.abs
 
 private const val SwipeConfirmationThresholdPx = 300f
@@ -65,10 +77,45 @@ fun UserSwipeCardStack(
     onGoBack: (() -> Unit),
     onSwipeRight: () -> Unit,
     modifier: Modifier = Modifier,
+    currentUser: UserViewEntry? = null,
+    hapticController: HapticHeartbeatController = koinInject(),
+    affinityUseCase: CalculateHeartbeatAffinityUseCase = koinInject(),
+    getCurrentUserUseCase: GetCurrentUserUseCase = koinInject(),
 ) {
     if (users.isEmpty()) return
 
     val topUser = users.first()
+    var localCurrentUser by remember { mutableStateOf(currentUser) }
+
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            localCurrentUser = currentUser
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (localCurrentUser == null) {
+            val res = getCurrentUserUseCase()
+            if (res is MiraiLinkResult.Success) {
+                localCurrentUser = res.data.toUserViewEntry()
+            }
+        }
+    }
+
+    val affinity =
+        remember(topUser.id, localCurrentUser?.id) {
+            affinityUseCase(
+                userGameIds = localCurrentUser?.games?.map { it.id }?.toSet().orEmpty(),
+                userAnimeIds = localCurrentUser?.animes?.map { it.id }?.toSet().orEmpty(),
+                userGoalIds = localCurrentUser?.relationshipGoalIds?.toSet().orEmpty(),
+                candidateGameIds = topUser.games.map { it.id }.toSet(),
+                candidateAnimeIds = topUser.animes.map { it.id }.toSet(),
+                candidateGoalIds = topUser.relationshipGoalIds.toSet(),
+            )
+        }
+
+    var isOverlayVisible by remember { mutableStateOf(false) }
+    var holdProgress by remember { mutableFloatStateOf(0f) }
 
     key(topUser.id) {
         val scope = rememberCoroutineScope()
@@ -179,16 +226,50 @@ fun UserSwipeCardStack(
                 isPublicPresentation = true,
             )
 
+            val likeGestureModifier =
+                Modifier.hapticHeartbeatLikeTrigger(
+                    onTap = { completeSwipe(SwipeDirection.Like) },
+                    onHoldStart = {
+                        isOverlayVisible = true
+                        hapticController.startHeartbeat(affinity.ratio)
+                    },
+                    onHoldProgress = { holdProgress = it },
+                    onHoldComplete = {
+                        isOverlayVisible = false
+                        holdProgress = 0f
+                        hapticController.triggerLikeConfirmation()
+                        completeSwipe(SwipeDirection.Like)
+                    },
+                    onHoldCancel = {
+                        isOverlayVisible = false
+                        holdProgress = 0f
+                        hapticController.stopHeartbeat()
+                    },
+                )
+
             SwipeActionButtons(
                 activeDirection = activeDirection,
                 canUndo = canUndo,
                 onDislike = { completeSwipe(SwipeDirection.Dislike) },
                 onUndo = onGoBack,
                 onLike = { completeSwipe(SwipeDirection.Like) },
+                likeGestureModifier = likeGestureModifier,
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
                         .zIndex(2f),
+            )
+
+            HapticHeartbeatOverlay(
+                visible = isOverlayVisible,
+                affinity = affinity,
+                progress = holdProgress,
+                targetNickname = topUser.nickname,
+                onDismiss = {
+                    isOverlayVisible = false
+                    holdProgress = 0f
+                    hapticController.stopHeartbeat()
+                },
             )
         }
     }
@@ -202,6 +283,7 @@ private fun SwipeActionButtons(
     onUndo: () -> Unit,
     onLike: () -> Unit,
     modifier: Modifier = Modifier,
+    likeGestureModifier: Modifier? = null,
 ) {
     Row(
         modifier =
@@ -239,6 +321,7 @@ private fun SwipeActionButtons(
             activeColor = SwipeLikeRed,
             modifier = Modifier.testTag("likeBtn"),
             onClick = onLike,
+            gestureModifier = likeGestureModifier,
         )
     }
 }
@@ -251,6 +334,7 @@ private fun SwipeActionButton(
     activeColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    gestureModifier: Modifier? = null,
 ) {
     val containerColor by animateColorAsState(
         targetValue =
@@ -268,28 +352,44 @@ private fun SwipeActionButton(
         label = "swipeActionScale",
     )
 
-    IconButton(
-        onClick = onClick,
-        modifier =
-            modifier
-                .size(72.dp)
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }.shadow(elevation = if (isActive) 12.dp else 6.dp, shape = CircleShape)
-                .clip(CircleShape)
-                .background(containerColor)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = CircleShape,
-                ),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = contentColor,
-            modifier = Modifier.size(34.dp),
-        )
+    val baseModifier =
+        modifier
+            .size(72.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }.shadow(elevation = if (isActive) 12.dp else 6.dp, shape = CircleShape)
+            .clip(CircleShape)
+            .background(containerColor)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = CircleShape,
+            )
+
+    if (gestureModifier != null) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = baseModifier.then(gestureModifier),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = contentColor,
+                modifier = Modifier.size(34.dp),
+            )
+        }
+    } else {
+        IconButton(
+            onClick = onClick,
+            modifier = baseModifier,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = contentColor,
+                modifier = Modifier.size(34.dp),
+            )
+        }
     }
 }
