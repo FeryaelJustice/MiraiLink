@@ -54,6 +54,7 @@ fun ReceivedLikesScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToUserDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit = {},
     viewModel: ReceivedLikesViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -102,7 +103,7 @@ fun ReceivedLikesScreen(
                 onAction = { viewModel.loadLikes() },
             )
         } else if (uiState.isPremiumLocked) {
-            PremiumLockedState()
+            PremiumLockedState(onNavigateToPaywall = onNavigateToPaywall)
         } else if (uiState.likes.isEmpty()) {
             EmptyLikesState()
         } else {
@@ -247,7 +248,10 @@ private fun EmptyLikesState(modifier: Modifier = Modifier) {
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-private fun PremiumLockedState(modifier: Modifier = Modifier) {
+private fun PremiumLockedState(
+    onNavigateToPaywall: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -281,6 +285,29 @@ private fun PremiumLockedState(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = onNavigateToPaywall,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                shape = RoundedCornerShape(24.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_bolt),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                MiraiLinkText(
+                    text = stringResource(R.string.premium_locked_cta_button),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
         }
     }
 }

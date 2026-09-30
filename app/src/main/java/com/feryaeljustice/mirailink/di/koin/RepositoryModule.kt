@@ -12,6 +12,7 @@ import com.feryaeljustice.mirailink.data.repository.OnboardingRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.ReportRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.SwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.TwoFactorRepositoryImpl
+import com.feryaeljustice.mirailink.data.repository.SubscriptionRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UserRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.UsersRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.delegating.DelegatingChatRepository
@@ -19,9 +20,11 @@ import com.feryaeljustice.mirailink.data.repository.delegating.DelegatingExplore
 import com.feryaeljustice.mirailink.data.repository.delegating.DelegatingMatchRepository
 import com.feryaeljustice.mirailink.data.repository.delegating.DelegatingSwipeRepository
 import com.feryaeljustice.mirailink.data.repository.delegating.DelegatingUserRepository
+import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.BaseUrl
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.Demo
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.Remote
+import com.feryaeljustice.mirailink.domain.repository.SubscriptionRepository
 import com.feryaeljustice.mirailink.domain.repository.AiRepository
 import com.feryaeljustice.mirailink.domain.repository.AppConfigRepository
 import com.feryaeljustice.mirailink.domain.repository.CatalogRepository
@@ -47,6 +50,7 @@ val repositoryModule =
         single<ReportRepository> { ReportRepositoryImpl(get()) }
         single<TwoFactorRepository> { TwoFactorRepositoryImpl(get()) }
         single<UsersRepository> { UsersRepositoryImpl(get(), get(BaseUrl)) }
+        single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get(ApplicationScope), get()) }
 
         single { ExploreRemoteDataSource(get()) }
 

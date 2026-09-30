@@ -6,6 +6,7 @@ import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.error.LocationError
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -149,6 +150,10 @@ object NetworkErrorMapper {
 
             "LOCATION_REQUIRED" -> LocationError.LOCATION_REQUIRED
             "RESIDENCE_COUNTRY_REQUIRED" -> LocationError.RESIDENCE_COUNTRY_REQUIRED
+
+            "DAILY_LIKES_LIMIT_REACHED" -> SubscriptionError.DAILY_LIKES_LIMIT_REACHED
+            "PREMIUM_RADIUS_REQUIRED" -> SubscriptionError.PREMIUM_RADIUS_REQUIRED
+            "PREMIUM_PASSPORT_REQUIRED" -> SubscriptionError.PREMIUM_PASSPORT_REQUIRED
 
             else -> null
         }

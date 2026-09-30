@@ -53,5 +53,11 @@ enum class LocationError : AppError {
     RESIDENCE_COUNTRY_REQUIRED,
 }
 
+enum class SubscriptionError : AppError {
+    DAILY_LIKES_LIMIT_REACHED,
+    PREMIUM_RADIUS_REQUIRED,
+    PREMIUM_PASSPORT_REQUIRED,
+}
+
 /** Last resort used only when no safer stable classification is available. */
 data object UnknownError : AppError

@@ -101,8 +101,8 @@ class MainActivity : ComponentActivity() {
             // First wait 10 seconds in purpose of initializing everything
             delay(10 * 1000L)
             while (isActive) {
-                // Show ad only if app is in foreground
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                // Show ad only if app is in foreground and user is NOT premium or plus
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) && !globalMiraiLinkSession.isPremium.value && !globalMiraiLinkSession.isPlus.value) {
                     adMobManager.showInterstitial(this@MainActivity)
                 }
                 // Every 5 minutes

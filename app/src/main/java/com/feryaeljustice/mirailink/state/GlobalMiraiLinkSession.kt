@@ -1,15 +1,15 @@
 package com.feryaeljustice.mirailink.state
 
-import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -59,6 +59,25 @@ class GlobalMiraiLinkSession(
 
     val hasProfilePicture: StateFlow<Boolean?>
         field = MutableStateFlow<Boolean?>(null)
+
+    val isPremium: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    val isPlus: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    fun setPremium(premium: Boolean) {
+        isPremium.value = premium
+    }
+
+    fun setPlus(plus: Boolean) {
+        isPlus.value = plus
+    }
+
+    fun setSubscriptionState(premium: Boolean, plus: Boolean) {
+        isPremium.value = premium
+        isPlus.value = plus
+    }
 
     // Force update gate: blocks NavWrapper session navigation only when a forced update is active.
     val forceUpdateBlocking: StateFlow<Boolean>
@@ -114,6 +133,7 @@ class GlobalMiraiLinkSession(
 
     fun clearSession() = appScope.launch {
         demoModeManager?.disableDemoMode()
+        setSubscriptionState(premium = false, plus = false)
         sessionManager.clearSession()
     }
 

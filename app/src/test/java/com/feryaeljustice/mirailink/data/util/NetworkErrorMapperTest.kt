@@ -126,6 +126,18 @@ class NetworkErrorMapperTest {
         assertThat(NetworkErrorMapper.existingChatId(httpException(409, "{}"))).isNull()
     }
 
+    @Test
+    fun `daily likes limit reached error code maps to SubscriptionError`() {
+        val exception =
+            httpException(
+                403,
+                """{"code":"DAILY_LIKES_LIMIT_REACHED","message":"Limit reached","limit":50}""",
+            )
+
+        val error = NetworkErrorMapper.map(exception, NetworkOperation.AUTHENTICATED)
+        assertThat(error).isEqualTo(com.feryaeljustice.mirailink.domain.error.SubscriptionError.DAILY_LIKES_LIMIT_REACHED)
+    }
+
     private fun httpException(
         status: Int,
         body: String = "{}",

@@ -61,6 +61,8 @@ import com.feryaeljustice.mirailink.ui.screens.profile.detail.UserProfileDetailS
 import com.feryaeljustice.mirailink.ui.screens.settings.SettingsScreen
 import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackScreen
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreen
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionManageScreen
+import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionPaywallScreen
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 import com.feryaeljustice.mirailink.ui.utils.extensions.openPlayStore
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
@@ -460,7 +462,12 @@ fun NavWrapper(
                         navAnalyticsVm.logDeepLink(deepLinkBaseUrl)
                     }
 
-                    HomeScreen(miraiLinkSession = miraiLinkSession)
+                    HomeScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
+                    )
                 }
 
                 entry<AppScreen.ExploreScreen> {
@@ -486,6 +493,9 @@ fun NavWrapper(
                         miraiLinkSession = miraiLinkSession,
                         viewModel = feedViewModel,
                         onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
                     )
                 }
 
@@ -511,6 +521,9 @@ fun NavWrapper(
                                     canInteract = true,
                                 ),
                             )
+                        },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
                         },
                     )
                 }
@@ -558,6 +571,25 @@ fun NavWrapper(
                         showToast = { msg, duration -> showToast(context, msg, duration) },
                         copyToClipBoard = copyToClipboard,
                         onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = {
+                            navigator.navigate(AppScreen.SubscriptionPaywallScreen)
+                        },
+                        onNavigateToManageSubscription = {
+                            navigator.navigate(AppScreen.SubscriptionManageScreen)
+                        },
+                    )
+                }
+
+                entry<AppScreen.SubscriptionPaywallScreen> {
+                    SubscriptionPaywallScreen(
+                        onBackClick = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.SubscriptionManageScreen> {
+                    SubscriptionManageScreen(
+                        onBackClick = { navigator.goBack() },
+                        onNavigateToPaywall = { navigator.navigate(AppScreen.SubscriptionPaywallScreen) },
                     )
                 }
 
@@ -565,6 +597,7 @@ fun NavWrapper(
                     SearchPreferencesScreen(
                         onBackClick = { navigator.goBack() },
                         showToast = { msg, duration -> showToast(context, msg, duration) },
+                        onNavigateToPaywall = { navigator.navigate(AppScreen.SubscriptionPaywallScreen) },
                     )
                 }
 
@@ -744,5 +777,7 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.SettingsScreen -> "settings"
         is AppScreen.ProfileScreen -> "profile"
         is AppScreen.FeedbackScreen -> "feedback"
+        is AppScreen.SubscriptionPaywallScreen -> "subscription_paywall"
+        is AppScreen.SubscriptionManageScreen -> "subscription_manage"
         else -> this::class.simpleName ?: "unknown"
     }

@@ -5,8 +5,8 @@ import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.repository.demo.DemoChatRepositoryImpl
-import com.feryaeljustice.mirailink.data.repository.demo.DemoMatchRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoExploreRepositoryImpl
+import com.feryaeljustice.mirailink.data.repository.demo.DemoMatchRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoSwipeRepositoryImpl
 import com.feryaeljustice.mirailink.data.repository.demo.DemoUserRepositoryImpl
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
@@ -23,10 +23,10 @@ val demoModule =
     module {
         single<MiraiLinkDemoDatabase> {
             Room.databaseBuilder(
-                androidContext(),
-                MiraiLinkDemoDatabase::class.java,
-                MiraiLinkDemoDatabase.DATABASE_NAME,
-            ).fallbackToDestructiveMigration().build()
+                        androidContext(),
+                        MiraiLinkDemoDatabase::class.java,
+                        MiraiLinkDemoDatabase.DATABASE_NAME,
+                    ).fallbackToDestructiveMigration(true).build()
         }
 
         single { get<MiraiLinkDemoDatabase>().userDao() }

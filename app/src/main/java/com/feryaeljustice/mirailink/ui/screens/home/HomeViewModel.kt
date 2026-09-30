@@ -12,14 +12,18 @@ import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.error.LocationError
 import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -50,8 +54,15 @@ class HomeViewModel(
         data class Error(val error: UiError) : HomeUiState()
     }
 
+    sealed interface HomeEvent {
+        data object NavigateToPaywall : HomeEvent
+    }
+
     val state: StateFlow<HomeUiState>
         field = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
+
+    private val _events = kotlinx.coroutines.flow.MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
+    val events: kotlinx.coroutines.flow.SharedFlow<HomeEvent> = _events.asSharedFlow()
 
     var currentUser: UserViewEntry? = null
         private set
@@ -153,6 +164,9 @@ class HomeViewModel(
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
+                    if (result.error == SubscriptionError.DAILY_LIKES_LIMIT_REACHED) {
+                        _events.tryEmit(HomeEvent.NavigateToPaywall)
+                    }
                     setRecoveryAction(::swipeRight)
                     state.value = HomeUiState.Error(result.error.toUiError())
                 }

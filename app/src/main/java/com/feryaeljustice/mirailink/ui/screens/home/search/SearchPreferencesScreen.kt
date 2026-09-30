@@ -53,13 +53,17 @@ fun SearchPreferencesScreen(
     onBackClick: () -> Unit,
     showToast: (String, Int) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit = {},
     viewModel: SearchPreferencesViewModel = koinViewModel(),
+    miraiLinkSession: com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession = org.koin.compose.koinInject(),
 ) {
     val radiusKm by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
     val scope by viewModel.draftScope.collectAsStateWithLifecycle()
     val targetCountry by viewModel.draftTargetCountry.collectAsStateWithLifecycle()
     val hasUnsavedChanges by viewModel.hasUnsavedChanges.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
+    val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
+    val isPlus by miraiLinkSession.isPlus.collectAsStateWithLifecycle()
     val latitude by viewModel.userLatitude.collectAsStateWithLifecycle()
     val longitude by viewModel.userLongitude.collectAsStateWithLifecycle()
     val residenceLabel by viewModel.residenceLabel.collectAsStateWithLifecycle()
@@ -180,6 +184,9 @@ fun SearchPreferencesScreen(
             onRequestLocationPermission = requestLocationPermission,
             onRefreshLocation = requestLocationPermission,
             isRefreshingLocation = isRefreshingLocation,
+            isPlus = isPlus,
+            isPremium = isPremium,
+            onNavigateToPaywall = onNavigateToPaywall,
         )
         Spacer(Modifier.height(8.dp))
     }

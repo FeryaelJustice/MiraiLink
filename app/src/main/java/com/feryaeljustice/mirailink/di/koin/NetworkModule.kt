@@ -9,6 +9,7 @@ import com.feryaeljustice.mirailink.data.remote.ExploreApiService
 import com.feryaeljustice.mirailink.data.remote.FeedbackApiService
 import com.feryaeljustice.mirailink.data.remote.MatchApiService
 import com.feryaeljustice.mirailink.data.remote.ReportApiService
+import com.feryaeljustice.mirailink.data.remote.SubscriptionApiService
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.data.remote.UserApiService
@@ -97,4 +98,5 @@ val networkModule =
         single { get<Retrofit>().create(CatalogApiService::class.java) }
         single { get<Retrofit>().create(ReportApiService::class.java) }
         single { get<Retrofit>().create(FeedbackApiService::class.java) }
+        single { get<Retrofit>().create(SubscriptionApiService::class.java) }
     }

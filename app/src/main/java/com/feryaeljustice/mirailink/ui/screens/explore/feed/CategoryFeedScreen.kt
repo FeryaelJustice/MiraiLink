@@ -58,6 +58,7 @@ fun CategoryFeedScreen(
     viewModel: CategoryFeedViewModel,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit = {},
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
@@ -67,7 +68,17 @@ fun CategoryFeedScreen(
     val radiusKm by viewModel.radiusKm.collectAsStateWithLifecycle()
     val isSavingPreferences by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
     val showSettingsSheet by viewModel.showSettingsSheet.collectAsStateWithLifecycle()
+    val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
+    val isPlus by miraiLinkSession.isPlus.collectAsStateWithLifecycle()
     val canUndo = viewModel.canUndo()
+
+    androidx.compose.runtime.LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is CategoryFeedViewModel.CategoryFeedEvent.NavigateToPaywall -> onNavigateToPaywall()
+            }
+        }
+    }
 
     val settingsUpdatedMessage = stringResource(R.string.category_settings_updated_toast, viewModel.categoryName)
 
@@ -251,6 +262,8 @@ fun CategoryFeedScreen(
                     showToast(context, settingsUpdatedMessage, Toast.LENGTH_SHORT)
                 }
             },
+            isRadiusUnlocked = isPlus || isPremium,
+            onNavigateToPaywall = onNavigateToPaywall,
         )
     }
 }

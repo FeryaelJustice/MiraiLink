@@ -8,6 +8,7 @@ import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.error.LocationError
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 
 /** Maps every domain error to localized copy, action label and recovery semantics. */
 fun AppError.toUiError(): UiError {
@@ -22,6 +23,7 @@ fun AppError.toUiError(): UiError {
             ValidationError.MISSING_REQUIRED_VALUE,
             LocationError.LOCATION_REQUIRED,
             LocationError.RESIDENCE_COUNTRY_REQUIRED,
+            SubscriptionError.DAILY_LIKES_LIMIT_REACHED,
             -> ErrorRecovery.REVIEW_INPUT
             else -> ErrorRecovery.RETRY
         }
@@ -83,6 +85,12 @@ private fun AppError.messageResource(): Int =
             when (this) {
                 LocationError.LOCATION_REQUIRED -> R.string.error_location_required_for_radius
                 LocationError.RESIDENCE_COUNTRY_REQUIRED -> R.string.error_residence_country_required
+            }
+        is SubscriptionError ->
+            when (this) {
+                SubscriptionError.DAILY_LIKES_LIMIT_REACHED -> R.string.error_daily_likes_limit_reached
+                SubscriptionError.PREMIUM_RADIUS_REQUIRED -> R.string.error_premium_radius_required
+                SubscriptionError.PREMIUM_PASSPORT_REQUIRED -> R.string.error_premium_passport_required
             }
         UnknownError -> R.string.error_unknown
     }

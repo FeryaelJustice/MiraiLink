@@ -53,10 +53,19 @@ fun SearchSettingsSection(
     onRequestLocationPermission: (() -> Unit)? = null,
     onRefreshLocation: () -> Unit = {},
     isRefreshingLocation: Boolean = false,
+    isPlus: Boolean = false,
+    isPremium: Boolean = false,
+    onNavigateToPaywall: (() -> Unit)? = null,
 ) {
+    val isRadiusUnlocked = isPlus || isPremium
+    val isPassportUnlocked = isPremium
+
     val displayRadius = radiusKm.toInt()
     val isCountryValid = targetCountry.isNullOrBlank() || targetCountry.isCountryCodeValid()
     val isCountryInvalidForSave = scope == SearchScope.SPECIFIC_COUNTRY && (targetCountry.isNullOrBlank() || !targetCountry.isCountryCodeValid())
+
+    val isRadiusLockedForSave = displayRadius > SearchPreferences.PREMIUM_RADIUS_THRESHOLD_KM && !isRadiusUnlocked
+    val isScopeLockedForSave = (scope == SearchScope.SPECIFIC_COUNTRY || scope == SearchScope.WORLD) && !isPassportUnlocked
 
     Card(
         modifier = modifier
@@ -124,17 +133,20 @@ fun SearchSettingsSection(
                     fontWeight = FontWeight.SemiBold,
                 )
 
-                // Preparación para el futuro modelo Premium: a partir de 250 km
                 if (displayRadius >= SearchPreferences.PREMIUM_RADIUS_THRESHOLD_KM) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        color = if (isRadiusUnlocked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                     ) {
                         MiraiLinkText(
-                            text = stringResource(R.string.search_premium_radius_future_note),
+                            text = if (isRadiusUnlocked) {
+                                stringResource(R.string.search_premium_active_badge)
+                            } else {
+                                stringResource(R.string.search_premium_radius_future_note)
+                            },
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = if (isRadiusUnlocked) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                     }
                 }
@@ -162,7 +174,7 @@ fun SearchSettingsSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 MiraiLinkText(
-                    text = "250 km (Premium futuro)",
+                    text = if (isRadiusUnlocked) "250 km (Plus/Premium)" else "250 km (Límite gratis)",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -171,6 +183,41 @@ fun SearchSettingsSection(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+
+            AnimatedVisibility(visible = isRadiusLockedForSave) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.search_radius_free_limit_note),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                        if (onNavigateToPaywall != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                onClick = onNavigateToPaywall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_upgrade_to_unlock),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -212,15 +259,72 @@ fun SearchSettingsSection(
                 FilterChip(
                     selected = scope == SearchScope.WORLD,
                     onClick = { onScopeChange(SearchScope.WORLD) },
-                    label = { MiraiLinkText(text = stringResource(R.string.search_scope_world)) },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_scope_world))
+                            if (!isPassportUnlocked) {
+                                MiraiLinkText(
+                                    text = " (Premium)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
                     colors = FilterChipDefaults.filterChipColors(),
                 )
                 FilterChip(
                     selected = scope == SearchScope.SPECIFIC_COUNTRY,
                     onClick = { onScopeChange(SearchScope.SPECIFIC_COUNTRY) },
-                    label = { MiraiLinkText(text = stringResource(R.string.search_scope_passport)) },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_scope_passport))
+                            if (!isPassportUnlocked) {
+                                MiraiLinkText(
+                                    text = " (Premium)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
                     colors = FilterChipDefaults.filterChipColors(),
                 )
+            }
+
+            AnimatedVisibility(visible = isScopeLockedForSave) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.45f),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.search_passport_locked_disclaimer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                        if (onNavigateToPaywall != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                onClick = onNavigateToPaywall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_upgrade_to_unlock),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             // Entrada de código de país con validación regex en tiempo real
@@ -246,11 +350,11 @@ fun SearchSettingsSection(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // Boton de guardado explicito (deshabilitado o bloqueado si el código de país es inválido)
+            // Boton de guardado explicito (deshabilitado si país es inválido o funciones bloqueadas)
             MiraiLinkButton(
                 onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isSaving && !isCountryInvalidForSave,
+                enabled = !isSaving && !isCountryInvalidForSave && !isRadiusLockedForSave && !isScopeLockedForSave,
                 content = {
                     if (isSaving) {
                         CircularProgressIndicator(
