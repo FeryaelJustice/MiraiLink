@@ -143,6 +143,14 @@
     <string name="onboarding_desc_3">Instant connection, real-time messaging, and guaranteed privacy so you can simply enjoy chatting.</string>
     <string name="onboarding_title_4">Otaku Community &amp; Events</string>
     <string name="onboarding_desc_4">Explore thematic categories, manga fairs, conventions, and local meetups to connect with your dream crew.</string>
+    <string name="onboarding_illus_chat_incoming">Konnichiwa! Did you see the finale?</string>
+    <string name="onboarding_illus_chat_outgoing">Amazing! Let\'s chat about it ✨</string>
+    <string name="onboarding_illus_chat_online">Connected instantly</string>
+    <string name="onboarding_illus_chat_security_badge">E2E</string>
+    <string name="onboarding_illus_event_title">Manga &amp; Cosplay Expo</string>
+    <string name="onboarding_illus_event_subtitle">Meetups near you</string>
+    <string name="onboarding_illus_tag_meetups">🎉 Meetups</string>
+    <string name="onboarding_illus_tag_cosplay">🎭 Cosplay</string>
     <string name="start">Start</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>

@@ -48,11 +48,11 @@ class AppScreensTest {
         }
 
         // When
-        repeat(2) {
+        repeat(3) {
             composeRule.onNodeWithText(composeRule.activity.getString(R.string.next)).performClick()
             composeRule.waitForIdle()
         }
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.start)).performClick()
+        composeRule.onNodeWithText(composeRule.activity.getString(R.string.onboarding_start_adventure)).performClick()
         composeRule.waitForIdle()
 
         // Then

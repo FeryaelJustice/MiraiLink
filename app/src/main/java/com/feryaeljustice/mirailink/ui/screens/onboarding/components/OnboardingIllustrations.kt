@@ -44,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
+import com.feryaeljustice.mirailink.R
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -395,7 +397,7 @@ fun OnboardingChatIllustration(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "¡Konichiwa! ¿Viste el final?",
+                            text = stringResource(R.string.onboarding_illus_chat_incoming),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -426,7 +428,7 @@ fun OnboardingChatIllustration(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "¡Increíble! Hablemos de ello ✨",
+                            text = stringResource(R.string.onboarding_illus_chat_outgoing),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -461,7 +463,7 @@ fun OnboardingChatIllustration(
                             .background(Color(0xFF4CAF50).copy(alpha = pulseAlpha)),
                     )
                     Text(
-                        text = "Conectado al instante",
+                        text = stringResource(R.string.onboarding_illus_chat_online),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -484,7 +486,7 @@ fun OnboardingChatIllustration(
                             modifier = Modifier.size(12.dp),
                         )
                         Text(
-                            text = "E2E",
+                            text = stringResource(R.string.onboarding_illus_chat_security_badge),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -588,7 +590,7 @@ fun OnboardingEventsIllustration(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Salón Manga & Cosplay",
+                    text = stringResource(R.string.onboarding_illus_event_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -607,7 +609,7 @@ fun OnboardingEventsIllustration(
                         modifier = Modifier.size(14.dp),
                     )
                     Text(
-                        text = "Encuentros cerca de ti",
+                        text = stringResource(R.string.onboarding_illus_event_subtitle),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -619,8 +621,8 @@ fun OnboardingEventsIllustration(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    OnboardingInterestTag(text = "🎉 Meetups")
-                    OnboardingInterestTag(text = "🎭 Cosplay")
+                    OnboardingInterestTag(text = stringResource(R.string.onboarding_illus_tag_meetups))
+                    OnboardingInterestTag(text = stringResource(R.string.onboarding_illus_tag_cosplay))
                 }
             }
         }

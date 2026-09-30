@@ -94,11 +94,12 @@ class AppE2ETest {
 private fun ComposeTestRule.completeOnboarding() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val textNext = context.getString(R.string.next)
-    val textStart = context.getString(R.string.start)
+    val textStart = context.getString(R.string.onboarding_start_adventure)
 
-    // Avanza por las pantallas de onboarding esperando a que el botón sea visible
-    waitUntilNodeWithText(textNext).performClick()
-    waitUntilNodeWithText(textNext).performClick()
+    // Avanza por las 4 pantallas de onboarding esperando a que el botón sea visible
+    repeat(3) {
+        waitUntilNodeWithText(textNext).performClick()
+    }
     waitUntilNodeWithText(textStart).performClick()
 }
 
