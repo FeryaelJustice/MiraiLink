@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 
-/** Request handled by the single SnackbarHost owned by the app root. */
+/** Petición gestionada por el SnackbarHost único de la raíz de la app. */
 data class MiraiLinkSnackbarRequest(
     val message: String,
     val actionLabel: String? = null,
@@ -31,7 +31,7 @@ fun MiraiLinkSnackbar(
     }
 }
 
-/** Error-specialized wrapper with the standard localized recovery label. */
+/** Wrapper de errores con la etiqueta localizada de recuperación habitual. */
 @Composable
 fun MiraiLinkErrorSnackbar(
     error: UiError,

@@ -16,6 +16,10 @@ class KeystoreAesGcmProvider(
     private val alias: String = "ml_aes_gcm_v1"
 ) : SecretKeyProvider {
 
+    /**
+     * Recupera la clave bajo el alias o genera AES-256-GCM no exportable.
+     * Cambiar alias o perder la clave impide leer payloads anteriores; no cifra contraseñas del servidor.
+     */
     override fun get(): SecretKey {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (ks.getKey(alias, null) as? SecretKey)?.let { return it }

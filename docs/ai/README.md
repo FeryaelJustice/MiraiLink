@@ -1,3 +1,5 @@
+> **Referencia vigente (2026-10-01):** [Guía maestra](../guia-maestra.md). Este documento conserva observaciones de una revisión anterior; versiones, recuentos y hallazgos históricos deben contrastarse con la guía y el código actual.
+
 # Contexto técnico AI de MiraiLink
 
 Esta carpeta es el contexto técnico canónico del cliente Android para Codex, Claude, Gemini y otros asistentes. Se creó a partir del código y la configuración versionados en `47a073e`, con validación local el 2026-07-15. El `README.md` original y los archivos de otros asistentes se conservaron sin reemplazarlos.

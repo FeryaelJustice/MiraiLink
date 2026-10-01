@@ -11,24 +11,24 @@ sealed interface MiraiLinkResult<out T> {
     data class Error(val error: AppError) : MiraiLinkResult<Nothing>
 
     companion object {
-        /** Creates a successful result. */
+        /** Construye un resultado correcto. */
         fun <T> success(data: T): MiraiLinkResult<T> = Success(data)
 
-        /** Creates a typed failure result. */
+        /** Construye un resultado de error tipado. */
         fun error(error: AppError): MiraiLinkResult<Nothing> = Error(error)
     }
 }
 
 typealias EmptyResult = MiraiLinkResult<Unit>
 
-/** Transforms success data and preserves the original error unchanged. */
+/** Transforma datos correctos y conserva el error original. */
 inline fun <T, R> MiraiLinkResult<T>.map(transform: (T) -> R): MiraiLinkResult<R> =
     when (this) {
         is MiraiLinkResult.Success -> MiraiLinkResult.Success(transform(data))
         is MiraiLinkResult.Error -> this
     }
 
-/** Transforms only the failure category and preserves successful data. */
+/** Transforma solo la categoría de error y conserva los datos correctos. */
 inline fun <T> MiraiLinkResult<T>.mapError(
     transform: (AppError) -> AppError,
 ): MiraiLinkResult<T> =
@@ -37,17 +37,17 @@ inline fun <T> MiraiLinkResult<T>.mapError(
         is MiraiLinkResult.Error -> MiraiLinkResult.Error(transform(error))
     }
 
-/** Runs [action] for success and returns this result. */
+/** Ejecuta [action] en caso de éxito y devuelve este resultado. */
 inline fun <T> MiraiLinkResult<T>.onSuccess(action: (T) -> Unit): MiraiLinkResult<T> =
     apply {
         if (this is MiraiLinkResult.Success) action(data)
     }
 
-/** Runs [action] for a typed failure and returns this result. */
+/** Ejecuta [action] para un error tipado y devuelve este resultado. */
 inline fun <T> MiraiLinkResult<T>.onError(action: (AppError) -> Unit): MiraiLinkResult<T> =
     apply {
         if (this is MiraiLinkResult.Error) action(error)
     }
 
-/** Converts successful data to Unit while preserving a typed error. */
+/** Convierte los datos correctos a Unit y conserva los errores tipados. */
 fun <T> MiraiLinkResult<T>.asEmptyResult(): EmptyResult = map { }

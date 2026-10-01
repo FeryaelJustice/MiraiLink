@@ -29,6 +29,10 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 import java.util.Locale
 
+/**
+ * Construye clientes distintos para API e imágenes: token/idioma en API y allowlist en imágenes.
+ * BaseApiUrl añade /api/ al origen de BuildConfig; la configuración no debe repetir ese prefijo.
+ */
 val networkModule =
     module {
         single(BaseUrl) { BuildConfig.MIRAILINK_BASE_URL }

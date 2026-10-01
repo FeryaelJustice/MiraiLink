@@ -28,6 +28,10 @@ class SearchPreferencesRepositoryImpl(
                 )
             }
 
+    /**
+     * Normaliza scope/país y, en remoto, guarda servidor antes que DataStore.
+     * Un fallo remoto no confirma el cambio local; un fallo local posterior puede dejar divergencia.
+     */
     override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> {
         return try {
             val normalized = preferences.copy(

@@ -19,6 +19,10 @@ import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
+/**
+ * Conecta Room y repositorios demo bajo el qualifier Demo.
+ * El fallback destructivo recrea datos demo ante cambio incompatible; no migra datos remotos.
+ */
 val demoModule =
     module {
         single<MiraiLinkDemoDatabase> {

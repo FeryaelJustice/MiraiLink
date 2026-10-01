@@ -83,7 +83,7 @@ class GlobalMiraiLinkSession(
     val forceUpdateBlocking: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    // Forced update gate view entry: when non-null and mustUpdate == true, NavWrapper displays the UpdateGate globally.
+    // Estado del gate: con valor no null y mustUpdate == true, NavWrapper muestra UpdateGate globalmente.
     val forcedUpdateInfo: StateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>
         field = MutableStateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>(null)
 
@@ -94,6 +94,10 @@ class GlobalMiraiLinkSession(
     )
     val pendingDeepLinkUri: SharedFlow<android.net.Uri> = _pendingDeepLinkUri.asSharedFlow()
 
+    /**
+     * Publica la URI para que NavWrapper interprete destino/parámetros.
+     * El evento conserva replay hasta consumirse; recibir una URI no autentica ni verifica al usuario.
+     */
     fun handleDeepLink(uri: android.net.Uri?) {
         if (uri != null) {
             _pendingDeepLinkUri.tryEmit(uri)
@@ -269,6 +273,10 @@ class GlobalMiraiLinkSession(
             }
         }*/
 
+    /**
+     * Observa presencia de foto con backoff de 10 a 120 segundos ante errores.
+     * Un fallo conserva el valor anterior: no equivale a comprobar que el usuario no tiene fotografía.
+     */
     fun startObservingHasProfilePicture(userId: String) {
         if (observeHasProfilePictureJob?.isActive == true) return
         observeHasProfilePictureJob =

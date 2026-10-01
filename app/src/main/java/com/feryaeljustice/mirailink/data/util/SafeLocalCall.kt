@@ -10,10 +10,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 
-/** Signals unreadable media inside data so it can become INVALID_MEDIA. */
+/** Señala media ilegible en datos para convertirla en INVALID_MEDIA. */
 internal class InvalidMediaException : IllegalArgumentException()
 
-/** Runs blocking local work on [dispatcher], preserves cancellation and classifies local failures. */
+/** Ejecuta trabajo local bloqueante en [dispatcher], conserva cancelación y clasifica fallos locales. */
 suspend fun <T> safeLocalCall(
     dispatcher: CoroutineDispatcher,
     call: () -> T,

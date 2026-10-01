@@ -766,7 +766,7 @@ fun NavWrapper(
             }
         }
 
-        // Global forced update gate: renders on top of the entire app hierarchy
+        // Gate de actualización obligatoria: se muestra por encima de la jerarquía de la app
         // and cannot be bypassed or dismissed.
         if (isMandatoryUpdateActive) {
             UpdateGate(

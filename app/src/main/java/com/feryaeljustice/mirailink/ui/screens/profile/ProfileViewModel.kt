@@ -200,9 +200,9 @@ class ProfileViewModel(
                                 }
                             }
 
-                        // Only server URLs belong to the reorderedPositions payload. Local content
-                        // URIs are uploaded in their multipart photo_N field and are not valid URLs
-                        // for the backend to reorder.
+                        // Solo URLs de servidor pertenecen al payload reorderedPositions. Las URI content
+                        // se suben en su campo multipart photo_N y no son URLs válidas
+                        // que el backend pueda reordenar.
                         val existingPhotoUrls =
                             state.photos.map { slot ->
                                 slot.url?.takeIf { slot.uri == null && it.startsWith("http") }

@@ -43,6 +43,10 @@ class FcmService :
     }
 
     @Deprecated("Deprecated in Java")
+    /**
+     * Intenta registrar la rotación del token cuando existe sesión, esperando hasta 1,5 s.
+     * Sin autenticación no hay cola persistente implementada: el else solo contiene una propuesta.
+     */
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.i("FCM", "Tenemos nuevo token desde el FirebaseMessaginService: $token")
@@ -69,6 +73,10 @@ class FcmService :
         }
     }
 
+    /**
+     * Interpreta únicamente data.type=new_message y sus campos de preview. El PendingIntent
+     * abre MainActivity sin incluir conversationId como destino; no abre el chat concreto.
+     */
     private fun showChatNotification(message: RemoteMessage) {
         val data = message.data
 

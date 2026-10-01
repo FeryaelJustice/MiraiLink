@@ -190,7 +190,7 @@ class UserRemoteDataSource(
             is MiraiLinkResult.Error -> prepared
             is MiraiLinkResult.Success ->
                 safeApiUnitResponse(NetworkOperation.AUTHENTICATED) {
-                    // Keep legacy residence parts while older deployed backends migrate to catalog IDs.
+                    // Conservar campos legacy de residencia mientras los backends desplegados migran a IDs canónicos.
                     api.updateProfile(
                         nickname = nickname.toRequestBody(),
                         bio = bio.toRequestBody(),

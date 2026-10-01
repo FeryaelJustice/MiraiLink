@@ -3,18 +3,18 @@ package com.feryaeljustice.mirailink.ui.error
 import androidx.lifecycle.ViewModel
 
 /**
- * Owns the recovery callback for the currently visible [UiError].
- * The callback stays outside immutable UI state and is cleared with the lifecycle.
+ * Mantiene el callback de recuperación del [UiError] visible.
+ * El callback permanece fuera del estado UI inmutable y se limpia con el ciclo de vida.
  */
 abstract class RetryableViewModel : ViewModel() {
     private var recoveryAction: (() -> Unit)? = null
 
-    /** Registers the exact retry or recovery operation for the current error. */
+    /** Registra la operación concreta de reintento o recuperación del error actual. */
     protected fun setRecoveryAction(action: () -> Unit) {
         recoveryAction = action
     }
 
-    /** Runs the recovery chosen by the ViewModel when the action is activated. */
+    /** Ejecuta la recuperación elegida por el ViewModel al activar la acción. */
     fun performErrorAction() {
         recoveryAction?.invoke()
     }

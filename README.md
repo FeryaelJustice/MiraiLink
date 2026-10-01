@@ -1,3 +1,5 @@
+> **Estudio técnico del proyecto:** [Guía maestra en español](docs/guia-maestra.md), con documentos por tema, diagramas, configuración, casos de error y revisión conectada con el otro repositorio.
+
 <p align="center">
   <img src="app/src/main/res/drawable/logomirailink.webp" alt="MiraiLink Logo" width="130" />
 </p>
@@ -6,7 +8,7 @@
 
 <p align="center">
   <strong>La plataforma social y de citas diseñada para entusiastas del anime, manga y videojuegos.</strong><br>
-  <em>Conectando pasiones mediante Clean Architecture, Jetpack Compose, Room local y comunicacion en tiempo real.</em>
+  <em>Conectando pasiones mediante capas de arquitectura, Jetpack Compose, Room demo y comunicacion REST.</em>
 </p>
 
 <p align="center">
@@ -17,16 +19,16 @@
   <a href="https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink" target="_blank">
     <img src="https://img.shields.io/badge/Google_Play-Descargar_en_Produccion-34A853?style=flat-square&logo=googleplay&logoColor=white" alt="Disponible en Google Play" />
   </a>
-  <img src="https://img.shields.io/badge/Platform-Android_8.0+_API_26_a_37-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android Platform" />
+  <img src="https://img.shields.io/badge/Platform-Android_11+_API_30_a_37-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android Platform" />
   <img src="https://img.shields.io/badge/Kotlin-2.4.10-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.4.10" />
-  <img src="https://img.shields.io/badge/Compose_BOM-2026.08.00-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Compose BOM" />
+  <img src="https://img.shields.io/badge/Compose_BOM-2026.09.00-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Compose BOM" />
   <img src="https://img.shields.io/badge/Navigation-Navigation_3-00ACC1?style=flat-square" alt="Navigation 3" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-FF6F00?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/DI-Koin_4.2.2-FF4081?style=flat-square" alt="Koin DI" />
-  <img src="https://img.shields.io/badge/Database-Room_2.8.4-1DE9B6?style=flat-square&logo=sqlite&logoColor=white" alt="Room Database" />
+  <img src="https://img.shields.io/badge/Database-Room_2.8.5-1DE9B6?style=flat-square&logo=sqlite&logoColor=white" alt="Room Database" />
   <img src="https://img.shields.io/badge/Security-Encrypted_DataStore-E91E63?style=flat-square" alt="Encrypted DataStore" />
   <img src="https://img.shields.io/badge/Testing-Unit_|_UI_|_Screenshots_|_Kotzilla-00C853?style=flat-square" alt="Testing Suite" />
 </p>
@@ -56,8 +58,8 @@
 Construida con los estandares de ingenieria mas modernos del ecosistema Android:
 - **UI Reactiva y Declarativa**: 100% Jetpack Compose Material 3 bajo el patron Atomic Design (Atoms, Molecules, Organisms).
 - **Navigation 3 de Google**: Arquitectura de navegacion desacoplada con rutas fuertemente tipadas y estado serializable.
-- **Arquitectura Limpia**: Separacion estricta en capas (Data, Domain, UI) con inyeccion de dependencias reactiva mediante Koin.
-- **Doble Modo Hibrido**: Capacidad de alternar entre un backend ExpressJS online con WebSockets y un entorno Sandbox 100% offline respaldado por Room 2.8 para pruebas instantaneas sin necesidad de registro ni conexion a internet.
+- **Arquitectura por capas**: Separacion pragmatica en paquetes (Data, Domain, UI) con inyeccion de dependencias reactiva mediante Koin.
+- **Doble Modo Hibrido**: Capacidad de alternar entre un backend ExpressJS online por HTTP REST y un entorno Sandbox 100% offline respaldado por Room 2.8 para pruebas instantaneas sin necesidad de registro ni conexion a internet.
 
 > **Disponible en Produccion**: Puedes probar MiraiLink directamente en tu dispositivo descargandola en [Google Play Store](https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink).
 
@@ -69,7 +71,7 @@ Todas las capturas provienen de sesiones de la aplicacion en funcionamiento real
 
 ### Descubrimiento y Matching
 
-| 1. Acceso y Modo Demo | 2. Feed de Descubrimiento | 3. Mensajes y Matches | 4. Chat en Tiempo Real |
+| 1. Acceso y Modo Demo | 2. Feed de Descubrimiento | 3. Mensajes y Matches | 4. Chat por REST |
 | :---: | :---: | :---: | :---: |
 | <img src="docs/screenshots/01-auth-screen-demo-button.webp" width="220" alt="Pantalla de Acceso con Modo Demo" /> | <img src="docs/screenshots/02-home-screen-demo-feed.webp" width="220" alt="Feed con Tarjetas de Perfiles" /> | <img src="docs/screenshots/03-messages-screen-demo-matches.webp" width="220" alt="Matches y Conversaciones" /> | <img src="docs/screenshots/04-chat-screen-demo-conversation.webp" width="220" alt="Chat Interactivo" /> |
 | Acceso rapido mediante credenciales o entrada directa al **Modo Offline** sin registro. | Tarjetas interactivas con animaciones de swipe, fotos multiples y afinidad por intereses. | Carrusel superior de nuevas conexiones y bandeja organizada de chats activos. | Mensajeria bidireccional con burbujas tipadas, estados de envio y soporte de emojis. |
@@ -105,7 +107,7 @@ MiraiLink cuenta con un sistema de inversion de dependencias dinamico que permit
    +-------------------------+               +-------------------------+
    |    Modo Online (API)    |               |   Modo Offline (Demo)   |
    | - Backend ExpressJS     |               | - Base de Datos Room    |
-   | - Socket.IO real-time   |               | - Respuestas Simuladas  |
+   | - REST polling de chat   |               | - Respuestas Simuladas  |
    | - JWT en EncryptedStore |               | - Cero Registro / Nube  |
    | - Notificaciones FCM    |               | - Reseteo Instantaneo   |
    +-------------------------+               +-------------------------+
@@ -116,9 +118,9 @@ MiraiLink cuenta con un sistema de inversion de dependencias dinamico que permit
 | Caracteristica | Modo Online (Produccion) | Modo Demostracion Offline (Local Sandbox) |
 | :--- | :--- | :--- |
 | **Objetivo** | Conectar usuarios reales a traves del servicio en la nube. | Evaluacion instantanea de UX, navegacion y rendimiento sin barreras de entrada. |
-| **Conexion a Servidor** | Obligatoria (REST API en `mirailink.xyz` y WebSockets). | Nula: funciona 100% de manera local y en modo avion. |
-| **Persistencia** | Almacenamiento remoto seguro y tokens JWT en `EncryptedDataStore`. | Base de datos SQLite local completa administrada con `Room 2.8.4`. |
-| **Comportamiento Chat** | Entrega remota en tiempo real mediante Socket.IO y polling inteligente. | Respuestas automaticas simuladas tras 1 segundo para emular actividad real. |
+| **Conexion a Servidor** | Obligatoria (REST API en el origen configurado). | Nula: funciona 100% de manera local y en modo avion. |
+| **Persistencia** | Almacenamiento remoto seguro y tokens JWT en `EncryptedDataStore`. | Base de datos SQLite local completa administrada con `Room 2.8.5`. |
+| **Comportamiento Chat** | Historial y envio REST, con consulta periodica cada tres segundos. | Respuestas automaticas simuladas tras 1 segundo para emular actividad real. |
 | **Gestion de Datos** | Sincronizacion en la nube con respaldo. | Boton en Ajustes para **Restablecer datos de demostracion** a valores de fabrica. |
 
 - - -
@@ -136,8 +138,8 @@ MiraiLink cuenta con un sistema de inversion de dependencias dinamico que permit
   - Feeds tematicos dedicados con navegacion completa de swipes y contadores reales agregados con cache de 5 minutos.
   - Ajustes de descubrimiento independientes por categoria (radio de distancia 10-500 km) mediante hoja modal que preserva las preferencias globales de busqueda del usuario.
 
-- **Chat en Tiempo Real y Mensajeria**:
-  - Comunicacion bidireccional instantanea con WebSockets y fallback REST continuo.
+- **Chat por REST y Mensajeria**:
+  - Comunicacion REST con consulta periodica de mensajes; SocketService es infraestructura registrada.
   - Persistencia del historial de conversacion estructurado por fecha y participante.
   - Selector integrado de emojis y envio optimista con identificadores unicos UUID.
 
@@ -220,15 +222,15 @@ Centralizado rigurosamente mediante Gradle Version Catalog (`gradle/libs.version
 | Categoria | Tecnologia / Libreria | Version | Descripcion / Uso |
 | :--- | :--- | :--- | :--- |
 | **Lenguaje** | Kotlin | `2.4.10` | Tipado estricto, corrutinas y Flow reactivo |
-| **Compilador Android** | Android Gradle Plugin (AGP) | `9.4.0` | Herramientas de build de ultima generacion |
-| **SDK Targets** | Min SDK 26 / Compile y Target SDK 37 | Android 8.0 a 16 | Cobertura amplia y adopcion de las APIs mas modernas |
-| **UI Framework** | Jetpack Compose (Compose BOM) | `2026.08.00` | Renderizado declarativo con Material 3 |
+| **Compilador Android** | Android Gradle Plugin (AGP) | `9.4.1` | Herramientas de build de ultima generacion |
+| **SDK Targets** | Min SDK 30 / Compile y Target SDK 37 | Android 11 o superior | Cobertura amplia y adopcion de las APIs mas modernas |
+| **UI Framework** | Jetpack Compose (Compose BOM) | `2026.09.00` | Renderizado declarativo con Material 3 |
 | **Navegacion** | Navigation 3 (Nav3 Core) | `1.1.7` | La nueva arquitectura oficial de navegacion para Compose |
 | **Inyeccion de Dependencias** | Koin BOM y Annotations | `4.2.2` | Inyeccion ligera, modular y testeable sin boilerplate |
-| **Persistencia Local** | Room Database | `2.8.4` | SQLite tipado con KSP para el sandbox offline |
+| **Persistencia Local** | Room Database | `2.8.5` | SQLite tipado con KSP para el sandbox offline |
 | **Almacenamiento Cifrado** | AndroidX Encrypted DataStore | `1.2.1` | Seguridad para tokens de sesion con Android Keystore |
 | **Networking REST** | Retrofit 3 + OkHttp 5 | `3.0.0` / `5.5.0` | Comunicacion REST con interceptor de auth y logs |
-| **Tiempo Real** | Socket.IO Client | `2.1.2` | WebSockets para sincronizacion instantanea de mensajes |
+| **Tiempo Real** | Socket.IO Client | `2.1.2` | Servicio disponible, sin consumo en el polling visible del chat |
 | **Serializacion** | Kotlinx Serialization | `1.11.0` | Parsing JSON de alto rendimiento con Kotlin puro |
 | **Carga de Imagenes** | Coil Compose | `2.7.0` | Descarga, cache y decodificacion asincrona de fotos |
 | **Cloud y Analitica** | Firebase BOM | `34.18.0` | Crashlytics, Analytics, Remote Config y Cloud Messaging |
@@ -333,7 +335,7 @@ MiraiLink/
 - **JDK**: Java 17 o superior (Eclipse Temurin u OpenJDK 17+ recomendados).
 - **IDE**: Android Studio Ladybug, Koala o superior (totalmente compatible con AGP 9.4).
 - **Android SDK**: Plataformas de compilacion API 37 instaladas mediante el SDK Manager.
-- **Dispositivo de Prueba**: Emulador o movil fisico con Android 8.0 (API 26) o superior con depuracion USB habilitada.
+- **Dispositivo de Prueba**: Emulador o movil fisico con Android 11 (API 30) o superior con depuracion USB habilitada.
 
 ### Configuracion Paso a Paso
 

@@ -86,7 +86,7 @@ fun PhotoCarousel(
     }
 //    val pagerIsDragged by pagerState.interactionSource.collectIsDraggedAsState()
 
-    // Stop auto-advancing when pager is dragged or one of the pages is pressed
+    // Detener avance automático al arrastrar el pager o mantener pulsada una página
 //    val autoAdvance = !pagerIsDragged && !pageIsPressed
 //
 //    if (autoAdvance) {

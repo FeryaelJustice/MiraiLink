@@ -1,3 +1,5 @@
+> **Referencia vigente (2026-10-01):** [Guía maestra](../guia-maestra.md). Este documento conserva observaciones de una revisión anterior; versiones, recuentos y hallazgos históricos deben contrastarse con la guía y el código actual.
+
 # Runtime e integraciones
 
 ## Backend REST

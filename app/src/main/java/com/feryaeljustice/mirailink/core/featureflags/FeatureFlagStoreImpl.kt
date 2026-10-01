@@ -15,6 +15,10 @@ class FeatureFlagStoreImpl(
     @Suppress("ktlint:standard:property-naming")
     private val CHRISTMAS_KEY = booleanPreferencesKey(FLAG_ENABLE_CHRISTMAS_THEME)
 
+    /**
+     * Expone la bandera local del tema navideño, inicialmente false. Splash la sobrescribe
+     * con el valor recibido de Remote Config; no es un permiso ni un entitlement del backend.
+     */
     override val featureFlagsFlow: Flow<Map<String, FeatureFlag>>
         get() =
             context.dataStore.data.map { prefs ->

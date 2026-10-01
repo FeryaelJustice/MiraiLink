@@ -398,7 +398,7 @@ fun ProfileScreen(
                                     )
                                 },
                                 onPhotoSlotClick = { position ->
-                                    // position is the index of the photo slot
+                                    // position es el índice del slot de fotografía
                                     Log.d(
                                         "ProfileScreen",
                                         "onPhotoSlotClick: $position",
@@ -539,7 +539,7 @@ fun ProfileScreen(
             }
         }
 
-        // Keep save errors above the editable card so the retry action remains visible.
+        // Mantener errores de guardado sobre la tarjeta editable para que el reintento siga visible.
         editState.error?.let { error ->
             MiraiLinkErrorSnackbar(
                 error = error,
