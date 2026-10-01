@@ -7,8 +7,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +26,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -60,30 +58,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.model.haptics.HeartbeatAffinity
 import com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.components.haptics.HapticHeartbeatOverlay
-import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
-import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
-import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
-import org.koin.compose.koinInject
-import coil.compose.AsyncImage
-import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
-import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
-import com.feryaeljustice.mirailink.ui.components.user.buildPersonalChips
-import com.feryaeljustice.mirailink.ui.components.user.buildCategorizedPersonalInfo
-import com.feryaeljustice.mirailink.ui.components.user.CategorizedPersonalInfoSection
-import coil.request.ImageRequest
-import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.calculateAge
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.user.CategorizedPersonalInfoSection
+import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
+import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
+import com.feryaeljustice.mirailink.ui.components.user.buildCategorizedPersonalInfo
+import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
-import com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,6 +130,7 @@ fun UserProfileDetailScreen(
     val hapticController: HapticHeartbeatController = koinInject()
     val affinityUseCase: CalculateHeartbeatAffinityUseCase = koinInject()
     val getCurrentUserUseCase: GetCurrentUserUseCase = koinInject()
+    val miraiLinkSession: GlobalMiraiLinkSession = koinInject()
 
     var currentUser by remember { mutableStateOf<UserViewEntry?>(null) }
     LaunchedEffect(Unit) {
@@ -160,27 +157,41 @@ fun UserProfileDetailScreen(
             }
         }
 
-    var isOverlayVisible by remember { mutableStateOf(false) }
     var holdProgress by remember { mutableFloatStateOf(0f) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            hapticController.stopHeartbeat()
+            miraiLinkSession.hideHeartbeatOverlay()
+        }
+    }
 
     val likeGestureModifier =
         Modifier.hapticHeartbeatLikeTrigger(
             onTap = { viewModel.likeUser() },
             onHoldStart = {
-                isOverlayVisible = true
                 hapticController.startHeartbeat(affinity.ratio)
+                miraiLinkSession.showHeartbeatOverlay(
+                    affinity = affinity,
+                    progress = 0f,
+                    targetNickname = targetUser?.nickname.orEmpty(),
+                    isSwipe = false,
+                )
             },
-            onHoldProgress = { holdProgress = it },
+            onHoldProgress = {
+                holdProgress = it
+                miraiLinkSession.updateHeartbeatProgress(it)
+            },
             onHoldComplete = {
-                isOverlayVisible = false
                 holdProgress = 0f
+                miraiLinkSession.hideHeartbeatOverlay()
                 hapticController.triggerLikeConfirmation()
                 viewModel.likeUser()
             },
             onHoldCancel = {
-                isOverlayVisible = false
                 holdProgress = 0f
                 hapticController.stopHeartbeat()
+                miraiLinkSession.hideHeartbeatOverlay()
             },
         )
 
@@ -253,20 +264,28 @@ fun UserProfileDetailScreen(
                                 Modifier.hapticHeartbeatLikeTrigger(
                                     onTap = { url?.let { fullscreenImageUrl = it } },
                                     onHoldStart = {
-                                        isOverlayVisible = true
                                         hapticController.startHeartbeat(affinity.ratio)
+                                        miraiLinkSession.showHeartbeatOverlay(
+                                            affinity = affinity,
+                                            progress = 0f,
+                                            targetNickname = targetUser?.nickname.orEmpty(),
+                                            isSwipe = false,
+                                        )
                                     },
-                                    onHoldProgress = { holdProgress = it },
+                                    onHoldProgress = {
+                                        holdProgress = it
+                                        miraiLinkSession.updateHeartbeatProgress(it)
+                                    },
                                     onHoldComplete = {
-                                        isOverlayVisible = false
                                         holdProgress = 0f
+                                        miraiLinkSession.hideHeartbeatOverlay()
                                         hapticController.triggerLikeConfirmation()
                                         viewModel.likeUser()
                                     },
                                     onHoldCancel = {
-                                        isOverlayVisible = false
                                         holdProgress = 0f
                                         hapticController.stopHeartbeat()
+                                        miraiLinkSession.hideHeartbeatOverlay()
                                     },
                                 )
                             }
@@ -286,18 +305,6 @@ fun UserProfileDetailScreen(
             imageContentDescription = username,
         )
     }
-
-    HapticHeartbeatOverlay(
-        visible = isOverlayVisible,
-        affinity = affinity,
-        progress = holdProgress,
-        targetNickname = targetUser?.nickname.orEmpty(),
-        onDismiss = {
-            isOverlayVisible = false
-            holdProgress = 0f
-            hapticController.stopHeartbeat()
-        },
-    )
 }
 }
 

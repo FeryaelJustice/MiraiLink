@@ -24,34 +24,35 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.ui.components.haptics.HapticHeartbeatOverlay
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
 import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
@@ -81,6 +82,7 @@ fun UserSwipeCardStack(
     hapticController: HapticHeartbeatController = koinInject(),
     affinityUseCase: CalculateHeartbeatAffinityUseCase = koinInject(),
     getCurrentUserUseCase: GetCurrentUserUseCase = koinInject(),
+    miraiLinkSession: GlobalMiraiLinkSession = koinInject(),
 ) {
     if (users.isEmpty()) return
 
@@ -114,8 +116,14 @@ fun UserSwipeCardStack(
             )
         }
 
-    var isOverlayVisible by remember { mutableStateOf(false) }
     var holdProgress by remember { mutableFloatStateOf(0f) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            hapticController.stopHeartbeat()
+            miraiLinkSession.hideHeartbeatOverlay()
+        }
+    }
 
     key(topUser.id) {
         val scope = rememberCoroutineScope()
@@ -150,9 +158,9 @@ fun UserSwipeCardStack(
         fun settleCard() {
             if (isSwipeHeartbeatActive) {
                 isSwipeHeartbeatActive = false
-                isOverlayVisible = false
                 holdProgress = 0f
                 hapticController.stopHeartbeat()
+                miraiLinkSession.hideHeartbeatOverlay()
             }
             scope.launch {
                 offsetX.animateTo(0f, animationSpec = spring())
@@ -163,8 +171,8 @@ fun UserSwipeCardStack(
         fun completeSwipe(direction: SwipeDirection) {
             if (isSwipeHeartbeatActive) {
                 isSwipeHeartbeatActive = false
-                isOverlayVisible = false
                 holdProgress = 0f
+                miraiLinkSession.hideHeartbeatOverlay()
             }
             scope.launch {
                 offsetX.animateTo(
@@ -218,8 +226,8 @@ fun UserSwipeCardStack(
                                 onDragEnd = {
                                     if (isSwipeHeartbeatActive) {
                                         isSwipeHeartbeatActive = false
-                                        isOverlayVisible = false
                                         holdProgress = 0f
+                                        miraiLinkSession.hideHeartbeatOverlay()
                                     }
                                     when {
                                         offsetX.value >= SwipeConfirmationThresholdPx -> {
@@ -239,9 +247,9 @@ fun UserSwipeCardStack(
                                 onDragCancel = {
                                     if (isSwipeHeartbeatActive) {
                                         isSwipeHeartbeatActive = false
-                                        isOverlayVisible = false
                                         holdProgress = 0f
                                         hapticController.stopHeartbeat()
+                                        miraiLinkSession.hideHeartbeatOverlay()
                                     }
                                     settleCard()
                                 },
@@ -255,18 +263,25 @@ fun UserSwipeCardStack(
                                     }
 
                                     if (newX >= 60f) {
+                                        val progress = (newX / SwipeConfirmationThresholdPx).coerceIn(0f, 1f)
                                         if (!isSwipeHeartbeatActive) {
                                             isSwipeHeartbeatActive = true
-                                            isOverlayVisible = true
                                             hapticController.startHeartbeat(affinity.ratio)
+                                            miraiLinkSession.showHeartbeatOverlay(
+                                                affinity = affinity,
+                                                progress = progress,
+                                                targetNickname = topUser.nickname,
+                                                isSwipe = true,
+                                            )
                                         }
-                                        holdProgress = (newX / SwipeConfirmationThresholdPx).coerceIn(0f, 1f)
+                                        holdProgress = progress
+                                        miraiLinkSession.updateHeartbeatProgress(progress)
                                     } else {
                                         if (isSwipeHeartbeatActive) {
                                             isSwipeHeartbeatActive = false
-                                            isOverlayVisible = false
                                             holdProgress = 0f
                                             hapticController.stopHeartbeat()
+                                            miraiLinkSession.hideHeartbeatOverlay()
                                         }
                                     }
                                 },
@@ -281,20 +296,28 @@ fun UserSwipeCardStack(
                 Modifier.hapticHeartbeatLikeTrigger(
                     onTap = { completeSwipe(SwipeDirection.Like) },
                     onHoldStart = {
-                        isOverlayVisible = true
                         hapticController.startHeartbeat(affinity.ratio)
+                        miraiLinkSession.showHeartbeatOverlay(
+                            affinity = affinity,
+                            progress = 0f,
+                            targetNickname = topUser.nickname,
+                            isSwipe = false,
+                        )
                     },
-                    onHoldProgress = { holdProgress = it },
+                    onHoldProgress = {
+                        holdProgress = it
+                        miraiLinkSession.updateHeartbeatProgress(it)
+                    },
                     onHoldComplete = {
-                        isOverlayVisible = false
                         holdProgress = 0f
+                        miraiLinkSession.hideHeartbeatOverlay()
                         hapticController.triggerLikeConfirmation()
                         completeSwipe(SwipeDirection.Like)
                     },
                     onHoldCancel = {
-                        isOverlayVisible = false
                         holdProgress = 0f
                         hapticController.stopHeartbeat()
+                        miraiLinkSession.hideHeartbeatOverlay()
                     },
                 )
 
@@ -309,18 +332,6 @@ fun UserSwipeCardStack(
                     Modifier
                         .align(Alignment.BottomCenter)
                         .zIndex(2f),
-            )
-
-            HapticHeartbeatOverlay(
-                visible = isOverlayVisible,
-                affinity = affinity,
-                progress = holdProgress,
-                targetNickname = topUser.nickname,
-                onDismiss = {
-                    isOverlayVisible = false
-                    holdProgress = 0f
-                    hapticController.stopHeartbeat()
-                },
             )
         }
     }

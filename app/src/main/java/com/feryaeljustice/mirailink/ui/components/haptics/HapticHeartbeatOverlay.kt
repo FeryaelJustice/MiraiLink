@@ -15,20 +15,20 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,10 +40,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -65,6 +68,7 @@ fun HapticHeartbeatOverlay(
     targetNickname: String,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    isSwipe: Boolean = false,
 ) {
     if (visible) {
         BackHandler { onDismiss() }
@@ -74,7 +78,7 @@ fun HapticHeartbeatOverlay(
         visible = visible,
         enter = fadeIn(animationSpec = tween(180)),
         exit = fadeOut(animationSpec = tween(220)),
-        modifier = modifier.zIndex(99f),
+        modifier = modifier.zIndex(999f),
     ) {
         val cycleDurationMs = (60_000 / affinity.bpm).coerceIn(400, 1100)
         val infiniteTransition = rememberInfiniteTransition(label = "HeartbeatRipples")
@@ -92,7 +96,7 @@ fun HapticHeartbeatOverlay(
 
         val heartBeatScale by infiniteTransition.animateFloat(
             initialValue = 1f,
-            targetValue = 1.28f,
+            targetValue = 1.25f,
             animationSpec =
                 infiniteRepeatable(
                     animation = tween(cycleDurationMs / 2, easing = FastOutSlowInEasing),
@@ -103,15 +107,25 @@ fun HapticHeartbeatOverlay(
 
         val isReady = progress >= 1f
 
-        Box(
+        BoxWithConstraints(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.72f))
+                    .background(Color.Black.copy(alpha = 0.78f))
                     .testTag("hapticHeartbeatOverlay"),
             contentAlignment = Alignment.Center,
         ) {
-            // Ondas concentricas neón sobre Canvas
+            val isLandscape = maxWidth > maxHeight
+            val circleDiameter =
+                if (isLandscape) {
+                    (maxHeight * 0.88f).coerceIn(260.dp, 330.dp)
+                } else {
+                    (maxWidth * 0.86f).coerceIn(310.dp, 360.dp)
+                }
+            val density = LocalDensity.current
+            val circleRadiusPx = with(density) { (circleDiameter / 2).toPx() }
+
+            // Ondas concentricas neon y resplandor sobre Canvas
             Canvas(
                 modifier =
                     Modifier
@@ -119,16 +133,33 @@ fun HapticHeartbeatOverlay(
                         .testTag("heartbeatCanvas"),
             ) {
                 val canvasCenter = Offset(size.width / 2f, size.height / 2f)
-                val maxRadius = (size.minDimension / 1.7f)
+                val maxRippleRadius = circleRadiusPx * 1.55f
 
-                // Renderizado de 3 capas de ondas concentricas desfasadas
+                // Resplandor radial suave dentro del circulo radar
+                drawCircle(
+                    brush =
+                        Brush.radialGradient(
+                            colors =
+                                listOf(
+                                    (if (isReady) GlowReady else NeonMagenta).copy(alpha = 0.18f),
+                                    Color.Transparent,
+                                ),
+                            center = canvasCenter,
+                            radius = circleRadiusPx,
+                        ),
+                    radius = circleRadiusPx,
+                    center = canvasCenter,
+                )
+
+                // Renderizado de ondas concentricas expandiendose hacia afuera
                 val ringCount = 3
                 for (i in 0 until ringCount) {
                     val offsetPhase = (pulsePhase + (i.toFloat() / ringCount)) % 1f
-                    val currentRadius = 60.dp.toPx() + (maxRadius - 60.dp.toPx()) * offsetPhase
+                    val currentRadius =
+                        circleRadiusPx + (maxRippleRadius - circleRadiusPx) * offsetPhase
                     val alpha = (1f - offsetPhase).pow(1.6f).coerceIn(0f, 1f)
-
-                    val strokeWidth = (6.dp.toPx() * (1f - (offsetPhase * 0.5f))).coerceAtLeast(1.5f)
+                    val strokeWidth =
+                        (4.dp.toPx() * (1f - (offsetPhase * 0.5f))).coerceAtLeast(1.5f)
 
                     val ringColor =
                         if (isReady) {
@@ -149,14 +180,13 @@ fun HapticHeartbeatOverlay(
                     )
                 }
 
-                // Anillo de progreso alrededor del nucleo central (umbral de 1.2s)
-                val progressTrackRadius = 88.dp.toPx()
+                // Anillo de progreso alrededor del nucleo central
                 val progressTrackTopLeft =
                     Offset(
-                        canvasCenter.x - progressTrackRadius,
-                        canvasCenter.y - progressTrackRadius,
+                        canvasCenter.x - circleRadiusPx,
+                        canvasCenter.y - circleRadiusPx,
                     )
-                val progressTrackSize = Size(progressTrackRadius * 2f, progressTrackRadius * 2f)
+                val progressTrackSize = Size(circleRadiusPx * 2f, circleRadiusPx * 2f)
 
                 // Fondo de pista
                 drawArc(
@@ -166,7 +196,7 @@ fun HapticHeartbeatOverlay(
                     useCenter = false,
                     topLeft = progressTrackTopLeft,
                     size = progressTrackSize,
-                    style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round),
+                    style = Stroke(width = 4.5.dp.toPx(), cap = StrokeCap.Round),
                 )
 
                 // Arco de carga progresiva
@@ -189,21 +219,29 @@ fun HapticHeartbeatOverlay(
                     useCenter = false,
                     topLeft = progressTrackTopLeft,
                     size = progressTrackSize,
-                    style = Stroke(width = 5.dp.toPx(), cap = StrokeCap.Round),
+                    style = Stroke(width = 5.5.dp.toPx(), cap = StrokeCap.Round),
                 )
             }
 
-            // Nucleo Central (Icono de corazon palpitante + estadisticas)
+            // Nucleo Central (Icono de corazon palpitante + estadisticas e indicaciones)
+            val contentMaxWidth = circleDiameter - (if (isLandscape) 36.dp else 44.dp)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .size(circleDiameter)
+                        .padding(horizontal = if (isLandscape) 18.dp else 22.dp)
+                        .widthIn(max = contentMaxWidth),
             ) {
+                val heartBoxSize = if (isLandscape) 46.dp else 56.dp
+                val heartIconSize = if (isLandscape) 26.dp else 34.dp
+
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier =
                         Modifier
-                            .size(130.dp)
+                            .size(heartBoxSize)
                             .clip(CircleShape)
                             .background(
                                 Brush.radialGradient(
@@ -221,7 +259,7 @@ fun HapticHeartbeatOverlay(
                         tint = if (isReady) GlowReady else NeonPink,
                         modifier =
                             Modifier
-                                .size(56.dp)
+                                .size(heartIconSize)
                                 .graphicsLayer {
                                     scaleX = heartBeatScale
                                     scaleY = heartBeatScale
@@ -229,27 +267,31 @@ fun HapticHeartbeatOverlay(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 2.dp else 6.dp))
 
                 Text(
                     text = "${affinity.percentage}% Sincronía",
                     color = if (isReady) GlowReady else Color.White,
-                    fontSize = 26.sp,
+                    fontSize = if (isLandscape) 18.sp else 22.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 2.dp else 4.dp))
 
                 Text(
                     text = "${affinity.bpm} BPM · Pulso Cardíaco",
                     color = NeonCyan,
-                    fontSize = 14.sp,
+                    fontSize = if (isLandscape) 11.sp else 13.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 2.dp else 4.dp))
 
                 val interestsDetail =
                     buildString {
@@ -267,24 +309,30 @@ fun HapticHeartbeatOverlay(
 
                 Text(
                     text = interestsDetail,
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 13.sp,
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = if (isLandscape) 10.sp else 12.sp,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 6.dp else 12.dp))
+
+                val actionText =
+                    when {
+                        isReady -> "¡Sincronía alcanzada! Suelta para Me Gusta"
+                        isSwipe -> "Desliza a la derecha para sincronizar..."
+                        else -> "Mantén presionado para conectar..."
+                    }
 
                 Text(
-                    text =
-                        if (isReady) {
-                            "¡Sincronía alcanzada! Suelta para Me Gusta"
-                        } else {
-                            "Mantén presionado para conectar..."
-                        },
-                    color = if (isReady) GlowReady else Color.White.copy(alpha = 0.6f),
-                    fontSize = 14.sp,
+                    text = actionText,
+                    color = if (isReady) GlowReady else Color.White.copy(alpha = 0.7f),
+                    fontSize = if (isLandscape) 11.sp else 12.sp,
                     fontWeight = if (isReady) FontWeight.SemiBold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

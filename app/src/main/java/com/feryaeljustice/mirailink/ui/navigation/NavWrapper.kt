@@ -39,6 +39,7 @@ import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.appconfig.UpdateGate
 import com.feryaeljustice.mirailink.ui.components.bottombars.MiraiLinkBottomBar
 import com.feryaeljustice.mirailink.ui.components.demo.DemoModeBanner
+import com.feryaeljustice.mirailink.ui.components.haptics.HapticHeartbeatOverlay
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkSnackbarRequest
 import com.feryaeljustice.mirailink.ui.components.topbars.MiraiLinkTopBar
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarLayoutDirection
@@ -764,6 +765,21 @@ fun NavWrapper(
                     modifier = Modifier.padding(innerPadding),
                 )
             }
+        }
+
+        // Heartbeat overlay a nivel de toda la aplicacion
+        val heartbeatState by miraiLinkSession.heartbeatOverlayState.collectAsStateWithLifecycle()
+        heartbeatState?.let { state ->
+            HapticHeartbeatOverlay(
+                visible = state.visible,
+                affinity = state.affinity,
+                progress = state.progress,
+                targetNickname = state.targetNickname,
+                isSwipe = state.isSwipe,
+                onDismiss = {
+                    miraiLinkSession.hideHeartbeatOverlay()
+                },
+            )
         }
 
         // Gate de actualización obligatoria: se muestra por encima de la jerarquía de la app
