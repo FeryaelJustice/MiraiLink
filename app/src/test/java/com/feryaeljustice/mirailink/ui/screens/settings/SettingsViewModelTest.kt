@@ -27,6 +27,7 @@ class SettingsViewModelTest : KoinTest {
 
     private val logoutUseCase: LogoutUseCase by inject()
     private val deleteAccountUseCase: DeleteAccountUseCase by inject()
+    private val getCurrentUserUseCase: com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase by inject()
     private lateinit var viewModel: SettingsViewModel
 
     @get:Rule
@@ -36,6 +37,9 @@ class SettingsViewModelTest : KoinTest {
                 module {
                     single { mockk<LogoutUseCase>() }
                     single { mockk<DeleteAccountUseCase>() }
+                    single { mockk<com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase> {
+                        coEvery { this@mockk.invoke() } returns MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.UnknownError)
+                    } }
                 },
             )
         }
@@ -46,6 +50,7 @@ class SettingsViewModelTest : KoinTest {
             SettingsViewModel(
                 logoutUseCase,
                 deleteAccountUseCase,
+                getCurrentUserUseCase,
                 mainCoroutineRule.testDispatcher,
                 mainCoroutineRule.testDispatcher,
             )

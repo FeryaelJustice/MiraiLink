@@ -161,6 +161,7 @@ val viewModelModule =
             SettingsViewModel(
                 logoutUseCase = get(),
                 deleteAccountUseCase = get(),
+                getCurrentUserUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )

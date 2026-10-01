@@ -572,6 +572,14 @@ fun NavWrapper(
                             )
                         },
                         onNavigateToFaq = { navigator.navigate(AppScreen.FaqScreen) },
+                        onNavigateToProfilePreview = { username ->
+                            navigator.navigate(
+                                AppScreen.UserProfileDetailScreen(
+                                    username = username,
+                                    canInteract = false,
+                                ),
+                            )
+                        },
                     )
                 }
 
@@ -589,8 +597,20 @@ fun NavWrapper(
                         onNavigateToManageSubscription = {
                             navigator.navigate(AppScreen.SubscriptionManageScreen)
                         },
-                        onNavigateToMiraiStudio = {
-                            navigator.navigate(AppScreen.MiraiStudioScreen())
+                        onNavigateToProfilePreview = { username ->
+                            navigator.navigate(
+                                AppScreen.UserProfileDetailScreen(
+                                    username = username,
+                                    canInteract = false,
+                                ),
+                            )
+                        },
+                        onNavigateToUsernameDetail = { username ->
+                            navigator.navigate(
+                                AppScreen.UsernameDetailScreen(
+                                    username = username,
+                                ),
+                            )
                         },
                     )
                 }
@@ -642,6 +662,13 @@ fun NavWrapper(
                             }
                             navigator.goBack()
                         },
+                    )
+                }
+
+                entry<AppScreen.UsernameDetailScreen> { key ->
+                    com.feryaeljustice.mirailink.ui.screens.settings.username.UsernameDetailScreen(
+                        username = key.username,
+                        onBackClick = { navigator.goBack() },
                     )
                 }
             }
@@ -824,5 +851,6 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.FeedbackScreen -> "feedback"
         is AppScreen.SubscriptionPaywallScreen -> "subscription_paywall"
         is AppScreen.SubscriptionManageScreen -> "subscription_manage"
+        is AppScreen.UsernameDetailScreen -> "username_detail"
         else -> this::class.simpleName ?: "unknown"
     }

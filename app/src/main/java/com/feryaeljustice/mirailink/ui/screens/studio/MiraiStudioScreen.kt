@@ -122,16 +122,9 @@ fun MiraiStudioScreen(
         }
     }
 
-    val testModePhotoSavedText = stringResource(R.string.studio_test_mode_photo_saved)
     LaunchedEffect(uiState.isConfirmed, uiState.currentImageUri) {
         if (uiState.isConfirmed && uiState.currentImageUri != null) {
-            if (uiState.targetSlot != null) {
-                onPhotoConfirmed(uiState.currentImageUri!!, uiState.targetSlot)
-            } else {
-                // Modo pruebas/ajustes: Notificar y volver al modo camara interactivo para seguir probando
-                showToast(context, testModePhotoSavedText, Toast.LENGTH_SHORT)
-                viewModel.retry()
-            }
+            onPhotoConfirmed(uiState.currentImageUri!!, uiState.targetSlot)
         }
     }
 

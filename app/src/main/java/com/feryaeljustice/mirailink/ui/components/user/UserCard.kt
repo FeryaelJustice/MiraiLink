@@ -1,6 +1,10 @@
 package com.feryaeljustice.mirailink.ui.components.user
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -106,6 +110,7 @@ fun UserCard(
     onPhotoSlotClick: ((Int) -> Unit)? = null,
     onPhotoReorder: ((from: Int, to: Int) -> Unit)? = null,
     onEdit: ((Boolean) -> Unit)? = null,
+    onPreviewProfile: (() -> Unit)? = null,
     isPublicPresentation: Boolean = false,
     onProfessionChange: ((String) -> Unit)? = null,
     onSingleAttributeSelect: ((ProfileSingleAttributeType, String?) -> Unit)? = null,
@@ -755,46 +760,83 @@ fun UserCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.height(140.dp))
                 }
             }
 
-            Row(
+            Column(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically,
+                        .background(
+                            Brush.verticalGradient(
+                                colors =
+                                    listOf(
+                                        Color.Transparent,
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                    ),
+                            ),
+                        ).padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (editUiState != null && editUiState.isEditing) {
                     MiraiLinkButton(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
                         onClick = onSave,
                         content = {
                             Icon(
                                 Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.save),
+                                modifier = Modifier.size(18.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             MiraiLinkText(
                                 text = stringResource(id = R.string.save),
+                                fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         },
                     )
                 } else if (isPreviewMode) {
                     MiraiLinkButton(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
                         onClick = { onEdit?.invoke(true) },
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit),
+                            modifier = Modifier.size(18.dp),
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         MiraiLinkText(
                             text = stringResource(id = R.string.edit),
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
+                    }
+                    if (onPreviewProfile != null) {
+                        MiraiLinkButton(
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            onClick = onPreviewProfile,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_visibility),
+                                contentDescription = stringResource(R.string.profile_preview_button),
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            MiraiLinkText(
+                                text = stringResource(id = R.string.profile_preview_button),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                        }
                     }
                 }
             }
