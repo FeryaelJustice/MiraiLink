@@ -3,6 +3,8 @@ package com.feryaeljustice.mirailink.state
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.feryaeljustice.mirailink.data.demo.DemoModeManager
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
+import com.feryaeljustice.mirailink.domain.model.haptics.HeartbeatAffinity
+import com.feryaeljustice.mirailink.domain.model.haptics.HeartbeatOverlayState
 import com.feryaeljustice.mirailink.domain.usecase.photos.CheckProfilePictureUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.components.topbars.TopBarConfig
@@ -86,6 +88,40 @@ class GlobalMiraiLinkSession(
     // Estado del gate: con valor no null y mustUpdate == true, NavWrapper muestra UpdateGate globalmente.
     val forcedUpdateInfo: StateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>
         field = MutableStateFlow<com.feryaeljustice.mirailink.ui.viewentries.VersionCheckResultViewEntry?>(null)
+
+    // Estado del overlay sensorial haptico a nivel de toda la aplicacion
+    val heartbeatOverlayState: StateFlow<HeartbeatOverlayState?>
+        field = MutableStateFlow<HeartbeatOverlayState?>(null)
+
+    fun showHeartbeatOverlay(
+        affinity: HeartbeatAffinity,
+        progress: Float,
+        targetNickname: String,
+        isSwipe: Boolean = false,
+    ) {
+        heartbeatOverlayState.value =
+            HeartbeatOverlayState(
+                visible = true,
+                affinity = affinity,
+                progress = progress,
+                targetNickname = targetNickname,
+                isSwipe = isSwipe,
+            )
+    }
+
+    fun updateHeartbeatProgress(progress: Float) {
+        val current = heartbeatOverlayState.value ?: return
+        heartbeatOverlayState.value = current.copy(progress = progress)
+    }
+
+    fun hideHeartbeatOverlay() {
+        val current = heartbeatOverlayState.value ?: return
+        heartbeatOverlayState.value = current.copy(visible = false)
+    }
+
+    fun clearHeartbeatOverlay() {
+        heartbeatOverlayState.value = null
+    }
 
     private val _pendingDeepLinkUri = MutableSharedFlow<android.net.Uri>(
         replay = 1,

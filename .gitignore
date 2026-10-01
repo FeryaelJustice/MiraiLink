@@ -25,3 +25,4 @@ app/kotzilla.json
 /app/src/main/assets/kotzilla.key
 app-release.apk
 app-release.aab
+.kotlin/
