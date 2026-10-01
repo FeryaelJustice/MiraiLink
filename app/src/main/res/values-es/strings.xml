@@ -455,4 +455,7 @@
     <string name="search_radius_free_limit_note">Radio gratuito: máx 250 km. Pasa a Plus o Premium para explorar hasta 800 km.</string>
     <string name="search_passport_locked_disclaimer">El Modo Pasaporte y búsqueda mundial están reservados para miembros MiraiLink Premium.</string>
     <string name="search_upgrade_to_unlock">Desbloquear con suscripción</string>
+    <string name="studio_analysis_failed">No se pudo completar el análisis. Puedes repetir la foto o continuar de todos modos.</string>
+    <string name="studio_filters_passed">La foto pasa los filtros de calidad. ¿Deseas continuar?</string>
+    <string name="studio_filters_warning">La foto tiene avisos de calidad. ¿Deseas continuar de todos modos?</string>
 </resources>

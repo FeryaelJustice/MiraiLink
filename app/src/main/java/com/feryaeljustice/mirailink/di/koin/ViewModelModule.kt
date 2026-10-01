@@ -217,5 +217,13 @@ val viewModelModule =
                 cancelSubscriptionIntentUseCase = get(),
             )
         }
+        viewModel {
+            com.feryaeljustice.mirailink.ui.screens.studio.MiraiStudioViewModel(
+                analyzePhotoQualityUseCase = get(),
+                metricsCalculator = get(),
+                faceDetectorDataSource = get(),
+                savedStateHandle = get(),
+            )
+        }
         viewModelOf(::NavAnalyticsViewModel)
     }

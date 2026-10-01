@@ -114,6 +114,13 @@ sealed class AppScreen : NavKey {
     @Serializable
     @SerialName("subscription_manage")
     data object SubscriptionManageScreen : AppScreen()
+
+    @Serializable
+    @SerialName("mirai_studio")
+    data class MiraiStudioScreen(
+        val targetSlot: Int? = null,
+        val initialUriString: String? = null,
+    ) : AppScreen()
 }
 
 private fun AppScreen.topLevelTab(): AppScreen =

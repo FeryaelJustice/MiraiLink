@@ -105,6 +105,19 @@ class GlobalMiraiLinkSession(
         _pendingDeepLinkUri.resetReplayCache()
     }
 
+    val pendingStudioPhoto: StateFlow<Pair<Int, android.net.Uri>?>
+        field = MutableStateFlow<Pair<Int, android.net.Uri>?>(null)
+
+    fun setPendingStudioPhoto(slot: Int, uri: android.net.Uri) {
+        pendingStudioPhoto.value = slot to uri
+    }
+
+    fun consumePendingStudioPhoto(): Pair<Int, android.net.Uri>? {
+        val current = pendingStudioPhoto.value
+        pendingStudioPhoto.value = null
+        return current
+    }
+
     private var observeHasProfilePictureJob: Job? = null
 
     // UI TopBarConfig

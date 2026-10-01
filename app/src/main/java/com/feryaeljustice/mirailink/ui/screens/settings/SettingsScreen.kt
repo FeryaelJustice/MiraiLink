@@ -78,6 +78,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToManageSubscription: () -> Unit = {},
+    onNavigateToMiraiStudio: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
     twoFactorViewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
@@ -325,6 +326,15 @@ fun SettingsScreen(
                         onNavigateToPaywall()
                     }
                 },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsSectionTitle(stringResource(R.string.studio_screen_title))
+            SettingsActionCard(
+                icon = Icons.Default.Info,
+                title = stringResource(R.string.studio_settings_card_title),
+                subtitle = stringResource(R.string.studio_settings_card_subtitle),
+                onClick = onNavigateToMiraiStudio,
             )
             Spacer(modifier = Modifier.height(16.dp))
 

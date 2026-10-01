@@ -560,7 +560,18 @@ fun NavWrapper(
                 }
 
                 entry<AppScreen.ProfileScreen> {
-                    ProfileScreen(miraiLinkSession = miraiLinkSession)
+                    ProfileScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        onNavigateToMiraiStudio = { slot, uri ->
+                            navigator.navigate(
+                                AppScreen.MiraiStudioScreen(
+                                    targetSlot = slot,
+                                    initialUriString = uri?.toString(),
+                                ),
+                            )
+                        },
+                        onNavigateToFaq = { navigator.navigate(AppScreen.FaqScreen) },
+                    )
                 }
 
                 entry<AppScreen.SettingsScreen> {
@@ -576,6 +587,9 @@ fun NavWrapper(
                         },
                         onNavigateToManageSubscription = {
                             navigator.navigate(AppScreen.SubscriptionManageScreen)
+                        },
+                        onNavigateToMiraiStudio = {
+                            navigator.navigate(AppScreen.MiraiStudioScreen())
                         },
                     )
                 }
@@ -608,10 +622,25 @@ fun NavWrapper(
                     )
                 }
 
-
                 entry<AppScreen.FaqScreen> {
                     com.feryaeljustice.mirailink.ui.screens.settings.faq.FaqScreen(
                         onBackClick = { navigator.goBack() },
+                    )
+                }
+
+                entry<AppScreen.MiraiStudioScreen> { key ->
+                    com.feryaeljustice.mirailink.ui.screens.studio.MiraiStudioScreen(
+                        miraiLinkSession = miraiLinkSession,
+                        targetSlot = key.targetSlot,
+                        initialUri = key.initialUriString?.let { android.net.Uri.parse(it) },
+                        onBackClick = { navigator.goBack() },
+                        onNavigateToFaq = { navigator.navigate(AppScreen.FaqScreen) },
+                        onPhotoConfirmed = { uri, slot ->
+                            if (slot != null) {
+                                miraiLinkSession.setPendingStudioPhoto(slot, uri)
+                            }
+                            navigator.goBack()
+                        },
                     )
                 }
             }

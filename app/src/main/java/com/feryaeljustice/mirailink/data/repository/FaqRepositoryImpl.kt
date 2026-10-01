@@ -32,5 +32,29 @@ class FaqRepositoryImpl : FaqRepository {
             questionRes = R.string.faq_premium_q,
             answerRes = R.string.faq_premium_a,
         ),
+        FaqItem(
+            id = "faq_studio_what_is",
+            category = FaqCategory.PHOTOS_AND_STUDIO,
+            questionRes = R.string.faq_studio_what_is_q,
+            answerRes = R.string.faq_studio_what_is_a,
+        ),
+        FaqItem(
+            id = "faq_studio_standards",
+            category = FaqCategory.PHOTOS_AND_STUDIO,
+            questionRes = R.string.faq_studio_standards_q,
+            answerRes = R.string.faq_studio_standards_a,
+        ),
+        FaqItem(
+            id = "faq_studio_screenshots",
+            category = FaqCategory.PHOTOS_AND_STUDIO,
+            questionRes = R.string.faq_studio_screenshots_q,
+            answerRes = R.string.faq_studio_screenshots_a,
+        ),
+        FaqItem(
+            id = "faq_studio_anime_cosplay",
+            category = FaqCategory.PHOTOS_AND_STUDIO,
+            questionRes = R.string.faq_studio_anime_cosplay_q,
+            answerRes = R.string.faq_studio_anime_cosplay_a,
+        ),
     )
 }

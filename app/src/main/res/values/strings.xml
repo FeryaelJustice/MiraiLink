@@ -470,4 +470,64 @@
     <string name="search_radius_free_limit_note">Radio gratuito: máx 250 km. Pasa a Plus o Premium para explorar hasta 800 km.</string>
     <string name="search_passport_locked_disclaimer">El Modo Pasaporte y búsqueda mundial están reservados para miembros MiraiLink Premium.</string>
     <string name="search_upgrade_to_unlock">Desbloquear con suscripción</string>
+
+    <!-- Mirai Studio & FAQ Strings -->
+    <string name="faq_category_photos_and_studio">Fotos y Mirai Studio</string>
+    <string name="faq_studio_what_is_q">¿Qué es Mirai Studio y el escáner HUD?</string>
+    <string name="faq_studio_what_is_a">Es una herramienta biométrica y de análisis visual futurista integrada en MiraiLink. Utiliza inteligencia artificial local en tu dispositivo (100% privada, sin enviar datos a la nube) para medir la iluminación, nitidez, encuadre y rasgos de tus fotos en tiempo real antes de añadirlas a tu perfil.</string>
+    <string name="faq_studio_standards_q">¿Cuáles son los estándares de calidad técnica recomendados?</string>
+    <string name="faq_studio_standards_a">Recomendamos fotos con buena iluminación frontal o natural (evita sombras oscuras o contraluces extremos), resolución mínima de 720p y con el rostro o elemento principal enfocado y ubicado dentro de la regla de los tercios.</string>
+    <string name="faq_studio_screenshots_q">¿Por qué no se recomiendan capturas de pantalla?</string>
+    <string name="faq_studio_screenshots_a">Las capturas de pantalla suelen incluir barras de estado, porcentaje de batería o bordes negros que reducen el atractivo visual de tu tarjeta de perfil. Te sugerimos recortar la imagen antes de subirla o utilizar el archivo original descargado.</string>
+    <string name="faq_studio_anime_cosplay_q">¿Puedo subir fotos de cosplay, anime o cuerpo entero?</string>
+    <string name="faq_studio_anime_cosplay_a">¡Sí, por supuesto! Si tu foto no es un primer plano facial o es una ilustración que te representa, Mirai Studio activa automáticamente el modo de Calidad Visual General, evaluando la luminosidad, definición y resolución sin penalizar tu imagen.</string>
+
+    <!-- Badges -->
+    <string name="studio_badge_lighting_title">Iluminación Óptima</string>
+    <string name="studio_badge_lighting_desc">Nivel de brillo y contraste balanceados para máxima claridad.</string>
+    <string name="studio_badge_gaze_title">Mirada Directa</string>
+    <string name="studio_badge_gaze_desc">Rostro orientado frontalmente hacia el lente.</string>
+    <string name="studio_badge_smile_title">Sonrisa Auténtica</string>
+    <string name="studio_badge_smile_desc">Expresión cálida y amigable detectada.</string>
+    <string name="studio_badge_frame_title">Encuadre Centrado</string>
+    <string name="studio_badge_frame_desc">Rostro ubicado en la zona focal de la regla de los tercios.</string>
+    <string name="studio_badge_eyes_title">Ojos Abiertos</string>
+    <string name="studio_badge_eyes_desc">Mirada despejada y atenta sin parpadeo.</string>
+    <string name="studio_badge_resolution_title">Alta Definición</string>
+    <string name="studio_badge_resolution_desc">Resolución y nitidez ideales para pantallas de alta densidad.</string>
+    <string name="studio_badge_art_title">Arte Aprobado</string>
+    <string name="studio_badge_art_desc">Ilustración o cosplay con excelente resolución y exposición.</string>
+
+    <!-- UI Strings -->
+    <string name="studio_screen_title">Mirai Studio</string>
+    <string name="studio_screen_subtitle">Escáner Biométrico y Calibración Visual</string>
+    <string name="studio_settings_card_title">Mirai Studio (HUD Scanner)</string>
+    <string name="studio_settings_card_subtitle">Calibra tus fotos con IA local y análisis de calidad</string>
+    <string name="studio_quality_standards_button">Ver estándares de calidad</string>
+    <string name="studio_hud_scanning">SISTEMA HUD ACTIVO</string>
+    <string name="studio_hud_face_detected">ROSTRO DETECTADO</string>
+    <string name="studio_hud_visual_art_mode">MODO ILUSTRACIÓN / ARTE</string>
+    <string name="studio_hud_luminance_label">LUZ</string>
+    <string name="studio_hud_symmetry_label">SIMETRÍA</string>
+    <string name="studio_hud_capture_button">Escanear y Capturar</string>
+    <string name="studio_hud_gallery_button">Cargar de Galería</string>
+    <string name="studio_hud_switch_camera">Cambiar Cámara</string>
+    <string name="studio_verdict_title">Diagnóstico de Calidad</string>
+    <string name="studio_verdict_use_photo">Usar en Perfil</string>
+    <string name="studio_verdict_use_anyway">Usar de todos modos</string>
+    <string name="studio_verdict_retry">Reintentar</string>
+    <string name="studio_verdict_choose_other">Elegir otra foto</string>
+    <string name="studio_verdict_warnings_title">Aspectos a mejorar</string>
+    <string name="studio_verdict_suggestions_title">Consejos de impacto</string>
+    <string name="studio_verdict_badges_title">Insignias Obtenidas</string>
+    <string name="studio_camera_permission_required">Se requiere permiso de cámara para el escáner interactivo en vivo.</string>
+    <string name="studio_camera_permission_grant">Conceder permiso</string>
+    <string name="studio_verdict_soft_warning_disclaimer">Intenta subir o hacer una foto mejor para cumplir nuestros estándares de calidad, pero la elección está en ti.</string>
+    <string name="studio_test_mode_photo_saved">Foto analizada con éxito en modo laboratorio de prueba.</string>
+    <string name="profile_gallery_analyzing">Analizando calidad con IA local...</string>
+    <string name="profile_gallery_photo_approved">¡Foto aprobada! Cumple con los estándares de calidad.</string>
+    <string name="profile_gallery_photo_warning">Foto añadida. Aviso: %1$s. Intenta subir una foto mejor para mayor impacto, pero la elección está en ti.</string>
+    <string name="studio_analysis_failed">No se pudo completar el análisis. Puedes repetir la foto o continuar de todos modos.</string>
+    <string name="studio_filters_passed">La foto pasa los filtros de calidad. ¿Deseas continuar?</string>
+    <string name="studio_filters_warning">La foto tiene avisos de calidad. ¿Deseas continuar de todos modos?</string>
 </resources>

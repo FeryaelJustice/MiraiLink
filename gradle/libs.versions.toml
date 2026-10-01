@@ -42,6 +42,8 @@ crashlytics-gradle = "3.0.8"
 ump = "4.0.0"
 credentials = "1.6.0"
 playBilling = "9.1.0"
+camerax = "1.6.2"
+mlkitFaceDetection = "16.1.7"
 
 # Testing
 junit = "4.13.2"
@@ -167,6 +169,15 @@ compose-emoji-picker = { module = "com.github.alexdametto:compose-emoji-picker",
 
 # QRCode
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxingCore" }
+
+# CameraX
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
+
+# ML Kit Face Detection (Bundled offline)
+mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "mlkitFaceDetection" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }

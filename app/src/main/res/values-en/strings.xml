@@ -460,4 +460,64 @@
     <string name="search_radius_free_limit_note">Free radius: max 250 km. Upgrade to Plus or Premium to explore up to 800 km.</string>
     <string name="search_passport_locked_disclaimer">Passport Mode and worldwide search are reserved for MiraiLink Premium members.</string>
     <string name="search_upgrade_to_unlock">Unlock with subscription</string>
+
+    <!-- Mirai Studio & FAQ Strings -->
+    <string name="faq_category_photos_and_studio">Photos &amp; Mirai Studio</string>
+    <string name="faq_studio_what_is_q">What is Mirai Studio and the HUD scanner?</string>
+    <string name="faq_studio_what_is_a">It is a futuristic biometric and visual calibration tool built into MiraiLink. It runs local on-device AI (100% private, never uploading scans to the cloud) to evaluate lighting, sharpness, framing, and facial features in real time before you add photos to your profile.</string>
+    <string name="faq_studio_standards_q">What are the recommended photo quality standards?</string>
+    <string name="faq_studio_standards_a">We recommend photos with natural or frontal lighting (avoiding dark shadows or harsh backlighting), at least 720p resolution, with your face or focal subject clear and aligned with the rule of thirds.</string>
+    <string name="faq_studio_screenshots_q">Why are phone screenshots discouraged?</string>
+    <string name="faq_studio_screenshots_a">Screenshots frequently include status bars, battery percentages, or black letterboxes that diminish the visual impact of your profile card. We suggest cropping them or uploading the original picture file.</string>
+    <string name="faq_studio_anime_cosplay_q">Can I upload anime avatars, cosplay, or full-body photos?</string>
+    <string name="faq_studio_anime_cosplay_a">Yes, absolutely! If your picture is an anime illustration, cosplay, or landscape, Mirai Studio automatically switches to General Visual Quality mode, assessing clarity and resolution without penalizing your image.</string>
+
+    <!-- Badges -->
+    <string name="studio_badge_lighting_title">Optimal Lighting</string>
+    <string name="studio_badge_lighting_desc">Balanced brightness and contrast for maximum clarity.</string>
+    <string name="studio_badge_gaze_title">Direct Gaze</string>
+    <string name="studio_badge_gaze_desc">Face oriented frontally towards the camera lens.</string>
+    <string name="studio_badge_smile_title">Authentic Smile</string>
+    <string name="studio_badge_smile_desc">Warm and engaging smile expression detected.</string>
+    <string name="studio_badge_frame_title">Centered Frame</string>
+    <string name="studio_badge_frame_desc">Face positioned within the rule-of-thirds focal area.</string>
+    <string name="studio_badge_eyes_title">Eyes Open</string>
+    <string name="studio_badge_eyes_desc">Clear, open gaze without blinking.</string>
+    <string name="studio_badge_resolution_title">High Definition</string>
+    <string name="studio_badge_resolution_desc">Crisp resolution ideal for high-density smartphone screens.</string>
+    <string name="studio_badge_art_title">Artwork Approved</string>
+    <string name="studio_badge_art_desc">Illustration or cosplay with excellent resolution and composition.</string>
+
+    <!-- UI Strings -->
+    <string name="studio_screen_title">Mirai Studio</string>
+    <string name="studio_screen_subtitle">Biometric Scanner &amp; Visual Calibration</string>
+    <string name="studio_settings_card_title">Mirai Studio (HUD Scanner)</string>
+    <string name="studio_settings_card_subtitle">Calibrate your photos with local AI and quality diagnostics</string>
+    <string name="studio_quality_standards_button">View quality standards</string>
+    <string name="studio_hud_scanning">HUD SYSTEM ACTIVE</string>
+    <string name="studio_hud_face_detected">FACE DETECTED</string>
+    <string name="studio_hud_visual_art_mode">ARTWORK / ILLUSTRATION MODE</string>
+    <string name="studio_hud_luminance_label">LIGHT</string>
+    <string name="studio_hud_symmetry_label">SYMMETRY</string>
+    <string name="studio_hud_capture_button">Scan &amp; Capture</string>
+    <string name="studio_hud_gallery_button">Load from Gallery</string>
+    <string name="studio_hud_switch_camera">Switch Camera</string>
+    <string name="studio_verdict_title">Quality Diagnosis</string>
+    <string name="studio_verdict_use_photo">Use on Profile</string>
+    <string name="studio_verdict_use_anyway">Use anyway</string>
+    <string name="studio_verdict_retry">Retry</string>
+    <string name="studio_verdict_choose_other">Choose another photo</string>
+    <string name="studio_verdict_warnings_title">Areas to improve</string>
+    <string name="studio_verdict_suggestions_title">Impact tips</string>
+    <string name="studio_verdict_badges_title">Earned Badges</string>
+    <string name="studio_camera_permission_required">Camera permission is required for the live interactive scanner.</string>
+    <string name="studio_camera_permission_grant">Grant permission</string>
+    <string name="studio_verdict_soft_warning_disclaimer">Try uploading or taking a better photo to meet our quality standards, but the choice is up to you.</string>
+    <string name="studio_test_mode_photo_saved">Photo successfully analyzed in test studio mode.</string>
+    <string name="profile_gallery_analyzing">Analyzing quality with on-device AI...</string>
+    <string name="profile_gallery_photo_approved">Photo approved! It meets quality standards.</string>
+    <string name="profile_gallery_photo_warning">Photo added. Notice: %1$s. Try taking a better photo to meet our quality standards, but the choice is up to you.</string>
+    <string name="studio_analysis_failed">Analysis could not be completed. Retake the photo or continue anyway.</string>
+    <string name="studio_filters_passed">The photo passes the quality checks. Continue?</string>
+    <string name="studio_filters_warning">The photo has quality warnings. Continue anyway?</string>
 </resources>
