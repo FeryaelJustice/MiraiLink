@@ -247,6 +247,32 @@ fun UserProfileDetailScreen(
                 UserProfileDetailContent(
                     user = uiState.user!!,
                     onPhotoLongPress = { url -> fullscreenImageUrl = url },
+                    photoGestureModifier =
+                        if (canInteract && !uiState.isInteracted) {
+                            { url ->
+                                Modifier.hapticHeartbeatLikeTrigger(
+                                    onTap = { url?.let { fullscreenImageUrl = it } },
+                                    onHoldStart = {
+                                        isOverlayVisible = true
+                                        hapticController.startHeartbeat(affinity.ratio)
+                                    },
+                                    onHoldProgress = { holdProgress = it },
+                                    onHoldComplete = {
+                                        isOverlayVisible = false
+                                        holdProgress = 0f
+                                        hapticController.triggerLikeConfirmation()
+                                        viewModel.likeUser()
+                                    },
+                                    onHoldCancel = {
+                                        isOverlayVisible = false
+                                        holdProgress = 0f
+                                        hapticController.stopHeartbeat()
+                                    },
+                                )
+                            }
+                        } else {
+                            null
+                        },
                 )
             }
         }
@@ -280,6 +306,7 @@ private fun UserProfileDetailContent(
     user: UserViewEntry,
     onPhotoLongPress: (String) -> Unit,
     modifier: Modifier = Modifier,
+    photoGestureModifier: (@Composable (String?) -> Modifier)? = null,
 ) {
     val scrollState = rememberScrollState()
 
@@ -302,6 +329,16 @@ private fun UserProfileDetailContent(
                 modifier = Modifier.fillMaxSize(),
             ) { page ->
                 val photoUrl = photos[page]
+                val gestureModifier =
+                    photoGestureModifier?.invoke(photoUrl)
+                        ?: Modifier.pointerInput(photoUrl) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    photoUrl?.let { onPhotoLongPress(it) }
+                                },
+                            )
+                        }
+
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(photoUrl)
@@ -313,13 +350,7 @@ private fun UserProfileDetailContent(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
-                        .pointerInput(photoUrl) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    photoUrl?.let { onPhotoLongPress(it) }
-                                },
-                            )
-                        },
+                        .then(gestureModifier),
                 )
             }
 
