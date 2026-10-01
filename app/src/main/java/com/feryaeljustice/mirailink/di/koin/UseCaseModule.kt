@@ -149,4 +149,7 @@ val useCaseModule =
 
         // Haptic Heartbeat
         factory { com.feryaeljustice.mirailink.domain.usecase.haptics.CalculateHeartbeatAffinityUseCase() }
+
+        // Mirai Studio
+        factory { com.feryaeljustice.mirailink.domain.usecase.studio.AnalyzePhotoQualityUseCase() }
     }

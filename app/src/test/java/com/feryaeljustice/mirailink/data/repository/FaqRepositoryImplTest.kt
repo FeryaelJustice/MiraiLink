@@ -21,9 +21,10 @@ class FaqRepositoryImplTest {
         val items = repository.getFaqItems()
 
         assertTrue(items.isNotEmpty())
-        assertEquals(4, items.size)
+        assertEquals(8, items.size)
         assertTrue(items.any { it.category == FaqCategory.LOCATION_AND_PRIVACY })
         assertTrue(items.any { it.category == FaqCategory.SEARCH_AND_MATCHING })
+        assertTrue(items.any { it.category == FaqCategory.PHOTOS_AND_STUDIO })
     }
 
     @Test

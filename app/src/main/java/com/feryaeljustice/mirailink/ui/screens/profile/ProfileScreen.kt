@@ -17,12 +17,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,12 +63,24 @@ import com.feryaeljustice.mirailink.ui.components.user.UserCard
 import com.feryaeljustice.mirailink.ui.screens.profile.ProfileViewModel.ProfileUiState
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
+import androidx.compose.runtime.remember
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.ui.draw.blur
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.feryaeljustice.mirailink.data.studio.BitmapOptimizationUtils
+import com.feryaeljustice.mirailink.data.studio.FaceDetectorDataSource
+import com.feryaeljustice.mirailink.data.studio.QualityMetricsCalculator
+import com.feryaeljustice.mirailink.domain.usecase.studio.AnalyzePhotoQualityUseCase
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkSnackbar
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 // NO SE PUEDE porque las previews no tienen las librerias de android, van en jvm, hay que mockear: Define un Módulo de Koin para Previews
@@ -90,6 +110,8 @@ private fun ProfileScreenPreview() {
 fun ProfileScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     modifier: Modifier = Modifier,
+    onNavigateToMiraiStudio: ((targetSlot: Int, initialUri: Uri?) -> Unit)? = null,
+    onNavigateToFaq: (() -> Unit)? = null,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -101,19 +123,63 @@ fun ProfileScreen(
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
-    // Galería
+    LaunchedEffect(Unit) {
+        miraiLinkSession.consumePendingStudioPhoto()?.let { (slot, uri) ->
+            viewModel.onIntent(EditProfileIntent.UpdatePhoto(slot, uri))
+        }
+    }
+
+    val context = LocalContext.current
+    val metricsCalculator: QualityMetricsCalculator = koinInject()
+    val faceDetectorDataSource: FaceDetectorDataSource = koinInject()
+    val analyzePhotoQualityUseCase: AnalyzePhotoQualityUseCase = koinInject()
+
+    var isAnalyzingGalleryPhoto by rememberSaveable { mutableStateOf(false) }
+    var galleryQualityMessage by remember { mutableStateOf<String?>(null) }
+
+    val photoApprovedText = stringResource(R.string.profile_gallery_photo_approved)
+    val photoWarningFormat = stringResource(R.string.profile_gallery_photo_warning)
+
+    // Galería con análisis de IA local integrado
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
+            uri?.let { selectedUri ->
                 val index =
                     editState.selectedSlotForDialog ?: return@rememberLauncherForActivityResult
-                viewModel.onIntent(EditProfileIntent.UpdatePhoto(index, it))
                 viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+
+                // Asignar inmediatamente la foto para respuesta fluida
+                viewModel.onIntent(EditProfileIntent.UpdatePhoto(index, selectedUri))
+
+                // Activar overlay con spinner y desenfoque y procesar con IA local
+                isAnalyzingGalleryPhoto = true
+                coroutineScope.launch {
+                    try {
+                        val bitmap = BitmapOptimizationUtils.loadOptimizedBitmap(context, selectedUri)
+                        if (bitmap != null) {
+                            val metrics = metricsCalculator.calculateFromBitmap(bitmap, selectedUri.toString())
+                            val face = faceDetectorDataSource.detectInBitmap(bitmap)
+                            val scanResult = analyzePhotoQualityUseCase(metrics, face)
+
+                            if (scanResult.warnings.isEmpty()) {
+                                galleryQualityMessage = photoApprovedText
+                            } else {
+                                val firstWarning = scanResult.warnings.first()
+                                galleryQualityMessage = String.format(photoWarningFormat, firstWarning)
+                            }
+                        } else {
+                            galleryQualityMessage = photoApprovedText
+                        }
+                    } catch (_: Exception) {
+                        galleryQualityMessage = photoApprovedText
+                    } finally {
+                        isAnalyzingGalleryPhoto = false
+                    }
+                }
             }
         }
 
     // Cámara (usando URI temporal con FileProvider)
-    val context = LocalContext.current
     var tempCameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var pendingCameraSlot by rememberSaveable { mutableStateOf<Int?>(null) }
 
@@ -389,16 +455,32 @@ fun ProfileScreen(
                                 )
                             }
 
-                            // 2. Dialogo: Galeria o Camara
+                            // 2. Dialogo: Galeria o Camara (Integrado con Mirai Studio)
                             if (editState.showPhotoSourceDialog && editState.selectedSlotForDialog != null) {
                                 AlertDialog(
                                     onDismissRequest = { viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs) },
                                     title = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_title)) },
-                                    text = { MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_text)) },
+                                    text = {
+                                        Column {
+                                            MiraiLinkText(text = stringResource(R.string.profile_screen_dialog_media_origin_text))
+                                            if (onNavigateToFaq != null) {
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    text = stringResource(R.string.studio_quality_standards_button),
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                    fontSize = 13.sp,
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                    modifier = Modifier.clickable {
+                                                        viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                                        onNavigateToFaq()
+                                                    },
+                                                )
+                                            }
+                                        }
+                                    },
                                     confirmButton = {
                                         MiraiLinkTextButton(
                                             onClick = {
-                                                // Aqui lanzas launcher de galeria
                                                 Log.d("ProfileScreen", "Chosen: Gallery")
                                                 galleryLauncher.launch("image/*")
                                             },
@@ -408,19 +490,24 @@ fun ProfileScreen(
                                     dismissButton = {
                                         MiraiLinkTextButton(
                                             onClick = {
-                                                // Aqui lanzas launcher de camara
-                                                Log.d("ProfileScreen", "Chosen: Camera")
-                                                pendingCameraSlot = editState.selectedSlotForDialog
-                                                if (ContextCompat.checkSelfPermission(
-                                                        context,
-                                                        Manifest.permission.CAMERA,
-                                                    ) == PackageManager.PERMISSION_GRANTED
-                                                ) {
-                                                    val uri = createImageUri(context)
-                                                    tempCameraUri = uri
-                                                    cameraLauncher.launch(uri)
+                                                Log.d("ProfileScreen", "Chosen: Camera via Mirai Studio")
+                                                val slot = editState.selectedSlotForDialog
+                                                viewModel.onIntent(EditProfileIntent.ClosePhotoDialogs)
+                                                if (slot != null && onNavigateToMiraiStudio != null) {
+                                                    onNavigateToMiraiStudio(slot, null)
                                                 } else {
-                                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                                    pendingCameraSlot = slot
+                                                    if (ContextCompat.checkSelfPermission(
+                                                            context,
+                                                            Manifest.permission.CAMERA,
+                                                        ) == PackageManager.PERMISSION_GRANTED
+                                                    ) {
+                                                        val uri = createImageUri(context)
+                                                        tempCameraUri = uri
+                                                        cameraLauncher.launch(uri)
+                                                    } else {
+                                                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                                    }
                                                 }
                                             },
                                             text = stringResource(R.string.camera),
@@ -457,6 +544,49 @@ fun ProfileScreen(
             MiraiLinkErrorSnackbar(
                 error = error,
                 onAction = viewModel::performErrorAction,
+            )
+        }
+
+        // Overlay con spinner y desenfoque al procesar foto de galería con IA local
+        if (isAnalyzingGalleryPhoto) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(16.dp)
+                    .background(Color(0x99000000)),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0x4D000000)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    CircularProgressIndicator(
+                        color = Color(0xFF00E5FF),
+                        strokeWidth = 3.dp,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.profile_gallery_analyzing),
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                    )
+                }
+            }
+        }
+
+        // Notificación Snackbar sobre cumplimiento de estándares
+        galleryQualityMessage?.let { msg ->
+            MiraiLinkSnackbar(
+                message = msg,
+                actionLabel = "OK",
+                onAction = { galleryQualityMessage = null },
             )
         }
     }

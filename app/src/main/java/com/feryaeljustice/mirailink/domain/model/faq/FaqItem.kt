@@ -9,6 +9,7 @@ enum class FaqCategory(@StringRes val titleRes: Int) {
     LOCATION_AND_PRIVACY(R.string.faq_category_privacy),
     SEARCH_AND_MATCHING(R.string.faq_category_matching),
     PREMIUM_FEATURES(R.string.faq_category_premium),
+    PHOTOS_AND_STUDIO(R.string.faq_category_photos_and_studio),
 }
 
 data class FaqItem(

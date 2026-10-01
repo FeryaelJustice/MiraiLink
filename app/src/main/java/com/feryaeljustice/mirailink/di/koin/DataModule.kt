@@ -36,4 +36,8 @@ val dataModule =
         single { CatalogRemoteDataSource(get()) }
         single { ReportRemoteDataSource(get()) }
         single { FeedbackRemoteDatasource(get()) }
+
+        // Mirai Studio
+        single { com.feryaeljustice.mirailink.data.studio.QualityMetricsCalculator() }
+        single { com.feryaeljustice.mirailink.data.studio.FaceDetectorDataSource() }
     }
