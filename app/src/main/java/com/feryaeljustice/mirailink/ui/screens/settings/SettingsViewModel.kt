@@ -1,17 +1,21 @@
 package com.feryaeljustice.mirailink.ui.screens.settings
 
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.usecase.auth.LogoutUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
+import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
@@ -20,6 +24,7 @@ import org.koin.core.annotation.KoinViewModel
 class SettingsViewModel(
     private val logoutUseCase: LogoutUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
@@ -29,6 +34,26 @@ class SettingsViewModel(
     val error: StateFlow<UiError?> = _error
     private val _deleteSuccess = MutableSharedFlow<Boolean>()
     val deleteSuccess = _deleteSuccess.asSharedFlow()
+
+    private val _currentUser = MutableStateFlow<UserViewEntry?>(null)
+    val currentUser: StateFlow<UserViewEntry?> = _currentUser.asStateFlow()
+
+    init {
+        loadCurrentUser()
+    }
+
+    fun loadCurrentUser() {
+        viewModelScope.launch(ioDispatcher) {
+            when (val result = getCurrentUserUseCase()) {
+                is MiraiLinkResult.Success -> {
+                    _currentUser.value = result.data.toUserViewEntry()
+                }
+                is MiraiLinkResult.Error -> {
+                    // Silently ignore or log
+                }
+            }
+        }
+    }
 
     fun logout(onFinish: () -> Unit) {
         setRecoveryAction { logout(onFinish) }

@@ -121,6 +121,12 @@ sealed class AppScreen : NavKey {
         val targetSlot: Int? = null,
         val initialUriString: String? = null,
     ) : AppScreen()
+
+    @Serializable
+    @SerialName("username_detail")
+    data class UsernameDetailScreen(
+        val username: String,
+    ) : AppScreen()
 }
 
 private fun AppScreen.topLevelTab(): AppScreen =

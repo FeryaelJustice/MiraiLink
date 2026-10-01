@@ -47,6 +47,13 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import android.content.Intent
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
@@ -78,10 +85,13 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToManageSubscription: () -> Unit = {},
-    onNavigateToMiraiStudio: () -> Unit = {},
+    onNavigateToProfilePreview: (username: String) -> Unit = {},
+    onNavigateToUsernameDetail: (username: String) -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
     twoFactorViewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
+    val context = LocalContext.current
+    val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
@@ -329,12 +339,47 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            SettingsSectionTitle(stringResource(R.string.studio_screen_title))
+            SettingsSectionTitle(stringResource(R.string.settings_section_profile))
             SettingsActionCard(
-                icon = Icons.Default.Info,
-                title = stringResource(R.string.studio_settings_card_title),
-                subtitle = stringResource(R.string.studio_settings_card_subtitle),
-                onClick = onNavigateToMiraiStudio,
+                icon = Icons.Default.AccountCircle,
+                title = stringResource(R.string.settings_preview_profile_title),
+                subtitle = stringResource(R.string.settings_preview_profile_subtitle),
+                onClick = {
+                    val username = currentUser?.username
+                    if (!username.isNullOrBlank()) {
+                        onNavigateToProfilePreview(username)
+                    }
+                },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsActionCard(
+                icon = Icons.Default.Share,
+                title = stringResource(R.string.settings_share_profile_title),
+                subtitle = stringResource(R.string.settings_share_profile_subtitle),
+                onClick = {
+                    val username = currentUser?.username
+                    if (!username.isNullOrBlank()) {
+                        val shareMessage = context.getString(R.string.share_profile_message, username)
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, shareMessage)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.action_share)))
+                    }
+                },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsActionCard(
+                icon = Icons.Default.AccountCircle,
+                title = stringResource(R.string.settings_username_title),
+                subtitle = stringResource(R.string.settings_username_subtitle),
+                trailingText = currentUser?.username.orEmpty(),
+                onClick = {
+                    val username = currentUser?.username
+                    if (!username.isNullOrBlank()) {
+                        onNavigateToUsernameDetail(username)
+                    }
+                },
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -423,6 +468,7 @@ private fun SettingsActionCard(
     onClick: () -> Unit,
     onLongPress: (() -> Unit)? = null,
     destructive: Boolean = false,
+    trailingText: String? = null,
 ) {
     Card(
         onClick = onClick,
@@ -472,6 +518,22 @@ private fun SettingsActionCard(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = if (destructive) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (!trailingText.isNullOrBlank()) {
+                Spacer(modifier = Modifier.width(8.dp))
+                MiraiLinkText(
+                    text = trailingText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

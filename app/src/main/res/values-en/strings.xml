@@ -299,14 +299,68 @@
     <string name="faq_category_privacy">Location &amp; Privacy</string>
     <string name="faq_category_matching">Search &amp; Scope</string>
     <string name="faq_category_premium">Premium Model</string>
+    <string name="faq_category_about_mirailink">About MiraiLink</string>
+    <string name="faq_category_cards_and_matching">Search &amp; Cards</string>
+    <string name="faq_category_location_and_privacy">Location &amp; Privacy</string>
+    <string name="faq_category_subscriptions_and_payments">Subscriptions &amp; Billing</string>
+    <string name="faq_category_photos_and_quality">Profile Photos &amp; Quality</string>
+    <string name="faq_category_account_and_security">Account &amp; Security</string>
+
+    <!-- FAQ: About MiraiLink -->
     <string name="faq_what_is_mirailink_q">What is MiraiLink and how does it work?</string>
     <string name="faq_what_is_mirailink_a">MiraiLink is a social and dating app designed for anime, manga, and gaming enthusiasts. We connect you with like-minded people based on shared cultural interests and geographic proximity.</string>
+    <string name="faq_haptic_heartbeat_q">What is Haptic Heartbeat and how does sensory feedback work?</string>
+    <string name="faq_haptic_heartbeat_a">Haptic Heartbeat is an immersive tactile experience. Holding down on a photo or swiping a profile card triggers real-time heartbeat vibrations synchronized with your mutual anime, gaming, and relationship affinities.</string>
+    <string name="faq_affinity_calculation_q">How does MiraiLink calculate affinity between profiles?</string>
+    <string name="faq_affinity_calculation_a">The system compares your selected anime, games, and relationship goals with those of other users, highlighting your shared interests to spark natural conversations.</string>
+
+    <!-- FAQ: Cards & Search -->
+    <string name="faq_cards_gestures_q">How do profile cards and gestures work?</string>
+    <string name="faq_cards_gestures_a">Swipe right to like someone, or swipe left to pass. You can also tap any card to open the full detailed profile view with all photos, bio, and gaming prompts.</string>
+    <string name="faq_explore_categories_q">What is the Explore tab and how do category feeds work?</string>
+    <string name="faq_explore_categories_a">In Explore, you can browse dedicated categories (such as Cosplay, eSports, Shonen, J-RPG, or Retro Anime) to find people sharing your specific niche interests beyond distance-only sorting.</string>
+    <string name="faq_no_more_profiles_q">What happens if I run out of profiles to swipe?</string>
+    <string name="faq_no_more_profiles_a">If you have reviewed all nearby profiles, you can expand your age range or search distance in Search Preferences. Upgrading to MiraiLink Plus or Premium unlocks up to 250 km radius or worldwide Passport Mode.</string>
+    <string name="faq_matches_and_chat_q">How does a Match happen and when can I chat?</string>
+    <string name="faq_matches_and_chat_a">A Match occurs instantly when two people like each other. A private real-time chat room is created immediately via WebSockets with live notifications.</string>
+
+    <!-- FAQ: Location & Privacy -->
     <string name="faq_50_points_q">How is my location handled and why are up to 50 points saved?</string>
     <string name="faq_50_points_a">To calculate distance to other users and enable future features like reunions or visited places, we keep a history of up to the last 50 points where you used the app. A new position is only recorded if you moved more than 5 km or after 24 hours. Once 50 points are exceeded, the oldest ones are automatically removed. Your exact location is never visible to other users.</string>
     <string name="faq_residence_vs_travelers_q">What is the difference between place of residence and current location?</string>
-    <string name="faq_residence_vs_travelers_a">Your place of residence is the city shown on your profile ("Lives in Palma"). By default, searches compare residence locations. If you enable the travelers option, the app will match users who are physically within your radius right now even if they reside elsewhere.</string>
-    <string name="faq_premium_q">Which features will be Premium in the future?</string>
-    <string name="faq_premium_a">Currently all MiraiLink features are 100% free. In the future, advanced features such as international passport mode, search radius beyond 50 km, or specialized traveler searches will be part of optional plans to support app development.</string>
+    <string name="faq_residence_vs_travelers_a">Your place of residence is the city shown on your profile (\"Lives in Palma\"). By default, searches compare residence locations. If you enable the travelers option, the app will match users who are physically within your radius right now even if they reside elsewhere.</string>
+    <string name="faq_exact_location_privacy_q">Can other users see my exact address or GPS coordinates?</string>
+    <string name="faq_exact_location_privacy_a">No, never. For your safety and privacy, MiraiLink never shares GPS coordinates or street addresses. Only approximate distance in kilometers or your home city is displayed.</string>
+
+    <!-- FAQ: Subscriptions & Payments -->
+    <string name="faq_subscription_tiers_q">What subscription tiers are available and what perks do they offer?</string>
+    <string name="faq_subscription_tiers_a">MiraiLink offers three tiers: Free (basic search, matching, and unlimited messaging), MiraiLink Plus (ad-free experience, up to 250 km distance radius, unlimited likes, and Plus badge), and MiraiLink Premium (all Plus benefits, worldwide Passport Mode, see who liked you with direct matching, and Gold badge).</string>
+    <string name="faq_google_play_billing_q">How does billing and renewal work?</string>
+    <string name="faq_google_play_billing_a">All transactions are processed securely through Google Play Billing. You can select weekly, monthly, or 3-month plans with auto-renewal, which can be managed or canceled at any time.</string>
+    <string name="faq_subscription_cancellation_q">How can I cancel my active subscription?</string>
+    <string name="faq_subscription_cancellation_a">You can cancel anytime via Google Play Store > Payments &amp; subscriptions > Subscriptions, or via Manage Subscription in Settings. You retain all benefits until the end of your billing period.</string>
+    <string name="faq_restore_purchases_q">How do I restore my purchases on a new phone?</string>
+    <string name="faq_restore_purchases_a">Open the subscription screen while signed into the same Google Play account and tap Restore purchases to instantly re-enable your membership.</string>
+    <string name="faq_premium_q">What features are included in the Premium model?</string>
+    <string name="faq_premium_a">MiraiLink Premium unlocks worldwide Passport Mode without borders, see who liked you with instant matching, expanded search filters, zero ads, and the exclusive Gold profile badge.</string>
+
+    <!-- FAQ: Photos & Quality -->
+    <string name="faq_studio_what_is_q">What is Mirai Studio and photo quality analysis?</string>
+    <string name="faq_studio_what_is_a">It is a computer vision tool integrated into photo selection. Running on-device AI (100% private), it evaluates lighting, framing, sharpness, and thirds composition to ensure great profile pictures.</string>
+    <string name="faq_studio_anime_cosplay_q">Can I upload cosplay, anime, or full-body photos?</string>
+    <string name="faq_studio_anime_cosplay_a">Yes! If your photo is a full cosplay, an avatar, or an illustration representing you, Mirai Studio automatically applies General Visual Quality mode without requiring a standard face.</string>
+    <string name="faq_studio_standards_q">What are the recommended photo quality standards?</string>
+    <string name="faq_studio_standards_a">We recommend clear photos with good front or natural light (avoiding heavy shadows or extreme backlighting), minimum 720p resolution, and focused subjects.</string>
+    <string name="faq_studio_screenshots_q">Why are screenshots discouraged?</string>
+    <string name="faq_studio_screenshots_a">Screenshots frequently include status bars, battery icons, or black bars that degrade your profile card. Cropping or using original image downloads is recommended.</string>
+
+    <!-- FAQ: Account & Security -->
+    <string name="faq_username_permanent_q">Why can\'t I change my username?</string>
+    <string name="faq_username_permanent_a">Your username is your unique profile handle and forms your permanent direct profile link. To prevent impersonation and maintain community integrity, usernames cannot be modified after registration.</string>
+    <string name="faq_two_factor_auth_q">How does two-factor authentication (2FA) work?</string>
+    <string name="faq_two_factor_auth_a">2FA provides extra security using time-based one-time codes (TOTP) from apps like Google Authenticator. You can enable or disable it anytime in Settings > Configure Two-Factor Authentication.</string>
+    <string name="faq_delete_account_q">How do I delete my account and what happens to my data?</string>
+    <string name="faq_delete_account_a">You can permanently delete your account in Settings > Delete Account. This immediately removes your profile, photos, location history, matches, and chats irreversibly.</string>
     <string name="profile_section_basic">Basic information</string>
     <string name="profile_section_residence">Residence</string>
     <string name="profile_section_interests">Interests</string>
@@ -461,16 +515,6 @@
     <string name="search_passport_locked_disclaimer">Passport Mode and worldwide search are reserved for MiraiLink Premium members.</string>
     <string name="search_upgrade_to_unlock">Unlock with subscription</string>
 
-    <!-- Mirai Studio & FAQ Strings -->
-    <string name="faq_category_photos_and_studio">Photos &amp; Mirai Studio</string>
-    <string name="faq_studio_what_is_q">What is Mirai Studio and the HUD scanner?</string>
-    <string name="faq_studio_what_is_a">It is a futuristic biometric and visual calibration tool built into MiraiLink. It runs local on-device AI (100% private, never uploading scans to the cloud) to evaluate lighting, sharpness, framing, and facial features in real time before you add photos to your profile.</string>
-    <string name="faq_studio_standards_q">What are the recommended photo quality standards?</string>
-    <string name="faq_studio_standards_a">We recommend photos with natural or frontal lighting (avoiding dark shadows or harsh backlighting), at least 720p resolution, with your face or focal subject clear and aligned with the rule of thirds.</string>
-    <string name="faq_studio_screenshots_q">Why are phone screenshots discouraged?</string>
-    <string name="faq_studio_screenshots_a">Screenshots frequently include status bars, battery percentages, or black letterboxes that diminish the visual impact of your profile card. We suggest cropping them or uploading the original picture file.</string>
-    <string name="faq_studio_anime_cosplay_q">Can I upload anime avatars, cosplay, or full-body photos?</string>
-    <string name="faq_studio_anime_cosplay_a">Yes, absolutely! If your picture is an anime illustration, cosplay, or landscape, Mirai Studio automatically switches to General Visual Quality mode, assessing clarity and resolution without penalizing your image.</string>
 
     <!-- Badges -->
     <string name="studio_badge_lighting_title">Optimal Lighting</string>
@@ -520,4 +564,21 @@
     <string name="studio_analysis_failed">Analysis could not be completed. Retake the photo or continue anyway.</string>
     <string name="studio_filters_passed">The photo passes the quality checks. Continue?</string>
     <string name="studio_filters_warning">The photo has quality warnings. Continue anyway?</string>
+
+    <!-- Settings Profile & Username -->
+    <string name="settings_section_profile">Your profile</string>
+    <string name="settings_preview_profile_title">Preview profile</string>
+    <string name="settings_preview_profile_subtitle">See how others view your profile card</string>
+    <string name="settings_share_profile_title">Share profile</string>
+    <string name="settings_share_profile_subtitle">Share your profile link with friends</string>
+    <string name="settings_username_title">Username</string>
+    <string name="settings_username_subtitle">Unique and permanent identifier</string>
+    <string name="share_profile_message">Hey! Check out my MiraiLink profile: https://mirailink.com/user/%1$s</string>
+    <string name="profile_preview_button">Preview profile</string>
+    <string name="username_screen_title">Username</string>
+    <string name="username_screen_url_label">Your profile link</string>
+    <string name="username_screen_info_title">About your identifier</string>
+    <string name="username_screen_info_desc">Your username is %1$s and is located at the end of your profile URL. Tap or hold the box to copy the full URL. For security and community consistency, usernames cannot be changed once registered.</string>
+    <string name="username_screen_copy_button">Copy link</string>
+    <string name="username_screen_copied_toast">Link copied to clipboard</string>
 </resources>

@@ -112,6 +112,7 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     onNavigateToMiraiStudio: ((targetSlot: Int, initialUri: Uri?) -> Unit)? = null,
     onNavigateToFaq: (() -> Unit)? = null,
+    onNavigateToProfilePreview: ((username: String) -> Unit)? = null,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -323,10 +324,16 @@ fun ProfileScreen(
             when (currentState) {
                 is ProfileUiState.Success -> {
                     currentState.user?.let { user ->
-                        Box(modifier = Modifier.padding(16.dp)) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                        ) {
                             UserCard(
                                 modifier =
                                     Modifier
+                                        .fillMaxSize()
                                         .padding(2.dp),
                                 user = user,
                                 isPreviewMode = true,
@@ -340,6 +347,9 @@ fun ProfileScreen(
                                             viewModel.onIntent(EditProfileIntent.Initialize(stateUser))
                                         }
                                     }
+                                },
+                                onPreviewProfile = {
+                                    onNavigateToProfilePreview?.invoke(user.username)
                                 },
                                 onSave = {
                                     viewModel.onIntent(EditProfileIntent.Save)
