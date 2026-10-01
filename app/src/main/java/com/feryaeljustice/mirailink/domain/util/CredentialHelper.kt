@@ -12,6 +12,10 @@ class CredentialHelper(
 ) {
     private val credentialManager = CredentialManager.create(context = context)
 
+    /**
+     * Solicita al proveedor de Credential Manager guardar la contraseña del usuario.
+     * Cancelación o indisponibilidad se toleran; no garantiza guardado ni persiste password en Session.
+     */
     suspend fun savePasswordCredential(
         email: String,
         password: String,

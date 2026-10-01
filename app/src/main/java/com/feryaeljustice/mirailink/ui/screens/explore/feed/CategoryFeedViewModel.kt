@@ -91,7 +91,7 @@ class CategoryFeedViewModel(
                     _radiusKm.value = result.data.radiusKm
                 }
                 is MiraiLinkResult.Error -> {
-                    // Fallback to default radius
+                    // Usar radio predeterminado si no se obtiene el configurado
                 }
             }
         }

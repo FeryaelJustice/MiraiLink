@@ -5,7 +5,7 @@ import java.util.concurrent.CancellationException
 import retrofit2.HttpException
 import retrofit2.Response
 
-/** Executes an API body call, rethrows cancellation and returns a classified result. */
+/** Ejecuta la llamada API, propaga cancelación y devuelve el resultado clasificado. */
 suspend inline fun <T> safeApiCall(
     operation: NetworkOperation = NetworkOperation.PUBLIC,
     crossinline call: suspend () -> T,
@@ -18,7 +18,7 @@ suspend inline fun <T> safeApiCall(
         MiraiLinkResult.Error(NetworkErrorMapper.map(throwable, operation))
     }
 
-/** Validates a Retrofit Unit response before reporting success. */
+/** Valida el status HTTP de la Response Unit antes de comunicar éxito. */
 suspend inline fun safeApiUnitResponse(
     operation: NetworkOperation = NetworkOperation.PUBLIC,
     crossinline call: suspend () -> Response<Unit>,
@@ -38,7 +38,7 @@ suspend inline fun safeApiUnitResponse(
         MiraiLinkResult.Error(NetworkErrorMapper.map(throwable, operation))
     }
 
-/** Recovers an approved value from an HTTP failure and classifies every unrecovered failure. */
+/** Recupera un valor aprobado ante un error HTTP y clasifica los fallos sin recuperación. */
 suspend inline fun <T> safeApiCallRecoveringHttp(
     operation: NetworkOperation,
     crossinline recover: (HttpException) -> T?,

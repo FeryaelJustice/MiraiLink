@@ -10,7 +10,7 @@ import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.error.LocationError
 import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 
-/** Maps every domain error to localized copy, action label and recovery semantics. */
+/** Convierte errores de dominio en texto localizado, etiqueta de acción y semántica de recuperación. */
 fun AppError.toUiError(): UiError {
     val recovery =
         when (this) {

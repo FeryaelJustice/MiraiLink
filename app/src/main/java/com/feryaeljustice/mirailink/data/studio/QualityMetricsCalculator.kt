@@ -8,6 +8,10 @@ import kotlin.math.sqrt
 
 class QualityMetricsCalculator {
 
+    /**
+     * Muestrea luminancia y varianza del bitmap para evaluar calidad sin procesar todos los píxeles.
+     * La detección de screenshot es heurística de nombre/proporción/color, no validación de identidad.
+     */
     fun calculateFromBitmap(
         bitmap: Bitmap,
         sourceNameOrUri: String? = null,
@@ -112,6 +116,10 @@ class QualityMetricsCalculator {
         return diff1 < 15 && diff2 < 15
     }
 
+    /**
+     * Muestrea el plano Y usando rowStride y pixelStride; el índice no supone memoria compacta.
+     * Se usa en frames CameraX para evitar crear un bitmap por cada cálculo de luminancia.
+     */
     fun calculateLuminanceFromYPlane(
         yBuffer: java.nio.ByteBuffer,
         width: Int,

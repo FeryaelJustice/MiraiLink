@@ -1,3 +1,5 @@
+> **Referencia vigente (2026-10-01):** [Guía maestra](../guia-maestra.md). Este documento conserva observaciones de una revisión anterior; versiones, recuentos y hallazgos históricos deben contrastarse con la guía y el código actual.
+
 # Seguridad, riesgos y deuda técnica
 
 Esta lista documenta hallazgos, no implementa correcciones. Las prioridades indican impacto potencial y urgencia de revisión.

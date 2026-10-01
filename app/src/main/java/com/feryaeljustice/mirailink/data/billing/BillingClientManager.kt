@@ -130,6 +130,11 @@ class BillingClientManager(
         }
     }
 
+    /**
+     * Abre Google Play desde el paywall con la oferta seleccionada. Si no coincide el base plan,
+     * acepta las dos grafías del plan trimestral y después la primera oferta disponible.
+     * El resultado inmediato indica apertura del flujo; la compra llega por onPurchasesUpdated.
+     */
     fun launchBillingFlow(
         activity: Activity,
         productId: String = PREMIUM_SUBSCRIPTION_PRODUCT_ID,
@@ -187,6 +192,11 @@ class BillingClientManager(
         }
     }
 
+    /**
+     * Emite PurchaseSuccess únicamente para PURCHASED y tras acknowledgment si es necesario.
+     * PENDING no genera éxito ni error aquí. SubscriptionRepositoryImpl consume el evento para
+     * enviar el token al backend; acknowledgment no equivale a validación del servidor.
+     */
     suspend fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
@@ -211,6 +221,10 @@ class BillingClientManager(
         }
     }
 
+    /**
+     * Consulta restauración de compras SUBS. Un cliente desconectado o una respuesta fallida
+     * produce la misma lista vacía que no tener compras; el llamador no puede distinguirlos.
+     */
     suspend fun queryActivePurchases(): List<Purchase> {
         if (!billingClient.isReady) return emptyList()
         val params = QueryPurchasesParams.newBuilder()

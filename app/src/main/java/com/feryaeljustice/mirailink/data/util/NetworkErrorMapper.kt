@@ -16,7 +16,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 
-/** Converts transport failures and approved backend codes into stable [AppError] values. */
+/** Convierte fallos de transporte y códigos backend aprobados en valores estables [AppError]. */
 object NetworkErrorMapper {
     private val json =
         Json {
@@ -24,7 +24,7 @@ object NetworkErrorMapper {
             isLenient = true
         }
 
-    /** Maps [throwable] using endpoint [operation] context and never returns server prose. */
+    /** Clasifica [throwable] según [operation] sin devolver el texto libre del servidor. */
     fun map(
         throwable: Throwable,
         operation: NetworkOperation = NetworkOperation.PUBLIC,
@@ -41,13 +41,13 @@ object NetworkErrorMapper {
             else -> UnknownError
         }
 
-    /** Returns a non-blank chat id from a conflict payload, or null when unavailable. */
+    /** Obtiene un chat ID no vacío del payload de conflicto, o null si no está disponible. */
     fun existingChatId(exception: HttpException): String? =
         parsePayload(exception)
             ?.chatId
             ?.takeIf(String::isNotBlank)
 
-    /** Maps approved payload codes first, then falls back to endpoint-aware HTTP status mapping. */
+    /** Prioriza códigos aprobados del payload; después clasifica el status HTTP según el endpoint. */
     private fun mapHttpException(
         exception: HttpException,
         operation: NetworkOperation,
@@ -75,7 +75,7 @@ object NetworkErrorMapper {
         }
     }
 
-    /** Parses only allowlisted fields and returns null for absent, malformed or unsupported bodies. */
+    /** Lee solo campos permitidos y devuelve null para bodies ausentes, malformados o no soportados. */
     private fun parsePayload(exception: HttpException): ApiErrorResponse? {
         val body = exception.response()?.errorBody()?.string()?.takeIf(String::isNotBlank)
             ?: return null
@@ -88,7 +88,7 @@ object NetworkErrorMapper {
         }
     }
 
-    /** Interprets stable backend codes and closed legacy message allowlists. */
+    /** Interpreta códigos backend estables y listas cerradas de mensajes legacy. */
     private fun mapKnownPayload(
         payload: ApiErrorResponse?,
         operation: NetworkOperation,
@@ -117,7 +117,7 @@ object NetworkErrorMapper {
         }
     }
 
-    /** Produces the canonical uppercase underscore form used by stable backend codes. */
+    /** Normaliza a mayúsculas con underscore para interpretar códigos backend estables. */
     private fun normalizeCode(value: String): String =
         value
             .trim()
@@ -125,7 +125,7 @@ object NetworkErrorMapper {
             .replace('-', '_')
             .replace(' ', '_')
 
-    /** Converts a canonical backend code into an authentication error when recognized. */
+    /** Convierte un código backend canónico reconocido en error de autenticación. */
     private fun mapStableCode(code: String): AppError? =
         when (code) {
             "INVALID_CREDENTIALS",

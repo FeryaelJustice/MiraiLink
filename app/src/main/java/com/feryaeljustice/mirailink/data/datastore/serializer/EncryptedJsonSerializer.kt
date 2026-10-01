@@ -19,6 +19,10 @@ class EncryptedJsonSerializer<T>(
 
     override val defaultValue: T = default
 
+    /**
+     * Lee IV de 12 bytes y ciphertext AES-GCM para recuperar JSON tipado.
+     * Archivo vacío usa default; corrupción, tag inválido o clave perdida propagan fallo al consumidor.
+     */
     override suspend fun readFrom(input: InputStream): T {
         val all = input.readBytes()
         if (all.isEmpty()) return default
@@ -39,6 +43,10 @@ class EncryptedJsonSerializer<T>(
         return json.decodeFromString(kSerializer, jsonString)
     }
 
+    /**
+     * Cifra el JSON con IV nuevo generado por Keystore y lo antepone al ciphertext.
+     * El lector depende de este formato; reutilizar un IV rompería la seguridad de GCM.
+     */
     override suspend fun writeTo(t: T, output: OutputStream) {
         val jsonString = json.encodeToString(kSerializer, t)
         val clear = jsonString.toByteArray(StandardCharsets.UTF_8)

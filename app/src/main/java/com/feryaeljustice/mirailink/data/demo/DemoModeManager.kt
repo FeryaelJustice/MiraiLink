@@ -35,6 +35,10 @@ class DemoModeManager(
 
     fun isDemoActive(): Boolean = _isDemoMode.value || sessionManager.getCurrentTokenSync() == "DEMO_TOKEN"
 
+    /**
+     * Activa la selección de repositorios demo y precarga Room si está vacía.
+     * No sincroniza con PostgreSQL; la recuperación tras relanzamiento depende de la sesión DEMO_TOKEN.
+     */
     fun enableDemoMode(onComplete: (() -> Unit)? = null): Job {
         _isDemoMode.value = true
         return scope.launch {

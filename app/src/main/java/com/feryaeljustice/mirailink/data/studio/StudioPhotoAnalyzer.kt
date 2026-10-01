@@ -19,6 +19,10 @@ class StudioPhotoAnalyzer(
     private var isProcessing = false
 
     @OptIn(ExperimentalGetImage::class)
+    /**
+     * Consume un frame CameraX; descarta frames si ya hay análisis o no existe mediaImage.
+     * La coroutine cierra ImageProxy en finally y libera la guarda tras ML Kit. El callback admite rostro null.
+     */
     override fun analyze(imageProxy: ImageProxy) {
         if (isProcessing) {
             imageProxy.close()

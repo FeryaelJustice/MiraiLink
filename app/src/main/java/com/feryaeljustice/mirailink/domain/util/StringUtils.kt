@@ -3,7 +3,7 @@ package com.feryaeljustice.mirailink.domain.util
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.domain.constants.URL_REGEX
 
-// Pre-compile the regex for better performance on repeated calls.
+// Compilar la regex una vez evita repetir el trabajo en llamadas sucesivas.
 private val EMAIL_REGEX = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+".toRegex()
 
 fun String.isValidUrl(): Boolean = this.trim().matches(URL_REGEX) && this.isNotBlank() && this.isSafeSqlInput()
@@ -13,14 +13,14 @@ fun String?.getFormattedUrl(): String = if (this == null || !this.isValidUrl()) 
 fun String.superCapitalize(): String = this.replaceFirstChar { firstChar -> firstChar.uppercase() }
 
 /**
- * Validates if the string is a well-formed email address.
+ * Comprueba el formato del email; no acredita existencia ni verificación de la cuenta.
  */
 fun String.isEmailValid(): Boolean = EMAIL_REGEX.matches(this) && this.isSafeSqlInput()
 
 fun String.isPhoneNumberValid(): Boolean = this.isNotBlank() && this.isSafeSqlInput()
 
 /**
- * Validates ISO 3166-1 alpha-2 country codes (2 uppercase letters: e.g. ES, JP, US).
+ * Valida códigos ISO 3166-1 alpha-2 de dos letras mayúsculas, por ejemplo ES, JP, US.
  */
 private val COUNTRY_CODE_REGEX = "^[A-Z]{2}$".toRegex()
 
@@ -31,7 +31,7 @@ fun String.isPasswordValid(): Boolean {
 }
 
 /**
- * Checks that the password does not consist of repeated characters or trivial sequential patterns.
+ * Comprueba que la contraseña no sea una repetición o secuencia trivial.
  */
 fun String.isNotTrivialPassword(): Boolean {
     if (this.isBlank()) return false

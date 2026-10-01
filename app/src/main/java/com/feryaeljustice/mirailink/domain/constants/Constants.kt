@@ -13,9 +13,9 @@ val URL_REGEX = Regex(
 
 /**
  * TEMPORAL_PLACEHOLDER_PICTURE_URL.
- * This is the temporal URL for the placeholder picture.
- * Keep this aligned with the backend base URL used by NetworkModule in the
- * current development build. Coil falls back to the local logo if it fails.
+ * URL temporal de la imagen placeholder.
+ * Mantenerla alineada con el origen backend que NetworkModule usa en el
+ * build de desarrollo actual. Coil utiliza el logo local si falla la carga.
  */
 const val TEMPORAL_PLACEHOLDER_PICTURE_URL =
     "${BuildConfig.MIRAILINK_BASE_URL}/assets/img/profiles/Goku.webp"

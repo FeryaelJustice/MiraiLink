@@ -88,7 +88,7 @@ class SplashScreenViewModel(
                 }
             }
 
-            // Enable Christmas
+            // Persistir el tema navideño indicado por Remote Config
             store.setChristmasEnabled(isInChristmasMode)
 
             // 2) Comprobación de Onboarding y Autologin optimizada
@@ -131,6 +131,10 @@ class SplashScreenViewModel(
         }
     }
 
+    /**
+     * Libera el destino calculado mientras estaba visible la actualización opcional.
+     * La actualización obligatoria retorna antes de calcularlo y mantiene su bloqueo de sesión.
+     */
     fun onDismissUpdateGate() {
         _updateDiagInfo.update { it?.copy(mustUpdate = false, shouldUpdate = false) }
         pendingNavigationState?.let { next ->

@@ -123,7 +123,7 @@ class ChatViewModel(
             }
 
         if (result is MiraiLinkResult.Success) {
-            // TODO: Implement group chat setup
+            // TODO: Implementar la configuración del chat grupal
             startGroupMessagesPolling("")
         } else if (result is MiraiLinkResult.Error) {
             showError(result.error) { initChat(name = name, userIds = userIds, type = CHATTYPE.GROUP) }
@@ -182,6 +182,10 @@ class ChatViewModel(
         }
     }
 
+    /**
+     * Inicia un único job de polling REST por ViewModel y espera tres segundos entre disparos.
+     * getMessages lanza otro job: requests lentas pueden solaparse. No usa SocketService ni una outbox.
+     */
     fun startMessagePolling(userId: String) {
         if (pollingJob?.isActive == true) return
 
@@ -220,6 +224,10 @@ class ChatViewModel(
         }
     }
 
+    /**
+     * Envía REST y añade el mensaje visible solo después de éxito, con un ID local de presentación.
+     * Ese UUID no se transmite como clave idempotente; reintentar tras timeout puede repetir el envío.
+     */
     fun sendMessage(content: String) {
         viewModelScope.launch {
             val currSender = sender.value

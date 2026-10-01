@@ -25,6 +25,11 @@ class AiChatViewModel(
     private val _messages = MutableStateFlow<List<AiChatMessage>>(emptyList())
     val messages: StateFlow<List<AiChatMessage>> = _messages.asStateFlow()
 
+    /**
+     * Añade el texto visible antes de pedir una respuesta a Firebase AI y conserva el prompt
+     * como acción de reintento. El error deja el mensaje en pantalla; reintentar vuelve a añadirlo.
+     * La lista vive en este ViewModel y no se envía como historial al datasource.
+     */
     fun sendMessage(prompt: String) {
         if (prompt.isBlank() || uiState.value is AiChatUiState.Loading) return
         setRecoveryAction { sendMessage(prompt) }

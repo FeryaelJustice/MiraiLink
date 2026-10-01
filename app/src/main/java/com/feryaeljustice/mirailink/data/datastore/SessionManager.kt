@@ -80,6 +80,10 @@ class SessionManager(
     }
 
     // MÉTODOS SUSPEND ORIGINALES
+    /**
+     * Persiste una sesión completa; los collectors actualizan después el caché síncrono.
+     * No valida la firma JWT ni la verificación actual en el servidor. Lo consumen gates e interceptores.
+     */
     suspend fun saveSession(
         token: String,
         userId: String,
@@ -92,6 +96,10 @@ class SessionManager(
         dataStore.updateData { it.copy(verified = isVerified) }
     }
 
+    /**
+     * Borra la sesión persistida y emite el evento de logout consumido por navegación.
+     * La revocación del token remoto es responsabilidad del flujo de logout, no de este método.
+     */
     suspend fun clearSession() {
         dataStore.updateData { Session() }
         _onLogout.emit(Unit)

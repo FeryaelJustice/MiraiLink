@@ -1,8 +1,8 @@
 package com.feryaeljustice.mirailink.data.util
 
 /**
- * Endpoint context used to interpret HTTP failures without leaking transport details.
- * A 401 in [LOGIN] differs from a 401 in [AUTHENTICATED] work.
+ * Contexto del endpoint para interpretar fallos HTTP sin exponer detalles del transporte.
+ * Un 401 en [LOGIN] representa un caso distinto del de una operación [AUTHENTICATED].
  */
 enum class NetworkOperation {
     PUBLIC,
