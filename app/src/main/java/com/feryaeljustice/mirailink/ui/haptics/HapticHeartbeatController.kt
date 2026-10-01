@@ -9,6 +9,13 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private const val TAG = "HapticHeartbeat"
@@ -25,14 +32,17 @@ class HapticHeartbeatControllerImpl(
     @get:VisibleForTesting internal val vibratorOverride: Vibrator? = null,
 ) : HapticHeartbeatController {
 
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private var heartbeatJob: Job? = null
+
     private val vibrator: Vibrator? by lazy {
         vibratorOverride ?: run {
+            val vibratorService = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-                vibratorManager?.defaultVibrator
+                vibratorManager?.defaultVibrator ?: vibratorService
             } else {
-                @Suppress("DEPRECATION")
-                context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                vibratorService
             }
         }
     }
@@ -50,57 +60,58 @@ class HapticHeartbeatControllerImpl(
             return
         }
 
+        stopHeartbeat()
+
         val clampedRatio = affinityRatio.coerceIn(0.0f, 1.0f)
+        // Frequency: 60 BPM (low affinity) to 115 BPM (high affinity)
         val bpm = 60 + (clampedRatio * 55f).roundToInt()
-        val totalPeriodMs = (60_000f / bpm).roundToInt().coerceAtLeast(400)
+        val totalPeriodMs = (60_000L / bpm).coerceAtLeast(380L)
 
-        val s1DurationMs = 70L
-        val intervalMs = 110L
-        val s2DurationMs = 50L
+        // Lub (S1) and Dub (S2) durations
+        val s1DurationMs = 50L
+        val intervalMs = 85L
+        val s2DurationMs = 35L
         val activeMs = s1DurationMs + intervalMs + s2DurationMs
-        val pauseMs = (totalPeriodMs - activeMs).coerceAtLeast(80L)
+        val pauseMs = (totalPeriodMs - activeMs).coerceAtLeast(60L)
 
-        // All timings must be strictly positive (> 0) to comply with Android 12+ VibrationEffect validation
-        val timings = longArrayOf(s1DurationMs, intervalMs, s2DurationMs, pauseMs)
+        // Modulate amplitude according to affinity
+        val minAmp = 90
+        val maxAmp = 255
+        val s1Amp = (minAmp + clampedRatio * (maxAmp - minAmp)).roundToInt().coerceIn(1, 255)
+        val s2Amp = ((minAmp * 0.65f) + clampedRatio * (maxAmp * 0.70f - minAmp * 0.65f)).roundToInt().coerceIn(1, 255)
 
-        try {
-            val amplitudes = if (targetVibrator.hasAmplitudeControl()) {
-                val minAmp = 70
-                val maxAmp = 255
-                val s1Amp = (minAmp + clampedRatio * (maxAmp - minAmp)).roundToInt().coerceIn(1, 255)
-                val s2Amp = ((minAmp * 0.7f) + clampedRatio * (maxAmp * 0.75f - minAmp * 0.7f)).roundToInt().coerceIn(1, 255)
-                intArrayOf(s1Amp, 0, s2Amp, 0)
-            } else {
-                intArrayOf(
-                    VibrationEffect.DEFAULT_AMPLITUDE,
-                    0,
-                    VibrationEffect.DEFAULT_AMPLITUDE,
-                    0,
-                )
-            }
+        // Emit the first pulse synchronously so feedback is immediate on touch and tests pass synchronously
+        emitPulse(s1DurationMs, s1Amp)
 
-            val effect = VibrationEffect.createWaveform(timings, amplitudes, 0)
-            vibrate(targetVibrator, effect)
-            Log.d(TAG, "startHeartbeat: running bpm=$bpm, period=${totalPeriodMs}ms, ratio=$clampedRatio")
-        } catch (e: Exception) {
-            Log.e(TAG, "startHeartbeat failed to start waveform vibration", e)
-            try {
-                // Secondary fallback for devices with strict waveform restrictions:
-                // Alternating off/on durations where index 0 is off duration
-                val fallbackTimings = longArrayOf(pauseMs, s1DurationMs, intervalMs, s2DurationMs)
-                val fallbackEffect = VibrationEffect.createWaveform(fallbackTimings, 0)
-                vibrate(targetVibrator, fallbackEffect)
-                Log.d(TAG, "startHeartbeat: fallback waveform succeeded")
-            } catch (fallbackEx: Exception) {
-                Log.e(TAG, "startHeartbeat fallback waveform also failed", fallbackEx)
+        // Launch coroutine loop generating heartbeats at the exact BPM frequency
+        heartbeatJob = scope.launch {
+            Log.d(TAG, "startHeartbeat: active at $bpm BPM, period=${totalPeriodMs}ms, ratio=$clampedRatio")
+            // Complete first beat cycle
+            delay(s1DurationMs + intervalMs)
+            if (!isActive) return@launch
+            emitPulse(s2DurationMs, s2Amp)
+            delay(s2DurationMs + pauseMs)
+
+            // Loop subsequent beats
+            while (isActive) {
+                // S1 pulse ("Lub")
+                emitPulse(s1DurationMs, s1Amp)
+                delay(s1DurationMs + intervalMs)
+                if (!isActive) break
+
+                // S2 pulse ("Dub")
+                emitPulse(s2DurationMs, s2Amp)
+                delay(s2DurationMs + pauseMs)
             }
         }
     }
 
     override fun stopHeartbeat() {
         try {
+            heartbeatJob?.cancel()
+            heartbeatJob = null
             vibrator?.cancel()
-            Log.d(TAG, "stopHeartbeat: vibrator cancelled")
+            Log.d(TAG, "stopHeartbeat: stopped coroutine job and vibrator")
         } catch (e: Exception) {
             Log.e(TAG, "stopHeartbeat failed", e)
         }
@@ -119,27 +130,54 @@ class HapticHeartbeatControllerImpl(
         stopHeartbeat()
 
         try {
-            val amplitude = if (targetVibrator.hasAmplitudeControl()) 255 else VibrationEffect.DEFAULT_AMPLITUDE
-            val effect = VibrationEffect.createOneShot(120L, amplitude)
-            vibrate(targetVibrator, effect)
-            Log.d(TAG, "triggerLikeConfirmation: pulse emitted")
+            emitPulse(140L, 255)
+            Log.d(TAG, "triggerLikeConfirmation: confirmation pulse emitted")
         } catch (e: Exception) {
             Log.e(TAG, "triggerLikeConfirmation failed", e)
         }
     }
 
-    private fun vibrate(vibrator: Vibrator, effect: VibrationEffect) {
+    private fun emitPulse(durationMs: Long, amplitude: Int) {
+        val targetVibrator = vibrator ?: return
+        if (!targetVibrator.hasVibrator()) return
+
+        var success = false
+        try {
+            val effect = if (targetVibrator.hasAmplitudeControl()) {
+                VibrationEffect.createOneShot(durationMs, amplitude.coerceIn(1, 255))
+            } else {
+                VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
+            }
+            vibrateTarget(targetVibrator, effect, durationMs)
+            success = true
+        } catch (e: Exception) {
+            Log.w(TAG, "emitPulse VibrationEffect failed: ${e.message}")
+        }
+
+        if (!success) {
+            try {
+                @Suppress("DEPRECATION")
+                targetVibrator.vibrate(durationMs)
+            } catch (e: Exception) {
+                Log.e(TAG, "emitPulse legacy vibrate failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun vibrateTarget(vibrator: Vibrator, effect: VibrationEffect, durationMs: Long) {
         if (vibratorOverride != null) {
             vibrator.vibrate(effect)
             return
         }
 
+        var dispatched = false
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val attrs = VibrationAttributes.Builder()
-                    .setUsage(VibrationAttributes.USAGE_TOUCH)
+                    .setUsage(VibrationAttributes.USAGE_MEDIA)
                     .build()
                 vibrator.vibrate(effect, attrs)
+                dispatched = true
             } else {
                 @Suppress("DEPRECATION")
                 val audioAttrs = AudioAttributes.Builder()
@@ -147,10 +185,28 @@ class HapticHeartbeatControllerImpl(
                     .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                     .build()
                 vibrator.vibrate(effect, audioAttrs)
+                dispatched = true
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Vibrate with attributes failed, falling back to basic vibrate", e)
-            vibrator.vibrate(effect)
+            Log.w(TAG, "Vibrate with attributes failed: ${e.message}")
+        }
+
+        if (!dispatched) {
+            try {
+                vibrator.vibrate(effect)
+                dispatched = true
+            } catch (e: Exception) {
+                Log.w(TAG, "1-arg vibrate failed: ${e.message}")
+            }
+        }
+
+        if (!dispatched) {
+            try {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(durationMs)
+            } catch (e: Exception) {
+                Log.e(TAG, "Legacy vibrate failed: ${e.message}")
+            }
         }
     }
 }

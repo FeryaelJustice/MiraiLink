@@ -66,14 +66,6 @@ fun HapticHeartbeatOverlay(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    DisposableEffect(visible) {
-        onDispose {
-            if (visible) {
-                onDismiss()
-            }
-        }
-    }
-
     if (visible) {
         BackHandler { onDismiss() }
     }
