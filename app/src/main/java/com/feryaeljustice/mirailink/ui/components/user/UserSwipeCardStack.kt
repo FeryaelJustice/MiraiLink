@@ -145,7 +145,15 @@ fun UserSwipeCardStack(
             }
         val cardScale = 1.02f - (0.06f * dragProgress)
 
+        var isSwipeHeartbeatActive by remember { mutableStateOf(false) }
+
         fun settleCard() {
+            if (isSwipeHeartbeatActive) {
+                isSwipeHeartbeatActive = false
+                isOverlayVisible = false
+                holdProgress = 0f
+                hapticController.stopHeartbeat()
+            }
             scope.launch {
                 offsetX.animateTo(0f, animationSpec = spring())
                 offsetY.animateTo(0f, animationSpec = spring())
@@ -153,6 +161,11 @@ fun UserSwipeCardStack(
         }
 
         fun completeSwipe(direction: SwipeDirection) {
+            if (isSwipeHeartbeatActive) {
+                isSwipeHeartbeatActive = false
+                isOverlayVisible = false
+                holdProgress = 0f
+            }
             scope.launch {
                 offsetX.animateTo(
                     targetValue =
@@ -203,20 +216,58 @@ fun UserSwipeCardStack(
                         .pointerInput(topUser.id) {
                             detectDragGestures(
                                 onDragEnd = {
+                                    if (isSwipeHeartbeatActive) {
+                                        isSwipeHeartbeatActive = false
+                                        isOverlayVisible = false
+                                        holdProgress = 0f
+                                    }
                                     when {
-                                        offsetX.value >= SwipeConfirmationThresholdPx ->
+                                        offsetX.value >= SwipeConfirmationThresholdPx -> {
+                                            hapticController.triggerLikeConfirmation()
                                             completeSwipe(SwipeDirection.Like)
-                                        offsetX.value <= -SwipeConfirmationThresholdPx ->
+                                        }
+                                        offsetX.value <= -SwipeConfirmationThresholdPx -> {
+                                            hapticController.stopHeartbeat()
                                             completeSwipe(SwipeDirection.Dislike)
-                                        else -> settleCard()
+                                        }
+                                        else -> {
+                                            hapticController.stopHeartbeat()
+                                            settleCard()
+                                        }
                                     }
                                 },
-                                onDragCancel = ::settleCard,
+                                onDragCancel = {
+                                    if (isSwipeHeartbeatActive) {
+                                        isSwipeHeartbeatActive = false
+                                        isOverlayVisible = false
+                                        holdProgress = 0f
+                                        hapticController.stopHeartbeat()
+                                    }
+                                    settleCard()
+                                },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
+                                    val newX = offsetX.value + dragAmount.x
+                                    val newY = offsetY.value + dragAmount.y
                                     scope.launch {
-                                        offsetX.snapTo(offsetX.value + dragAmount.x)
-                                        offsetY.snapTo(offsetY.value + dragAmount.y)
+                                        offsetX.snapTo(newX)
+                                        offsetY.snapTo(newY)
+                                    }
+
+                                    if (newX >= 60f) {
+                                        if (!isSwipeHeartbeatActive) {
+                                            isSwipeHeartbeatActive = true
+                                            isOverlayVisible = true
+                                            hapticController.startHeartbeat(affinity.ratio)
+                                        }
+                                        holdProgress = (newX / SwipeConfirmationThresholdPx).coerceIn(0f, 1f)
+                                    } else {
+                                        if (isSwipeHeartbeatActive) {
+                                            isSwipeHeartbeatActive = false
+                                            isOverlayVisible = false
+                                            holdProgress = 0f
+                                            hapticController.stopHeartbeat()
+                                        }
                                     }
                                 },
                             )
