@@ -233,6 +233,8 @@ fun SettingsScreen(
     val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
     val isPlus by miraiLinkSession.isPlus.collectAsStateWithLifecycle()
     val resetDemoDoneText = stringResource(R.string.demo_mode_reset_data_done)
+    val shareActionTitle = stringResource(R.string.action_share)
+    val shareMessageTemplate = stringResource(R.string.share_profile_message)
 
     val scrollState = rememberScrollState()
 
@@ -359,12 +361,12 @@ fun SettingsScreen(
                 onClick = {
                     val username = currentUser?.username
                     if (!username.isNullOrBlank()) {
-                        val shareMessage = context.getString(R.string.share_profile_message, username)
+                        val shareMessage = java.lang.String.format(shareMessageTemplate, username)
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, shareMessage)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.action_share)))
+                        context.startActivity(Intent.createChooser(shareIntent, shareActionTitle))
                     }
                 },
             )

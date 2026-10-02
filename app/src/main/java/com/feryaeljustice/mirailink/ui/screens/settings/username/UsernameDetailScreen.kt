@@ -76,6 +76,8 @@ fun UsernameDetailScreen(
     val profileUrlDisplay = "mirailink.com/user/$username"
     val fullProfileUrl = "https://mirailink.com/user/$username"
     val copiedToastText = stringResource(R.string.username_screen_copied_toast)
+    val shareMessage = stringResource(R.string.share_profile_message, username)
+    val shareActionTitle = stringResource(R.string.action_share)
 
     val copyUrlToClipboard: () -> Unit = {
         coroutineScope.launch {
@@ -85,12 +87,11 @@ fun UsernameDetailScreen(
     }
 
     val shareProfile = {
-        val shareMessage = context.getString(R.string.share_profile_message, username)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareMessage)
         }
-        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.action_share)))
+        context.startActivity(Intent.createChooser(shareIntent, shareActionTitle))
     }
 
     Column(

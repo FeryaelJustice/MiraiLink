@@ -62,7 +62,6 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRe
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthEvent
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationDialog
-import androidx.compose.ui.platform.LocalContext
 import com.feryaeljustice.mirailink.domain.model.enum.Gender
 import com.feryaeljustice.mirailink.domain.util.isAtLeast16YearsOld
 import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
@@ -85,8 +84,10 @@ fun AuthScreen(
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
-    val context = LocalContext.current
     val showSnackbar = LocalShowSnackbar.current
+    val verificationSentMessage = stringResource(R.string.verification_email_sent_check_inbox)
+    val errorMissingValueMessage = stringResource(R.string.error_missing_value)
+    val errorUnderageMessage = stringResource(R.string.error_underage)
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val userId by viewModel.userId.collectAsStateWithLifecycle()
@@ -193,7 +194,7 @@ fun AuthScreen(
                 resetAuthUiState()
                 showSnackbar(
                     MiraiLinkSnackbarRequest(
-                        message = context.getString(R.string.verification_email_sent_check_inbox),
+                        message = verificationSentMessage,
                     ),
                 )
             },
@@ -510,11 +511,11 @@ fun AuthScreen(
                     onClick = {
                         if (!isLogin) {
                             if (birthdateIso.isBlank()) {
-                                showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_missing_value)))
+                                showSnackbar(MiraiLinkSnackbarRequest(message = errorMissingValueMessage))
                                 return@MiraiLinkButton
                             }
                             if (!isAtLeast16YearsOld(birthdateIso)) {
-                                showSnackbar(MiraiLinkSnackbarRequest(message = context.getString(R.string.error_underage)))
+                                showSnackbar(MiraiLinkSnackbarRequest(message = errorUnderageMessage))
                                 return@MiraiLinkButton
                             }
                         }

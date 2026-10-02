@@ -77,12 +77,13 @@ fun SubscriptionPaywallScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? Activity
+    val purchaseSuccessMessage = stringResource(R.string.subscription_purchase_success_message)
 
-    LaunchedEffect(uiState.isSuccess) {
+    LaunchedEffect(uiState.isSuccess, purchaseSuccessMessage) {
         if (uiState.isSuccess) {
             showToast(
                 context,
-                context.getString(R.string.subscription_purchase_success_message),
+                purchaseSuccessMessage,
                 Toast.LENGTH_LONG,
             )
             onBackClick()
@@ -91,7 +92,7 @@ fun SubscriptionPaywallScreen(
 
     LaunchedEffect(uiState.messageResId) {
         uiState.messageResId?.let { resId ->
-            showToast(context, context.getString(resId), Toast.LENGTH_SHORT)
+            showToast(context, context.resources.getString(resId), Toast.LENGTH_SHORT)
             viewModel.clearMessage()
         }
     }

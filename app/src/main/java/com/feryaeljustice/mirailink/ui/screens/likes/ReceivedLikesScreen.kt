@@ -59,18 +59,19 @@ fun ReceivedLikesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val matchSuccessTemplate = stringResource(R.string.received_likes_match_success)
 
     LaunchedEffect(Unit) {
         viewModel.loadLikes()
     }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel, matchSuccessTemplate) {
         viewModel.events.collect { event ->
             when (event) {
                 is ReceivedLikesUiEvent.MatchCreated -> {
                     showToast(
                         context,
-                        context.getString(R.string.received_likes_match_success, event.nickname),
+                        java.lang.String.format(matchSuccessTemplate, event.nickname),
                     )
                 }
             }

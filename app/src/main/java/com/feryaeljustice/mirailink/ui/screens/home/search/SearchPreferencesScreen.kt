@@ -71,6 +71,7 @@ fun SearchPreferencesScreen(
     val residenceCoordinatesMissing by viewModel.residenceCoordinatesMissing.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val savedSuccessMessage = stringResource(R.string.search_settings_saved_success)
     val coroutineScope = rememberCoroutineScope()
     var isMapVisible by remember { mutableStateOf(false) }
     var isRefreshingLocation by remember { mutableStateOf(false) }
@@ -176,7 +177,7 @@ fun SearchPreferencesScreen(
             onSaveClick = {
                 viewModel.save {
                     isMapVisible = false
-                    showToast(context.getString(R.string.search_settings_saved_success), Toast.LENGTH_SHORT)
+                    showToast(savedSuccessMessage, Toast.LENGTH_SHORT)
                 }
             },
             latitude = latitude,
