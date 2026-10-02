@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.components.molecules
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.feryaeljustice.mirailink.ui.error.UiError
+import com.feryaeljustice.mirailink.ui.error.asString
 import com.feryaeljustice.mirailink.ui.utils.composition.LocalShowSnackbar
 
 /** Petición gestionada por el SnackbarHost único de la raíz de la app. */
