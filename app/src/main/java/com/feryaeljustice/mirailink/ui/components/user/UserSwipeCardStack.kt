@@ -72,17 +72,67 @@ private enum class SwipeDirection {
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UserSwipeCardStack(
+    modifier: Modifier = Modifier,
     users: List<UserViewEntry>,
     canUndo: Boolean,
     onSwipeLeft: () -> Unit,
     onGoBack: (() -> Unit),
     onSwipeRight: () -> Unit,
-    modifier: Modifier = Modifier,
     currentUser: UserViewEntry? = null,
-    hapticController: HapticHeartbeatController = koinInject(),
-    affinityUseCase: CalculateHeartbeatAffinityUseCase = koinInject(),
-    getCurrentUserUseCase: GetCurrentUserUseCase = koinInject(),
-    miraiLinkSession: GlobalMiraiLinkSession = koinInject(),
+) {
+    if (androidx.compose.ui.platform.LocalInspectionMode.current) {
+        if (users.isEmpty()) return
+        val topUser = users.first()
+        Box(modifier = modifier.fillMaxSize()) {
+            UserCard(
+                modifier = Modifier.fillMaxSize(),
+                user = topUser,
+                onSave = {},
+                isPublicPresentation = true,
+            )
+            SwipeActionButtons(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .zIndex(2f),
+                activeDirection = null,
+                canUndo = canUndo,
+                onDislike = onSwipeLeft,
+                onUndo = onGoBack,
+                onLike = onSwipeRight,
+            )
+        }
+        return
+    }
+
+    UserSwipeCardStack(
+        modifier = modifier,
+        users = users,
+        canUndo = canUndo,
+        onSwipeLeft = onSwipeLeft,
+        onGoBack = onGoBack,
+        onSwipeRight = onSwipeRight,
+        currentUser = currentUser,
+        hapticController = koinInject(),
+        affinityUseCase = koinInject(),
+        getCurrentUserUseCase = koinInject(),
+        miraiLinkSession = koinInject(),
+    )
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun UserSwipeCardStack(
+    modifier: Modifier = Modifier,
+    users: List<UserViewEntry>,
+    canUndo: Boolean,
+    onSwipeLeft: () -> Unit,
+    onGoBack: (() -> Unit),
+    onSwipeRight: () -> Unit,
+    currentUser: UserViewEntry? = null,
+    hapticController: HapticHeartbeatController,
+    affinityUseCase: CalculateHeartbeatAffinityUseCase,
+    getCurrentUserUseCase: GetCurrentUserUseCase,
+    miraiLinkSession: GlobalMiraiLinkSession,
 ) {
     if (users.isEmpty()) return
 
@@ -339,12 +389,12 @@ fun UserSwipeCardStack(
 
 @Composable
 private fun SwipeActionButtons(
+    modifier: Modifier = Modifier,
     activeDirection: SwipeDirection?,
     canUndo: Boolean,
     onDislike: () -> Unit,
     onUndo: () -> Unit,
     onLike: () -> Unit,
-    modifier: Modifier = Modifier,
     likeGestureModifier: Modifier? = null,
 ) {
     Row(
@@ -357,31 +407,31 @@ private fun SwipeActionButtons(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SwipeActionButton(
+            modifier = Modifier.testTag("discardBtn"),
             icon = Icons.Default.Close,
             contentDescription = stringResource(R.string.discard),
             isActive = activeDirection == SwipeDirection.Dislike,
             activeColor = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.testTag("discardBtn"),
             onClick = onDislike,
         )
 
         if (canUndo) {
             SwipeActionButton(
+                modifier = Modifier.testTag("returnSwipeBtn"),
                 icon = Icons.Default.Refresh,
                 contentDescription = stringResource(R.string.comeback),
                 isActive = false,
                 activeColor = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.testTag("returnSwipeBtn"),
                 onClick = onUndo,
             )
         }
 
         SwipeActionButton(
+            modifier = Modifier.testTag("likeBtn"),
             icon = Icons.Default.Favorite,
             contentDescription = stringResource(R.string.like),
             isActive = activeDirection == SwipeDirection.Like,
             activeColor = SwipeLikeRed,
-            modifier = Modifier.testTag("likeBtn"),
             onClick = onLike,
             gestureModifier = likeGestureModifier,
         )
@@ -390,12 +440,12 @@ private fun SwipeActionButtons(
 
 @Composable
 private fun SwipeActionButton(
+    modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
     isActive: Boolean,
     activeColor: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     gestureModifier: Modifier? = null,
 ) {
     val containerColor by animateColorAsState(
@@ -455,3 +505,32 @@ private fun SwipeActionButton(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun UserSwipeCardStackPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        UserSwipeCardStack(
+            users =
+                listOf(
+                    UserViewEntry(
+                        id = "1",
+                        username = "sakura",
+                        nickname = "Sakura",
+                        email = null,
+                        phoneNumber = null,
+                        bio = "Anime fan and gamer",
+                        gender = "female",
+                        birthdate = "2000-01-01",
+                        games = emptyList(),
+                        animes = emptyList(),
+                    ),
+                ),
+            canUndo = true,
+            onSwipeLeft = {},
+            onGoBack = {},
+            onSwipeRight = {},
+        )
+    }
+}
+

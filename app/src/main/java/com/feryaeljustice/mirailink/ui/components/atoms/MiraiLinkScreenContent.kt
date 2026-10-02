@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+import androidx.compose.material3.Text
+import androidx.compose.ui.tooling.preview.Preview
+
 /**
  * Wrapper para el contenido principal de una pantalla que anima la transicion
  * entre el estado de carga y el contenido real.
@@ -21,14 +24,14 @@ import androidx.compose.ui.Modifier
  * un [CircularProgressIndicator] centrado que ocupa el mismo espacio.
  * La transicion usa las convenciones de animacion de Material 3.
  *
- * @param isLoading Si es true, muestra el spinner en lugar del contenido.
  * @param modifier Modifier aplicado al contenedor raiz.
+ * @param isLoading Si es true, muestra el spinner en lugar del contenido.
  * @param content El contenido de la pantalla a mostrar cuando no esta cargando.
  */
 @Composable
 fun MiraiLinkScreenContent(
-    isLoading: Boolean,
     modifier: Modifier = Modifier,
+    isLoading: Boolean,
     content: @Composable () -> Unit,
 ) {
     AnimatedContent(
@@ -52,3 +55,14 @@ fun MiraiLinkScreenContent(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkScreenContentPreview() {
+    MiraiLinkScreenContent(
+        isLoading = false,
+    ) {
+        Text("Loaded Screen Content")
+    }
+}
+

@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
@@ -49,8 +50,8 @@ import org.koin.androidx.compose.koinViewModel
 @Suppress("EffectKeys", "ParamsComparedByRef", "ktlint:standard:function-naming")
 @Composable
 fun AiChatScreen(
-    miraiLinkSession: GlobalMiraiLinkSession,
     modifier: Modifier = Modifier,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit = {},
     viewModel: AiChatViewModel = koinViewModel(),
 ) {
@@ -207,9 +208,12 @@ fun AiChatScreen(
 }
 
 @Composable
-private fun AiMessageBubble(message: AiChatMessage) {
+private fun AiMessageBubble(
+    modifier: Modifier = Modifier,
+    message: AiChatMessage,
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start,
     ) {
         Card(
@@ -235,6 +239,32 @@ private fun AiMessageBubble(message: AiChatMessage) {
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AiMessageBubblePreview() {
+    MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AiMessageBubble(
+                message = AiChatMessage(
+                    text = "Hello! How can I help you discover compatible matches?",
+                    isUser = false,
+                ),
+            )
+            AiMessageBubble(
+                message = AiChatMessage(
+                    text = "I'm looking for gamer friends who love RPGs!",
+                    isUser = true,
+                ),
             )
         }
     }

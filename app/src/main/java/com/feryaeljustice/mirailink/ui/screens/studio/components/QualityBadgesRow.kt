@@ -32,8 +32,8 @@ import com.feryaeljustice.mirailink.domain.model.studio.QualityBadge
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QualityBadgesRow(
-    badges: List<QualityBadge>,
     modifier: Modifier = Modifier,
+    badges: List<QualityBadge>,
 ) {
     FlowRow(
         modifier = modifier,
@@ -53,8 +53,8 @@ fun QualityBadgesRow(
 
 @Composable
 fun QualityBadgeChip(
-    badge: QualityBadge,
     modifier: Modifier = Modifier,
+    badge: QualityBadge,
 ) {
     val borderColor = when (badge) {
         QualityBadge.OPTIMAL_LIGHTING -> Color(0xFF00E5FF)
@@ -89,4 +89,17 @@ fun QualityBadgeChip(
             fontFamily = FontFamily.Monospace,
         )
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun QualityBadgesRowPreview() {
+    QualityBadgesRow(
+        badges = listOf(
+            QualityBadge.OPTIMAL_LIGHTING,
+            QualityBadge.AUTHENTIC_SMILE,
+            QualityBadge.DIRECT_GAZE,
+            QualityBadge.CENTERED_FRAME,
+        )
+    )
 }

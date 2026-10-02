@@ -11,11 +11,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkBasicText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     textStyle: TextStyle = TextStyle.Default,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Visible,
@@ -50,5 +52,13 @@ fun MiraiLinkBasicText(
         minLines = minLines,
         color = color?.let { color -> { color } },
         autoSize = autoSize,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkBasicTextPreview() {
+    MiraiLinkBasicText(
+        text = "Sample Basic Text",
     )
 }

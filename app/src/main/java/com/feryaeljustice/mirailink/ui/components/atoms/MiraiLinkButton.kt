@@ -8,11 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
+import androidx.compose.material3.Text
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkButton(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     enabled: Boolean = true,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -33,4 +36,12 @@ fun MiraiLinkButton(
             ),
         content = content,
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkButtonPreview() {
+    MiraiLinkButton(onClick = {}) {
+        Text("Click Me")
+    }
 }

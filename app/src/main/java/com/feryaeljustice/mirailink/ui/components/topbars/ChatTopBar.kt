@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -36,12 +37,11 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun ChatTopBar(
+    modifier: Modifier = Modifier,
     onLongPressOnImage: (String) -> Unit,
     onReportClick: () -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onAvatarClick: (() -> Unit)? = null,
-    // receiverId: String? = null,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
 ) {
@@ -135,3 +135,15 @@ fun ChatTopBar(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatTopBarPreview() {
+    ChatTopBar(
+        onLongPressOnImage = {},
+        onReportClick = {},
+        onBackClick = {},
+        receiverName = "Sakura",
+    )
+}
+

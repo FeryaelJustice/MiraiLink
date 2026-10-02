@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,9 +47,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("EffectKeys", "ParamsComparedByRef", "ktlint:standard:function-naming")
 @Composable
 fun ProfilePictureScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onProfileUpload: () -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: ProfilePictureViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -136,4 +138,37 @@ fun ProfilePictureScreen(
     }
 
     BackHandler(enabled = true) { Log.i("OnBack", "Clicked back on Profile Picture Upload Screen") }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun ProfilePictureScreenPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .background(Color.Gray.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_camera),
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = {}) {
+            MiraiLinkText(
+                text = stringResource(R.string.profile_picture_screen_select_img),
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+        }
+    }
 }

@@ -631,8 +631,8 @@ fun OnboardingEventsIllustration(
 
 @Composable
 private fun OnboardingInterestTag(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
 ) {
     Surface(
         modifier = modifier,
@@ -648,6 +648,15 @@ private fun OnboardingInterestTag(
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun OnboardingIllustrationsPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        OnboardingRadarConnectionIllustration()
+    }
+}
+
 
 /**
  * Dibuja una estrella de cuatro puntas (*Kirakira*) con centro brillante en el Canvas.

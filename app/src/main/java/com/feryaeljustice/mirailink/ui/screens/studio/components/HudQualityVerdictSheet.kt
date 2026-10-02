@@ -34,15 +34,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.studio.ImageQualityMetrics
 import com.feryaeljustice.mirailink.domain.model.studio.MiraiScanResult
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 
 @Composable
 fun HudQualityVerdictSheet(
+    modifier: Modifier = Modifier,
     scanResult: MiraiScanResult,
     onAcceptClick: () -> Unit,
     onRetryClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
     val hasWarnings = scanResult.warnings.isNotEmpty()
@@ -259,4 +260,31 @@ fun HudQualityVerdictSheet(
             }
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun HudQualityVerdictSheetPreview() {
+    HudQualityVerdictSheet(
+        scanResult = MiraiScanResult(
+            contentType = com.feryaeljustice.mirailink.domain.model.studio.ScanContentType.FACIAL_PORTRAIT,
+            faceBiometrics = null,
+            qualityMetrics = ImageQualityMetrics(
+                averageLuminancePercent = 65,
+                contrastVariance = 0.5f,
+                width = 1080,
+                height = 1920,
+                isLikelyScreenshot = false,
+            ),
+            badges = listOf(
+                com.feryaeljustice.mirailink.domain.model.studio.QualityBadge.OPTIMAL_LIGHTING,
+                com.feryaeljustice.mirailink.domain.model.studio.QualityBadge.HIGH_RESOLUTION,
+            ),
+            warnings = listOf("Small tilt detected"),
+            suggestions = listOf("Hold camera steady"),
+            canProceedWithSoftWarning = true,
+        ),
+        onAcceptClick = {},
+        onRetryClick = {},
+    )
 }

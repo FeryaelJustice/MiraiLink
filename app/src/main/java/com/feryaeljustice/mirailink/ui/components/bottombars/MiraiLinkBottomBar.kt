@@ -17,14 +17,17 @@ import com.feryaeljustice.mirailink.ui.navigation.NavigationState
 import com.feryaeljustice.mirailink.ui.navigation.Navigator
 import com.skydoves.compose.stability.runtime.TraceRecomposition
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.feryaeljustice.mirailink.ui.navigation.rememberNavigationState
+
 @Suppress("ParamsComparedByRef", "ktlint:standard:function-naming")
 @TraceRecomposition
 @Composable
 fun MiraiLinkBottomBar(
+    modifier: Modifier = Modifier,
     navigator: Navigator,
     navState: NavigationState,
     onDestinationClick: (BottomNavItem) -> Unit,
-    modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
     val bottomNavDestinations =
@@ -87,3 +90,18 @@ fun MiraiLinkBottomBar(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkBottomBarPreview() {
+    val navState = rememberNavigationState(
+        startRoute = AppScreen.HomeScreen,
+        topLevelRoutes = setOf(AppScreen.HomeScreen),
+    )
+    MiraiLinkBottomBar(
+        navigator = Navigator(navState),
+        navState = navState,
+        onDestinationClick = {},
+    )
+}
+

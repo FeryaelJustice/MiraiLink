@@ -20,17 +20,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MessageListItem(
-    onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onClick: (String) -> Unit = {},
     chatUserId: String? = null,
     chatAvatarUrl: String = "",
     chatUsername: String = "",
@@ -40,8 +42,6 @@ fun MessageListItem(
     chatLastMessage: String = "",
     chatReadsPending: Int = 0,
 ) {
-    // val sharedTransitionScope = LocalSharedTransitionScope.current
-    // val animatedVisibilityScope = LocalMiraiAnimatedScope.current
     Row(
         modifier =
             modifier
@@ -50,8 +50,6 @@ fun MessageListItem(
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
-        //    with(sharedTransitionScope) {
         AsyncImage(
             model = ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
                 .data(chatAvatarUrl.ifBlank { R.drawable.logomirailink })
@@ -62,14 +60,8 @@ fun MessageListItem(
             modifier =
                 Modifier
                     .size(56.dp)
-                    .clip(CircleShape)
-            //.sharedElement(
-            //    sharedContentState = rememberSharedContentState(key = "avatar_${chatUserId}"),
-            //    animatedVisibilityScope = animatedVisibilityScope
-            //),
+                    .clip(CircleShape),
         )
-        //    }
-        //}
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -120,5 +112,20 @@ fun MessageListItem(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MessageListItemPreview() {
+    MiraiLinkTheme {
+        MessageListItem(
+            chatNickname = "Alice",
+            chatUsername = "alice_w",
+            chatLastMessage = "Hey, are you free tonight?",
+            chatIsBoosted = true,
+            chatReadsPending = 3,
+            onClick = {},
+        )
     }
 }

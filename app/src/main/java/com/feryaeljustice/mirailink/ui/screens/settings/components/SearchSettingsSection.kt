@@ -37,6 +37,7 @@ import com.feryaeljustice.mirailink.ui.components.map.SearchRadiusMinimap
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchSettingsSection(
+    modifier: Modifier = Modifier,
     radiusKm: Float,
     onRadiusChange: (Float) -> Unit,
     scope: SearchScope,
@@ -46,7 +47,6 @@ fun SearchSettingsSection(
     hasUnsavedChanges: Boolean,
     isSaving: Boolean,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier,
     latitude: Double = 39.5696,
     longitude: Double = 2.6502,
     isMapVisible: Boolean = false,
@@ -377,3 +377,22 @@ fun SearchSettingsSection(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun SearchSettingsSectionPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        SearchSettingsSection(
+            radiusKm = 50f,
+            onRadiusChange = {},
+            scope = SearchScope.RADIUS_RESIDENCE,
+            onScopeChange = {},
+            targetCountry = null,
+            onTargetCountryChange = {},
+            hasUnsavedChanges = false,
+            isSaving = false,
+            onSaveClick = {},
+        )
+    }
+}
+

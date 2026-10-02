@@ -29,17 +29,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun CurrentPlanCard(
+    modifier: Modifier = Modifier,
     isPremium: Boolean,
     isPlus: Boolean = false,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     if (isPremium) {
         val premiumBrush = Brush.linearGradient(
@@ -299,6 +301,29 @@ fun CurrentPlanCard(
                     modifier = Modifier.size(22.dp),
                 )
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CurrentPlanCardPreview() {
+    MiraiLinkTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            CurrentPlanCard(
+                isPremium = false,
+                isPlus = false,
+                onClick = {},
+            )
+            CurrentPlanCard(
+                isPremium = false,
+                isPlus = true,
+                onClick = {},
+            )
+            CurrentPlanCard(
+                isPremium = true,
+                onClick = {},
+            )
         }
     }
 }

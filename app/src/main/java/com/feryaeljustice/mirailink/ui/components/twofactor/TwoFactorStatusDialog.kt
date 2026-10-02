@@ -13,13 +13,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Composable
 fun TwoFactorStatusDialog(
+    modifier: Modifier = Modifier,
     enabled: Boolean,
     onDismiss: () -> Unit,
     onEnable: () -> Unit,
@@ -27,6 +30,7 @@ fun TwoFactorStatusDialog(
 ) {
     val statusColor = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
     MiraiLinkDialog(
+        modifier = modifier,
         title = stringResource(R.string.configure_two_factor),
         onDismiss = onDismiss,
         onAccept = if (enabled) onDismiss else onEnable,
@@ -59,4 +63,17 @@ fun TwoFactorStatusDialog(
             }
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TwoFactorStatusDialogPreview() {
+    MiraiLinkTheme {
+        TwoFactorStatusDialog(
+            enabled = true,
+            onDismiss = {},
+            onEnable = {},
+            onDisable = {},
+        )
+    }
 }

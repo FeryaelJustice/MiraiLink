@@ -11,8 +11,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import dev.alexdametto.compose_emoji_picker.presentation.EmojiPicker
 
 /**
@@ -34,26 +36,23 @@ fun TextFieldValue.insertEmojiAtCursor(emoji: String): TextFieldValue {
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun EmojiPickerButton(
+    modifier: Modifier = Modifier,
     textFieldValue: TextFieldValue,
     onTextFieldValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
-    modifierEmojiButtonModifier: Modifier = Modifier,
 ) {
     EmojiPickerButton(
+        modifier = modifier,
         onEmojiSelect = { emoji ->
             onTextFieldValueChange(textFieldValue.insertEmojiAtCursor(emoji))
         },
-        modifier = modifier,
-        modifierEmojiButtonModifier = modifierEmojiButtonModifier,
     )
 }
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun EmojiPickerButton(
-    onEmojiSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
-    modifierEmojiButtonModifier: Modifier = Modifier,
+    onEmojiSelect: (String) -> Unit,
 ) {
     var isEmojiPickerOpen by remember { mutableStateOf(false) }
 
@@ -69,7 +68,7 @@ fun EmojiPickerButton(
     )
 
     MiraiLinkIconButton(
-        modifier = modifierEmojiButtonModifier.then(modifier),
+        modifier = modifier,
         onClick = { isEmojiPickerOpen = true },
     ) {
         Icon(
@@ -79,4 +78,12 @@ fun EmojiPickerButton(
     }
 }
 
-
+@Preview(showBackground = true)
+@Composable
+private fun EmojiPickerButtonPreview() {
+    MiraiLinkTheme {
+        EmojiPickerButton(
+            onEmojiSelect = {},
+        )
+    }
+}

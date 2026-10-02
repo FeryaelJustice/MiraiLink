@@ -79,3 +79,9 @@ fun RuleOfThirdsOverlay(
         drawLine(bracketColor, Offset(w - margin, h - margin), Offset(w - margin, h - margin - bracketLen), bracketStroke)
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun RuleOfThirdsOverlayPreview() {
+    RuleOfThirdsOverlay()
+}

@@ -67,10 +67,10 @@ import kotlin.math.roundToInt
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun EditablePhotoGrid(
+    modifier: Modifier = Modifier,
     photos: List<PhotoSlotViewEntry>,
     onSlotClick: ((Int) -> Unit)?,
     onPhotoReorder: ((Int, Int) -> Unit)?,
-    modifier: Modifier = Modifier,
 ) {
     val currentSlotClick by rememberUpdatedState(newValue = onSlotClick)
     val currentPhotoReorder by rememberUpdatedState(newValue = onPhotoReorder)
@@ -414,3 +414,22 @@ fun EditablePhotoGrid(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun EditablePhotoGridPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        EditablePhotoGrid(
+            photos =
+                listOf(
+                    PhotoSlotViewEntry(url = "https://example.com/1.jpg", position = 0),
+                    PhotoSlotViewEntry(position = 1),
+                    PhotoSlotViewEntry(position = 2),
+                    PhotoSlotViewEntry(position = 3),
+                ),
+            onSlotClick = {},
+            onPhotoReorder = { _, _ -> },
+        )
+    }
+}
+

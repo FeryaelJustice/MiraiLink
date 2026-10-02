@@ -60,10 +60,10 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToChat: (String) -> Unit,
     onNavigateToAiChat: () -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: MessagesViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -202,5 +202,25 @@ fun MessagesScreen(
                 }
             }
         }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun MessagesScreenPreview() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        MatchesRow(
+            modifier = Modifier.fillMaxWidth(),
+            matches = emptyList(),
+            onNavigateToChat = {},
+        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        ChatList(
+            modifier = Modifier.fillMaxWidth(),
+            chats = emptyList(),
+            onNavigateToChat = {},
+        )
     }
 }

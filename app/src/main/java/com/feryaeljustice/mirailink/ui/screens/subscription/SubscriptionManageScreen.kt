@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
@@ -55,8 +56,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun SubscriptionManageScreen(
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
     onNavigateToPaywall: () -> Unit = {},
     viewModel: SubscriptionManageViewModel = koinViewModel(),
 ) {
@@ -332,7 +333,10 @@ fun SubscriptionManageScreen(
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
-private fun ActivePerkRow(text: String, modifier: Modifier = Modifier) {
+private fun ActivePerkRow(
+    modifier: Modifier = Modifier,
+    text: String,
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -356,6 +360,17 @@ private fun ActivePerkRow(text: String, modifier: Modifier = Modifier) {
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ActivePerkRowPreview() {
+    MaterialTheme {
+        ActivePerkRow(
+            text = "Unlimited likes & superlikes",
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

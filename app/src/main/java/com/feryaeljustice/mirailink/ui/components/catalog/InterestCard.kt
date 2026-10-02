@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -40,18 +41,18 @@ import com.feryaeljustice.mirailink.ui.util.InterestImageFallback
  * Tarjeta visual para representar un anime o videojuego con su portada,
  * degradado sombreado inferior de abajo hacia arriba y nombre localizado.
  *
+ * @param modifier Modificador de Compose.
  * @param title Nombre localizado del anime o juego.
  * @param imageUrl URL de la portada remota.
- * @param modifier Modificador de Compose.
  * @param isSelected Indica si la tarjeta esta visualmente seleccionada.
  * @param onRemoveClick Callback opcional para eliminar el item en modo edicion.
  * @param onClick Callback opcional al pulsar la tarjeta.
  */
 @Composable
 fun InterestCard(
+    modifier: Modifier = Modifier,
     title: String,
     imageUrl: String?,
-    modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     onRemoveClick: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -147,3 +148,14 @@ fun InterestCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun InterestCardPreview() {
+    InterestCard(
+        title = "Chainsaw Man",
+        imageUrl = null,
+        isSelected = true,
+    )
+}
+

@@ -44,10 +44,10 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun RecoverPasswordScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     email: String,
     onConfirmedRecoverPassword: () -> Unit,
-    modifier: Modifier = Modifier,
     token: String = "",
     onBack: () -> Unit = {},
     viewModel: RecoverPasswordViewModel = koinViewModel(),
@@ -228,5 +228,46 @@ fun RecoverPasswordScreen(
                 viewModel.dismissSuccessDialog(onConfirmedRecoverPassword)
             },
         )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RecoverPasswordHeaderPreview() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MiraiLinkIconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_back),
+                    contentDescription = stringResource(R.string.back),
+                )
+            }
+            Image(
+                painter = painterResource(R.drawable.logomirailink),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.padding(start = 8.dp).height(56.dp),
+            )
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                MiraiLinkText(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                MiraiLinkText(
+                    text = stringResource(R.string.auth_recover_title),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }

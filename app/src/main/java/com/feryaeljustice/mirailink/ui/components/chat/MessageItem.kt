@@ -14,15 +14,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.domain.util.formatTimestamp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MessageItem(
-    isOwnMessage: Boolean,
     modifier: Modifier = Modifier,
+    isOwnMessage: Boolean = false,
     msgContent: String = "",
     msgTimestamp: Long = 0,
 ) {
@@ -85,3 +87,22 @@ private fun getMessageStyle(isOwnMessage: Boolean): MessageStyle =
             textColor = MaterialTheme.colorScheme.onTertiary,
         )
     }
+
+@Preview(showBackground = true)
+@Composable
+private fun MessageItemPreview() {
+    MiraiLinkTheme {
+        Column {
+            MessageItem(
+                isOwnMessage = false,
+                msgContent = "Hello from other user!",
+                msgTimestamp = System.currentTimeMillis(),
+            )
+            MessageItem(
+                isOwnMessage = true,
+                msgContent = "Hello, this is my reply!",
+                msgTimestamp = System.currentTimeMillis(),
+            )
+        }
+    }
+}

@@ -46,12 +46,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.model.haptics.HeartbeatAffinity
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import kotlin.math.pow
 
 private val NeonMagenta = Color(0xFFFF2D55)
@@ -62,12 +64,12 @@ private val GlowReady = Color(0xFFFFD700)
 
 @Composable
 fun HapticHeartbeatOverlay(
+    modifier: Modifier = Modifier,
     visible: Boolean,
     affinity: HeartbeatAffinity,
     progress: Float,
     targetNickname: String,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
     isSwipe: Boolean = false,
 ) {
     if (visible) {
@@ -336,5 +338,27 @@ fun HapticHeartbeatOverlay(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HapticHeartbeatOverlayPreview() {
+    MiraiLinkTheme {
+        HapticHeartbeatOverlay(
+            visible = true,
+            affinity =
+                HeartbeatAffinity(
+                    ratio = 0.75f,
+                    percentage = 75,
+                    bpm = 85,
+                    commonAnimesCount = 2,
+                    commonGamesCount = 3,
+                    commonGoalsCount = 1,
+                ),
+            progress = 0.5f,
+            targetNickname = "Asuka",
+            onDismiss = {},
+        )
     }
 }

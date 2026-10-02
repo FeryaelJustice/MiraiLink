@@ -13,11 +13,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.feryaeljustice.mirailink.R
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkImage(
-    painterId: Int,
     modifier: Modifier = Modifier,
+    painterId: Int,
     contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.None,
     hasBorder: Boolean = false,
@@ -56,5 +59,14 @@ fun MiraiLinkImage(
                     Modifier
                 },
             ),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkImagePreview() {
+    MiraiLinkImage(
+        painterId = R.drawable.logomirailink,
+        contentDescription = "Logo",
     )
 }

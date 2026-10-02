@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
@@ -33,12 +34,12 @@ enum class TopBarLayoutDirection {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MiraiLinkTopBar(
+    modifier: Modifier = Modifier,
     isAuthenticated: Boolean,
     onThemeChange: () -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearchPreferences: () -> Unit,
-    modifier: Modifier = Modifier,
     darkTheme: Boolean = false,
     enabled: Boolean = true,
     showSettingsIcon: Boolean = true,
@@ -136,3 +137,16 @@ data class TopBarConfig(
     val title: String? = null,
     val layoutDirection: TopBarLayoutDirection = TopBarLayoutDirection.ROW, // Added for consistency
 )
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkTopBarPreview() {
+    MiraiLinkTopBar(
+        isAuthenticated = true,
+        onThemeChange = {},
+        onNavigateHome = {},
+        onNavigateToSettings = {},
+        onNavigateToSearchPreferences = {},
+    )
+}
+

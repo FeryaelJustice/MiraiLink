@@ -108,8 +108,8 @@ private fun ProfileScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    miraiLinkSession: GlobalMiraiLinkSession,
     modifier: Modifier = Modifier,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToMiraiStudio: ((targetSlot: Int, initialUri: Uri?) -> Unit)? = null,
     onNavigateToFaq: (() -> Unit)? = null,
     onNavigateToProfilePreview: ((username: String) -> Unit)? = null,

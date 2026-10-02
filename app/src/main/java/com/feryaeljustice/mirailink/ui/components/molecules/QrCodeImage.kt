@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -18,8 +19,8 @@ import com.google.zxing.qrcode.QRCodeWriter
 @SuppressLint("UseKtx")
 @Composable
 fun QrCodeImage(
-    content: String,
     modifier: Modifier = Modifier,
+    content: String,
     size: Dp = 240.dp,
 ) {
     val bitmap =
@@ -42,3 +43,12 @@ fun QrCodeImage(
         modifier = modifier,
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun QrCodeImagePreview() {
+    QrCodeImage(
+        content = "https://mirailink.app",
+    )
+}
+

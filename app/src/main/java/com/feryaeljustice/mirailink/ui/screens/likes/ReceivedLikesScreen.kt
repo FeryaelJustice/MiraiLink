@@ -51,9 +51,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun ReceivedLikesScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToUserDetail: (String) -> Unit,
-    modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
     viewModel: ReceivedLikesViewModel = koinViewModel(),
 ) {
@@ -127,10 +127,10 @@ fun ReceivedLikesScreen(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun ReceivedLikeItemCard(
+    modifier: Modifier = Modifier,
     item: ReceivedLikeItemViewEntry,
     onClick: () -> Unit,
     onMatchClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -249,8 +249,8 @@ private fun EmptyLikesState(modifier: Modifier = Modifier) {
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun PremiumLockedState(
-    onNavigateToPaywall: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToPaywall: () -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -310,4 +310,34 @@ private fun PremiumLockedState(
             }
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun EmptyLikesStatePreview() {
+    EmptyLikesState()
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PremiumLockedStatePreview() {
+    PremiumLockedState(onNavigateToPaywall = {})
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun ReceivedLikeItemCardPreview() {
+    ReceivedLikeItemCard(
+        item = ReceivedLikeItemViewEntry(
+            likeId = "1",
+            userId = "u1",
+            username = "sakura",
+            nickname = "Sakura",
+            age = 22,
+            avatarUrl = null,
+            likedAt = "Hace 2 horas",
+        ),
+        onClick = {},
+        onMatchClick = {},
+    )
 }

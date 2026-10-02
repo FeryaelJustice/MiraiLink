@@ -10,21 +10,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun TwoFactorPutCodeOrRecoveryCDialog(
+    modifier: Modifier = Modifier,
     code: String,
     isLoading: Boolean,
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    modifier: Modifier = Modifier,
     isDisable: Boolean = true,
 ) {
     MiraiLinkDialog(
@@ -65,4 +67,19 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
             }
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TwoFactorPutCodeOrRecoveryCDialogPreview() {
+    MiraiLinkTheme {
+        TwoFactorPutCodeOrRecoveryCDialog(
+            code = "123456",
+            isLoading = false,
+            onCodeChange = {},
+            onDismiss = {},
+            onConfirm = {},
+            isDisable = false,
+        )
+    }
 }

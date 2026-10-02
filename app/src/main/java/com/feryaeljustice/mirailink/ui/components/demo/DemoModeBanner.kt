@@ -19,14 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Composable
 fun DemoModeBanner(
-    visible: Boolean,
     modifier: Modifier = Modifier,
+    visible: Boolean,
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -55,5 +57,15 @@ fun DemoModeBanner(
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DemoModeBannerPreview() {
+    MiraiLinkTheme {
+        DemoModeBanner(
+            visible = true,
+        )
     }
 }

@@ -28,8 +28,8 @@ import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.testing.setMiraiLinkContent
 import com.feryaeljustice.mirailink.ui.testing.testSession
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
-import com.google.common.truth.Truth.assertThat
 import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -50,13 +50,18 @@ class SocialScreensTest {
     fun homeScreen_rendersEmptyFeed() {
         val viewModel = mockk<HomeViewModel>(relaxed = true) {
             every { state } returns
-                MutableStateFlow<HomeViewModel.HomeUiState>(
-                    HomeViewModel.HomeUiState.Success(emptyList(), currentIndex = 0),
-                )
+                    MutableStateFlow<HomeViewModel.HomeUiState>(
+                        HomeViewModel.HomeUiState.Success(emptyList(), currentIndex = 0),
+                    )
             every { canUndo() } returns false
         }
         composeRule.setMiraiLinkContent {
-            HomeScreen(testSession(), Modifier.testTag("home-screen"), viewModel)
+            HomeScreen(
+                modifier = Modifier.testTag("home-screen"),
+                miraiLinkSession = testSession(),
+                onNavigateToPaywall = {},
+                viewModel = viewModel,
+            )
         }
 
         composeRule.onNodeWithTag("HomeRefreshBox").assertIsDisplayed()
@@ -70,9 +75,9 @@ class SocialScreensTest {
         var opened = false
         val viewModel = mockk<MessagesViewModel>(relaxed = true) {
             every { state } returns
-                MutableStateFlow<MessagesViewModel.MessagesUiState>(
-                    MessagesViewModel.MessagesUiState.Idle,
-                )
+                    MutableStateFlow<MessagesViewModel.MessagesUiState>(
+                        MessagesViewModel.MessagesUiState.Idle,
+                    )
         }
         composeRule.setMiraiLinkContent {
             MessagesScreen(
@@ -120,9 +125,9 @@ class SocialScreensTest {
     fun profileScreen_rendersLoading() {
         val viewModel = mockk<ProfileViewModel>(relaxed = true) {
             every { state } returns
-                MutableStateFlow<ProfileViewModel.ProfileUiState>(
-                    ProfileViewModel.ProfileUiState.Loading,
-                )
+                    MutableStateFlow<ProfileViewModel.ProfileUiState>(
+                        ProfileViewModel.ProfileUiState.Loading,
+                    )
             every { editState } returns MutableStateFlow(EditProfileUiState())
             every { editProfUiEvent } returns MutableSharedFlow<EditProfileUiEvent>()
         }

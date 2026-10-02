@@ -4,16 +4,18 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun NotificationRationaleDialog(
+    modifier: Modifier = Modifier,
     onAccept: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
         modifier = modifier,
@@ -37,4 +39,15 @@ fun NotificationRationaleDialog(
             )
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NotificationRationaleDialogPreview() {
+    MiraiLinkTheme {
+        NotificationRationaleDialog(
+            onAccept = {},
+            onDismiss = {},
+        )
+    }
 }

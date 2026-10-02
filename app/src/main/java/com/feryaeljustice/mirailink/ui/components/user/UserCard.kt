@@ -96,9 +96,9 @@ import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UserCard(
+    modifier: Modifier = Modifier,
     user: UserViewEntry,
     onSave: (() -> Unit),
-    modifier: Modifier = Modifier,
     isPreviewMode: Boolean = false,
     editUiState: EditProfileUiState? = null,
     onValueChange: ((field: TextFieldType, value: String) -> Unit)? = null,
@@ -846,12 +846,13 @@ fun UserCard(
 
 @Composable
 private fun ProfileReadOnlySectionHeader(
+    modifier: Modifier = Modifier,
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
 ) {
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -882,10 +883,10 @@ private fun ProfileReadOnlySectionHeader(
 
 @Composable
 private fun ProfileAttributeSelectRow(
+    modifier: Modifier = Modifier,
     label: String,
     currentValue: String?,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Surface(
         onClick = onClick,

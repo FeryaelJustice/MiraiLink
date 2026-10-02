@@ -3,15 +3,17 @@ package com.feryaeljustice.mirailink.ui.components.appconfig
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UpdateGate(
-    onOpenStore: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenStore: () -> Unit,
     message: String? = stringResource(R.string.update_required_body),
     force: Boolean = true,
     onDismiss: (() -> Unit)? = {},
@@ -31,4 +33,15 @@ fun UpdateGate(
         acceptText = stringResource(R.string.update_now),
         cancelText = stringResource(R.string.cancel),
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UpdateGatePreview() {
+    MiraiLinkTheme {
+        UpdateGate(
+            onOpenStore = {},
+            force = false,
+        )
+    }
 }

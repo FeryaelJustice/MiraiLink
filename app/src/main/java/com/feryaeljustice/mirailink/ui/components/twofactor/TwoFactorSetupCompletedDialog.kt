@@ -26,14 +26,17 @@ import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun TwoFactorSetupCompletedDialog(
+    modifier: Modifier = Modifier,
     recoveryCodes: List<String> = emptyList(),
     onDismiss: () -> Unit,
 ) {
@@ -43,6 +46,7 @@ fun TwoFactorSetupCompletedDialog(
     val codesCopiedText = stringResource(R.string.two_factor_codes_copied)
 
     MiraiLinkDialog(
+        modifier = modifier,
         title = stringResource(R.string.two_factor_setup_completed_title),
         onDismiss = onDismiss,
         onAccept = onDismiss,
@@ -123,4 +127,15 @@ fun TwoFactorSetupCompletedDialog(
             }
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TwoFactorSetupCompletedDialogPreview() {
+    MiraiLinkTheme {
+        TwoFactorSetupCompletedDialog(
+            recoveryCodes = listOf("1234-5678", "8765-4321", "ABCD-EFGH", "HGFE-DCBA"),
+            onDismiss = {},
+        )
+    }
 }

@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -69,8 +70,8 @@ private val CyanAccentLight = Color(0xFF80D8FF)
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun SubscriptionPaywallScreen(
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
     viewModel: SubscriptionPaywallViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -394,6 +395,7 @@ fun SubscriptionPaywallScreen(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun TierTabButton(
+    modifier: Modifier = Modifier,
     title: String,
     isSelected: Boolean,
     selectedColor: Color,
@@ -406,7 +408,7 @@ private fun TierTabButton(
     val textColor = if (isSelected) selectedColor else MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(backgroundColor)
             .clickable(onClick = onClick)
@@ -425,6 +427,7 @@ private fun TierTabButton(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun DurationCardsRow(
+    modifier: Modifier = Modifier,
     currentOffers: List<SubscriptionOfferOption>,
     selectedDuration: SubscriptionDuration,
     accentColor: Color,
@@ -435,7 +438,7 @@ private fun DurationCardsRow(
     val threeMonthOffer = currentOffers.firstOrNull { it.duration == SubscriptionDuration.THREE_MONTHS }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -478,6 +481,7 @@ private fun DurationCardsRow(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun DurationOptionCard(
+    modifier: Modifier = Modifier,
     title: String,
     pricePerPeriod: String,
     totalPrice: String,
@@ -485,7 +489,6 @@ private fun DurationOptionCard(
     isSelected: Boolean,
     accentColor: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val borderColor = if (isSelected) accentColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     val containerColor = if (isSelected) {
@@ -586,9 +589,9 @@ private fun DurationOptionCard(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun PerkItemRow(
+    modifier: Modifier = Modifier,
     text: String,
     accentColor: Color,
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -617,5 +620,17 @@ private fun PerkItemRow(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PerkItemRowPreview() {
+    MaterialTheme {
+        PerkItemRow(
+            text = "See who liked your profile",
+            accentColor = Color(0xFFFFB300),
+            modifier = Modifier.padding(16.dp),
+        )
     }
 }

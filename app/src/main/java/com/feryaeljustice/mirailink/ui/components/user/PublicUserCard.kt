@@ -53,9 +53,9 @@ import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 @Composable
 internal fun PublicUserCard(
+    modifier: Modifier = Modifier,
     user: UserViewEntry,
     onLongPressOnImage: (String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val photoCarouselController = remember { PhotoCarouselController() }
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -248,6 +248,7 @@ internal fun PublicUserCard(
 
 @Composable
 private fun PublicResidence(
+    modifier: Modifier = Modifier,
     user: UserViewEntry,
     contentColor: Color,
 ) {
@@ -259,28 +260,32 @@ private fun PublicResidence(
     val distance = GeoUtils.formatDistance(user.distanceKm)
 
     if (place.isNotBlank() || distance != null || user.isTraveler) {
-        PublicSectionHeader(
-            title = stringResource(R.string.profile_section_residence),
-            icon = Icons.Default.LocationOn,
-            contentColor = contentColor,
-        )
-        if (place.isNotBlank()) {
-            PublicInfoLine(text = stringResource(R.string.card_lives_in, place), color = contentColor)
-        }
-        distance?.let { PublicInfoLine(text = it, color = contentColor) }
-        if (user.isTraveler) {
-            PublicInfoLine(text = stringResource(R.string.card_traveler_badge), color = contentColor)
+        Column(modifier = modifier) {
+            PublicSectionHeader(
+                title = stringResource(R.string.profile_section_residence),
+                icon = Icons.Default.LocationOn,
+                contentColor = contentColor,
+            )
+            if (place.isNotBlank()) {
+                PublicInfoLine(text = stringResource(R.string.card_lives_in, place), color = contentColor)
+            }
+            distance?.let { PublicInfoLine(text = it, color = contentColor) }
+            if (user.isTraveler) {
+                PublicInfoLine(text = stringResource(R.string.card_traveler_badge), color = contentColor)
+            }
         }
     }
 }
 
 @Composable
 private fun PublicSectionHeader(
+    modifier: Modifier = Modifier,
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentColor: Color,
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -296,6 +301,7 @@ private fun PublicSectionHeader(
 
 @Composable
 private fun PublicInfoLine(
+    modifier: Modifier = Modifier,
     text: String,
     color: Color,
 ) {
@@ -303,12 +309,13 @@ private fun PublicInfoLine(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         color = color,
-        modifier = Modifier.padding(start = 4.dp),
+        modifier = modifier.padding(start = 4.dp),
     )
 }
 
 @Composable
 private fun OutlinedOverlayText(
+    modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
     color: Color,
@@ -316,7 +323,7 @@ private fun OutlinedOverlayText(
     fontWeight: FontWeight = FontWeight.Normal,
     fontStyle: FontStyle = FontStyle.Normal,
 ) {
-    Box {
+    Box(modifier = modifier) {
         Text(
             text = text,
             style = style.copy(drawStyle = Stroke(width = 4f)),
@@ -334,3 +341,27 @@ private fun OutlinedOverlayText(
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PublicUserCardPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        PublicUserCard(
+            user =
+                UserViewEntry(
+                    id = "1",
+                    username = "sakura",
+                    nickname = "Sakura",
+                    email = null,
+                    phoneNumber = null,
+                    bio = "Anime and gaming enthusiast!",
+                    gender = "female",
+                    birthdate = "2000-01-01",
+                    games = emptyList(),
+                    animes = emptyList(),
+                ),
+            onLongPressOnImage = {},
+        )
+    }
+}
+

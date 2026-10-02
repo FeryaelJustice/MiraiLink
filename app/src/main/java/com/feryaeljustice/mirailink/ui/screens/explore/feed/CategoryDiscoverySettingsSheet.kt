@@ -35,12 +35,12 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryDiscoverySettingsSheet(
+    modifier: Modifier = Modifier,
     categoryName: String,
     initialRadiusKm: Int,
     isSaving: Boolean,
     onDismiss: () -> Unit,
     onSaveRadius: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     isRadiusUnlocked: Boolean = false,
     onNavigateToPaywall: (() -> Unit)? = null,
 ) {
@@ -185,3 +185,18 @@ fun CategoryDiscoverySettingsSheet(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun CategoryDiscoverySettingsSheetPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        CategoryDiscoverySettingsSheet(
+            categoryName = "Anime Fans",
+            initialRadiusKm = 50,
+            isSaving = false,
+            onDismiss = {},
+            onSaveRadius = {},
+        )
+    }
+}
+

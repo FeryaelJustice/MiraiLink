@@ -7,17 +7,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun ChatList(
+    modifier: Modifier = Modifier,
     chats: List<ChatPreviewViewEntry>,
     onNavigateToChat: (String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier =
@@ -53,5 +55,32 @@ fun ChatList(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatListPreview() {
+    MiraiLinkTheme {
+        ChatList(
+            chats =
+                listOf(
+                    ChatPreviewViewEntry(
+                        userId = "1",
+                        username = "alice",
+                        nickname = "Alice",
+                        lastMessage = "Hello there!",
+                        readsPending = 2,
+                    ),
+                    ChatPreviewViewEntry(
+                        userId = "2",
+                        username = "bob",
+                        nickname = "Bob",
+                        lastMessage = "See you tomorrow!",
+                        isBoosted = true,
+                    ),
+                ),
+            onNavigateToChat = {},
+        )
     }
 }

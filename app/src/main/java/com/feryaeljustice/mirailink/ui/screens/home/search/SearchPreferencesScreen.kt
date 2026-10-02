@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -50,9 +51,9 @@ import com.feryaeljustice.mirailink.ui.utils.readBestCurrentLocation
 
 @Composable
 fun SearchPreferencesScreen(
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     showToast: (String, Int) -> Unit,
-    modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
     viewModel: SearchPreferencesViewModel = koinViewModel(),
     miraiLinkSession: com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession = org.koin.compose.koinInject(),
@@ -144,8 +145,8 @@ fun SearchPreferencesScreen(
                 Icon(painter = androidx.compose.ui.res.painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.back))
             }
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                MiraiLinkText(stringResource(R.string.search_settings_title), style = MaterialTheme.typography.headlineSmall)
-                MiraiLinkText(stringResource(R.string.search_settings_subtitle), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                MiraiLinkText(text = stringResource(R.string.search_settings_title), style = MaterialTheme.typography.headlineSmall)
+                MiraiLinkText(text = stringResource(R.string.search_settings_subtitle), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.large) {
                 Icon(
@@ -189,5 +190,35 @@ fun SearchPreferencesScreen(
             onNavigateToPaywall = onNavigateToPaywall,
         )
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SearchPreferencesHeaderPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            MiraiLinkText(
+                text = stringResource(R.string.search_settings_title),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.large,
+            ) {
+                Icon(
+                    painter = androidx.compose.ui.res.painterResource(R.drawable.ic_filter_list),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(12.dp),
+                )
+            }
+        }
     }
 }

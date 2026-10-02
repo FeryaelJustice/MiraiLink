@@ -45,11 +45,11 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun VerificationScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     userId: String,
     onVerified: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
     token: String = "",
     viewModel: VerificationViewModel = koinViewModel(),
 ) {
@@ -164,6 +164,7 @@ fun VerificationScreen(
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun VerificationDialog(
+    modifier: Modifier = Modifier,
     userId: String,
     onConfirmSendEmail: () -> Unit,
     onClose: () -> Unit,
@@ -171,6 +172,7 @@ fun VerificationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onClose,
+        modifier = modifier,
         title = { MiraiLinkText(text = stringResource(R.string.error_verification_required)) },
         text = {
             MiraiLinkText(
@@ -198,4 +200,45 @@ fun VerificationDialog(
         },
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
     )
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun VerificationHeaderPreview() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MiraiLinkIconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_back),
+                    contentDescription = stringResource(R.string.back),
+                )
+            }
+            Image(
+                painter = painterResource(R.drawable.logomirailink),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.padding(start = 8.dp).height(56.dp),
+            )
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                MiraiLinkText(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                MiraiLinkText(
+                    text = stringResource(R.string.verification_screen_title),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }

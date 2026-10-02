@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
@@ -20,8 +21,8 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 @Suppress("ktlint:standard:function-naming", "ContentSlotReused")
 @Composable
 fun MiraiLinkDialog(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String,
     message: String? = null,
     onDismiss: (() -> Unit)? = null,
     onAccept: (() -> Unit)? = null,
@@ -104,3 +105,15 @@ fun MiraiLinkDialog(
         textContentColor = textContentColor,
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkDialogPreview() {
+    MiraiLinkDialog(
+        title = "Dialog Title",
+        message = "This is a dialog message preview.",
+        onAccept = {},
+        onCancel = {},
+    )
+}
+

@@ -47,18 +47,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.viewentries.user.GamerPromptAnswerViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 @Composable
 fun GamerPromptCard(
-    prompt: GamerPromptAnswerViewEntry,
     modifier: Modifier = Modifier,
+    prompt: GamerPromptAnswerViewEntry,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -86,7 +88,10 @@ fun GamerPromptCard(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChipFlowRow(items: List<String>, modifier: Modifier = Modifier) {
+fun ChipFlowRow(
+    modifier: Modifier = Modifier,
+    items: List<String>,
+) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -216,8 +221,8 @@ fun buildPersonalChips(user: UserViewEntry): List<String> {
 
 @Composable
 fun CategorizedPersonalInfoSection(
-    user: UserViewEntry,
     modifier: Modifier = Modifier,
+    user: UserViewEntry,
     headerColor: androidx.compose.ui.graphics.Color? = null,
 ) {
     val categories = remember(user) { buildCategorizedPersonalInfo(user) }
@@ -249,12 +254,12 @@ fun CategorizedPersonalInfoSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamerPromptEditSection(
+    modifier: Modifier = Modifier,
     prompts: List<GamerPromptAnswerViewEntry>,
     availableCatalogPrompts: List<CatalogItemOptionDto>,
     onAddOrUpdatePrompt: (promptId: String, question: String, answer: String) -> Unit,
     onChangePromptQuestion: (oldPromptId: String, newPromptId: String, newQuestion: String) -> Unit,
     onRemovePrompt: (promptId: String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     var showAddPicker by remember { mutableStateOf(false) }
     var promptToChange by remember { mutableStateOf<GamerPromptAnswerViewEntry?>(null) }
@@ -488,6 +493,26 @@ fun GamerPromptEditSection(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GamerPromptComponentsPreview() {
+    MiraiLinkTheme {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            GamerPromptCard(
+                prompt =
+                    GamerPromptAnswerViewEntry(
+                        promptId = "1",
+                        question = "My favorite gaming memory is...",
+                        answer = "Beating Malenia on my first try after 50 attempts.",
+                    ),
+            )
+            ChipFlowRow(
+                items = listOf("Gaming", "Anime", "Coffee", "Travel"),
+            )
         }
     }
 }

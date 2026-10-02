@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
@@ -61,9 +62,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun FeedbackScreen(
+    modifier: Modifier = Modifier,
     showToast: (String, Int) -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: FeedbackViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -171,10 +172,11 @@ fun FeedbackScreen(
 
 @Composable
 private fun FeedbackHeader(
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
     ) {
@@ -226,11 +228,14 @@ private fun FeedbackHeader(
 }
 
 @Composable
-private fun FeedbackPromptCard(onPromptClick: (String) -> Unit) {
+private fun FeedbackPromptCard(
+    modifier: Modifier = Modifier,
+    onPromptClick: (String) -> Unit,
+) {
     val featurePrompt = stringResource(R.string.feedback_prompt_feature)
     val improvementPrompt = stringResource(R.string.feedback_prompt_improvement)
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Column(
@@ -272,9 +277,15 @@ private fun FeedbackPromptCard(onPromptClick: (String) -> Unit) {
 }
 
 @Composable
-private fun FeedbackPrompt(icon: ImageVector, text: String, onClick: () -> Unit) {
+private fun FeedbackPrompt(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit,
+) {
     Card(
         onClick = onClick,
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
         Row(
@@ -291,5 +302,27 @@ private fun FeedbackPrompt(icon: ImageVector, text: String, onClick: () -> Unit)
             )
             MiraiLinkText(text = text, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FeedbackHeaderPreview() {
+    MaterialTheme {
+        FeedbackHeader(
+            onBackClick = {},
+            modifier = Modifier.padding(16.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FeedbackPromptCardPreview() {
+    MaterialTheme {
+        FeedbackPromptCard(
+            onPromptClick = {},
+            modifier = Modifier.padding(16.dp),
+        )
     }
 }
