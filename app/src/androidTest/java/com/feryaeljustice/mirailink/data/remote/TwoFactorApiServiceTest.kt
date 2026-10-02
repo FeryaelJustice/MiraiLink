@@ -148,7 +148,7 @@ class TwoFactorApiServiceTest : KoinTest {
 
             // Then
             assertThat(result).isNotNull()
-            assertThat(result.message).isEqualTo("Success")
+            assertThat(result.isVerified).isTrue()
             val request = mockWebServer.takeRequest()
             assertThat(request.path).isEqualTo("/auth/2fa/loginVerifyLastStep")
             assertThat(request.method).isEqualTo("POST")

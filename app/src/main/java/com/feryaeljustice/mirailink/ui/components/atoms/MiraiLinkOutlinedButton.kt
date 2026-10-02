@@ -9,11 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 
+import androidx.compose.material3.Text
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkOutlinedButton(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     shape: Shape = ButtonDefaults.outlinedShape,
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(),
@@ -28,3 +31,12 @@ fun MiraiLinkOutlinedButton(
         content = content,
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkOutlinedButtonPreview() {
+    MiraiLinkOutlinedButton(onClick = {}) {
+        Text("Outlined Button")
+    }
+}
+

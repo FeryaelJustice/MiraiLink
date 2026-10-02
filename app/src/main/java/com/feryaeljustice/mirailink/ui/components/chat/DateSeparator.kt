@@ -12,14 +12,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import java.util.Locale
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun DateSeparator(
-    date: String,
     modifier: Modifier = Modifier,
+    date: String,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -32,6 +34,16 @@ fun DateSeparator(
             text = date.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DateSeparatorPreview() {
+    MiraiLinkTheme {
+        DateSeparator(
+            date = "Today",
         )
     }
 }

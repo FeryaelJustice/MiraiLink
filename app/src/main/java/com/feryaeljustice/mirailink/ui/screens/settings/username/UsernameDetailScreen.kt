@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.R
@@ -59,9 +60,9 @@ import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UsernameDetailScreen(
+    modifier: Modifier = Modifier,
     username: String,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -286,5 +287,16 @@ fun UsernameDetailScreen(
         }
 
         Spacer(modifier = Modifier.height(40.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UsernameDetailScreenPreview() {
+    MaterialTheme {
+        UsernameDetailScreen(
+            username = "feryaeljustice",
+            onBackClick = {},
+        )
     }
 }

@@ -93,7 +93,7 @@ class AuthScreensTest {
         composeRule.setMiraiLinkContent {
             VerificationDialog(
                 userId = "42",
-                onVerified = {},
+                onConfirmSendEmail = {},
                 onClose = {},
                 viewModel = viewModel,
             )

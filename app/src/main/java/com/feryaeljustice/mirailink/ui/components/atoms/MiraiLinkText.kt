@@ -11,13 +11,14 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     fontStyle: FontStyle? = FontStyle.Normal,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.Normal,
@@ -40,3 +41,12 @@ fun MiraiLinkText(
         style = style,
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkTextPreview() {
+    MiraiLinkText(
+        text = "Sample MiraiLink Text",
+    )
+}
+

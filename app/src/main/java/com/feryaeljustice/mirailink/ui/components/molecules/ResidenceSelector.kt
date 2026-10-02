@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
@@ -34,6 +35,7 @@ import java.util.Locale
 
 @Composable
 fun ResidenceSelector(
+    modifier: Modifier = Modifier,
     countryId: String,
     country: String,
     regionId: String,
@@ -42,7 +44,6 @@ fun ResidenceSelector(
     onPlaceSelected: (TextFieldType, GeographicPlace) -> Unit,
     onTextChanged: (TextFieldType, String) -> Unit,
     onClear: (TextFieldType) -> Unit,
-    modifier: Modifier = Modifier,
     catalogRepository: CatalogRepository = koinInject(),
 ) {
     val countries by produceState(emptyList(), catalogRepository) {
@@ -86,6 +87,7 @@ fun ResidenceSelector(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ResidenceAutocompleteField(
+    modifier: Modifier = Modifier,
     label: String,
     value: String,
     enabled: Boolean,
@@ -152,6 +154,7 @@ private fun String.normalizeResidenceSearch(): String =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CityAutocompleteField(
+    modifier: Modifier = Modifier,
     regionId: String,
     city: String,
     catalogRepository: CatalogRepository,
@@ -203,3 +206,29 @@ private fun CityAutocompleteField(
 
 private fun MiraiLinkResult<List<GeographicPlace>>.orEmpty(): List<GeographicPlace> =
     (this as? MiraiLinkResult.Success)?.data.orEmpty()
+
+private class FakeCatalogRepository : CatalogRepository {
+    override suspend fun getAnimes() = MiraiLinkResult.Success(emptyList<com.feryaeljustice.mirailink.domain.model.catalog.Anime>())
+    override suspend fun getGames() = MiraiLinkResult.Success(emptyList<com.feryaeljustice.mirailink.domain.model.catalog.Game>())
+    override suspend fun getCountries() = MiraiLinkResult.Success(listOf(GeographicPlace("ES", "España", 20.0,20.0, emptyList())))
+    override suspend fun getRegions(countryId: String) = MiraiLinkResult.Success(emptyList<GeographicPlace>())
+    override suspend fun getCities(regionId: String, query: String) = MiraiLinkResult.Success(emptyList<GeographicPlace>())
+    override suspend fun getProfileOptions() = MiraiLinkResult.Success(com.feryaeljustice.mirailink.data.model.response.catalog.ProfileOptionsResponseDto())
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ResidenceSelectorPreview() {
+    ResidenceSelector(
+        countryId = "ES",
+        country = "España",
+        regionId = "MD",
+        region = "Madrid",
+        city = "Madrid",
+        onPlaceSelected = { _, _ -> },
+        onTextChanged = { _, _ -> },
+        onClear = {},
+        catalogRepository = FakeCatalogRepository(),
+    )
+}
+

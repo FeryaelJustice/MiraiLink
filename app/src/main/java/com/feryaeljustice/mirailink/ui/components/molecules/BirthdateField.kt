@@ -22,13 +22,15 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.backendDateToMillis
 import com.feryaeljustice.mirailink.domain.util.millisToBackendDate
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BirthdateField(
+    modifier: Modifier = Modifier,
     birthdateIso: String,
     onChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val initialMillis = birthdateIso.takeIf { it.isNotBlank() }?.let { backendDateToMillis(it) }
     val pickerState =
@@ -69,3 +71,13 @@ fun BirthdateField(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun BirthdateFieldPreview() {
+    BirthdateField(
+        birthdateIso = "2000-01-01",
+        onChange = {},
+    )
+}
+

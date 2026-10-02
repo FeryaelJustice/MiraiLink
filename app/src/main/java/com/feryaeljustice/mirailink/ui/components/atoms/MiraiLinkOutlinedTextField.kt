@@ -8,12 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkOutlinedTextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
     label: String = "",
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -51,3 +53,14 @@ fun MiraiLinkOutlinedTextField(
         visualTransformation = visualTransformation,
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkOutlinedTextFieldPreview() {
+    MiraiLinkOutlinedTextField(
+        value = "Input text",
+        onValueChange = {},
+        label = "Label",
+    )
+}
+

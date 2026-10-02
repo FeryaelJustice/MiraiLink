@@ -52,11 +52,14 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.util.InterestImageFallback
 
+import androidx.compose.ui.tooling.preview.Preview
+
 /**
  * Hoja modal inferior (ModalBottomSheet) para seleccionar animes o videojuegos de forma visual.
  * Incluye buscador en tiempo real, carga perezosa (lazy) de miniaturas a la izquierda,
  * checkboxes accesibles y manejo de insets para teclado virtual (imePadding).
  *
+ * @param modifier Modificador de Compose.
  * @param title Titulo del selector (ej. "Animes favoritos").
  * @param options Lista completa del catalogo disponible.
  * @param selectedIds IDs de los elementos actualmente seleccionados.
@@ -67,6 +70,7 @@ import com.feryaeljustice.mirailink.ui.util.InterestImageFallback
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VisualInterestPickerModal(
+    modifier: Modifier = Modifier,
     title: String,
     options: List<InterestItemData>,
     selectedIds: List<String>,
@@ -92,7 +96,7 @@ fun VisualInterestPickerModal(
         onDismissRequest = onDismiss,
         sheetState = actualSheetState,
         dragHandle = null,
-        modifier = Modifier.fillMaxHeight(0.9f),
+        modifier = Modifier.fillMaxHeight(0.9f).then(modifier),
     ) {
         Column(
             modifier = Modifier
@@ -308,3 +312,20 @@ fun VisualInterestPickerModal(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+private fun VisualInterestPickerModalPreview() {
+    VisualInterestPickerModal(
+        title = "Favorite Animes",
+        options = listOf(
+            InterestItemData("1", "Chainsaw Man", null),
+            InterestItemData("2", "Demon Slayer", null),
+        ),
+        selectedIds = listOf("1"),
+        onSelectionChange = {},
+        onDismiss = {},
+    )
+}
+

@@ -86,8 +86,8 @@ private val onboardingSteps = listOf(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun OnboardingScreen(
-    onFinish: () -> Unit,
     modifier: Modifier = Modifier,
+    onFinish: () -> Unit,
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)

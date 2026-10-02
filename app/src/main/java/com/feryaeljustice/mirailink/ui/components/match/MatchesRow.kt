@@ -10,17 +10,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.viewentries.user.MatchUserViewEntry
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MatchesRow(
+    modifier: Modifier = Modifier,
     matches: List<MatchUserViewEntry>,
     onNavigateToChat: (String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 16.dp))) {
         MiraiLinkText(
@@ -53,5 +55,31 @@ fun MatchesRow(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MatchesRowPreview() {
+    MiraiLinkTheme {
+        MatchesRow(
+            matches =
+                listOf(
+                    MatchUserViewEntry(
+                        id = "1",
+                        username = "sakura",
+                        nickname = "Sakura",
+                        avatarUrl = "",
+                        isBoosted = true,
+                    ),
+                    MatchUserViewEntry(
+                        id = "2",
+                        username = "hinata",
+                        nickname = "Hinata",
+                        avatarUrl = "",
+                    ),
+                ),
+            onNavigateToChat = {},
+        )
     }
 }

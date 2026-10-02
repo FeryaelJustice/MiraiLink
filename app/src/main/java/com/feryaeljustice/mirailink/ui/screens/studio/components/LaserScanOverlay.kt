@@ -69,3 +69,9 @@ fun LaserScanOverlay(
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun LaserScanOverlayPreview() {
+    LaserScanOverlay()
+}

@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -86,9 +87,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun UserProfileDetailScreen(
+    modifier: Modifier = Modifier,
     username: String,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     canInteract: Boolean = true,
     viewModel: UserProfileDetailViewModel = koinViewModel(),
 ) {
@@ -310,9 +311,9 @@ fun UserProfileDetailScreen(
 
 @Composable
 private fun UserProfileDetailContent(
+    modifier: Modifier = Modifier,
     user: UserViewEntry,
     onPhotoLongPress: (String) -> Unit,
-    modifier: Modifier = Modifier,
     photoGestureModifier: (@Composable (String?) -> Modifier)? = null,
 ) {
     val scrollState = rememberScrollState()
@@ -494,9 +495,9 @@ private fun UserProfileDetailContent(
 
 @Composable
 private fun BottomInteractionBar(
+    modifier: Modifier = Modifier,
     onLike: () -> Unit,
     onDislike: () -> Unit,
-    modifier: Modifier = Modifier,
     likeGestureModifier: Modifier? = null,
 ) {
     Surface(
@@ -563,5 +564,44 @@ private fun BottomInteractionBar(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun BottomInteractionBarPreview() {
+    MaterialTheme {
+        BottomInteractionBar(
+            onLike = {},
+            onDislike = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UserProfileDetailContentPreview() {
+    MaterialTheme {
+        UserProfileDetailContent(
+            user = UserViewEntry(
+                id = "user1",
+                username = "mirai_user",
+                nickname = "Mirai Sakura",
+                email = "user@mirailink.com",
+                phoneNumber = null,
+                bio = "Gamer & anime enthusiast. Looking for co-op partners!",
+                gender = "female",
+                birthdate = "1998-05-15",
+                residenceCity = "Tokyo",
+                residenceCountry = "Japan",
+                distanceKm = 5.2,
+                photos = emptyList(),
+                animes = emptyList(),
+                games = emptyList(),
+                prompts = emptyList(),
+                relationshipGoalIds = emptyList(),
+            ),
+            onPhotoLongPress = {},
+        )
     }
 }

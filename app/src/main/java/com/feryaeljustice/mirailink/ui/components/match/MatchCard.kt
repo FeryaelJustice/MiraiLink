@@ -22,19 +22,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.TEMPORAL_PLACEHOLDER_PICTURE_URL
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import com.feryaeljustice.mirailink.ui.utils.extensions.debounceClickable
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MatchCard(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     userAvatarUrl: String? = TEMPORAL_PLACEHOLDER_PICTURE_URL,
     userIsBoosted: Boolean = false,
     userUsername: String = "",
@@ -85,6 +87,18 @@ fun MatchCard(
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MatchCardPreview() {
+    MiraiLinkTheme {
+        MatchCard(
+            userNickname = "Sakura",
+            userUsername = "sakura99",
+            userIsBoosted = true,
         )
     }
 }

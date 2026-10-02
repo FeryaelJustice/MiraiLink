@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 
 /** Toolbar “vacía” para desactivar el menú de copiar/pegar */
 private object NoopTextToolbar : TextToolbar {
@@ -35,9 +36,9 @@ private object NoopTextToolbar : TextToolbar {
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkTextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
     label: String = "",
     readOnly: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
@@ -88,9 +89,9 @@ fun MiraiLinkTextField(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkTextField(
+    modifier: Modifier = Modifier,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier,
     label: String = "",
     readOnly: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
@@ -137,4 +138,15 @@ fun MiraiLinkTextField(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkTextFieldPreview() {
+    MiraiLinkTextField(
+        value = "Text field input",
+        onValueChange = {},
+        label = "Label",
+    )
+}
+
 

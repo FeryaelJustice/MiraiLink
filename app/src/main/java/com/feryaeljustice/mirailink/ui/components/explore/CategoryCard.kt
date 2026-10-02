@@ -31,11 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.model.explore.ExploreCategory
 import com.feryaeljustice.mirailink.domain.model.explore.ExploreSectionGroup
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @DrawableRes
 fun resolveCategoryIconDrawable(iconKey: String): Int =
@@ -79,9 +81,9 @@ fun getSectionGradient(group: ExploreSectionGroup): Brush =
 
 @Composable
 fun CategoryCarouselCard(
+    modifier: Modifier = Modifier,
     category: ExploreCategory,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -161,9 +163,9 @@ fun CategoryCarouselCard(
 
 @Composable
 fun CategoryGridCard(
+    modifier: Modifier = Modifier,
     category: ExploreCategory,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -243,8 +245,8 @@ fun CategoryGridCard(
 
 @Composable
 private fun TextCountBadge(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
 ) {
     Row(
         modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -263,5 +265,33 @@ private fun TextCountBadge(
             color = Color.White,
             fontWeight = FontWeight.SemiBold,
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CategoryCardsPreview() {
+    val sampleCategory = ExploreCategory(
+        id = "anime",
+        code = "XA",
+        title = "Anime Lovers",
+        description = "Find other anime fans",
+        iconKey = "anime",
+        sectionGroup = ExploreSectionGroup.OTAKU,
+        activeCount = 42,
+        radiusKm = 1,
+    )
+    MiraiLinkTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            CategoryCarouselCard(
+                category = sampleCategory,
+                onClick = {},
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            CategoryGridCard(
+                category = sampleCategory,
+                onClick = {},
+            )
+        }
     }
 }

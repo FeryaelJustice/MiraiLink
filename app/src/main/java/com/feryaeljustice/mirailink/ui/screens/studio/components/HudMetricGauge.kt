@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,16 +22,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.feryaeljustice.mirailink.domain.model.studio.MetricStatus
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Composable
 fun HudMetricGauge(
+    modifier: Modifier = Modifier,
     label: String,
     valuePercent: Int,
     status: MetricStatus,
-    modifier: Modifier = Modifier,
 ) {
     val animatedPercent by animateFloatAsState(
         targetValue = (valuePercent.coerceIn(0, 100)) / 100f,
@@ -80,7 +80,6 @@ fun HudMetricGauge(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Barra de progreso segmentada / continua sci-fi
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,5 +94,17 @@ fun HudMetricGauge(
                     .background(gaugeColor),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HudMetricGaugePreview() {
+    MiraiLinkTheme {
+        HudMetricGauge(
+            label = "ENFOQUE",
+            valuePercent = 88,
+            status = MetricStatus.EXCELLENT,
+        )
     }
 }

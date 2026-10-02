@@ -54,10 +54,10 @@ import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFeedScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     viewModel: CategoryFeedViewModel,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -265,5 +265,30 @@ fun CategoryFeedScreen(
             isRadiusUnlocked = isPlus || isPremium,
             onNavigateToPaywall = onNavigateToPaywall,
         )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun CategoryFeedEmptyPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            MiraiLinkText(
+                text = stringResource(R.string.explore_category_feed_empty_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            MiraiLinkText(
+                text = stringResource(R.string.explore_category_feed_empty_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }

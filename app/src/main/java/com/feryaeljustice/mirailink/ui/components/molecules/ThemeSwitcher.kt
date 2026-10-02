@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
@@ -31,8 +32,8 @@ import com.feryaeljustice.mirailink.R
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun ThemeSwitcher(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     darkTheme: Boolean = false,
     size: Dp = 48.dp,
     iconSize: Dp = size / 3,
@@ -96,3 +97,13 @@ fun ThemeSwitcher(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ThemeSwitcherPreview() {
+    ThemeSwitcher(
+        onClick = {},
+        darkTheme = false,
+    )
+}
+

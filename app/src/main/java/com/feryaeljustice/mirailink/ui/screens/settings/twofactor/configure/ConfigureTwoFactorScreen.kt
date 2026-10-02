@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,9 +47,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun ConfigureTwoFactorScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: ConfigureTwoFactorViewModel = koinViewModel(),
 ) {
     val userID = miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
@@ -233,6 +234,43 @@ fun ConfigureTwoFactorScreen(
                         tint = if (isTwoFactorEnabled) secondaryColor else errorColor,
                     )
                 }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ConfigureTwoFactorContentPreview() {
+    MaterialTheme {
+        MiraiLinkCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 12.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MiraiLinkBasicText(
+                    text = stringResource(R.string.is_two_factor_enabled),
+                    textStyle = MaterialTheme.typography.bodySmall,
+                    autoSizeEnabled = true,
+                    autoSizeMin = MaterialTheme.typography.bodySmall.fontSize,
+                    autoSizeMax = MaterialTheme.typography.bodyLarge.fontSize,
+                    autoSizeStep = 1.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check_box),
+                    contentDescription = stringResource(R.string.is_two_factor_enabled),
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
             }
         }
     }

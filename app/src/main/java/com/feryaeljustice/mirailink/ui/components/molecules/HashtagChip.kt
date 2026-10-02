@@ -11,15 +11,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun HashtagChip(
+    modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
-    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
     val backgroundColor =
@@ -49,8 +50,8 @@ fun HashtagChip(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun TagsSection(
-    tags: List<String>,
     modifier: Modifier = Modifier,
+    tags: List<String>,
     onTagClick: (String) -> Unit = {},
 ) {
     FlowRow(
@@ -67,3 +68,21 @@ fun TagsSection(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun HashtagChipPreview() {
+    HashtagChip(
+        text = "#anime",
+        selected = true,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TagsSectionPreview() {
+    TagsSection(
+        tags = listOf("#anime", "#gaming", "#music"),
+    )
+}
+

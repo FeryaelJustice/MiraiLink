@@ -56,11 +56,11 @@ import kotlinx.coroutines.launch
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun FullscreenImagePreview(
+    modifier: Modifier = Modifier,
     imageUrl: String,
     onDismiss: () -> Unit,
     closeContentDescription: String,
     imageContentDescription: String,
-    modifier: Modifier = Modifier,
     backgroundAlpha: Float = 0.90f,
     contentScale: ContentScale = ContentScale.Fit,
     contentPadding: Dp = 16.dp,
@@ -288,3 +288,17 @@ fun FullscreenImagePreview(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun FullscreenImagePreviewPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        FullscreenImagePreview(
+            imageUrl = "https://example.com/avatar.jpg",
+            onDismiss = {},
+            closeContentDescription = "Close",
+            imageContentDescription = "Preview",
+        )
+    }
+}
+

@@ -46,6 +46,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.content.Intent
 import androidx.compose.foundation.layout.width
@@ -76,13 +77,13 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun SettingsScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     goToFeedbackScreen: () -> Unit,
     goToFaqScreen: () -> Unit,
     showToast: (String, Int) -> Unit,
     copyToClipBoard: (String) -> Unit,
     onBackClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToManageSubscription: () -> Unit = {},
     onNavigateToProfilePreview: (username: String) -> Unit = {},
@@ -448,13 +449,16 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSectionTitle(title: String) {
+private fun SettingsSectionTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
     MiraiLinkText(
         text = title,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 12.dp, bottom = 8.dp, start = 20.dp),
     )
@@ -462,6 +466,7 @@ private fun SettingsSectionTitle(title: String) {
 
 @Composable
 private fun SettingsActionCard(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     title: String,
     subtitle: String,
@@ -472,7 +477,7 @@ private fun SettingsActionCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .pointerInput(Unit) {
@@ -536,6 +541,30 @@ private fun SettingsActionCard(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsActionCardPreview() {
+    MaterialTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            SettingsSectionTitle(title = "Account")
+            SettingsActionCard(
+                icon = Icons.Default.Favorite,
+                title = "Give Feedback",
+                subtitle = "Help us improve MiraiLink",
+                onClick = {},
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            SettingsActionCard(
+                icon = Icons.Default.Delete,
+                title = "Delete Account",
+                subtitle = "Permanently remove your data",
+                onClick = {},
+                destructive = true,
+            )
         }
     }
 }

@@ -13,14 +13,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkTextButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
     isTransparentBackground: Boolean = true,
     onTransparentBackgroundContentColor: Color = MaterialTheme.colorScheme.onBackground,
@@ -100,3 +101,13 @@ fun MiraiLinkTextButton(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkTextButtonPreview() {
+    MiraiLinkTextButton(
+        text = "Text Button",
+        onClick = {},
+    )
+}
+

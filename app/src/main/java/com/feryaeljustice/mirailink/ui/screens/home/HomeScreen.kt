@@ -49,8 +49,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    miraiLinkSession: GlobalMiraiLinkSession,
     modifier: Modifier = Modifier,
+    miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToPaywall: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -181,6 +181,31 @@ fun HomeScreen(
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
+        }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun HomeScreenEmptyPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            MiraiLinkText(
+                text = stringResource(R.string.users_empty_by_now),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            MiraiLinkText(
+                text = stringResource(R.string.search_no_results_for_preferences),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

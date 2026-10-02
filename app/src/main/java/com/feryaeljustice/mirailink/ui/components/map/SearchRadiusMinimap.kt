@@ -13,13 +13,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,24 +33,26 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import kotlin.math.asinh
 import kotlin.math.ceil
+import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.min
-import kotlin.math.cos
 import kotlin.math.tan
 
 @Composable
 fun SearchRadiusMinimap(
+    modifier: Modifier = Modifier,
     radiusKm: Int,
     onRadiusChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     latitude: Double = GeoUtils.DEFAULT_FALLBACK_LATITUDE,
     longitude: Double = GeoUtils.DEFAULT_FALLBACK_LONGITUDE,
     onRefreshLocation: () -> Unit = {},
@@ -103,8 +105,6 @@ fun SearchRadiusMinimap(
     ) {
         // 1. Mapa raster de OpenStreetMap centrado en la posicion actual.
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            // Un tile no se escala al ancho del mapa. Con un tamano estable, el
-            // zoom y la proporcion no cambian al rotar el dispositivo.
             val tileSize = 128.dp
             val horizontalRadius = ceil(maxWidth.value / tileSize.value / 2f).toInt() + 1
             val verticalRadius = ceil(maxHeight.value / tileSize.value / 2f).toInt() + 1
@@ -130,8 +130,6 @@ fun SearchRadiusMinimap(
                         modifier = Modifier
                             .size(tileSize)
                             .offset(
-                                // La fraccion de tile de la coordenada debe caer en
-                                // el centro del viewport, donde se pinta el marcador.
                                 x = maxWidth / 2 + tileSize * (column - tilePosition.fractionX).toFloat(),
                                 y = maxHeight / 2 + tileSize * (row - tilePosition.fractionY).toFloat(),
                             ),
@@ -279,4 +277,15 @@ internal fun selectMapZoom(
             radiusKm * 1_000.0 / metersPerDisplayedPixel(latitude, zoom, displayedTileSizePx) <= targetRadiusPx
         }
         .lastOrNull() ?: 1
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SearchRadiusMinimapPreview() {
+    MiraiLinkTheme {
+        SearchRadiusMinimap(
+            radiusKm = 50,
+            onRadiusChange = {},
+        )
+    }
 }

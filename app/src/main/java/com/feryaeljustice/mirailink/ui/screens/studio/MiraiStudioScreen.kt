@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,11 +80,11 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MiraiStudioScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onBackClick: () -> Unit,
     onPhotoConfirmed: (Uri, Int?) -> Unit,
     onNavigateToFaq: () -> Unit,
-    modifier: Modifier = Modifier,
     targetSlot: Int? = null,
     initialUri: Uri? = null,
     viewModel: MiraiStudioViewModel = koinViewModel(),
@@ -435,6 +436,34 @@ fun MiraiStudioScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding(),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiStudioControlsPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .background(Color.Black),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(76.dp)
+                .clip(CircleShape)
+                .background(Color(0x3300E5FF))
+                .border(2.dp, Color(0xFF00E5FF), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
             )
         }
     }

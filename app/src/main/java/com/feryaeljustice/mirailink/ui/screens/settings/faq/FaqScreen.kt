@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
@@ -54,8 +55,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FaqScreen(
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
     viewModel: FaqViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -152,10 +153,10 @@ fun FaqScreen(
 
 @Composable
 private fun FaqAccordionCard(
+    modifier: Modifier = Modifier,
     item: FaqItem,
     isExpanded: Boolean,
     onToggle: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -209,5 +210,23 @@ private fun FaqAccordionCard(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FaqAccordionCardPreview() {
+    MaterialTheme {
+        FaqAccordionCard(
+            item = FaqItem(
+                id = "faq1",
+                category = FaqCategory.ABOUT_MIRAILINK,
+                questionRes = R.string.faq_title,
+                answerRes = R.string.faq_category_about_mirailink,
+            ),
+            isExpanded = true,
+            onToggle = {},
+            modifier = Modifier.padding(16.dp),
+        )
     }
 }

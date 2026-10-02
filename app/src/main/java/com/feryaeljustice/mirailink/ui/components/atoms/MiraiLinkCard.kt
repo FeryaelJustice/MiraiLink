@@ -11,6 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.ui.tooling.preview.Preview
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MiraiLinkCard(
@@ -32,5 +36,13 @@ fun MiraiLinkCard(
         elevation = cardElevation,
     ) {
         content()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MiraiLinkCardPreview() {
+    MiraiLinkCard(modifier = Modifier.padding(16.dp)) {
+        Text("Card Content", modifier = Modifier.padding(16.dp))
     }
 }

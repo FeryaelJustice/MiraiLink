@@ -5,16 +5,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.tooling.preview.Preview
 import com.feryaeljustice.mirailink.domain.model.studio.FaceBiometrics
+import com.feryaeljustice.mirailink.domain.model.studio.NormalizedPoint
+import com.feryaeljustice.mirailink.domain.model.studio.NormalizedRect
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Composable
 fun FaceBoxOverlay(
+    modifier: Modifier = Modifier,
     faceBiometrics: FaceBiometrics?,
     isFrontCamera: Boolean,
-    modifier: Modifier = Modifier,
     accentColor: Color = Color(0xFF00E5FF),
     landmarkColor: Color = Color(0xFFFF4081), // Neon Pink
 ) {
@@ -29,8 +34,6 @@ fun FaceBoxOverlay(
             val adjusted = if (isFrontCamera) 1f - normX else normX
             return adjusted * w
         }
-
-        fun mapY(normY: Float): Float = normY * h
 
         val left = if (isFrontCamera) (1f - faceBiometrics.boundingBox.right) * w else faceBiometrics.boundingBox.left * w
         val top = faceBiometrics.boundingBox.top * h
@@ -74,16 +77,40 @@ fun FaceBoxOverlay(
 
         // Landmarks (Ojos y boca)
         faceBiometrics.leftEyePosition?.let {
-            drawCircle(landmarkColor, radius = 5f, center = Offset(mapX(it.x), mapY(it.y)))
+            drawCircle(landmarkColor, radius = 5f, center = Offset(mapX(it.x), it.y * h))
         }
         faceBiometrics.rightEyePosition?.let {
-            drawCircle(landmarkColor, radius = 5f, center = Offset(mapX(it.x), mapY(it.y)))
+            drawCircle(landmarkColor, radius = 5f, center = Offset(mapX(it.x), it.y * h))
         }
         faceBiometrics.noseBasePosition?.let {
-            drawCircle(accentColor, radius = 4f, center = Offset(mapX(it.x), mapY(it.y)))
+            drawCircle(accentColor, radius = 4f, center = Offset(mapX(it.x), it.y * h))
         }
         faceBiometrics.mouthCenterPosition?.let {
-            drawCircle(landmarkColor, radius = 4f, center = Offset(mapX(it.x), mapY(it.y)))
+            drawCircle(landmarkColor, radius = 4f, center = Offset(mapX(it.x), it.y * h))
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FaceBoxOverlayPreview() {
+    MiraiLinkTheme {
+        FaceBoxOverlay(
+            faceBiometrics =
+                FaceBiometrics(
+                    boundingBox = NormalizedRect(0.2f, 0.2f, 0.8f, 0.8f),
+                    leftEyePosition = NormalizedPoint(0.35f, 0.4f),
+                    rightEyePosition = NormalizedPoint(0.65f, 0.4f),
+                    noseBasePosition = NormalizedPoint(0.5f, 0.55f),
+                    mouthCenterPosition = NormalizedPoint(0.5f, 0.7f),
+                    smilingProbability = 0.9f,
+                    leftEyeOpenProbability = 0.95f,
+                    rightEyeOpenProbability = 0.95f,
+                    headEulerAngleX = 0f,
+                    headEulerAngleY = 0f,
+                    headEulerAngleZ = 0f,
+                ),
+            isFrontCamera = true,
+        )
     }
 }

@@ -56,9 +56,9 @@ class PhotoCarouselController {
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun PhotoCarousel(
+    modifier: Modifier = Modifier,
     photoUrls: List<String>,
     onLongPressOnImage: (String) -> Unit,
-    modifier: Modifier = Modifier,
     immersive: Boolean = false,
     controller: PhotoCarouselController? = null,
 ) {
@@ -191,8 +191,8 @@ fun PhotoCarousel(
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun PagerIndicator(
-    pagerState: PagerState,
     modifier: Modifier = Modifier,
+    pagerState: PagerState,
     activeColor: Color = MaterialTheme.colorScheme.primary,
     inactiveColor: Color = Color.LightGray,
 ) {
@@ -219,3 +219,15 @@ private fun PagerIndicator(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PhotoCarouselPreview() {
+    com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme {
+        PhotoCarousel(
+            photoUrls = listOf("https://example.com/1.jpg", "https://example.com/2.jpg"),
+            onLongPressOnImage = {},
+        )
+    }
+}
+

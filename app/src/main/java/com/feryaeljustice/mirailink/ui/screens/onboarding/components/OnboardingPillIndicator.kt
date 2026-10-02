@@ -17,13 +17,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 
 @Composable
 fun OnboardingPillIndicator(
+    modifier: Modifier = Modifier,
     pageCount: Int,
     currentPage: Int,
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
@@ -60,5 +62,16 @@ fun OnboardingPillIndicator(
                     .background(color),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OnboardingPillIndicatorPreview() {
+    MiraiLinkTheme {
+        OnboardingPillIndicator(
+            pageCount = 4,
+            currentPage = 1,
+        )
     }
 }

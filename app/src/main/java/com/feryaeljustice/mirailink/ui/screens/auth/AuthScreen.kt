@@ -76,11 +76,11 @@ import org.koin.compose.viewmodel.koinViewModel
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun AuthScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onLogin: (String?) -> Unit,
     onRegister: (String?) -> Unit,
     onRequestPasswordReset: (String) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: AuthViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -295,7 +295,7 @@ fun AuthScreen(
                                 resetAuthUiState()
                             }
                         },
-                        label = { MiraiLinkText(stringResource(R.string.auth_screen_login)) },
+                        label = { MiraiLinkText(text = stringResource(R.string.auth_screen_login)) },
                         shape = RoundedCornerShape(16.dp),
                         colors = FilterChipDefaults.filterChipColors(),
                     )
@@ -309,7 +309,7 @@ fun AuthScreen(
                                 resetAuthUiState()
                             }
                         },
-                        label = { MiraiLinkText(stringResource(R.string.auth_screen_register)) },
+                        label = { MiraiLinkText(text = stringResource(R.string.auth_screen_register)) },
                         shape = RoundedCornerShape(16.dp),
                         colors = FilterChipDefaults.filterChipColors(),
                     )
@@ -644,3 +644,32 @@ private fun mapErrorToString(error: AuthViewModel.AuthFieldError?): String? =
             null
         }
     }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun AuthHeaderPreview() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(R.drawable.logomirailink),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.size(116.dp),
+            )
+            MiraiLinkText(
+                text = stringResource(R.string.auth_screen_login),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}

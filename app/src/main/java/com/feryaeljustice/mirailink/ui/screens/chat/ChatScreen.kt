@@ -79,10 +79,10 @@ private data class DateSeparatorItemModel(
 @Suppress("ktlint:standard:function-naming", "ParamsComparedByRef", "EffectKeys")
 @Composable
 fun ChatScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     userId: String,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onNavigateToProfileDetail: ((String) -> Unit)? = null,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
@@ -323,3 +323,16 @@ fun ChatScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun ChatScreenTopBarPreview() {
+    ChatTopBar(
+        receiverName = "Sakura",
+        receiverUrlPhoto = null,
+        onBackClick = {},
+        onReportClick = {},
+        onLongPressOnImage = {},
+    )
+}
+

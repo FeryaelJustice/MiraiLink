@@ -51,9 +51,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToCategoryFeed: (categoryId: String, categoryName: String) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: ExploreViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
@@ -208,4 +208,22 @@ fun ExploreScreen(
             }
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun ExploreGridCardPreview() {
+    CategoryGridCard(
+        category = com.feryaeljustice.mirailink.domain.model.explore.ExploreCategory(
+            id = "anime",
+            code = "anime",
+            title = "Anime & Manga",
+            description = "Descubre fans de anime",
+            iconKey = "anime",
+            sectionGroup = com.feryaeljustice.mirailink.domain.model.explore.ExploreSectionGroup.OTAKU,
+            activeCount = 42,
+            radiusKm = 50,
+        ),
+        onClick = {},
+    )
 }

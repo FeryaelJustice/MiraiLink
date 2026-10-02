@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
@@ -22,9 +23,9 @@ import org.koin.androidx.compose.koinViewModel
 @Suppress("EffectKeys", "ktlint:standard:function-naming", "ParamsComparedByRef")
 @Composable
 fun SplashScreen(
+    modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onInitialNavigation: (InitialNavigationAction) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: SplashScreenViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,5 +79,13 @@ fun SplashScreen(
                 CircularProgressIndicator()
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SplashScreenLoadingPreview() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
     }
 }

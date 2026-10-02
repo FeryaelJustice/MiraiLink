@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.tooling.preview.Preview
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -40,11 +41,11 @@ data class MultiSelectOption(val id: String, val label: String)
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun MultiSelectDropdown(
+    modifier: Modifier = Modifier,
     label: String,
     options: List<MultiSelectOption>,
     selected: List<String>,
     onSelectionChange: (List<String>) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var columnSize by remember { mutableStateOf(Size.Zero) }
@@ -149,3 +150,19 @@ fun MultiSelectDropdown(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun MultiSelectDropdownPreview() {
+    MultiSelectDropdown(
+        label = "Interests",
+        options = listOf(
+            MultiSelectOption("1", "Anime"),
+            MultiSelectOption("2", "Gaming"),
+            MultiSelectOption("3", "Music"),
+        ),
+        selected = listOf("1"),
+        onSelectionChange = {},
+    )
+}
+

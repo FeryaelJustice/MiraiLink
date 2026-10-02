@@ -20,17 +20,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkDialog
 import com.feryaeljustice.mirailink.ui.components.molecules.QrCodeImage
+import com.feryaeljustice.mirailink.ui.theme.MiraiLinkTheme
 import kotlinx.coroutines.launch
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun TwoFactorSetupDialog(
+    modifier: Modifier = Modifier,
     otpUrl: String?,
     base32: String,
     recoveryCodes: List<String>,
@@ -39,7 +42,6 @@ fun TwoFactorSetupDialog(
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
@@ -122,4 +124,21 @@ fun TwoFactorSetupDialog(
             }
         },
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TwoFactorSetupDialogPreview() {
+    MiraiLinkTheme {
+        TwoFactorSetupDialog(
+            otpUrl = null,
+            base32 = "JBSWY3DPEHPK3PXP",
+            recoveryCodes = listOf("1234-5678", "8765-4321"),
+            code = "123456",
+            isLoading = false,
+            onCodeChange = {},
+            onDismiss = {},
+            onConfirm = {},
+        )
+    }
 }
