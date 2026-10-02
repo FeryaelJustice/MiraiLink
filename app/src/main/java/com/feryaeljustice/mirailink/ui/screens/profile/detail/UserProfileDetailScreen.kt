@@ -95,19 +95,20 @@ fun UserProfileDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val matchSuccessTemplate = stringResource(R.string.received_likes_match_success)
     var fullscreenImageUrl by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(username) {
         viewModel.loadProfile(username)
     }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel, matchSuccessTemplate) {
         viewModel.events.collect { event ->
             when (event) {
                 is UserProfileDetailUiEvent.MatchCreated -> {
                     showToast(
                         context,
-                        context.getString(R.string.received_likes_match_success, event.nickname),
+                        java.lang.String.format(matchSuccessTemplate, event.nickname),
                     )
                 }
                 UserProfileDetailUiEvent.Disliked -> {

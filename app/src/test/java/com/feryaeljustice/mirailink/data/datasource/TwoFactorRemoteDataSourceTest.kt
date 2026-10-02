@@ -4,7 +4,6 @@ import com.feryaeljustice.mirailink.core.UnitTest
 import com.feryaeljustice.mirailink.data.model.response.auth.LoginResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorSetupResponse
 import com.feryaeljustice.mirailink.data.model.response.auth.two_factor.TwoFactorStatusResponse
-import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.feryaeljustice.mirailink.data.remote.TwoFactorApiService
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import io.mockk.coEvery

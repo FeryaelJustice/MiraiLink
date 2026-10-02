@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import com.feryaeljustice.mirailink.domain.model.studio.ImageQualityMetrics
 import kotlin.math.abs
-import kotlin.math.sqrt
 
 class QualityMetricsCalculator {
 

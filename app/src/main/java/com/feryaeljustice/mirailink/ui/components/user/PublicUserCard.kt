@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -49,6 +48,7 @@ import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarouselController
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
+import com.feryaeljustice.mirailink.ui.utils.extensions.toCountryNameOrNull
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 @Composable
@@ -252,10 +252,8 @@ private fun PublicResidence(
     user: UserViewEntry,
     contentColor: Color,
 ) {
-    val countryName =
-        user.residenceCountryCode?.let { code ->
-            java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
-        }
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
+    val countryName = user.residenceCountryCode?.toCountryNameOrNull(currentLocale)
     val place = listOfNotNull(user.residenceCity, countryName).filter { it.isNotBlank() }.joinToString(", ")
     val distance = GeoUtils.formatDistance(user.distanceKm)
 

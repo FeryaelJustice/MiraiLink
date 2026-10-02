@@ -92,9 +92,10 @@ class AppE2ETest {
  * Se define como una extensión de ComposeTestRule.
  */
 private fun ComposeTestRule.completeOnboarding() {
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val textNext = context.getString(R.string.next)
-    val textStart = context.getString(R.string.onboarding_start_adventure)
+    val textNext = (this as? androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>)?.activity?.getString(R.string.next)
+        ?: ApplicationProvider.getApplicationContext<Context>().getString(R.string.next)
+    val textStart = (this as? androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>)?.activity?.getString(R.string.onboarding_start_adventure)
+        ?: ApplicationProvider.getApplicationContext<Context>().getString(R.string.onboarding_start_adventure)
 
     // Avanza por las 4 pantallas de onboarding esperando a que el botón sea visible
     repeat(3) {
@@ -110,15 +111,17 @@ private fun ComposeTestRule.login(
     username: String,
     password: String,
 ) {
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val usernameLabel = context.getString(R.string.auth_screen_text_field_username)
-    val passwordLabel = context.getString(R.string.auth_screen_text_field_password)
-    val loginButtonText = context.getString(R.string.auth_screen_login)
-    Log.d("TEST_LOG", "User='$username' | Pass='$passwordLabel'")
+    val textUsername = (this as? androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>)?.activity?.getString(R.string.auth_screen_text_field_username)
+        ?: ApplicationProvider.getApplicationContext<Context>().getString(R.string.auth_screen_text_field_username)
+    val textPassword = (this as? androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>)?.activity?.getString(R.string.auth_screen_text_field_password)
+        ?: ApplicationProvider.getApplicationContext<Context>().getString(R.string.auth_screen_text_field_password)
+    val loginButtonText = (this as? androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>)?.activity?.getString(R.string.auth_screen_login)
+        ?: ApplicationProvider.getApplicationContext<Context>().getString(R.string.auth_screen_login)
+    Log.d("TEST_LOG", "User='$username' | Pass='$textPassword'")
 
     // Usar waitUntilNode para asegurar que la UI está lista antes de interactuar
-    waitUntilNodeWithText(usernameLabel).performTextInput(username)
-    waitUntilNodeWithText(passwordLabel).performTextInput(password)
+    waitUntilNodeWithText(textUsername).performTextInput(username)
+    waitUntilNodeWithText(textPassword).performTextInput(password)
     waitUntilNodeWithText(loginButtonText).performClick()
 }
 

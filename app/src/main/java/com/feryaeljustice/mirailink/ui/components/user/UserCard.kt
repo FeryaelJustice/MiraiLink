@@ -60,8 +60,6 @@ import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileMultiAttribut
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.ProfileSingleAttributeType
 import com.feryaeljustice.mirailink.ui.components.user.GamerPromptCard
 import com.feryaeljustice.mirailink.ui.components.user.GamerPromptEditSection
-import com.feryaeljustice.mirailink.ui.components.user.ChipFlowRow
-import com.feryaeljustice.mirailink.ui.components.user.buildPersonalChips
 import com.feryaeljustice.mirailink.ui.components.user.buildCategorizedPersonalInfo
 import com.feryaeljustice.mirailink.ui.components.user.CategorizedPersonalInfoSection
 import androidx.compose.material3.Surface
@@ -71,7 +69,6 @@ import com.feryaeljustice.mirailink.domain.model.enum.Gender
 import com.feryaeljustice.mirailink.domain.model.geography.GeographicPlace
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
-import com.feryaeljustice.mirailink.domain.util.toBackendDate
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkOutlinedTextField
@@ -82,12 +79,11 @@ import com.feryaeljustice.mirailink.ui.components.catalog.toInterestItemData
 import com.feryaeljustice.mirailink.ui.components.media.EditablePhotoGrid
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
-import com.feryaeljustice.mirailink.ui.components.molecules.BirthdateField
-import com.feryaeljustice.mirailink.ui.components.molecules.GenderSelector
 import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
+import com.feryaeljustice.mirailink.ui.utils.extensions.toCountryNameOrNull
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
@@ -586,11 +582,10 @@ fun UserCard(
                         )
 
                         // Ubicacion y distancia geografica
+                        val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
                         val locationParts = mutableListOf<String>()
                         if (!user.residenceCity.isNullOrBlank()) {
-                            val countryName = user.residenceCountryCode?.let { code ->
-                                java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
-                            }
+                            val countryName = user.residenceCountryCode?.toCountryNameOrNull(currentLocale)
                             val place = listOfNotNull(user.residenceCity, countryName).joinToString(", ")
                             locationParts.add(stringResource(R.string.card_lives_in, place))
                         }

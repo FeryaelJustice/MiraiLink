@@ -1,21 +1,21 @@
 > **Estudio técnico del proyecto:** [Guía maestra en español](docs/guia-maestra.md), con documentos por tema, diagramas, configuración, casos de error y revisión conectada con el otro repositorio.
 
-<p align="center">
+<p style="text-align: center;">
   <img src="app/src/main/res/drawable/logomirailink.webp" alt="MiraiLink Logo" width="130" />
 </p>
 
-<h1 align="center">MiraiLink</h1>
+<h1 style="text-align: center;">MiraiLink</h1>
 
-<p align="center">
+<p style="text-align: center;">
   <strong>La plataforma social y de citas diseñada para entusiastas del anime, manga y videojuegos.</strong><br>
   <em>Conectando pasiones mediante capas de arquitectura, Jetpack Compose, Room demo y comunicacion REST.</em>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <b>Español</b> · <a href="README.en.md">English</a>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <a href="https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink" target="_blank">
     <img src="https://img.shields.io/badge/Google_Play-Descargar_en_Produccion-34A853?style=flat-square&logo=googleplay&logoColor=white" alt="Disponible en Google Play" />
   </a>
@@ -25,7 +25,7 @@
   <img src="https://img.shields.io/badge/Navigation-Navigation_3-00ACC1?style=flat-square" alt="Navigation 3" />
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-FF6F00?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/DI-Koin_4.2.2-FF4081?style=flat-square" alt="Koin DI" />
   <img src="https://img.shields.io/badge/Database-Room_2.8.5-1DE9B6?style=flat-square&logo=sqlite&logoColor=white" alt="Room Database" />
@@ -393,7 +393,7 @@ Desarrollado con dedicacion como aplicacion estrella de portafolio de ingenieria
 - **Perfil de GitHub**: [@FeryaelJustice](https://github.com/FeryaelJustice)
 - **Reporte de Errores e Ideas**: Por favor, utiliza la seccion de [GitHub Issues](https://github.com/FeryaelJustice/MiraiLink/issues).
 
-<p align="center">
+<p style="text-align: center;">
   <sub>Construido con pasion por el anime, los videojuegos y la ingenieria de software de clase mundial.</sub>
 </p>
 

@@ -7,12 +7,7 @@ import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import io.mockk.every
 import io.mockk.mockk

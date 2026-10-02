@@ -32,17 +32,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import android.content.ClipData
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,26 +68,30 @@ fun UsernameDetailScreen(
     onBackClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
     val profileUrlDisplay = "mirailink.com/user/$username"
     val fullProfileUrl = "https://mirailink.com/user/$username"
     val copiedToastText = stringResource(R.string.username_screen_copied_toast)
+    val shareMessage = stringResource(R.string.share_profile_message, username)
+    val shareActionTitle = stringResource(R.string.action_share)
 
-    val copyUrlToClipboard = {
-        clipboardManager.setText(AnnotatedString(fullProfileUrl))
-        showToast(context, copiedToastText, Toast.LENGTH_SHORT)
+    val copyUrlToClipboard: () -> Unit = {
+        coroutineScope.launch {
+            clipboard.setClipEntry(ClipData.newPlainText("MiraiLink Profile URL", fullProfileUrl).toClipEntry())
+            showToast(context, copiedToastText, Toast.LENGTH_SHORT)
+        }
     }
 
     val shareProfile = {
-        val shareMessage = context.getString(R.string.share_profile_message, username)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareMessage)
         }
-        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.action_share)))
+        context.startActivity(Intent.createChooser(shareIntent, shareActionTitle))
     }
 
     Column(

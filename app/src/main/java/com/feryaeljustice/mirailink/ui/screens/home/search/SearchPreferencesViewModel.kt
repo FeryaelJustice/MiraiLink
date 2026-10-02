@@ -11,7 +11,6 @@ import com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseC
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.util.isCountryCodeValid
 import com.feryaeljustice.mirailink.ui.error.ErrorRecovery
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.UiText

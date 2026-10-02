@@ -13,3 +13,15 @@ fun Gender.localizedLabel(): String {
         Gender.Other -> stringResource(R.string.gender_other)
     }
 }
+
+/**
+ * Safely resolves a country name for a given country code without throwing
+ * [java.util.IllformedLocaleException] if the code is invalid or malformed.
+ */
+fun String.toCountryNameOrNull(displayLocale: java.util.Locale = java.util.Locale.getDefault()): String? {
+    val trimmed = this.trim()
+    if (trimmed.isEmpty()) return null
+    return runCatching {
+        java.util.Locale.Builder().setRegion(trimmed).build().getDisplayCountry(displayLocale).takeIf { it.isNotBlank() }
+    }.getOrNull()
+}

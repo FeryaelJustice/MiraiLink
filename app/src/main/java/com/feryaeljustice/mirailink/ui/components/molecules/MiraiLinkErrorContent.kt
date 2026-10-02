@@ -18,13 +18,7 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.error.ErrorRecovery
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.UiText
-
-/** Resolves a [UiText] while a Compose resource context is available. */
-@Composable
-fun UiText.asString(): String =
-    when (this) {
-        is UiText.Resource -> stringResource(id, *args.toTypedArray())
-    }
+import com.feryaeljustice.mirailink.ui.error.asString
 
 /** Renders an error message and its required call-to-action button. */
 @Suppress("ktlint:standard:function-naming")

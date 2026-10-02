@@ -37,12 +37,12 @@ class HapticHeartbeatControllerImpl(
 
     private val vibrator: Vibrator? by lazy {
         vibratorOverride ?: run {
-            val vibratorService = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-                vibratorManager?.defaultVibrator ?: vibratorService
+                vibratorManager?.defaultVibrator
             } else {
-                vibratorService
+                @Suppress("DEPRECATION")
+                context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             }
         }
     }
