@@ -105,11 +105,6 @@ fun SubscriptionPaywallScreen(
 
     val isPlusSelected = uiState.selectedTier == SubscriptionPlanType.PLUS
     val themeAccentColor = if (isPlusSelected) CyanAccent else GoldAccent
-    val themeAccentGradient = if (isPlusSelected) {
-        Brush.linearGradient(listOf(CyanAccent, Color(0xFF00B0FF)))
-    } else {
-        Brush.linearGradient(listOf(GoldAccent, Color(0xFFFF8F00)))
-    }
 
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(

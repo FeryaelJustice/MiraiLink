@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.ui.navigation
 
 import android.content.ClipData
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -172,8 +173,6 @@ fun NavWrapper(
         }
     }
 
-    val verificationRequired = stringResource(R.string.error_verification_required)
-
     // 2. Control Centralizado de Sesion (Login / ProfilePic / Home)
     // Este efecto es la unica fuente de verdad para transicionar a "Main" cuando hay sesion.
     // Se bloquea mientras forceUpdateBlocking sea true para no destruir el UpdateGate dialog.
@@ -193,8 +192,6 @@ fun NavWrapper(
                 )
             }
         } else if (isAuthenticated) {
-            val userId = currentUserId ?: return@LaunchedEffect
-            
             // Determinar destino correcto segun estado del usuario
             val (targetTopLevel, targetFirstChild) = when {
                 hasProfilePicture == false -> ScreensSubgraphs.Main to AppScreen.ProfilePictureScreen
@@ -653,7 +650,7 @@ fun NavWrapper(
                     com.feryaeljustice.mirailink.ui.screens.studio.MiraiStudioScreen(
                         miraiLinkSession = miraiLinkSession,
                         targetSlot = key.targetSlot,
-                        initialUri = key.initialUriString?.let { android.net.Uri.parse(it) },
+                        initialUri = key.initialUriString?.toUri(),
                         onBackClick = { navigator.goBack() },
                         onNavigateToFaq = { navigator.navigate(AppScreen.FaqScreen) },
                         onPhotoConfirmed = { uri, slot ->

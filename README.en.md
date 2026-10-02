@@ -1,19 +1,19 @@
-<p align="center">
+<p style="text-align: center;">
   <img src="app/src/main/res/drawable/logomirailink.webp" alt="MiraiLink Logo" width="130" />
 </p>
 
-<h1 align="center">MiraiLink</h1>
+<h1 style="text-align: center;">MiraiLink</h1>
 
-<p align="center">
+<p style="text-align: center;">
   <strong>The social and dating platform designed for anime, manga, and gaming enthusiasts.</strong><br>
   <em>Connecting passions through Clean Architecture, Jetpack Compose, local Room database, and real-time communication.</em>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <a href="README.md">Español</a> · <b>English</b>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <a href="https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink" target="_blank">
     <img src="https://img.shields.io/badge/Google_Play-Download_in_Production-34A853?style=flat-square&logo=googleplay&logoColor=white" alt="Available on Google Play" />
   </a>
@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/Navigation-Navigation_3-00ACC1?style=flat-square" alt="Navigation 3" />
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-FF6F00?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/DI-Koin_4.2.2-FF4081?style=flat-square" alt="Koin DI" />
   <img src="https://img.shields.io/badge/Database-Room_2.8.4-1DE9B6?style=flat-square&logo=sqlite&logoColor=white" alt="Room Database" />
@@ -393,6 +393,6 @@ Developed with dedication as a flagship Android software engineering portfolio a
 - **GitHub Profile**: [@FeryaelJustice](https://github.com/FeryaelJustice)
 - **Bug Reports and Feedback**: Please use the [GitHub Issues](https://github.com/FeryaelJustice/MiraiLink/issues) section.
 
-<p align="center">
+<p style="text-align: center;">
   <sub>Built with passion for anime, video games, and world-class software engineering.</sub>
 </p>

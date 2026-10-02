@@ -74,8 +74,6 @@ import com.feryaeljustice.mirailink.ui.screens.studio.components.LaserScanOverla
 import com.feryaeljustice.mirailink.ui.screens.studio.components.RuleOfThirdsOverlay
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
-import android.widget.Toast
-import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

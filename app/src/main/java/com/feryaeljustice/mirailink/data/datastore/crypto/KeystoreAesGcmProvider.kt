@@ -1,9 +1,7 @@
 package com.feryaeljustice.mirailink.data.datastore.crypto
 
-import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import androidx.annotation.ChecksSdkIntAtLeast
 import java.security.KeyStore
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -24,8 +22,6 @@ class KeystoreAesGcmProvider(
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (ks.getKey(alias, null) as? SecretKey)?.let { return it }
 
-        check(isAtLeastM()) { "AES-GCM in AndroidKeyStore requires API 23+" }
-
         val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         val spec = KeyGenParameterSpec.Builder(
             alias,
@@ -41,7 +37,4 @@ class KeystoreAesGcmProvider(
         keyGen.init(spec)
         return keyGen.generateKey()
     }
-
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.M)
-    private fun isAtLeastM() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 }

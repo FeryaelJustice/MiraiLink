@@ -77,8 +77,6 @@ fun ConfigureTwoFactorScreen(
     val setupTwoFactorCode by viewModel.verify2FACode.collectAsStateWithLifecycle()
 
     val showDisableTwoFactorDialog by viewModel.showDisableTwoFactorDialog.collectAsStateWithLifecycle()
-    val isDisable2FADialogLoading by viewModel.isDisable2FALoading.collectAsStateWithLifecycle()
-    val disableTwoFactorCode by viewModel.disable2FACode.collectAsStateWithLifecycle()
 
     val errorMsg by viewModel.errorString.collectAsStateWithLifecycle()
     val showError by remember(errorMsg) {

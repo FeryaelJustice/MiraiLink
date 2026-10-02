@@ -53,7 +53,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 /**
@@ -518,15 +517,6 @@ fun OnboardingEventsIllustration(
         label = "events_bounce",
     )
 
-    val rotateAngle by infiniteTransition.animateFloat(
-        initialValue = -4f,
-        targetValue = 4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "events_rotate",
-    )
 
     Box(
         modifier = modifier.size(240.dp),

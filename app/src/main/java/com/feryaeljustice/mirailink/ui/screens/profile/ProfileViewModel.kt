@@ -13,7 +13,6 @@ import com.feryaeljustice.mirailink.data.util.deleteTempFile
 import com.feryaeljustice.mirailink.data.util.isTempFile
 import com.feryaeljustice.mirailink.domain.enums.TagType
 import com.feryaeljustice.mirailink.domain.enums.TextFieldType
-import com.feryaeljustice.mirailink.domain.error.ValidationError
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetAnimesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetGamesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.catalog.GetProfileOptionsUseCase

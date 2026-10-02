@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -252,9 +251,10 @@ private fun PublicResidence(
     user: UserViewEntry,
     contentColor: Color,
 ) {
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     val countryName =
         user.residenceCountryCode?.let { code ->
-            java.util.Locale("", code).getDisplayCountry(java.util.Locale.getDefault())
+            java.util.Locale.Builder().setRegion(code).build().getDisplayCountry(currentLocale)
         }
     val place = listOfNotNull(user.residenceCity, countryName).filter { it.isNotBlank() }.joinToString(", ")
     val distance = GeoUtils.formatDistance(user.distanceKm)

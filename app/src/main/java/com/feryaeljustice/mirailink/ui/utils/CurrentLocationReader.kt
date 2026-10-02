@@ -5,9 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.location.LocationListener
-import android.os.Build
-import android.os.Looper
 import androidx.core.content.ContextCompat
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -34,16 +31,8 @@ suspend fun Context.readBestCurrentLocation(): Location? {
     val provider = providers.firstOrNull() ?: return lastKnown
     return try {
         suspendCancellableCoroutine { continuation ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                manager.getCurrentLocation(provider, null, ContextCompat.getMainExecutor(this)) { location ->
-                    if (continuation.isActive) continuation.resume(location ?: lastKnown)
-                }
-            } else {
-                val listener = LocationListener { location ->
-                    if (continuation.isActive) continuation.resume(location)
-                }
-                manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
-                continuation.invokeOnCancellation { manager.removeUpdates(listener) }
+            manager.getCurrentLocation(provider, null, ContextCompat.getMainExecutor(this)) { location ->
+                if (continuation.isActive) continuation.resume(location ?: lastKnown)
             }
         }
     } catch (_: SecurityException) {

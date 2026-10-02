@@ -153,9 +153,6 @@ android {
         }
     }
 
-    lint {
-        disable.add("ktlint:standard:function-naming")
-    }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 }
