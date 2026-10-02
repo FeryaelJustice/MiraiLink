@@ -65,6 +65,7 @@ import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileIntent
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiEvent
 import androidx.compose.runtime.remember
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
+import com.feryaeljustice.mirailink.ui.utils.extensions.toCountryNameOrNull
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
 import com.feryaeljustice.mirailink.ui.utils.toast.showToast
 import kotlinx.coroutines.Dispatchers
@@ -615,8 +616,7 @@ private suspend fun residenceAddress(context: Context, location: Location) =
     }
 
 private fun ProfileViewModel.updateResidence(address: android.location.Address) {
-    address.countryCode?.let { code ->
-        val countryName = java.util.Locale.Builder().setRegion(code).build().getDisplayCountry(java.util.Locale.getDefault())
+    address.countryCode?.toCountryNameOrNull()?.let { countryName ->
         onIntent(EditProfileIntent.UpdateTextField(TextFieldType.RESIDENCE_COUNTRY, countryName))
     }
     address.adminArea?.let { region ->

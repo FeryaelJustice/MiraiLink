@@ -83,6 +83,7 @@ import com.feryaeljustice.mirailink.ui.components.molecules.ResidenceSelector
 import com.feryaeljustice.mirailink.ui.screens.profile.edit.EditProfileUiState
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
 import com.feryaeljustice.mirailink.ui.utils.extensions.shadow
+import com.feryaeljustice.mirailink.ui.utils.extensions.toCountryNameOrNull
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.AnimeViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.catalog.GameViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
@@ -584,9 +585,7 @@ fun UserCard(
                         val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
                         val locationParts = mutableListOf<String>()
                         if (!user.residenceCity.isNullOrBlank()) {
-                            val countryName = user.residenceCountryCode?.let { code ->
-                                java.util.Locale.Builder().setRegion(code).build().getDisplayCountry(currentLocale)
-                            }
+                            val countryName = user.residenceCountryCode?.toCountryNameOrNull(currentLocale)
                             val place = listOfNotNull(user.residenceCity, countryName).joinToString(", ")
                             locationParts.add(stringResource(R.string.card_lives_in, place))
                         }

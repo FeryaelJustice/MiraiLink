@@ -48,6 +48,7 @@ import com.feryaeljustice.mirailink.domain.util.toAgeOrNull
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarousel
 import com.feryaeljustice.mirailink.ui.components.media.PhotoCarouselController
 import com.feryaeljustice.mirailink.ui.utils.extensions.localizedLabel
+import com.feryaeljustice.mirailink.ui.utils.extensions.toCountryNameOrNull
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 @Composable
@@ -252,10 +253,7 @@ private fun PublicResidence(
     contentColor: Color,
 ) {
     val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
-    val countryName =
-        user.residenceCountryCode?.let { code ->
-            java.util.Locale.Builder().setRegion(code).build().getDisplayCountry(currentLocale)
-        }
+    val countryName = user.residenceCountryCode?.toCountryNameOrNull(currentLocale)
     val place = listOfNotNull(user.residenceCity, countryName).filter { it.isNotBlank() }.joinToString(", ")
     val distance = GeoUtils.formatDistance(user.distanceKm)
 
