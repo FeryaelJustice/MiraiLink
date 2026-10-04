@@ -11,6 +11,8 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoFeedUserEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMatchEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMessageEntity
+import com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeHistoryEntity
+import com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeUndoEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
 
 @Database(
@@ -21,8 +23,10 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
         DemoChatEntity::class,
         DemoMessageEntity::class,
         DemoCategoryPreferenceEntity::class,
+        DemoSwipeHistoryEntity::class,
+        DemoSwipeUndoEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class MiraiLinkDemoDatabase : RoomDatabase() {

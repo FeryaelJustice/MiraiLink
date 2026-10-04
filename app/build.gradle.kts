@@ -287,6 +287,8 @@ dependencies {
 
     // Google Ads
     implementation(libs.play.services.ads)
+    // Google Play Services Time (TrustedTime API)
+    implementation(libs.play.services.time)
     // UMP (consent)
     implementation(libs.google.ump)
     // Google Play Billing

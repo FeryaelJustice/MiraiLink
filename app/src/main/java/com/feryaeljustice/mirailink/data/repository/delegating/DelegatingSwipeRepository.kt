@@ -27,4 +27,10 @@ class DelegatingSwipeRepository(
 
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
         targetRepo().dislikeUser(toUserId)
+
+    override suspend fun getUndoQuota(): MiraiLinkResult<com.feryaeljustice.mirailink.domain.model.swipe.UndoQuota> =
+        targetRepo().getUndoQuota()
+
+    override suspend fun undoSwipe(targetUserId: String?): MiraiLinkResult<com.feryaeljustice.mirailink.domain.model.swipe.UndoSwipeResult> =
+        targetRepo().undoSwipe(targetUserId)
 }

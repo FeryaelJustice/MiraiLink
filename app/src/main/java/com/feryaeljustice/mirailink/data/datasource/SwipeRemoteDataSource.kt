@@ -2,6 +2,9 @@ package com.feryaeljustice.mirailink.data.datasource
 
 import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.request.swipe.SwipeRequest
+import com.feryaeljustice.mirailink.data.model.request.swipe.UndoSwipeRequest
+import com.feryaeljustice.mirailink.data.model.response.swipe.UndoQuotaDto
+import com.feryaeljustice.mirailink.data.model.response.swipe.UndoSwipeResponseDto
 import com.feryaeljustice.mirailink.data.remote.SwipeApiService
 import com.feryaeljustice.mirailink.data.util.NetworkOperation
 import com.feryaeljustice.mirailink.data.util.safeApiCall
@@ -28,5 +31,15 @@ class SwipeRemoteDataSource(
     suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
             api.dislikeUser(SwipeRequest(toUserId))
+        }
+
+    suspend fun getUndoQuota(): MiraiLinkResult<UndoQuotaDto> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.getUndoQuota()
+        }
+
+    suspend fun undoSwipe(targetUserId: String? = null): MiraiLinkResult<UndoSwipeResponseDto> =
+        safeApiCall(NetworkOperation.AUTHENTICATED) {
+            api.undoSwipe(targetUserId?.let { UndoSwipeRequest(it) })
         }
 }

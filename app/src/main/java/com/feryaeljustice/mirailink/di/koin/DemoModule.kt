@@ -48,6 +48,7 @@ val demoModule =
                 database = get(),
                 seeder = get(),
                 searchPreferencesRepository = get(),
+                timeProvider = get(),
             )
         }
         single<ExploreRepository>(Demo) { DemoExploreRepositoryImpl(database = get(), seeder = get()) }

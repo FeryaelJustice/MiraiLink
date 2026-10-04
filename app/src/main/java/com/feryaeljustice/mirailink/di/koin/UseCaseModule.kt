@@ -40,7 +40,9 @@ import com.feryaeljustice.mirailink.domain.usecase.photos.UploadUserPhotoUseCase
 import com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.GetReceivedLikesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.GetUndoQuotaUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.UndoSwipeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmPasswordResetUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
@@ -120,6 +122,8 @@ val useCaseModule =
         factory { DislikeUserUseCase(get()) }
         factory { LikeUserUseCase(get()) }
         factory { GetReceivedLikesUseCase(get()) }
+        factory { GetUndoQuotaUseCase(get()) }
+        factory { UndoSwipeUseCase(get()) }
 
         // Users
         factory { ConfirmPasswordResetUseCase(get()) }

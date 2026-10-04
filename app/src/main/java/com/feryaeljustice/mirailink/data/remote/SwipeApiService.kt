@@ -4,6 +4,9 @@ import com.feryaeljustice.mirailink.data.model.UserDto
 import com.feryaeljustice.mirailink.data.model.request.swipe.SwipeRequest
 import com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse
 import com.feryaeljustice.mirailink.data.model.response.swipe.SwipeResponse
+import com.feryaeljustice.mirailink.data.model.request.swipe.UndoSwipeRequest
+import com.feryaeljustice.mirailink.data.model.response.swipe.UndoQuotaDto
+import com.feryaeljustice.mirailink.data.model.response.swipe.UndoSwipeResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -24,4 +27,10 @@ interface SwipeApiService {
 
     @POST("swipe/dislike")
     suspend fun dislikeUser(@Body request: SwipeRequest): BasicResponse
+
+    @GET("swipe/undo-quota")
+    suspend fun getUndoQuota(): UndoQuotaDto
+
+    @POST("swipe/undo")
+    suspend fun undoSwipe(@Body request: UndoSwipeRequest? = null): UndoSwipeResponseDto
 }

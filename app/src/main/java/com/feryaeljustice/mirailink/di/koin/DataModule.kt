@@ -23,6 +23,9 @@ import org.koin.dsl.module
 val dataModule =
     module {
         single { CredentialHelper(androidContext()) }
+        single<com.feryaeljustice.mirailink.data.time.TrustedTimeProvider> {
+            com.feryaeljustice.mirailink.data.time.TrustedTimeProviderImpl(androidContext())
+        }
         single { SessionManager(dataStore = get(SessionDataStore), scope = get<CoroutineScope>()) }
         single { MiraiLinkPrefs(get(PrefsDataStore)) }
 

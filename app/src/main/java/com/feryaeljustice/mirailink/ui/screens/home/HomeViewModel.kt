@@ -3,16 +3,19 @@ package com.feryaeljustice.mirailink.ui.screens.home
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
+import com.feryaeljustice.mirailink.domain.error.LocationError
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
+import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
+import com.feryaeljustice.mirailink.domain.model.swipe.UndoQuota
 import com.feryaeljustice.mirailink.domain.usecase.feed.GetFeedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.location.SendLocationPingUseCase
 import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.GetUndoQuotaUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
+import com.feryaeljustice.mirailink.domain.usecase.swipe.UndoSwipeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
-import com.feryaeljustice.mirailink.domain.error.LocationError
-import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
-import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
@@ -40,6 +43,8 @@ class HomeViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val getSearchPreferencesUseCase: GetSearchPreferencesUseCase,
     private val sendLocationPingUseCase: SendLocationPingUseCase,
+    private val getUndoQuotaUseCase: GetUndoQuotaUseCase,
+    private val undoSwipeUseCase: UndoSwipeUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
     sealed class HomeUiState {
@@ -62,18 +67,18 @@ class HomeViewModel(
     val state: StateFlow<HomeUiState>
         field = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
 
-    private val _events = kotlinx.coroutines.flow.MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
-    val events: kotlinx.coroutines.flow.SharedFlow<HomeEvent> = _events.asSharedFlow()
+    private val _events = MutableSharedFlow<HomeEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
 
     private val _currentUser = MutableStateFlow<UserViewEntry?>(null)
     val currentUser: StateFlow<UserViewEntry?> = _currentUser.asStateFlow()
 
+    private val _undoQuota = MutableStateFlow<UndoQuota?>(null)
+    val undoQuota: StateFlow<UndoQuota?> = _undoQuota.asStateFlow()
+
     private val _userQueue = mutableListOf<UserViewEntry>()
     private val swipeHistory = mutableListOf<UserViewEntry>()
     private var feedLoadJob: Job? = null
-
-    // TODO: Meter guardado en bdd local o en bdd remota para persistencia de calculo undo feature
-    internal var lastUndoTime: Long = 0L
 
     init {
         reload()
@@ -94,7 +99,21 @@ class HomeViewModel(
 
     fun reload() {
         loadCurrentUser()
+        loadUndoQuota()
         loadUsers()
+    }
+
+    fun loadUndoQuota() {
+        viewModelScope.launch {
+            when (val result = withContext(ioDispatcher) { getUndoQuotaUseCase() }) {
+                is MiraiLinkResult.Success -> {
+                    _undoQuota.value = result.data
+                }
+                is MiraiLinkResult.Error -> {
+                    // Carga de cuota silenciosa; no bloquea la interfaz de tarjetas
+                }
+            }
+        }
     }
 
     private fun loadCurrentUser() {
@@ -162,6 +181,14 @@ class HomeViewModel(
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
                     safeRemoveFirst()
+                    _undoQuota.value?.let { currentQuota ->
+                        if (!currentQuota.hasUndoableSwipe) {
+                            _undoQuota.value = currentQuota.copy(
+                                hasUndoableSwipe = true,
+                                canUndo = currentQuota.remainingUndos > 0,
+                            )
+                        }
+                    }
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
@@ -183,6 +210,14 @@ class HomeViewModel(
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
                     safeRemoveFirst()
+                    _undoQuota.value?.let { currentQuota ->
+                        if (!currentQuota.hasUndoableSwipe) {
+                            _undoQuota.value = currentQuota.copy(
+                                hasUndoableSwipe = true,
+                                canUndo = currentQuota.remainingUndos > 0,
+                            )
+                        }
+                    }
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
@@ -203,19 +238,60 @@ class HomeViewModel(
         swipeHistory.add(0, user)
     }
 
+    /**
+     * Determina si el boton de deshacer debe mostrarse como activo.
+     * Retorna true si hay un swipe reciente en la sesion actual o si el servidor
+     * reporta swipes reversibles de sesiones anteriores (`hasUndoableSwipe`).
+     * Esto permite al usuario pulsar el boton incluso si la cuota es 0, lo que
+     * desencadenara la navegacion al Paywall para presentarle los planes Plus y Premium.
+     */
     fun canUndo(): Boolean {
-        val now = System.currentTimeMillis()
-        return swipeHistory.isNotEmpty() && now - lastUndoTime >= TIME_24_HOURS
+        return swipeHistory.isNotEmpty() || _undoQuota.value?.hasUndoableSwipe == true
     }
 
+    /**
+     * Ejecuta el rebobinado del ultimo swipe realizado.
+     *
+     * 1. Si no hay swipes reversibles, se descarta la accion.
+     * 2. Si la cuota restante es 0, emite [HomeEvent.NavigateToPaywall] para invitar al usuario
+     *    a mejorar su suscripcion y aborta la ejecucion remota.
+     * 3. Invoca [undoSwipeUseCase] pasando el id del usuario de la sesion (o null para sesiones anteriores).
+     * 4. En caso de exito, inserta el perfil recuperado al inicio de la cola de tarjetas
+     *    ([_userQueue]) y actualiza el estado de la cuota.
+     * 5. En caso de error [SubscriptionError.DAILY_UNDO_LIMIT_REACHED], emite la navegacion al Paywall.
+     *
+     * @return true si se inicio el proceso de deshacer, false si se derivo al Paywall o no habia swipes.
+     */
     fun undoSwipe(): Boolean {
         if (!canUndo()) return false
 
-        val userToRestore = swipeHistory.firstOrNull() ?: return false
-        swipeHistory.removeAt(0)
-        _userQueue.add(0, userToRestore)
-        lastUndoTime = System.currentTimeMillis()
-        updateUiState()
+        val currentQuota = _undoQuota.value
+        if (currentQuota != null && currentQuota.remainingUndos <= 0) {
+            _events.tryEmit(HomeEvent.NavigateToPaywall)
+            return false
+        }
+
+        val targetUserId = swipeHistory.firstOrNull()?.id
+        viewModelScope.launch {
+            when (val result = withContext(ioDispatcher) { undoSwipeUseCase(targetUserId) }) {
+                is MiraiLinkResult.Success -> {
+                    val restoredEntry = result.data.user.toUserViewEntry()
+                    if (swipeHistory.isNotEmpty()) {
+                        swipeHistory.removeAt(0)
+                    }
+                    _userQueue.add(0, restoredEntry)
+                    _undoQuota.value = result.data.quota
+                    updateUiState()
+                }
+                is MiraiLinkResult.Error -> {
+                    if (result.error == SubscriptionError.DAILY_UNDO_LIMIT_REACHED) {
+                        _events.tryEmit(HomeEvent.NavigateToPaywall)
+                    }
+                    setRecoveryAction(::undoSwipe)
+                    state.value = HomeUiState.Error(result.error.toUiError())
+                }
+            }
+        }
         return true
     }
 }
