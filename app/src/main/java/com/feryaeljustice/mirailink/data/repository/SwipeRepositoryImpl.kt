@@ -56,6 +56,29 @@ class SwipeRepositoryImpl(
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
         if (toUserId.isCanonicalUuid()) remote.dislikeUser(toUserId)
         else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+
+    override suspend fun getUndoQuota(): MiraiLinkResult<com.feryaeljustice.mirailink.domain.model.swipe.UndoQuota> =
+        when (val result = remote.getUndoQuota()) {
+            is MiraiLinkResult.Success -> MiraiLinkResult.Success(result.data.toDomain())
+            is MiraiLinkResult.Error -> result
+        }
+
+    override suspend fun undoSwipe(targetUserId: String?): MiraiLinkResult<com.feryaeljustice.mirailink.domain.model.swipe.UndoSwipeResult> {
+        if (targetUserId != null && !targetUserId.isCanonicalUuid()) {
+            return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+        }
+        return when (val result = remote.undoSwipe(targetUserId)) {
+            is MiraiLinkResult.Success -> {
+                val domainResult = result.data.toDomain(baseUrl)
+                if (domainResult != null) {
+                    MiraiLinkResult.Success(domainResult)
+                } else {
+                    MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+                }
+            }
+            is MiraiLinkResult.Error -> result
+        }
+    }
 }
 
 private fun String.isCanonicalUuid(): Boolean =

@@ -24,6 +24,7 @@ fun AppError.toUiError(): UiError {
             LocationError.LOCATION_REQUIRED,
             LocationError.RESIDENCE_COUNTRY_REQUIRED,
             SubscriptionError.DAILY_LIKES_LIMIT_REACHED,
+            SubscriptionError.DAILY_UNDO_LIMIT_REACHED,
             -> ErrorRecovery.REVIEW_INPUT
             else -> ErrorRecovery.RETRY
         }
@@ -89,6 +90,7 @@ private fun AppError.messageResource(): Int =
         is SubscriptionError ->
             when (this) {
                 SubscriptionError.DAILY_LIKES_LIMIT_REACHED -> R.string.error_daily_likes_limit_reached
+                SubscriptionError.DAILY_UNDO_LIMIT_REACHED -> R.string.error_daily_undo_limit_reached
                 SubscriptionError.PREMIUM_RADIUS_REQUIRED -> R.string.error_premium_radius_required
                 SubscriptionError.PREMIUM_PASSPORT_REQUIRED -> R.string.error_premium_passport_required
             }

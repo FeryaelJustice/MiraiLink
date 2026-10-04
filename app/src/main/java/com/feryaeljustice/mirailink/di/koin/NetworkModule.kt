@@ -40,6 +40,7 @@ val networkModule =
 
         single { AuthInterceptor(get<SessionManager>()) }
         single { ImageDomainSecurityInterceptor() }
+        single { com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor(get()) }
 
         single(ImageOkHttpClient) {
             OkHttpClient
@@ -70,6 +71,7 @@ val networkModule =
                         )
                     }
                     addInterceptor(get<AuthInterceptor>())
+                    addInterceptor(get<com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor>())
                     addInterceptor { chain ->
                         val request = chain.request().newBuilder()
                             .header("Accept-Language", Locale.getDefault().toLanguageTag())

@@ -105,6 +105,8 @@ val viewModelModule =
                 getCurrentUserUseCase = get(),
                 getSearchPreferencesUseCase = get(),
                 sendLocationPingUseCase = get(),
+                getUndoQuotaUseCase = get(),
+                undoSwipeUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }

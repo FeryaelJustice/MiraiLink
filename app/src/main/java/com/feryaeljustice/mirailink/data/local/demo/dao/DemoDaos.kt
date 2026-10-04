@@ -40,6 +40,33 @@ interface DemoUserDao {
     @Query("UPDATE demo_feed_users SET isDisliked = 1, isLiked = 0 WHERE id = :userId")
     suspend fun markDisliked(userId: String)
 
+    @Query("UPDATE demo_feed_users SET isLiked = 0, isDisliked = 0 WHERE id = :userId")
+    suspend fun unmarkLikedOrDisliked(userId: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSwipeHistory(entry: com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeHistoryEntity)
+
+    @Query("SELECT * FROM demo_swipe_history ORDER BY id DESC LIMIT 1")
+    suspend fun getLatestSwipeHistory(): com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeHistoryEntity?
+
+    @Query("DELETE FROM demo_swipe_history WHERE id = :id")
+    suspend fun deleteSwipeHistory(id: Long)
+
+    @Query("SELECT COUNT(*) FROM demo_swipe_history")
+    suspend fun countSwipeHistory(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUndo(undo: com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeUndoEntity)
+
+    @Query("SELECT COUNT(*) FROM demo_swipe_undos WHERE undoneAt >= :sinceTimestamp")
+    suspend fun countUndosSince(sinceTimestamp: Long): Int
+
+    @Query("DELETE FROM demo_swipe_history")
+    suspend fun clearSwipeHistory()
+
+    @Query("DELETE FROM demo_swipe_undos")
+    suspend fun clearUndos()
+
     @Query("DELETE FROM demo_user_profile")
     suspend fun clearUserProfile()
 
@@ -63,6 +90,9 @@ interface DemoMatchDao {
 
     @Query("UPDATE demo_matches SET isSeen = 1 WHERE userId IN (:userIds)")
     suspend fun markMatchesAsSeen(userIds: List<String>)
+
+    @Query("DELETE FROM demo_matches WHERE userId = :userId")
+    suspend fun deleteMatch(userId: String)
 
     @Query("DELETE FROM demo_matches")
     suspend fun clearMatches()
@@ -90,6 +120,12 @@ interface DemoChatDao {
 
     @Query("UPDATE demo_chats SET unreadCount = 0 WHERE id = :chatId")
     suspend fun markChatAsRead(chatId: String)
+
+    @Query("DELETE FROM demo_chats WHERE id = :chatId")
+    suspend fun deleteChat(chatId: String)
+
+    @Query("DELETE FROM demo_messages WHERE chatId = :chatId")
+    suspend fun deleteMessagesByChatId(chatId: String)
 
     @Query("DELETE FROM demo_chats")
     suspend fun clearChats()

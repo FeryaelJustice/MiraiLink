@@ -24,6 +24,7 @@ material3AdaptiveNav3 = "1.3.0"
 nav3Core = "1.1.7"
 okhttp = "5.5.0"
 playServicesAds = "25.5.0"
+playServicesTime = "16.0.1"
 retrofit = "3.0.0"
 room = "2.8.5"
 screenshot = "0.0.1-alpha16"
@@ -191,6 +192,9 @@ firebase-appcheck-play-integrity = { module = "com.google.firebase:firebase-appc
 
 # Google Ads
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+
+# Google Play Services Time (TrustedTime API)
+play-services-time = { module = "com.google.android.gms:play-services-time", version.ref = "playServicesTime" }
 
 # Google UMP
 google-ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }

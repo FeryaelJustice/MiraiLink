@@ -61,6 +61,7 @@ fun HomeScreen(
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
+    val undoQuota by viewModel.undoQuota.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val canUndo = viewModel.canUndo()

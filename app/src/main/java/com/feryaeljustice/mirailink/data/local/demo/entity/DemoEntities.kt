@@ -77,3 +77,18 @@ data class DemoMessageEntity(
     val timestamp: Long,
     val isRead: Boolean = true,
 )
+
+@Entity(tableName = "demo_swipe_history")
+data class DemoSwipeHistoryEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val targetUserId: String,
+    val action: String,
+    val timestamp: Long,
+)
+
+@Entity(tableName = "demo_swipe_undos")
+data class DemoSwipeUndoEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val undoneAt: Long,
+)
+

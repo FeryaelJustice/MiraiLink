@@ -245,6 +245,7 @@
     <string name="error_invalid_media">No hemos podido usar este archivo. Elige otro y vuelve a intentarlo.</string>
     <string name="error_missing_value">Falta información necesaria para continuar. Revísala y vuelve a intentarlo.</string>
     <string name="error_daily_likes_limit_reached">Has alcanzado tu límite diario de 50 likes. Desbloquea likes ilimitados con Plus o Premium.</string>
+    <string name="error_daily_undo_limit_reached">Has alcanzado tu límite diario de rebobinados. Desbloquea más con Plus o Premium.</string>
     <string name="error_premium_radius_required">Un radio de búsqueda superior a 250 km requiere membresía MiraiLink Plus o Premium.</string>
     <string name="error_premium_passport_required">El Modo Pasaporte y la búsqueda mundial requieren membresía MiraiLink Premium.</string>
     <string name="error_unknown">Ha ocurrido un problema inesperado. Reintenta en unos instantes.</string>

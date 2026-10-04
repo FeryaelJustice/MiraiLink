@@ -6,6 +6,14 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMatchEntity
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoMessageEntity
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
+import com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeHistoryEntity
+import com.feryaeljustice.mirailink.data.local.demo.entity.DemoSwipeUndoEntity
+import com.feryaeljustice.mirailink.data.time.TrustedTimeProvider
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
+import com.feryaeljustice.mirailink.domain.error.ValidationError
+import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType
+import com.feryaeljustice.mirailink.domain.model.swipe.UndoQuota
+import com.feryaeljustice.mirailink.domain.model.swipe.UndoSwipeResult
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository
@@ -20,6 +28,11 @@ class DemoSwipeRepositoryImpl(
     private val database: MiraiLinkDemoDatabase,
     private val seeder: DemoDataSeeder,
     private val searchPreferencesRepository: SearchPreferencesRepository,
+    private val timeProvider: TrustedTimeProvider = object : TrustedTimeProvider {
+        override fun currentTimeMillis(): Long = System.currentTimeMillis()
+        override fun isTimeTrusted(): Boolean = true
+        override fun syncWithServerTime(serverEpochMillis: Long) {}
+    },
 ) : SwipeRepository {
 
     override suspend fun getFeed(): MiraiLinkResult<List<User>> {
@@ -103,12 +116,19 @@ class DemoSwipeRepositoryImpl(
     }
 
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> {
+        val now = timeProvider.currentTimeMillis()
         database.userDao().markLiked(toUserId)
+        database.userDao().insertSwipeHistory(
+            DemoSwipeHistoryEntity(
+                targetUserId = toUserId,
+                action = "like",
+                timestamp = now,
+            )
+        )
         val feedUser = database.userDao().getFeedUserById(toUserId)
 
         val isMatch = feedUser?.willMatch ?: true
         if (isMatch) {
-            val now = System.currentTimeMillis()
             val match = DemoMatchEntity(
                 userId = toUserId,
                 matchedAt = now,
@@ -145,8 +165,117 @@ class DemoSwipeRepositoryImpl(
     }
 
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> {
+        val now = timeProvider.currentTimeMillis()
         database.userDao().markDisliked(toUserId)
+        database.userDao().insertSwipeHistory(
+            DemoSwipeHistoryEntity(
+                targetUserId = toUserId,
+                action = "dislike",
+                timestamp = now,
+            )
+        )
         return MiraiLinkResult.Success(Unit)
+    }
+
+    /**
+     * Consulta la cuota diaria de rebobinado en modo Demo offline.
+     * Utiliza [timeProvider] (reloj blindado) para calcular los deshaceres registrados
+     * en las ultimas 24 horas y verificar si existen entradas en [DemoSwipeHistoryEntity].
+     */
+    override suspend fun getUndoQuota(): MiraiLinkResult<UndoQuota> {
+        val now = timeProvider.currentTimeMillis()
+        val since = now - 24 * 60 * 60 * 1000L
+        val used = database.userDao().countUndosSince(since)
+        val maxUndos = 1
+        val remaining = maxOf(0, maxUndos - used)
+        val historyCount = database.userDao().countSwipeHistory()
+        val hasUndoableSwipe = historyCount > 0
+        val canUndo = remaining > 0 && hasUndoableSwipe
+
+        return MiraiLinkResult.Success(
+            UndoQuota(
+                tier = SubscriptionPlanType.FREE,
+                maxUndos = maxUndos,
+                usedUndos = used,
+                remainingUndos = remaining,
+                resetsAt = null,
+                hasUndoableSwipe = hasUndoableSwipe,
+                canUndo = canUndo,
+            )
+        )
+    }
+
+    /**
+     * Revierte el ultimo voto de interaccion en el entorno offline de demostracion.
+     *
+     * 1. Comprueba el limite diario de 24 horas mediante [timeProvider]. Si se ha superado,
+     *    retorna [SubscriptionError.DAILY_UNDO_LIMIT_REACHED].
+     * 2. Recupera la entrada mas reciente de [DemoSwipeHistoryEntity] de Room (permitiendo rebobinar
+     *    swipes de sesiones previas incluso tras reiniciar la aplicacion).
+     * 3. Revierte de forma atomica en SQLite la marca de like/dislike, elimina el match y el chat/mensajes
+     *    asociados generados en la demo.
+     * 4. Registra el evento en [DemoSwipeUndoEntity] para auditar la cuota consumida.
+     * 5. Retorna [UndoSwipeResult] con el usuario original para restaurar la tarjeta visualmente.
+     */
+    override suspend fun undoSwipe(targetUserId: String?): MiraiLinkResult<UndoSwipeResult> {
+        val now = timeProvider.currentTimeMillis()
+        val since = now - 24 * 60 * 60 * 1000L
+        val used = database.userDao().countUndosSince(since)
+        val maxUndos = 1
+        if (used >= maxUndos) {
+            return MiraiLinkResult.Error(SubscriptionError.DAILY_UNDO_LIMIT_REACHED)
+        }
+
+        val historyEntry = if (targetUserId != null) {
+            val latest = database.userDao().getLatestSwipeHistory()
+            if (latest?.targetUserId == targetUserId) latest else {
+                database.userDao().getLatestSwipeHistory()
+            }
+        } else {
+            database.userDao().getLatestSwipeHistory()
+        }
+
+        if (historyEntry == null) {
+            return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+        }
+
+        val targetId = historyEntry.targetUserId
+        val action = historyEntry.action
+
+        database.userDao().unmarkLikedOrDisliked(targetId)
+        if (action == "like") {
+            database.matchDao().deleteMatch(targetId)
+            val chatId = "chat_$targetId"
+            database.chatDao().deleteChat(chatId)
+            database.chatDao().deleteMessagesByChatId(chatId)
+        }
+
+        database.userDao().deleteSwipeHistory(historyEntry.id)
+        database.userDao().insertUndo(DemoSwipeUndoEntity(undoneAt = now))
+
+        val feedUser = database.userDao().getFeedUserById(targetId)
+        val restoredUser = feedUser?.toDomainUser() ?: return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+
+        val updatedUsed = used + 1
+        val remaining = maxOf(0, maxUndos - updatedUsed)
+        val remainingHistory = database.userDao().countSwipeHistory()
+        val quota = UndoQuota(
+            tier = SubscriptionPlanType.FREE,
+            maxUndos = maxUndos,
+            usedUndos = updatedUsed,
+            remainingUndos = remaining,
+            resetsAt = null,
+            hasUndoableSwipe = remainingHistory > 0,
+            canUndo = remaining > 0 && remainingHistory > 0,
+        )
+
+        return MiraiLinkResult.Success(
+            UndoSwipeResult(
+                user = restoredUser,
+                actionUndone = action,
+                quota = quota,
+            )
+        )
     }
 
     private fun getGreetingForUser(nickname: String): String {
