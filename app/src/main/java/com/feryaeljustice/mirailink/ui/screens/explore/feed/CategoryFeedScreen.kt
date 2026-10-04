@@ -45,7 +45,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorSnackbar
 import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -151,11 +151,15 @@ fun CategoryFeedScreen(
                     }
 
                     is CategoryFeedViewModel.CategoryFeedUiState.Error -> {
-                        MiraiLinkErrorContent(
-                            error = currentState.error,
-                            onAction = viewModel::performErrorAction,
-                            modifier = Modifier.fillMaxSize(),
-                        )
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            MiraiLinkErrorSnackbar(
+                                error = currentState.error,
+                                onAction = viewModel::performErrorAction,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                            )
+                        }
                     }
 
                     is CategoryFeedViewModel.CategoryFeedUiState.Empty -> {

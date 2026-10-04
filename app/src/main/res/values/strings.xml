@@ -64,7 +64,7 @@
     <string name="auth_screen_text_field_repeat_password">Repetir contraseña</string>
     <string name="auth_screen_text_btn_forgot_password">¿Has olvidado tu contraseña?</string>
     <string name="must_have_less_than">Debe tener al menos %1$d caracteres</string>
-    <string name="password_trivial_pattern">La contraseña no puede ser una secuencia o patrón predecible (como 1234... o caracteres repetidos)</string>
+    <string name="password_trivial_pattern">La contraseña no puede ser una secuencia o patrón predecible (como 1234… o caracteres repetidos)</string>
     <string name="passwords_do_not_match">Las contraseñas no coinciden</string>
     <string name="request_email_verification">Solicitar verificación a email</string>
     <string name="send_code">Enviar código</string>
@@ -171,6 +171,12 @@
     <string name="two_factor_disabled_message">La autenticación multifactor no está activada todavía.</string>
     <string name="two_factor_setup_completed_title">Autenticación activada</string>
     <string name="two_factor_setup_completed_message">Tu cuenta ya está protegida con autenticación multifactor.</string>
+    <string name="two_factor_status_active">Activada</string>
+    <string name="two_factor_status_inactive">Desactivada</string>
+    <string name="two_factor_status_active_tip">Tu cuenta está protegida. Al iniciar sesión en un nuevo dispositivo se solicitará un código TOTP.</string>
+    <string name="two_factor_status_inactive_tip">Añade una capa adicional de seguridad con apps de autenticación como Google Authenticator o Authy.</string>
+    <string name="two_factor_status_icon_active_desc">Autenticación en dos pasos activada</string>
+    <string name="two_factor_status_icon_inactive_desc">Autenticación en dos pasos desactivada</string>
     <string name="done">Hecho</string>
     <string name="enter_code_from_app_or_use_recovery_code">Pon el código de la app autenticadora. Si no la tienes, pon uno de los códigos de recuperación.</string>
     <string name="complete_login">Completa el inicio de sesión</string>
@@ -217,13 +223,13 @@
     <string name="ai_chat_subtitle">Tu copiloto para anime, juegos y nuevas ideas</string>
     <string name="ai_chat_empty_title">¿Qué te apetece descubrir?</string>
     <string name="ai_chat_empty_message">Pregúntame por recomendaciones, personajes, juegos o cualquier tema que te intrigue.</string>
-    <string name="ai_chat_thinking">Mirai Link AI está pensando...</string>
+    <string name="ai_chat_thinking">Mirai Link AI está pensando…</string>
     <string name="ai_chat_open">AI Chat open</string>
     <string name="action_retry">Reintentar</string>
     <string name="action_sign_in_again">Iniciar sesión de nuevo</string>
     <string name="action_review">Revisar y volver a intentar</string>
     <string name="error_no_connection">No hemos podido conectar en este momento. Reintenta cuando la conexión esté disponible.</string>
-    <string name="error_timeout">La operación está tardando más de lo esperado. Reintenta en unos instantes.</string>
+    <string name="error_timeout">La operación está tardando más de lo esperado. Reintenta de nuevo.</string>
     <string name="error_bad_request">No hemos podido completar la solicitud. Revisa los datos y vuelve a intentarlo.</string>
     <string name="error_forbidden">Esta acción no está disponible para esta cuenta. Vuelve a intentarlo más tarde.</string>
     <string name="error_not_found">No hemos encontrado la información solicitada. Actualiza y vuelve a intentarlo.</string>
@@ -372,7 +378,7 @@
     <string name="profile_section_interests">Gustos</string>
     <string name="error_location_required_for_radius">Para buscar por cercanía, activa la ubicación o configura una residencia.</string>
     <string name="error_residence_country_required">Configura tu país de residencia para buscar en todo tu país.</string>
-    <string name="interest_picker_search_hint">Buscar por nombre...</string>
+    <string name="interest_picker_search_hint">Buscar por nombre…</string>
     <string name="interest_picker_empty_search">No se encontraron resultados para tu búsqueda</string>
     <string name="interest_picker_empty_catalog">No hay elementos disponibles en este momento</string>
     <string name="interest_picker_selected_count">Seleccionados: %1$d</string>
@@ -403,7 +409,7 @@
     <string name="profile_edit_prompts_subtitle">Destaca hasta 3 preguntas gamer en tu perfil</string>
     <string name="profile_edit_add_prompt">+ Añadir curiosidad gamer</string>
     <string name="profile_edit_change_question">Cambiar</string>
-    <string name="profile_edit_prompt_answer_hint">Escribe aquí tu respuesta...</string>
+    <string name="profile_edit_prompt_answer_hint">Escribe aquí tu respuesta…</string>
     <string name="profile_edit_prompt_select_title">Elige una curiosidad gamer</string>
     <string name="profile_edit_section_work_edu">Profesión y educación</string>
     <string name="profile_profession_label">Profesión u ocupación</string>
@@ -521,13 +527,12 @@
     <string name="subscription_purchase_pending_message">Tu pago está pendiente de confirmación en Google Play.</string>
     <string name="subscription_restore_success_message">Compras restauradas correctamente.</string>
     <string name="subscription_restore_empty_message">No se encontraron compras activas asociadas a tu cuenta de Google Play.</string>
-    <string name="subscription_price_loading">Cargando precio...</string>
+    <string name="subscription_price_loading">Cargando precio…</string>
     <string name="premium_locked_cta_button">Ver ventajas Premium</string>
     <string name="search_premium_active_badge">Premium activado</string>
     <string name="search_radius_free_limit_note">Radio gratuito: máx 250 km. Pasa a Plus o Premium para explorar hasta 800 km.</string>
     <string name="search_passport_locked_disclaimer">El Modo Pasaporte y búsqueda mundial están reservados para miembros MiraiLink Premium.</string>
     <string name="search_upgrade_to_unlock">Desbloquear con suscripción</string>
-
 
     <!-- Badges -->
     <string name="studio_badge_lighting_title">Iluminación Óptima</string>
@@ -571,7 +576,7 @@
     <string name="studio_camera_permission_grant">Conceder permiso</string>
     <string name="studio_verdict_soft_warning_disclaimer">Intenta subir o hacer una foto mejor para cumplir nuestros estándares de calidad, pero la elección está en ti.</string>
     <string name="studio_test_mode_photo_saved">Foto analizada con éxito en modo laboratorio de prueba.</string>
-    <string name="profile_gallery_analyzing">Analizando calidad con IA local...</string>
+    <string name="profile_gallery_analyzing">Analizando calidad con IA local…</string>
     <string name="profile_gallery_photo_approved">¡Foto aprobada! Cumple con los estándares de calidad.</string>
     <string name="profile_gallery_photo_warning">Foto añadida. Aviso: %1$s. Intenta subir una foto mejor para mayor impacto, pero la elección está en ti.</string>
     <string name="studio_analysis_failed">No se pudo completar el análisis. Puedes repetir la foto o continuar de todos modos.</string>

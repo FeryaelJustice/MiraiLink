@@ -43,6 +43,7 @@ fun MiraiLinkDialog(
     titleContent: @Composable (() -> Unit)? = null,
     messageContent: @Composable (() -> Unit)? = null,
     confirmButtonContent: @Composable (() -> Unit)? = null,
+    dismissButtonContent: @Composable (() -> Unit)? = null,
 ) {
     val showConfirmButton by remember {
         derivedStateOf { showAcceptButton && onAccept != null }
@@ -64,9 +65,9 @@ fun MiraiLinkDialog(
             }
         },
         modifier = modifier,
-        dismissButton = {
-            AnimatedVisibility(showDismissButton) {
-                MiraiLinkButton(
+        dismissButton = if (showDismissButton) {
+            {
+                dismissButtonContent?.invoke() ?: MiraiLinkButton(
                     onClick = onCancel ?: {},
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.error,
@@ -78,6 +79,8 @@ fun MiraiLinkDialog(
                     )
                 }
             }
+        } else {
+            null
         },
         icon = {
             iconContent?.invoke()

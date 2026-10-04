@@ -166,21 +166,27 @@ class ConfigureTwoFactorViewModel(
     }
 
     suspend fun checkTwoFacStatus(userID: String?, showDialog: Boolean = true) {
-        userID?.let { usID ->
-            when (val res = getTwoFactorStatusUseCase(userID = usID)) {
-                is MiraiLinkResult.Success -> {
-                    isTwoFactorEnabled.value = res.data
-                    errorString.value = null
-                    isCheckingStatus.value = false
-                    if (showDialog) showStatusDialog.value = true
-                }
+        val usID = userID?.takeIf { it.isNotBlank() }
+        if (usID == null) {
+            isCheckingStatus.value = false
+            if (showDialog) {
+                showStatusDialog.value = true
+            }
+            return
+        }
+        when (val res = getTwoFactorStatusUseCase(userID = usID)) {
+            is MiraiLinkResult.Success -> {
+                isTwoFactorEnabled.value = res.data
+                errorString.value = null
+                isCheckingStatus.value = false
+                if (showDialog) showStatusDialog.value = true
+            }
 
-                is MiraiLinkResult.Error -> {
-                    isTwoFactorEnabled.value = false
-                    setRecoveryAction { onlyCheckTwoFacStatusWithIO(userID) }
-                    errorString.value = res.error.toUiError()
-                    isCheckingStatus.value = false
-                }
+            is MiraiLinkResult.Error -> {
+                isTwoFactorEnabled.value = false
+                setRecoveryAction { onlyCheckTwoFacStatusWithIO(userID) }
+                errorString.value = res.error.toUiError()
+                isCheckingStatus.value = false
             }
         }
     }
