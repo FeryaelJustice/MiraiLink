@@ -266,6 +266,8 @@
     <string name="search_target_country_label">Código de país (ej. JP, ES, US)</string>
     <string name="search_invalid_country_code">Introduce un código ISO de 2 letras mayúsculas (ej. ES, JP)</string>
     <string name="search_settings_map_preview_label">Vista previa del mapa de búsqueda</string>
+    <string name="search_settings_map_attribution">© Colaboradores de OpenStreetMap</string>
+    <string name="search_settings_map_drag_hint">Desliza en el mapa</string>
     <string name="search_scope_local">Radio local</string>
     <string name="search_scope_country">Mi país</string>
     <string name="search_scope_world">Todo el mundo</string>
