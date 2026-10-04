@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.domain.usecase.users.DeleteAccountUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -28,6 +29,8 @@ class SettingsViewModelTest : KoinTest {
     private val logoutUseCase: LogoutUseCase by inject()
     private val deleteAccountUseCase: DeleteAccountUseCase by inject()
     private val getCurrentUserUseCase: com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase by inject()
+    private val getThemePreferenceUseCase: com.feryaeljustice.mirailink.domain.usecase.settings.GetThemePreferenceUseCase by inject()
+    private val setThemePreferenceUseCase: com.feryaeljustice.mirailink.domain.usecase.settings.SetThemePreferenceUseCase by inject()
     private lateinit var viewModel: SettingsViewModel
 
     @get:Rule
@@ -40,6 +43,10 @@ class SettingsViewModelTest : KoinTest {
                     single { mockk<com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase> {
                         coEvery { this@mockk.invoke() } returns MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.UnknownError)
                     } }
+                    single { mockk<com.feryaeljustice.mirailink.domain.usecase.settings.GetThemePreferenceUseCase> {
+                        every { this@mockk.invoke() } returns kotlinx.coroutines.flow.flowOf(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.SYSTEM)
+                    } }
+                    single { mockk<com.feryaeljustice.mirailink.domain.usecase.settings.SetThemePreferenceUseCase>(relaxed = true) }
                 },
             )
         }
@@ -51,6 +58,8 @@ class SettingsViewModelTest : KoinTest {
                 logoutUseCase,
                 deleteAccountUseCase,
                 getCurrentUserUseCase,
+                getThemePreferenceUseCase,
+                setThemePreferenceUseCase,
                 mainCoroutineRule.testDispatcher,
                 mainCoroutineRule.testDispatcher,
             )
@@ -116,4 +125,22 @@ class SettingsViewModelTest : KoinTest {
             assert(!onFinishCalled)
         }
 
+    @Test
+    fun `themePreference exposes value from use case`() =
+        runTest {
+            viewModel.themePreference.test {
+                assertEquals(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.SYSTEM, awaitItem())
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `setThemePreference calls usecase`() =
+        runTest {
+            viewModel.setThemePreference(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+            io.mockk.coVerify {
+                setThemePreferenceUseCase.invoke(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            }
+        }
 }

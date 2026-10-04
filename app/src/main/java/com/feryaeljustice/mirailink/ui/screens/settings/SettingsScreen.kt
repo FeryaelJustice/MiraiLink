@@ -54,11 +54,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.domain.constants.deepLinkPrivacyPolicyUrl
+import com.feryaeljustice.mirailink.domain.model.settings.ThemePreference
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
@@ -69,6 +71,7 @@ import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupComple
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorSetupDialog
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorStatusDialog
 import com.feryaeljustice.mirailink.ui.screens.settings.components.CurrentPlanCard
+import com.feryaeljustice.mirailink.ui.screens.settings.components.ThemeSelectionDialog
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
 import com.feryaeljustice.mirailink.ui.utils.requiresDisplayCutoutPadding
@@ -104,6 +107,8 @@ fun SettingsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val error by viewModel.error.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val themePreference by viewModel.themePreference.collectAsStateWithLifecycle()
+    var showThemeDialog by remember { mutableStateOf(false) }
     val userId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val isTwoFactorEnabled by twoFactorViewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
     val showTwoFactorStatusDialog by twoFactorViewModel.showStatusDialog.collectAsStateWithLifecycle()
@@ -220,6 +225,16 @@ fun SettingsScreen(
             containerColor = MaterialTheme.colorScheme.surface,
             textColor = MaterialTheme.colorScheme.onSurface,
             buttonTextColor = MaterialTheme.colorScheme.onPrimary,
+        )
+    }
+
+    if (showThemeDialog) {
+        ThemeSelectionDialog(
+            selectedTheme = themePreference,
+            onThemeSelected = { newTheme ->
+                viewModel.setThemePreference(newTheme)
+            },
+            onDismissRequest = { showThemeDialog = false },
         )
     }
 
@@ -342,6 +357,18 @@ fun SettingsScreen(
                 subtitle = stringResource(R.string.settings_exit_demo_subtitle),
                 onClick = miraiLinkSession::clearSession,
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsSectionTitle(stringResource(R.string.settings_section_appearance))
+            SettingsActionCard(
+                iconPainter = painterResource(id = R.drawable.nightlight_24px),
+                title = stringResource(R.string.settings_theme_title),
+                subtitle = when (themePreference) {
+                    ThemePreference.SYSTEM -> stringResource(R.string.settings_theme_system)
+                    ThemePreference.LIGHT -> stringResource(R.string.settings_theme_light)
+                    ThemePreference.DARK -> stringResource(R.string.settings_theme_dark)
+                },
+                onClick = { showThemeDialog = true },
+            )
         } else {
             SettingsSectionTitle(stringResource(R.string.settings_section_subscription))
             CurrentPlanCard(
@@ -398,6 +425,19 @@ fun SettingsScreen(
                         onNavigateToUsernameDetail(username)
                     }
                 },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsSectionTitle(stringResource(R.string.settings_section_appearance))
+            SettingsActionCard(
+                iconPainter = painterResource(id = R.drawable.nightlight_24px),
+                title = stringResource(R.string.settings_theme_title),
+                subtitle = when (themePreference) {
+                    ThemePreference.SYSTEM -> stringResource(R.string.settings_theme_system)
+                    ThemePreference.LIGHT -> stringResource(R.string.settings_theme_light)
+                    ThemePreference.DARK -> stringResource(R.string.settings_theme_dark)
+                },
+                onClick = { showThemeDialog = true },
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -487,7 +527,8 @@ private fun SettingsSectionTitle(
 @Composable
 private fun SettingsActionCard(
     modifier: Modifier = Modifier,
-    icon: ImageVector,
+    icon: ImageVector? = null,
+    iconPainter: Painter? = null,
     title: String,
     subtitle: String,
     onClick: () -> Unit,
@@ -531,14 +572,25 @@ private fun SettingsActionCard(
                 shape = CircleShape,
                 color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondaryContainer,
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = if (destructive) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(22.dp),
-                )
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (destructive) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(22.dp),
+                    )
+                } else if (iconPainter != null) {
+                    Icon(
+                        painter = iconPainter,
+                        contentDescription = null,
+                        tint = if (destructive) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(22.dp),
+                    )
+                }
             }
             Spacer(Modifier.size(14.dp))
             Column(modifier = Modifier.weight(1f)) {

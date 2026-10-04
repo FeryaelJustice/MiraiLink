@@ -14,13 +14,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import com.feryaeljustice.mirailink.core.featureflags.FeatureFlag
+import com.feryaeljustice.mirailink.domain.model.settings.ThemePreference
 import com.feryaeljustice.mirailink.domain.util.applyTelemetryConsent
 import com.feryaeljustice.mirailink.ui.components.notifications.NotificationRationaleDialog
 import com.feryaeljustice.mirailink.ui.navigation.NavWrapper
@@ -38,10 +38,15 @@ import com.google.android.ump.UserMessagingPlatform
 fun MiraiLinkAppRoot(
     appThemeManager: AppThemeManager,
     flags: Map<String, FeatureFlag>,
+    themePreference: ThemePreference = ThemePreference.SYSTEM,
     modifier: Modifier = Modifier,
 ) {
     val systemIsInDarkMode = isSystemInDarkTheme()
-    var darkTheme by rememberSaveable { mutableStateOf(systemIsInDarkMode) }
+    val isDark = when (themePreference) {
+        ThemePreference.SYSTEM -> systemIsInDarkMode
+        ThemePreference.LIGHT -> false
+        ThemePreference.DARK -> true
+    }
 //    EnableTransparentStatusBar(darkMode = darkTheme)
 
     // --- SETUP GENERAL Y CONTEXTO ---
@@ -179,12 +184,10 @@ fun MiraiLinkAppRoot(
 
     MiraiLinkTheme(
         themeMode = appThemeManager.getThemeMode(flags),
-        darkTheme = darkTheme,
+        darkTheme = isDark,
         modifier = modifier,
     ) {
-        NavWrapper(darkTheme = darkTheme, onThemeChange = {
-            darkTheme = !darkTheme
-        })
+        NavWrapper()
     }
 }
 

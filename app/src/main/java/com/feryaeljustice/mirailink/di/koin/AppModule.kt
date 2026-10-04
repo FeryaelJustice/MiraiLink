@@ -14,7 +14,7 @@ val appModule =
     module {
         single { GlobalMiraiLinkPrefs(get(), get(ApplicationScope)) }
         single { GlobalMiraiLinkSession(get(), get(), get(ApplicationScope), getOrNull()) }
-        viewModel { MainViewModel(get()) }
+        viewModel { MainViewModel(get(), get()) }
         // Remote Config Manager
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }
         single { com.feryaeljustice.mirailink.data.manager.AdMobManager(androidContext()) }

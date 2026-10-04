@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.data.manager.AdMobManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
+import com.feryaeljustice.mirailink.domain.model.settings.ThemePreference
 import com.feryaeljustice.mirailink.domain.usecase.notification.SaveNotificationFCMUseCase
 import com.feryaeljustice.mirailink.notification.createNotificationChannel
 import com.feryaeljustice.mirailink.service.FcmService
@@ -84,7 +85,14 @@ class MainActivity : ComponentActivity() {
             val flags by mainViewModel.featureFlagFlow.collectAsStateWithLifecycle(
                 initialValue = emptyMap(),
             )
-            MiraiLinkAppRoot(appThemeManager = appThemeManager, flags = flags)
+            val themePreference by mainViewModel.themePreferenceFlow.collectAsStateWithLifecycle(
+                initialValue = ThemePreference.SYSTEM,
+            )
+            MiraiLinkAppRoot(
+                appThemeManager = appThemeManager,
+                flags = flags,
+                themePreference = themePreference,
+            )
         }
     }
 

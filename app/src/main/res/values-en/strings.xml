@@ -105,6 +105,12 @@
     <string name="settings_screen_txt_give_feedback">Give us your opinion</string>
     <string name="settings_screen_title">Your MiraiLink space</string>
     <string name="settings_screen_subtitle">Personalize your experience and manage your account</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme_title">App theme</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_light">Light mode</string>
+    <string name="settings_theme_dark">Dark mode</string>
+    <string name="settings_theme_dialog_title">Choose theme</string>
     <string name="settings_section_account">Account and security</string>
     <string name="settings_section_about">About MiraiLink</string>
     <string name="settings_faq_subtitle">Answers about privacy, location and matches</string>

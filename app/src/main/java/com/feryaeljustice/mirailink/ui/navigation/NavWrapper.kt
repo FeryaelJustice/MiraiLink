@@ -2,7 +2,6 @@ package com.feryaeljustice.mirailink.ui.navigation
 
 import android.content.ClipData
 import android.widget.Toast
-import androidx.core.net.toUri
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -27,6 +26,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -77,8 +77,6 @@ import org.koin.core.parameter.parametersOf
 @Suppress("ktlint:standard:function-naming", "EffectKeys")
 @Composable
 fun NavWrapper(
-    darkTheme: Boolean,
-    onThemeChange: () -> Unit,
     modifier: Modifier = Modifier,
     navAnalyticsVm: NavAnalyticsViewModel = koinViewModel(),
 ) {
@@ -696,13 +694,11 @@ fun NavWrapper(
                             val isAuthUi =
                                 navigationState.topLevelRoute == ScreensSubgraphs.Auth || currentKey is AppScreen.AuthScreen
                             MiraiLinkTopBar(
-                                darkTheme = darkTheme,
                                 enabled = !topBarConfig.disableTopBar && isAuthenticated,
                                 isAuthenticated = isAuthenticated,
                                 showSettingsIcon = topBarConfig.showSettingsIcon,
                                 showSearchPreferencesIcon = currentKey is AppScreen.HomeScreen,
                                 title = topBarConfig.title,
-                                onThemeChange = onThemeChange,
                                 layoutDirection = if (isAuthUi) TopBarLayoutDirection.COLUMN else TopBarLayoutDirection.ROW,
                                 onNavigateHome = {
                                     if (currentKey !is AppScreen.HomeScreen) {

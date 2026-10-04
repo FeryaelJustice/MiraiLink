@@ -115,4 +115,10 @@ val repositoryModule =
                 demoModeManager = get(),
             )
         }
+        single<com.feryaeljustice.mirailink.domain.repository.ThemeRepository> {
+            com.feryaeljustice.mirailink.data.repository.ThemeRepositoryImpl(
+                miraiLinkPrefs = get(),
+            )
+        }
     }
+
