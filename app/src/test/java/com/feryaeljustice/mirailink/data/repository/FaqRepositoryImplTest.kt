@@ -21,9 +21,10 @@ class FaqRepositoryImplTest {
         val items = repository.getFaqItems()
 
         assertTrue(items.isNotEmpty())
-        assertEquals(22, items.size)
+        assertEquals(24, items.size)
         assertTrue(items.any { it.category == FaqCategory.ABOUT_MIRAILINK })
         assertTrue(items.any { it.category == FaqCategory.CARDS_AND_MATCHING })
+        assertTrue(items.any { it.category == FaqCategory.GESTURE_ROULETTE })
         assertTrue(items.any { it.category == FaqCategory.LOCATION_AND_PRIVACY })
         assertTrue(items.any { it.category == FaqCategory.SUBSCRIPTIONS_AND_PAYMENTS })
         assertTrue(items.any { it.category == FaqCategory.PHOTOS_AND_QUALITY })
@@ -34,8 +35,11 @@ class FaqRepositoryImplTest {
     fun `filter items by category works as expected`() = runTest {
         val allItems = repository.getFaqItems()
         val privacyItems = allItems.filter { it.category == FaqCategory.LOCATION_AND_PRIVACY }
+        val gestureItems = allItems.filter { it.category == FaqCategory.GESTURE_ROULETTE }
 
         assertTrue(privacyItems.isNotEmpty())
         assertTrue(privacyItems.all { it.category == FaqCategory.LOCATION_AND_PRIVACY })
+        assertEquals(2, gestureItems.size)
+        assertTrue(gestureItems.all { it.category == FaqCategory.GESTURE_ROULETTE })
     }
 }

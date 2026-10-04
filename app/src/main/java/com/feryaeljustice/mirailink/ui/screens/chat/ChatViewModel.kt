@@ -259,6 +259,14 @@ class ChatViewModel(
         }
     }
 
+    fun sendGestureChallengeInvite() {
+        sendMessage(com.feryaeljustice.mirailink.domain.model.chat.gesture.GestureMessagePayload.formatInvite())
+    }
+
+    fun sendGestureChallengeResult(summary: com.feryaeljustice.mirailink.domain.model.chat.gesture.GestureChallengeSummary) {
+        sendMessage(com.feryaeljustice.mirailink.domain.model.chat.gesture.GestureMessagePayload.formatResult(summary))
+    }
+
     fun reportUser(
         userId: String,
         reason: String,

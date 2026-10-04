@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.R
 enum class FaqCategory(@StringRes val titleRes: Int) {
     ABOUT_MIRAILINK(R.string.faq_category_about_mirailink),
     CARDS_AND_MATCHING(R.string.faq_category_cards_and_matching),
+    GESTURE_ROULETTE(R.string.faq_category_gesture_roulette),
     LOCATION_AND_PRIVACY(R.string.faq_category_location_and_privacy),
     SUBSCRIPTIONS_AND_PAYMENTS(R.string.faq_category_subscriptions_and_payments),
     PHOTOS_AND_QUALITY(R.string.faq_category_photos_and_quality),

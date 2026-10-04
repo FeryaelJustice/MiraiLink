@@ -53,6 +53,19 @@ class FaqRepositoryImpl : FaqRepository {
             questionRes = R.string.faq_matches_and_chat_q,
             answerRes = R.string.faq_matches_and_chat_a,
         ),
+        // Gesture Roulette
+        FaqItem(
+            id = "faq_gesture_roulette",
+            category = FaqCategory.GESTURE_ROULETTE,
+            questionRes = R.string.faq_gesture_roulette_q,
+            answerRes = R.string.faq_gesture_roulette_a,
+        ),
+        FaqItem(
+            id = "faq_gesture_roulette_privacy",
+            category = FaqCategory.GESTURE_ROULETTE,
+            questionRes = R.string.faq_gesture_roulette_privacy_q,
+            answerRes = R.string.faq_gesture_roulette_privacy_a,
+        ),
 
         // Location & Privacy
         FaqItem(

@@ -1,6 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.chat
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -29,20 +35,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.chat.gesture.GestureMessageParsed
+import com.feryaeljustice.mirailink.domain.model.chat.gesture.GestureMessagePayload
 import com.feryaeljustice.mirailink.domain.util.formatDateSeparator
 import com.feryaeljustice.mirailink.domain.util.getFormattedUrl
 import com.feryaeljustice.mirailink.domain.util.nicknameElseUsername
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
@@ -50,6 +64,9 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextField
 import com.feryaeljustice.mirailink.ui.components.chat.DateSeparator
 import com.feryaeljustice.mirailink.ui.components.chat.MessageItem
 import com.feryaeljustice.mirailink.ui.components.chat.emoji.EmojiPickerButton
+import com.feryaeljustice.mirailink.ui.components.chat.gesture.GestureChallengeModal
+import com.feryaeljustice.mirailink.ui.components.chat.gesture.GestureInviteMessageCard
+import com.feryaeljustice.mirailink.ui.components.chat.gesture.GestureResultMessageCard
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.media.FullscreenImagePreview
 import com.feryaeljustice.mirailink.ui.components.topbars.ChatTopBar
@@ -98,6 +115,26 @@ fun ChatScreen(
 
     var showReportDialog by rememberSaveable { mutableStateOf(false) }
     var selectedReportReason by rememberSaveable { mutableStateOf("") }
+
+    val context = LocalContext.current
+    var showGestureModal by rememberSaveable { mutableStateOf(false) }
+    var showGestureActionDialog by rememberSaveable { mutableStateOf(false) }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        if (isGranted) {
+            showGestureModal = true
+        }
+    }
+
+    val launchGestureGame: () -> Unit = {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            showGestureModal = true
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
 
     val chatItems by remember(messages) {
         derivedStateOf {
@@ -203,11 +240,53 @@ fun ChatScreen(
             ) { item ->
                 when (item) {
                     is MessageItemModel -> {
-                        MessageItem(
-                            msgContent = item.message.content,
-                            msgTimestamp = item.message.timestamp,
-                            isOwnMessage = item.message.sender.id == sender?.id,
-                        )
+                        val parsed = remember(item.message.content) {
+                            GestureMessagePayload.parse(item.message.content)
+                        }
+                        when (parsed) {
+                            is GestureMessageParsed.Invite -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    contentAlignment = if (item.message.sender.id == sender?.id) {
+                                        Alignment.CenterEnd
+                                    } else {
+                                        Alignment.CenterStart
+                                    },
+                                ) {
+                                    GestureInviteMessageCard(
+                                        onAcceptChallenge = launchGestureGame,
+                                    )
+                                }
+                            }
+
+                            is GestureMessageParsed.Result -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    contentAlignment = if (item.message.sender.id == sender?.id) {
+                                        Alignment.CenterEnd
+                                    } else {
+                                        Alignment.CenterStart
+                                    },
+                                ) {
+                                    GestureResultMessageCard(
+                                        summary = parsed.summary,
+                                        onPlayAgain = launchGestureGame,
+                                    )
+                                }
+                            }
+
+                            is GestureMessageParsed.Regular -> {
+                                MessageItem(
+                                    msgContent = item.message.content,
+                                    msgTimestamp = item.message.timestamp,
+                                    isOwnMessage = item.message.sender.id == sender?.id,
+                                )
+                            }
+                        }
                     }
 
                     is DateSeparatorItemModel -> {
@@ -223,7 +302,20 @@ fun ChatScreen(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            MiraiLinkIconButton(
+                onClick = { showGestureActionDialog = true },
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_gamepad),
+                    contentDescription = stringResource(R.string.gesture_roulette_btn_content_description),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
             MiraiLinkTextField(
                 value = input.value,
                 onValueChange = { input.value = it },
@@ -318,6 +410,67 @@ fun ChatScreen(
                             )
                         }
                     }
+                },
+            )
+        }
+
+        if (showGestureActionDialog) {
+            AlertDialog(
+                onDismissRequest = { showGestureActionDialog = false },
+                title = {
+                    MiraiLinkText(
+                        text = stringResource(R.string.gesture_roulette_title),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                    )
+                },
+                text = {
+                    Column {
+                        MiraiLinkText(
+                            text = stringResource(R.string.gesture_roulette_dialog_desc),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        MiraiLinkButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                showGestureActionDialog = false
+                                launchGestureGame()
+                            },
+                        ) {
+                            MiraiLinkText(text = stringResource(R.string.gesture_roulette_play_action))
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MiraiLinkButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            onClick = {
+                                showGestureActionDialog = false
+                                viewModel.sendGestureChallengeInvite()
+                            },
+                        ) {
+                            MiraiLinkText(text = stringResource(R.string.gesture_roulette_invite_action))
+                        }
+                    }
+                },
+                confirmButton = {},
+                dismissButton = {
+                    MiraiLinkTextButton(
+                        onClick = { showGestureActionDialog = false },
+                        text = stringResource(R.string.cancel),
+                    )
+                },
+            )
+        }
+
+        if (showGestureModal) {
+            GestureChallengeModal(
+                onDismiss = { showGestureModal = false },
+                onShareResult = { summary ->
+                    viewModel.sendGestureChallengeResult(summary)
+                    showGestureModal = false
                 },
             )
         }

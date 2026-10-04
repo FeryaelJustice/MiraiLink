@@ -75,7 +75,27 @@ Al tocar cualquier conversación en la lista de mensajes:
 
 ---
 
-### 2.6 Edición del Perfil de Demostración (`Hikari`)
+### 2.6 Ruleta de Gestos en Vivo (Minijuego Visual para Romper el Hielo)
+
+Dentro de cualquier conversación de chat:
+
+1. **Lanzar o Enviar Reto**: En la barra de entrada de texto, presiona el icono de mando/consola (`ic_gamepad`). Aparecerá un diálogo con dos opciones:
+   - **🎯 Jugar Desafío (15s)**: Inicia de inmediato tu propia sesión de minijuego frente a la cámara.
+   - **📨 Enviar reto al chat**: Envía una tarjeta interactiva a la conversación para retar a tu match.
+2. **Cómo se Juega**:
+   - Se abre un modal interactivo con la vista previa de la cámara frontal y una cuenta atrás de 15 segundos.
+   - La app solicita imitar 4 gestos rápidos secuenciales: *Guiña el ojo izquierdo*, *Sonrisa sorpresa*, *Guiña el ojo derecho* y *Ladea la cabeza*.
+   - Los gestos se evalúan en tiempo real mediante **IA local con ML Kit Face Detection** (probabilidad ocular, de sonrisa y rotación Euler).
+   - Al detectar cada gesto con éxito, el móvil vibra (feedback háptico), emite un destello visual verde y avanza al siguiente reto.
+3. **Privacidad Total y Coste Cero**:
+   - Todo el análisis se ejecuta localmente en el procesador del dispositivo. **No se transmite vídeo ni imágenes por la red**.
+4. **Celebración y Tarjeta de Chispa**:
+   - Al finalizar, explota una animación de confeti en Compose y se genera una tarjeta de compatibilidad dinámica (porcentaje de chispa del 73% al 99% y título divertido).
+   - Presiona **"Compartir en chat"** para publicar la tarjeta en la conversación y permitir que tu match intente superar tu puntuación.
+
+---
+
+### 2.7 Edición del Perfil de Demostración (`Hikari`)
 
 En la pestaña **Perfil (Profile)** puedes gestionar tu identidad local:
 
@@ -88,7 +108,7 @@ En la pestaña **Perfil (Profile)** puedes gestionar tu identidad local:
 
 ---
 
-### 2.7 Restauración de Datos y Salida del Modo Demo
+### 2.8 Restauración de Datos y Salida del Modo Demo
 
 En la pantalla de **Ajustes (Settings)** (accesible tocando el icono de engranaje en la esquina superior derecha):
 

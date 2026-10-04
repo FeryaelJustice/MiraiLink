@@ -158,4 +158,8 @@ val useCaseModule =
 
         // Mirai Studio
         factory { com.feryaeljustice.mirailink.domain.usecase.studio.AnalyzePhotoQualityUseCase() }
+
+        // Gesture Roulette
+        factory { com.feryaeljustice.mirailink.domain.usecase.chat.gesture.EvaluateFaceGestureUseCase() }
+        factory { com.feryaeljustice.mirailink.domain.usecase.chat.gesture.CalculateGestureCompatibilityUseCase() }
     }
