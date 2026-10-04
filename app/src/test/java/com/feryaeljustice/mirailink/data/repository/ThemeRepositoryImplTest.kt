@@ -27,8 +27,13 @@ class ThemeRepositoryImplTest {
 
     @Test
     fun `setThemePreference forwards call to miraiLinkPrefs`() = runTest {
-        repository.setThemePreference(ThemePreference.LIGHT)
+        io.mockk.coEvery {
+            miraiLinkPrefs.setThemePreference(ThemePreference.LIGHT)
+        } returns com.feryaeljustice.mirailink.domain.util.MiraiLinkResult.Success(Unit)
 
+        val result = repository.setThemePreference(ThemePreference.LIGHT)
+
+        assertEquals(com.feryaeljustice.mirailink.domain.util.MiraiLinkResult.Success(Unit), result)
         coVerify { miraiLinkPrefs.setThemePreference(ThemePreference.LIGHT) }
     }
 }
