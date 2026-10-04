@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -158,7 +159,16 @@ fun SearchPreferencesScreen(
                 )
             }
         }
-        error?.let { MiraiLinkErrorContent(error = it, onAction = {}) }
+        error?.let {
+            MiraiLinkErrorContent(
+                error = it,
+                onAction = viewModel::reload,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .zIndex(99f),
+            )
+        }
         SearchSettingsSection(
             radiusKm = radiusKm,
             onRadiusChange = { radius ->

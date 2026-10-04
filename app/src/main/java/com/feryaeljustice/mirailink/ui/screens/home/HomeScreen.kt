@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
+import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorSnackbar
 import com.feryaeljustice.mirailink.ui.components.user.UserSwipeCardStack
 import com.feryaeljustice.mirailink.ui.screens.home.HomeViewModel.HomeUiState
 import com.feryaeljustice.mirailink.ui.utils.DeviceConfiguration
@@ -165,11 +165,35 @@ fun HomeScreen(
                 }
 
                 is HomeUiState.Error -> {
-                    MiraiLinkErrorContent(
-                        error = currentState.error,
-                        onAction = viewModel::performErrorAction,
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.users_empty_by_now),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_no_results_for_preferences),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        MiraiLinkErrorSnackbar(
+                            error = currentState.error,
+                            onAction = viewModel::performErrorAction,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(horizontal = 16.dp, vertical = 24.dp),
+                        )
+                    }
                 }
 
                 HomeUiState.Loading -> {

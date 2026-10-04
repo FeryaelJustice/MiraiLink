@@ -48,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import android.content.Intent
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -118,6 +119,12 @@ fun SettingsScreen(
     val twoFactorSetupCode by twoFactorViewModel.verify2FACode.collectAsStateWithLifecycle()
     val twoFactorDisableCode by twoFactorViewModel.disable2FACode.collectAsStateWithLifecycle()
     val twoFactorError by twoFactorViewModel.errorString.collectAsStateWithLifecycle()
+    val activeError = error ?: twoFactorError
+    val activeAction: () -> Unit = if (error != null) {
+        viewModel::performErrorAction
+    } else {
+        twoFactorViewModel::performErrorAction
+    }
 
     if (showTwoFactorStatusDialog) {
         TwoFactorStatusDialog(
@@ -157,13 +164,6 @@ fun SettingsScreen(
             onCodeChange = twoFactorViewModel::onDisableTwoFactorCodeChanged,
             onDismiss = twoFactorViewModel::dismissDisableTwoFactorDialog,
             onConfirm = { twoFactorViewModel.confirmDisableTwoFactor(userId) },
-        )
-    }
-
-    twoFactorError?.let { errorMessage ->
-        MiraiLinkErrorContent(
-            error = errorMessage,
-            onAction = twoFactorViewModel::performErrorAction,
         )
     }
 
@@ -242,14 +242,14 @@ fun SettingsScreen(
         modifier =
             modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .then(
                     if (deviceConfiguration.requiresDisplayCutoutPadding()) {
                         Modifier.windowInsetsPadding(WindowInsets.displayCutout)
                     } else {
                         Modifier
                     },
-                )
-                .verticalScroll(scrollState),
+                ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -259,46 +259,54 @@ fun SettingsScreen(
                 .padding(horizontal = 20.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MiraiLinkIconButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = onBackClick,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(id = R.string.back),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+                MiraiLinkIconButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = onBackClick,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_back),
+                        contentDescription = stringResource(id = R.string.back),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    MiraiLinkText(
+                        text = stringResource(R.string.settings_screen_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    )
+                    MiraiLinkText(
+                        text = stringResource(R.string.settings_screen_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .size(24.dp),
+                    )
+                }
             }
-            Column(modifier = Modifier.weight(1f)) {
-                MiraiLinkText(
-                    text = stringResource(R.string.settings_screen_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                )
-                MiraiLinkText(
-                    text = stringResource(R.string.settings_screen_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+
+        AnimatedVisibility(
+            visible = activeError != null,
+        ) {
+            activeError?.let { currentError ->
+                MiraiLinkErrorContent(
+                    error = currentError,
+                    onAction = activeAction,
                     modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 6.dp),
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        error?.let { currentError ->
-            MiraiLinkErrorContent(
-                error = currentError,
-                onAction = viewModel::performErrorAction,
-            )
-        }
+
         // OCULTO: Logo de MiraiLink redimensionado a tamaño más compacto y elegante
         /* Image(
             painter = painterResource(id = R.drawable.logomirailink),
@@ -397,7 +405,10 @@ fun SettingsScreen(
                 icon = Icons.Default.Lock,
                 title = stringResource(R.string.configure_two_factor),
                 subtitle = stringResource(R.string.settings_two_factor_subtitle),
-                onClick = { userId?.let(twoFactorViewModel::onlyCheckTwoFacStatusWithIO) },
+                onClick = {
+                    val effectiveUserId = userId ?: currentUser?.id
+                    twoFactorViewModel.onlyCheckTwoFacStatusWithIO(effectiveUserId)
+                },
             )
             Spacer(modifier = Modifier.height(16.dp))
             SettingsActionCard(
@@ -481,9 +492,18 @@ private fun SettingsActionCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onLongPress = { onLongPress?.invoke() })
-            },
+            .then(
+                if (onLongPress != null) {
+                    Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { onClick() },
+                            onLongPress = { onLongPress() },
+                        )
+                    }
+                } else {
+                    Modifier
+                },
+            ),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (destructive) {

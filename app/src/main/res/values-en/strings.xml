@@ -168,6 +168,12 @@
     <string name="two_factor_disabled_message">Multifactor authentication is not enabled yet.</string>
     <string name="two_factor_setup_completed_title">Authentication enabled</string>
     <string name="two_factor_setup_completed_message">Your account is now protected with multifactor authentication.</string>
+    <string name="two_factor_status_active">Active</string>
+    <string name="two_factor_status_inactive">Disabled</string>
+    <string name="two_factor_status_active_tip">Your account is protected. A TOTP code will be required when signing in on a new device.</string>
+    <string name="two_factor_status_inactive_tip">Add an extra layer of security with authenticator apps like Google Authenticator or Authy.</string>
+    <string name="two_factor_status_icon_active_desc">Two-factor authentication enabled</string>
+    <string name="two_factor_status_icon_inactive_desc">Two-factor authentication disabled</string>
     <string name="done">Done</string>
     <string name="enter_code_from_app_or_use_recovery_code">Put the code from the auth app. If you don\'t have it, you can use one of the recovery codes</string>
     <string name="complete_login">Complete the login</string>
@@ -214,7 +220,7 @@
     <string name="ai_chat_subtitle">Your copilot for anime, games and new ideas</string>
     <string name="ai_chat_empty_title">What would you like to discover?</string>
     <string name="ai_chat_empty_message">Ask me about recommendations, characters, games or anything that sparks your curiosity.</string>
-    <string name="ai_chat_thinking">Mirai Link AI is thinking...</string>
+    <string name="ai_chat_thinking">Mirai Link AI is thinking…</string>
     <string name="ai_chat_open">AI Chat open</string>
     <string name="action_retry">Try again</string>
     <string name="action_sign_in_again">Sign in again</string>
@@ -369,7 +375,7 @@
     <string name="profile_section_interests">Interests</string>
     <string name="error_location_required_for_radius">To search nearby, enable location or set your residence.</string>
     <string name="error_residence_country_required">Set your residence country to search across your country.</string>
-    <string name="interest_picker_search_hint">Search by name...</string>
+    <string name="interest_picker_search_hint">Search by name…</string>
     <string name="interest_picker_empty_search">No results found for your search</string>
     <string name="interest_picker_empty_catalog">No items available at this time</string>
     <string name="interest_picker_selected_count">Selected: %1$d</string>
@@ -400,7 +406,7 @@
     <string name="profile_edit_prompts_subtitle">Feature up to 3 gamer questions on your profile</string>
     <string name="profile_edit_add_prompt">+ Add gamer fact</string>
     <string name="profile_edit_change_question">Change</string>
-    <string name="profile_edit_prompt_answer_hint">Write your answer here...</string>
+    <string name="profile_edit_prompt_answer_hint">Write your answer here…</string>
     <string name="profile_edit_prompt_select_title">Choose a gamer fact</string>
     <string name="profile_edit_section_work_edu">Work and Education</string>
     <string name="profile_profession_label">Profession or occupation</string>
@@ -423,6 +429,13 @@
     <string name="profile_option_clear">Clear selection</string>
     <string name="profile_option_select">Select</string>
     <string name="profile_select_options_dialog_title">Select options</string>
+
+    <!-- Subcategories of About  Me -->
+    <string name="profile_subcategory_languages">Languages</string>
+    <string name="profile_subcategory_goals">What do I want to achieve and Plans</string>
+    <string name="profile_subcategory_work_edu">Labour and educational</string>
+    <string name="profile_subcategory_lifestyle">Lifestyle</string>
+    <string name="profile_subcategory_identity">Identity and beliefs</string>
 
     <!-- Explore Feature -->
     <string name="nav_explore">Explore</string>
@@ -511,7 +524,7 @@
     <string name="subscription_purchase_pending_message">Your payment is pending confirmation in Google Play.</string>
     <string name="subscription_restore_success_message">Purchases restored successfully.</string>
     <string name="subscription_restore_empty_message">No active purchases found for your Google Play account.</string>
-    <string name="subscription_price_loading">Loading price...</string>
+    <string name="subscription_price_loading">Loading price…</string>
     <string name="premium_locked_cta_button">View Premium perks</string>
     <string name="search_premium_active_badge">Premium active</string>
     <string name="search_radius_free_limit_note">Free radius: max 250 km. Upgrade to Plus or Premium to explore up to 800 km.</string>
@@ -561,7 +574,7 @@
     <string name="studio_camera_permission_grant">Grant permission</string>
     <string name="studio_verdict_soft_warning_disclaimer">Try uploading or taking a better photo to meet our quality standards, but the choice is up to you.</string>
     <string name="studio_test_mode_photo_saved">Photo successfully analyzed in test studio mode.</string>
-    <string name="profile_gallery_analyzing">Analyzing quality with on-device AI...</string>
+    <string name="profile_gallery_analyzing">Analyzing quality with on-device AI…</string>
     <string name="profile_gallery_photo_approved">Photo approved! It meets quality standards.</string>
     <string name="profile_gallery_photo_warning">Photo added. Notice: %1$s. Try taking a better photo to meet our quality standards, but the choice is up to you.</string>
     <string name="studio_analysis_failed">Analysis could not be completed. Retake the photo or continue anyway.</string>
