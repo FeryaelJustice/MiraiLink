@@ -137,10 +137,31 @@ class SettingsViewModelTest : KoinTest {
     @Test
     fun `setThemePreference calls usecase`() =
         runTest {
+            coEvery {
+                setThemePreferenceUseCase.invoke(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            } returns MiraiLinkResult.Success(Unit)
+
             viewModel.setThemePreference(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
             io.mockk.coVerify {
                 setThemePreferenceUseCase.invoke(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            }
+        }
+
+    @Test
+    fun `setThemePreference failure sets error`() =
+        runTest {
+            coEvery {
+                setThemePreferenceUseCase.invoke(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            } returns MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Local.UNKNOWN)
+
+            viewModel.setThemePreference(com.feryaeljustice.mirailink.domain.model.settings.ThemePreference.DARK)
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+            viewModel.error.test {
+                val item = awaitItem()
+                org.junit.Assert.assertNotNull(item)
+                cancelAndConsumeRemainingEvents()
             }
         }
 }

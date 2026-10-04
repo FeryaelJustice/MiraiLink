@@ -54,8 +54,15 @@ class SettingsViewModel(
             )
 
     fun setThemePreference(themePreference: ThemePreference) {
+        setRecoveryAction { setThemePreference(themePreference) }
+        _error.value = null
         viewModelScope.launch(ioDispatcher) {
-            setThemePreferenceUseCase(themePreference)
+            when (val result = setThemePreferenceUseCase(themePreference)) {
+                is MiraiLinkResult.Success -> Unit
+                is MiraiLinkResult.Error -> withContext(mainDispatcher) {
+                    _error.value = result.error.toUiError()
+                }
+            }
         }
     }
 

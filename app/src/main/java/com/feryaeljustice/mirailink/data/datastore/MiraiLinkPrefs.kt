@@ -2,7 +2,9 @@ package com.feryaeljustice.mirailink.data.datastore
 
 import androidx.datastore.core.DataStore
 import com.feryaeljustice.mirailink.data.model.local.datastore.AppPrefs
+import com.feryaeljustice.mirailink.domain.error.DataError
 import com.feryaeljustice.mirailink.domain.model.settings.ThemePreference
+import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -24,9 +26,14 @@ class MiraiLinkPrefs(
             .catch { emit(AppPrefs()) }
             .map { it.themePreference }
 
-    suspend fun setThemePreference(themePreference: ThemePreference) {
-        dataStore.updateData {
-            it.copy(themePreference = themePreference)
+    suspend fun setThemePreference(themePreference: ThemePreference): MiraiLinkResult<Unit> {
+        return try {
+            dataStore.updateData {
+                it.copy(themePreference = themePreference)
+            }
+            MiraiLinkResult.Success(Unit)
+        } catch (e: Exception) {
+            MiraiLinkResult.Error(DataError.Local.UNKNOWN)
         }
     }
 }
