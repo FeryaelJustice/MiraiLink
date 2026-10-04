@@ -164,6 +164,8 @@ val viewModelModule =
                 logoutUseCase = get(),
                 deleteAccountUseCase = get(),
                 getCurrentUserUseCase = get(),
+                getThemePreferenceUseCase = get(),
+                setThemePreferenceUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
             )

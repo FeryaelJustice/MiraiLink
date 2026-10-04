@@ -23,7 +23,6 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkImage
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
-import com.feryaeljustice.mirailink.ui.components.molecules.ThemeSwitcher
 
 enum class TopBarLayoutDirection {
     ROW,
@@ -36,11 +35,9 @@ enum class TopBarLayoutDirection {
 fun MiraiLinkTopBar(
     modifier: Modifier = Modifier,
     isAuthenticated: Boolean,
-    onThemeChange: () -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearchPreferences: () -> Unit,
-    darkTheme: Boolean = false,
     enabled: Boolean = true,
     showSettingsIcon: Boolean = true,
     showSearchPreferencesIcon: Boolean = false,
@@ -106,7 +103,6 @@ fun MiraiLinkTopBar(
         }
     }, actions = {
         if (enabled) {
-            ThemeSwitcher(darkTheme = darkTheme, onClick = onThemeChange)
             if (showSearchPreferencesIcon) {
                 MiraiLinkIconButton(onClick = onNavigateToSearchPreferences) {
                     Icon(
@@ -143,7 +139,6 @@ data class TopBarConfig(
 private fun MiraiLinkTopBarPreview() {
     MiraiLinkTopBar(
         isAuthenticated = true,
-        onThemeChange = {},
         onNavigateHome = {},
         onNavigateToSettings = {},
         onNavigateToSearchPreferences = {},

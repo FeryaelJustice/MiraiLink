@@ -2,7 +2,11 @@ package com.feryaeljustice.mirailink.data.datastore
 
 import androidx.datastore.core.DataStore
 import com.feryaeljustice.mirailink.data.model.local.datastore.AppPrefs
+import com.feryaeljustice.mirailink.domain.model.settings.ThemePreference
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class MiraiLinkPrefs(
     private val dataStore: DataStore<AppPrefs>,
@@ -14,4 +18,15 @@ class MiraiLinkPrefs(
     }
 
     suspend fun isOnboardingCompleted(): Boolean = dataStore.data.first().onboardingCompleted
+
+    fun getThemePreference(): Flow<ThemePreference> =
+        dataStore.data
+            .catch { emit(AppPrefs()) }
+            .map { it.themePreference }
+
+    suspend fun setThemePreference(themePreference: ThemePreference) {
+        dataStore.updateData {
+            it.copy(themePreference = themePreference)
+        }
+    }
 }
