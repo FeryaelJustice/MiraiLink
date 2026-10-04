@@ -1,6 +1,9 @@
 package com.feryaeljustice.mirailink.ui.screens.explore.feed
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +16,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
@@ -20,6 +25,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,25 +34,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CategoryDiscoverySettingsSheet(
     modifier: Modifier = Modifier,
     categoryName: String,
     initialRadiusKm: Int,
+    initialTargetGender: TargetSearchGender? = null,
     isSaving: Boolean,
     onDismiss: () -> Unit,
-    onSaveRadius: (Int) -> Unit,
-    isRadiusUnlocked: Boolean = false,
+    onSaveSettings: (Int, TargetSearchGender?) -> Unit,
+    isPlusOrPremium: Boolean = false,
+    userGender: String? = null,
     onNavigateToPaywall: (() -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var sliderValue by remember(initialRadiusKm) {
         mutableFloatStateOf(initialRadiusKm.coerceIn(10, 500).toFloat())
+    }
+    var selectedGender by remember(initialTargetGender, userGender) {
+        mutableStateOf(initialTargetGender ?: TargetSearchGender.defaultFor(userGender))
     }
 
     ModalBottomSheet(
@@ -120,7 +132,7 @@ fun CategoryDiscoverySettingsSheet(
                 )
             }
 
-            val isRadiusLockedForSave = sliderValue > 250f && !isRadiusUnlocked
+            val isRadiusLockedForSave = sliderValue > 250f && !isPlusOrPremium
             if (isRadiusLockedForSave) {
                 Spacer(modifier = Modifier.height(14.dp))
                 Card(
@@ -158,10 +170,136 @@ fun CategoryDiscoverySettingsSheet(
                 }
             }
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Selector de genero de busqueda
+            MiraiLinkText(
+                text = stringResource(R.string.search_gender_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            val effectiveGender = if (isPlusOrPremium) {
+                selectedGender
+            } else {
+                TargetSearchGender.defaultFor(userGender)
+            }
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Mujeres
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.FEMALE,
+                    onClick = {
+                        if (isPlusOrPremium) {
+                            selectedGender = TargetSearchGender.FEMALE
+                        } else {
+                            onDismiss()
+                            onNavigateToPaywall?.invoke()
+                        }
+                    },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_gender_female))
+                            if (!isPlusOrPremium) {
+                                MiraiLinkText(
+                                    text = " (${stringResource(R.string.search_gender_locked_badge)})",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+
+                // Hombres
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.MALE,
+                    onClick = {
+                        if (isPlusOrPremium) {
+                            selectedGender = TargetSearchGender.MALE
+                        } else {
+                            onDismiss()
+                            onNavigateToPaywall?.invoke()
+                        }
+                    },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_gender_male))
+                            if (!isPlusOrPremium) {
+                                MiraiLinkText(
+                                    text = " (${stringResource(R.string.search_gender_locked_badge)})",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+
+                // Todos
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.ALL,
+                    onClick = {
+                        selectedGender = TargetSearchGender.ALL
+                    },
+                    label = {
+                        MiraiLinkText(text = stringResource(R.string.search_gender_all))
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+            }
+
+            if (!isPlusOrPremium) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.search_gender_free_locked_disclaimer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        if (onNavigateToPaywall != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                onClick = {
+                                    onDismiss()
+                                    onNavigateToPaywall()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_upgrade_to_unlock),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             MiraiLinkButton(
-                onClick = { onSaveRadius(sliderValue.roundToInt()) },
+                onClick = {
+                    val finalGender = if (isPlusOrPremium) selectedGender else null
+                    onSaveSettings(sliderValue.roundToInt(), finalGender)
+                },
                 enabled = !isSaving && !isRadiusLockedForSave,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,9 +331,12 @@ private fun CategoryDiscoverySettingsSheetPreview() {
         CategoryDiscoverySettingsSheet(
             categoryName = "Anime Fans",
             initialRadiusKm = 50,
+            initialTargetGender = TargetSearchGender.FEMALE,
             isSaving = false,
             onDismiss = {},
-            onSaveRadius = {},
+            onSaveSettings = { _, _ -> },
+            isPlusOrPremium = false,
+            userGender = "male",
         )
     }
 }

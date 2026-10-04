@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.repository
 
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.domain.model.explore.CategoryPreference
 import com.feryaeljustice.mirailink.domain.model.explore.ExploreCategory
 import com.feryaeljustice.mirailink.domain.model.explore.ExploreSection
@@ -13,7 +14,17 @@ data class ExploreHubData(
 
 interface ExploreRepository {
     suspend fun getExploreHubData(): MiraiLinkResult<ExploreHubData>
-    suspend fun getCategoryFeed(categoryId: String, limit: Int = 20, offset: Int = 0): MiraiLinkResult<List<User>>
+    suspend fun getCategoryFeed(
+        categoryId: String,
+        limit: Int = 20,
+        offset: Int = 0,
+        radiusKm: Int? = null,
+        targetGender: TargetSearchGender? = null,
+    ): MiraiLinkResult<List<User>>
     suspend fun getCategoryPreferences(categoryId: String): MiraiLinkResult<CategoryPreference>
-    suspend fun updateCategoryPreferences(categoryId: String, radiusKm: Int): MiraiLinkResult<CategoryPreference>
+    suspend fun updateCategoryPreferences(
+        categoryId: String,
+        radiusKm: Int? = null,
+        targetGender: TargetSearchGender? = null,
+    ): MiraiLinkResult<CategoryPreference>
 }

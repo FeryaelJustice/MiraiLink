@@ -66,6 +66,8 @@ fun CategoryFeedScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val radiusKm by viewModel.radiusKm.collectAsStateWithLifecycle()
+    val targetGender by viewModel.targetGender.collectAsStateWithLifecycle()
+    val userGender by viewModel.userGender.collectAsStateWithLifecycle()
     val isSavingPreferences by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
     val showSettingsSheet by viewModel.showSettingsSheet.collectAsStateWithLifecycle()
     val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
@@ -259,14 +261,16 @@ fun CategoryFeedScreen(
         CategoryDiscoverySettingsSheet(
             categoryName = viewModel.categoryName,
             initialRadiusKm = radiusKm,
+            initialTargetGender = targetGender,
+            userGender = userGender,
             isSaving = isSavingPreferences,
             onDismiss = { viewModel.closeSettingsSheet() },
-            onSaveRadius = { newRadius ->
-                viewModel.updateRadius(newRadius) {
+            onSaveSettings = { newRadius, newTargetGender ->
+                viewModel.updateSettings(newRadius, newTargetGender) {
                     showToast(context, settingsUpdatedMessage, Toast.LENGTH_SHORT)
                 }
             },
-            isRadiusUnlocked = isPlus || isPremium,
+            isPlusOrPremium = isPlus || isPremium,
             onNavigateToPaywall = onNavigateToPaywall,
         )
     }

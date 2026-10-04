@@ -1,6 +1,7 @@
 package com.feryaeljustice.mirailink.ui.screens.explore.feed
 
 import com.feryaeljustice.mirailink.domain.error.UnknownError
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.domain.model.explore.CategoryPreference
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.usecase.explore.GetCategoryFeedUseCase
@@ -68,6 +69,7 @@ class CategoryFeedViewModelTest {
         CategoryPreference(
             categoryId = "cat-1",
             radiusKm = 75,
+            targetGender = TargetSearchGender.FEMALE,
         )
 
     @Before
@@ -100,6 +102,7 @@ class CategoryFeedViewModelTest {
         advanceUntilIdle()
 
         assertEquals(75, viewModel.radiusKm.value)
+        assertEquals(TargetSearchGender.FEMALE, viewModel.targetGender.value)
         val state = viewModel.state.value
         assertTrue(state is CategoryFeedViewModel.CategoryFeedUiState.Success)
         val success = state as CategoryFeedViewModel.CategoryFeedUiState.Success
@@ -129,8 +132,8 @@ class CategoryFeedViewModelTest {
 
     @Test
     fun updateRadius_updatesRadiusKmAndReloadsFeed() = runTest {
-        coEvery { updateCategoryPreferencesUseCase("cat-1", 150) } returns MiraiLinkResult.Success(
-            CategoryPreference("cat-1", 150),
+        coEvery { updateCategoryPreferencesUseCase("cat-1", 150, TargetSearchGender.FEMALE) } returns MiraiLinkResult.Success(
+            CategoryPreference("cat-1", 150, TargetSearchGender.FEMALE),
         )
 
         viewModel = createViewModel()
@@ -142,9 +145,31 @@ class CategoryFeedViewModelTest {
 
         assertTrue(callbackCalled)
         assertEquals(150, viewModel.radiusKm.value)
+        assertEquals(TargetSearchGender.FEMALE, viewModel.targetGender.value)
         assertFalse(viewModel.isSavingPreferences.value)
         assertFalse(viewModel.showSettingsSheet.value)
-        coVerify(exactly = 1) { updateCategoryPreferencesUseCase("cat-1", 150) }
+        coVerify(exactly = 1) { updateCategoryPreferencesUseCase("cat-1", 150, TargetSearchGender.FEMALE) }
+    }
+
+    @Test
+    fun updateSettings_updatesRadiusAndTargetGender() = runTest {
+        coEvery { updateCategoryPreferencesUseCase("cat-1", 120, TargetSearchGender.ALL) } returns MiraiLinkResult.Success(
+            CategoryPreference("cat-1", 120, TargetSearchGender.ALL),
+        )
+
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        var callbackCalled = false
+        viewModel.updateSettings(120, TargetSearchGender.ALL) { callbackCalled = true }
+        advanceUntilIdle()
+
+        assertTrue(callbackCalled)
+        assertEquals(120, viewModel.radiusKm.value)
+        assertEquals(TargetSearchGender.ALL, viewModel.targetGender.value)
+        assertFalse(viewModel.isSavingPreferences.value)
+        assertFalse(viewModel.showSettingsSheet.value)
+        coVerify(exactly = 1) { updateCategoryPreferencesUseCase("cat-1", 120, TargetSearchGender.ALL) }
     }
 
     @Test

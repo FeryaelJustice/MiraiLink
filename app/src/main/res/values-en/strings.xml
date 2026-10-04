@@ -211,7 +211,6 @@
     <string name="birthdate">Birth date</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
-    <string name="gender_other">Other</string>
     <string name="gender_presentation">Gender: %1$s</string>
     <string name="notifications_rationale_title">Don\'t miss a thing!</string>
     <string name="notifications_rationale_text">To receive alerts for new messages and matches on MiraiLink, we need your permission to send notifications. Don\'t worry, you can disable them later in settings!</string>
@@ -289,6 +288,14 @@
     <string name="search_radius_label">Search radius: %1$d km</string>
     <string name="search_match_travelers_title">Find travelers in my area</string>
     <string name="search_match_travelers_desc">Matches users physically in your area right now even if they reside elsewhere.</string>
+    <string name="search_gender_title">Search gender</string>
+    <string name="search_gender_subtitle">Choose which profiles you want to discover in your feed</string>
+    <string name="search_gender_female">Women</string>
+    <string name="search_gender_male">Men</string>
+    <string name="search_gender_all">Everyone</string>
+    <string name="search_gender_free_locked_disclaimer">By default on the free plan, you discover profiles of all genders. To filter and exclusively search for women or men, unlock it with MiraiLink Plus or Premium.</string>
+    <string name="search_gender_category_default">Default (General settings)</string>
+    <string name="search_gender_locked_badge">Plus</string>
     <string name="search_settings_save">Save settings</string>
     <string name="search_settings_saved_success">Search preferences saved successfully</string>
     <string name="search_premium_badge">Premium (Free in beta)</string>
@@ -335,6 +342,8 @@
     <string name="faq_cards_gestures_a">Swipe right to like someone, or swipe left to pass. You can also tap any card to open the full detailed profile view with all photos, bio, and gaming prompts.</string>
     <string name="faq_explore_categories_q">What is the Explore tab and how do category feeds work?</string>
     <string name="faq_explore_categories_a">In Explore, you can browse dedicated categories (such as Cosplay, eSports, Shonen, J-RPG, or Retro Anime) to find people sharing your specific niche interests beyond distance-only sorting.</string>
+    <string name="faq_gender_filter_q">How does the search gender filter work and why is it locked on the free plan?</string>
+    <string name="faq_gender_filter_a">By default on the free plan, discovery shows profiles of all genders without restriction. If you wish to filter and specifically search for women or men at any time across general discovery or themed categories, you can unlock it with any paid subscription (MiraiLink Plus or Premium).</string>
     <string name="faq_no_more_profiles_q">What happens if I run out of profiles to swipe?</string>
     <string name="faq_no_more_profiles_a">If you have reviewed all nearby profiles, you can expand your age range or search distance in Search Preferences. Upgrading to MiraiLink Plus or Premium unlocks up to 250 km radius or worldwide Passport Mode.</string>
     <string name="faq_matches_and_chat_q">How does a Match happen and when can I chat?</string>
@@ -495,6 +504,7 @@
     <string name="subscription_price_total">%1$s total</string>
     <string name="subscription_paywall_perks_plus_ads">Zero interstitial ads across the app</string>
     <string name="subscription_paywall_perks_plus_radius">Distance filter expanded up to 250 km</string>
+    <string name="subscription_paywall_perks_plus_gender">Search filter by gender unlocked</string>
     <string name="subscription_paywall_perks_plus_likes">Unlimited daily likes to connect</string>
     <string name="subscription_paywall_perks_plus_badge">Exclusive Plus badge on your profile</string>
     <string name="subscription_paywall_perks_premium_plus_all">Everything included in MiraiLink Plus</string>

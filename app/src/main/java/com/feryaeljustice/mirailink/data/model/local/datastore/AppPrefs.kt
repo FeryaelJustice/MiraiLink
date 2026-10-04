@@ -10,5 +10,6 @@ data class AppPrefs(
     val searchScope: String = "radius",
     val searchTargetCountryId: String? = null,
     val searchMatchLiveLocation: Boolean = false,
+    val searchGender: String? = null,
     val themePreference: ThemePreference = ThemePreference.SYSTEM,
 )

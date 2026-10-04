@@ -21,9 +21,11 @@ class ExploreRemoteDataSource(
         categoryId: String,
         limit: Int = 20,
         offset: Int = 0,
+        radiusKm: Int? = null,
+        targetGender: String? = null,
     ): MiraiLinkResult<List<UserDto>> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
-            api.getCategoryFeed(categoryId, limit, offset)
+            api.getCategoryFeed(categoryId, limit, offset, radiusKm, targetGender)
         }
 
     suspend fun getCategorySettings(categoryId: String): MiraiLinkResult<CategorySettingsResponseDto> =
@@ -33,9 +35,16 @@ class ExploreRemoteDataSource(
 
     suspend fun updateCategorySettings(
         categoryId: String,
-        radiusKm: Int,
+        radiusKm: Int? = null,
+        targetGender: String? = null,
     ): MiraiLinkResult<CategorySettingsResponseDto> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
-            api.updateCategorySettings(categoryId, UpdateCategorySettingsRequestDto(radiusKm))
+            api.updateCategorySettings(
+                categoryId,
+                UpdateCategorySettingsRequestDto(
+                    radiusKm = radiusKm,
+                    targetGender = targetGender,
+                ),
+            )
         }
 }

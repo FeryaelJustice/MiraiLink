@@ -42,6 +42,12 @@ class FaqRepositoryImpl : FaqRepository {
             answerRes = R.string.faq_explore_categories_a,
         ),
         FaqItem(
+            id = "faq_gender_filter",
+            category = FaqCategory.CARDS_AND_MATCHING,
+            questionRes = R.string.faq_gender_filter_q,
+            answerRes = R.string.faq_gender_filter_a,
+        ),
+        FaqItem(
             id = "faq_no_more_profiles",
             category = FaqCategory.CARDS_AND_MATCHING,
             questionRes = R.string.faq_no_more_profiles_q,

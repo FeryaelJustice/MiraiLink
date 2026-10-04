@@ -40,6 +40,10 @@ class SearchPreferencesViewModel(
     val draftScope = _draftScope.asStateFlow()
     private val _draftTargetCountry = MutableStateFlow<String?>(null)
     val draftTargetCountry = _draftTargetCountry.asStateFlow()
+    private val _draftSearchGender = MutableStateFlow(com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.ALL)
+    val draftSearchGender = _draftSearchGender.asStateFlow()
+    private val _userGender = MutableStateFlow<String?>(null)
+    val userGender = _userGender.asStateFlow()
     private val _userLatitude = MutableStateFlow(GeoUtils.DEFAULT_FALLBACK_LATITUDE)
     val userLatitude = _userLatitude.asStateFlow()
     private val _userLongitude = MutableStateFlow(GeoUtils.DEFAULT_FALLBACK_LONGITUDE)
@@ -58,10 +62,11 @@ class SearchPreferencesViewModel(
     val error = _error.asStateFlow()
 
     val hasUnsavedChanges: StateFlow<Boolean> = combine(
-        savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry,
-    ) { saved, radius, scope, targetCountry ->
+        savedPreferences, _draftRadiusKm, _draftScope, _draftTargetCountry, _draftSearchGender,
+    ) { saved, radius, scope, targetCountry, searchGender ->
         saved.radiusKm != radius || saved.scope != scope ||
-            saved.targetCountryId != targetCountry
+            saved.targetCountryId != targetCountry ||
+            saved.searchGender != searchGender
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
@@ -80,6 +85,7 @@ class SearchPreferencesViewModel(
                 _draftRadiusKm.value = preferences.radiusKm
                 _draftScope.value = preferences.scope
                 _draftTargetCountry.value = preferences.targetCountryId
+                _draftSearchGender.value = preferences.searchGender
             }
         }
     }
@@ -88,6 +94,7 @@ class SearchPreferencesViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val result = getCurrentUserUseCase()) {
                 is MiraiLinkResult.Success -> {
+                    _userGender.value = result.data.gender
                     _residenceLabel.value = listOfNotNull(
                         result.data.residenceCity,
                         result.data.residenceRegion,
@@ -134,6 +141,10 @@ class SearchPreferencesViewModel(
         updateMapCenter(scope)
     }
 
+    fun updateDraftSearchGender(gender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender) {
+        _draftSearchGender.value = gender
+    }
+
     private fun updateMapCenter(scope: SearchScope) {
         val latitude = if (scope == SearchScope.RADIUS_ACTIVE) activeLatitude else residenceLatitude
         val longitude = if (scope == SearchScope.RADIUS_ACTIVE) activeLongitude else residenceLongitude
@@ -154,9 +165,11 @@ class SearchPreferencesViewModel(
             return
         }
         val updated = SearchPreferences(
-            _draftRadiusKm.value,
-            _draftScope.value,
-            targetCountry.takeIf { _draftScope.value == SearchScope.SPECIFIC_COUNTRY },
+            radiusKm = _draftRadiusKm.value,
+            scope = _draftScope.value,
+            targetCountryId = targetCountry.takeIf { _draftScope.value == SearchScope.SPECIFIC_COUNTRY },
+            isPremiumActive = savedPreferences.value.isPremiumActive,
+            searchGender = _draftSearchGender.value,
         )
         _isSavingPreferences.value = true
         viewModelScope.launch(ioDispatcher) {

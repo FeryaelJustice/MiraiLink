@@ -3,9 +3,11 @@ package com.feryaeljustice.mirailink.ui.screens.explore.feed
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toUserViewEntry
 import com.feryaeljustice.mirailink.domain.constants.TIME_24_HOURS
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.domain.usecase.explore.GetCategoryFeedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.explore.GetCategoryPreferencesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.explore.UpdateCategoryPreferencesUseCase
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.DislikeUserUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -34,6 +36,7 @@ class CategoryFeedViewModel(
     private val updateCategoryPreferencesUseCase: UpdateCategoryPreferencesUseCase,
     private val likeUserUseCase: LikeUserUseCase,
     private val dislikeUserUseCase: DislikeUserUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase? = null,
     private val ioDispatcher: CoroutineDispatcher,
 ) : RetryableViewModel() {
 
@@ -61,6 +64,12 @@ class CategoryFeedViewModel(
     private val _radiusKm = MutableStateFlow(50)
     val radiusKm: StateFlow<Int> = _radiusKm.asStateFlow()
 
+    private val _targetGender = MutableStateFlow<TargetSearchGender?>(null)
+    val targetGender: StateFlow<TargetSearchGender?> = _targetGender.asStateFlow()
+
+    private val _userGender = MutableStateFlow<String?>(null)
+    val userGender: StateFlow<String?> = _userGender.asStateFlow()
+
     private val _isSavingPreferences = MutableStateFlow(false)
     val isSavingPreferences: StateFlow<Boolean> = _isSavingPreferences.asStateFlow()
 
@@ -73,6 +82,7 @@ class CategoryFeedViewModel(
 
     init {
         loadPreferences()
+        loadUserGender()
         loadFeed()
     }
 
@@ -89,10 +99,23 @@ class CategoryFeedViewModel(
             when (val result = withContext(ioDispatcher) { getCategoryPreferencesUseCase(categoryId) }) {
                 is MiraiLinkResult.Success -> {
                     _radiusKm.value = result.data.radiusKm
+                    _targetGender.value = result.data.targetGender
                 }
                 is MiraiLinkResult.Error -> {
                     // Usar radio predeterminado si no se obtiene el configurado
                 }
+            }
+        }
+    }
+
+    fun loadUserGender() {
+        val useCase = getCurrentUserUseCase ?: return
+        viewModelScope.launch {
+            when (val result = withContext(ioDispatcher) { useCase() }) {
+                is MiraiLinkResult.Success -> {
+                    _userGender.value = result.data.gender
+                }
+                is MiraiLinkResult.Error -> Unit
             }
         }
     }
@@ -114,14 +137,19 @@ class CategoryFeedViewModel(
         }
     }
 
-    fun updateRadius(newRadiusKm: Int, onComplete: () -> Unit = {}) {
+    fun updateSettings(
+        newRadiusKm: Int,
+        newTargetGender: TargetSearchGender? = _targetGender.value,
+        onComplete: () -> Unit = {},
+    ) {
         viewModelScope.launch {
             _isSavingPreferences.value = true
             when (val result = withContext(ioDispatcher) {
-                updateCategoryPreferencesUseCase(categoryId, newRadiusKm)
+                updateCategoryPreferencesUseCase(categoryId, newRadiusKm, newTargetGender)
             }) {
                 is MiraiLinkResult.Success -> {
                     _radiusKm.value = result.data.radiusKm
+                    _targetGender.value = result.data.targetGender
                     _isSavingPreferences.value = false
                     closeSettingsSheet()
                     onComplete()
@@ -132,6 +160,10 @@ class CategoryFeedViewModel(
                 }
             }
         }
+    }
+
+    fun updateRadius(newRadiusKm: Int, onComplete: () -> Unit = {}) {
+        updateSettings(newRadiusKm = newRadiusKm, newTargetGender = _targetGender.value, onComplete = onComplete)
     }
 
     fun swipeRight() {

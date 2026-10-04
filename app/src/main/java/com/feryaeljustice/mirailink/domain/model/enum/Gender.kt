@@ -2,8 +2,7 @@ package com.feryaeljustice.mirailink.domain.model.enum
 
 enum class Gender(val realValue: String) {
     Male("male"),
-    Female("female"),
-    Other("other");
+    Female("female");
 
     override fun toString(): String = realValue
 

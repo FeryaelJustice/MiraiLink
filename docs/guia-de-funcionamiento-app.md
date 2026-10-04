@@ -157,3 +157,38 @@ Las capturas de alta definición se encuentran almacenadas en el proyecto en `do
 - `docs/screenshots/05b-profile-screen-editing.webp` - Formulario de edición local.
 - `docs/screenshots/06-settings-screen-demo-restore.webp` - Panel de restablecimiento y salida.
 - `docs/screenshots/07-auth-screen-after-exit.webp` - Retorno limpio a la pantalla de acceso.
+
+---
+
+## 6. Preferencias de Busqueda, Filtros de Genero y Suscripciones
+
+MiraiLink incluye un sistema integral de configuracion de busqueda para calibrar los candidatos tanto en el Feed Principal como en el Descubrimiento por Categorias (Explore):
+
+### 6.1 Genero del Usuario y Filtro de Genero de Busqueda
+
+- **Generos de perfil de usuario**: El sistema cuenta estrictamente con dos generos: **Hombre** (`male`) y **Mujer** (`female`).
+- **Selector de genero objetivo ("Busco")**: Permite calibrar los perfiles candidatos entre:
+  - **Todos** (`all`): Opcion por defecto activa y gratuita para cualquier usuario, mezclando perfiles de todos los generos.
+  - **Mujeres** (`female`): Requiere suscripcion Plus o Premium.
+  - **Hombres** (`male`): Requiere suscripcion Plus o Premium.
+
+### 6.2 Reglas segun el Plan de Suscripcion
+
+1. **Plan Gratuito (Free)**:
+   - Por defecto, el descubrimiento busca a **Todos** (`all`) los perfiles mezclados independientemente del genero del usuario.
+   - La opcion "Todos" esta completamente disponible y activable en cuentas gratuitas.
+   - Las opciones especificas ("Mujeres" y "Hombres") se muestran con el distintivo visual `(Plus)`. Al pulsar sobre ellas se abre el Paywall de suscripciones informando de la ventaja.
+   - El radio de distancia maximo en el plan gratuito es de 250 km.
+
+2. **Planes de Pago (MiraiLink Plus y MiraiLink Premium)**:
+   - El filtrado selectivo por genero ("Mujeres" u "Hombres") queda completamente desbloqueado desde **MiraiLink Plus** en adelante.
+   - El usuario suscrito puede alternar a placer entre Mujeres, Hombres o Todos sin ninguna restriccion.
+   - El radio de distancia se extiende hasta 800 km (en busqueda general) o 500 km (en categorias).
+
+### 6.3 Filtros en el Descubrimiento por Categorias
+
+Dentro de las secciones tematicas de Explorar (por ejemplo *Anime Fans*, *Gamer*, etc.):
+- Cada categoria cuenta con su propia hoja de ajustes (`CategoryDiscoverySettingsSheet`).
+- El usuario puede personalizar de forma independiente tanto la distancia como el genero de busqueda para esa categoria concreta.
+- En cuentas gratuitas la opcion por defecto es "Todos" (`all`). Filtrar especificamente por "Mujeres" u "Hombres" dentro de la categoria tambien requiere MiraiLink Plus o Premium.
+

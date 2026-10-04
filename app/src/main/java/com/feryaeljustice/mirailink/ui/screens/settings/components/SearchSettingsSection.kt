@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
 import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.util.isCountryCodeValid
@@ -56,6 +57,9 @@ fun SearchSettingsSection(
     isPlus: Boolean = false,
     isPremium: Boolean = false,
     onNavigateToPaywall: (() -> Unit)? = null,
+    searchGender: TargetSearchGender = TargetSearchGender.ALL,
+    onSearchGenderChange: (TargetSearchGender) -> Unit = {},
+    userGender: String? = null,
 ) {
     val isRadiusUnlocked = isPlus || isPremium
     val isPassportUnlocked = isPremium
@@ -200,6 +204,131 @@ fun SearchSettingsSection(
                             text = stringResource(R.string.search_radius_free_limit_note),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                        if (onNavigateToPaywall != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            MiraiLinkButton(
+                                onClick = onNavigateToPaywall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                            ) {
+                                MiraiLinkText(
+                                    text = stringResource(R.string.search_upgrade_to_unlock),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Género de búsqueda
+            MiraiLinkText(
+                text = stringResource(R.string.search_gender_title),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            MiraiLinkText(
+                text = stringResource(R.string.search_gender_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            val isGenderUnlocked = isPlus || isPremium
+            val effectiveGender = if (isGenderUnlocked) {
+                searchGender
+            } else {
+                TargetSearchGender.defaultFor(userGender)
+            }
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Mujeres
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.FEMALE,
+                    onClick = {
+                        if (isGenderUnlocked) {
+                            onSearchGenderChange(TargetSearchGender.FEMALE)
+                        } else {
+                            onNavigateToPaywall?.invoke()
+                        }
+                    },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_gender_female))
+                            if (!isGenderUnlocked) {
+                                MiraiLinkText(
+                                    text = " (${stringResource(R.string.search_gender_locked_badge)})",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+
+                // Hombres
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.MALE,
+                    onClick = {
+                        if (isGenderUnlocked) {
+                            onSearchGenderChange(TargetSearchGender.MALE)
+                        } else {
+                            onNavigateToPaywall?.invoke()
+                        }
+                    },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MiraiLinkText(text = stringResource(R.string.search_gender_male))
+                            if (!isGenderUnlocked) {
+                                MiraiLinkText(
+                                    text = " (${stringResource(R.string.search_gender_locked_badge)})",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+
+                // Todos
+                FilterChip(
+                    selected = effectiveGender == TargetSearchGender.ALL,
+                    onClick = {
+                        onSearchGenderChange(TargetSearchGender.ALL)
+                    },
+                    label = {
+                        MiraiLinkText(text = stringResource(R.string.search_gender_all))
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+            }
+
+            AnimatedVisibility(visible = !isGenderUnlocked) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        MiraiLinkText(
+                            text = stringResource(R.string.search_gender_free_locked_disclaimer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                         if (onNavigateToPaywall != null) {
                             Spacer(modifier = Modifier.height(8.dp))

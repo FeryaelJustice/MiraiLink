@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 class MainActivity : ComponentActivity() {
     val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
@@ -107,14 +108,14 @@ class MainActivity : ComponentActivity() {
         adMobManager.initialize()
         lifecycleScope.launch {
             // First wait 10 seconds in purpose of initializing everything
-            delay(10 * 1000L)
+            delay((10 * 1000L).milliseconds)
             while (isActive) {
                 // Show ad only if app is in foreground and user is NOT premium or plus
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) && !globalMiraiLinkSession.isPremium.value && !globalMiraiLinkSession.isPlus.value) {
                     adMobManager.showInterstitial(this@MainActivity)
                 }
                 // Every 5 minutes
-                delay(5 * 60 * 1000L)
+                delay((5 * 60 * 1000L).milliseconds)
             }
         }
     }
@@ -148,13 +149,9 @@ class MainActivity : ComponentActivity() {
 
                 // 2) Si no está autenticado aún, espera hasta 1.5s a que emita TRUE
                 val isAuthed =
-                    if (snapshot) {
-                        true
-                    } else {
-                        withTimeoutOrNull(1_500) {
-                            globalMiraiLinkSession.isAuthenticated.first { it }
-                        } ?: false
-                    }
+                    snapshot || withTimeoutOrNull(1_500.milliseconds) {
+                        globalMiraiLinkSession.isAuthenticated.first { it }
+                    } ?: false
 
                 if (isAuthed) {
                     saveNotificationFCMUseCase(fcm = token)

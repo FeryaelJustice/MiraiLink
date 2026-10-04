@@ -284,6 +284,10 @@ fun SubscriptionPaywallScreen(
                             accentColor = themeAccentColor,
                         )
                         PerkItemRow(
+                            text = stringResource(R.string.subscription_paywall_perks_plus_gender),
+                            accentColor = themeAccentColor,
+                        )
+                        PerkItemRow(
                             text = stringResource(R.string.subscription_paywall_perks_plus_likes),
                             accentColor = themeAccentColor,
                         )

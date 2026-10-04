@@ -13,7 +13,7 @@ data class UserViewEntry(
     val email: String?,
     val phoneNumber: String?,
     val bio: String?,
-    val gender: String?, // "male", "female", "non_binary", "other", "prefer_not_to_say"
+    val gender: String?, // "male", "female"
     val birthdate: String?, // "YYYY-MM-DD"
     val photos: List<UserPhotoViewEntry> = emptyList(),
     val games: List<GameViewEntry>,

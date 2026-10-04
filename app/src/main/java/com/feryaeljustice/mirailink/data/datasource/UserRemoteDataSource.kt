@@ -263,6 +263,7 @@ class UserRemoteDataSource(
         scope: String,
         targetCountryId: String?,
         matchLiveLocation: Boolean,
+        searchGender: String? = null,
     ): MiraiLinkResult<Unit> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
             api.updateSearchSettings(
@@ -271,6 +272,7 @@ class UserRemoteDataSource(
                     searchScope = scope,
                     searchTargetCountryId = targetCountryId,
                     searchMatchLiveLocation = matchLiveLocation,
+                    searchGender = searchGender,
                 ),
             )
         }

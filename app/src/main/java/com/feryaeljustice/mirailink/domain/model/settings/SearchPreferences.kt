@@ -1,5 +1,6 @@
 package com.feryaeljustice.mirailink.domain.model.settings
 
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -36,6 +37,7 @@ data class SearchPreferences(
     val scope: SearchScope = SearchScope.RADIUS_RESIDENCE,
     val targetCountryId: String? = null,
     val isPremiumActive: Boolean = false,
+    val searchGender: TargetSearchGender = TargetSearchGender.ALL,
 ) {
     companion object {
         const val MIN_RADIUS_KM = 10f
