@@ -106,8 +106,8 @@ fun SearchRadiusMinimap(
         // 1. Mapa raster de OpenStreetMap centrado en la posicion actual.
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val tileSize = 128.dp
-            val horizontalRadius = ceil(maxWidth.value / tileSize.value / 2f).toInt() + 1
-            val verticalRadius = ceil(maxHeight.value / tileSize.value / 2f).toInt() + 1
+            val horizontalRadius = ceil(maxWidth.value / tileSize.value / 2f).toInt()
+            val verticalRadius = ceil(maxHeight.value / tileSize.value / 2f).toInt()
 
             for (row in -verticalRadius..verticalRadius) {
                 for (column in -horizontalRadius..horizontalRadius) {
@@ -116,25 +116,27 @@ fun SearchRadiusMinimap(
                         .coerceIn(0, tilePosition.worldSize - 1)
                     val wrappedTileX = ((tileX % tilePosition.worldSize) + tilePosition.worldSize) % tilePosition.worldSize
                     val tileUrl = "https://tile.openstreetmap.org/$zoom/$wrappedTileX/$tileY.png"
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(tileUrl)
-                            .addHeader("User-Agent", "MiraiLink-Android/1.0")
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = if (row == 0 && column == 0) {
-                            stringResource(R.string.search_settings_map_preview_label)
-                        } else {
-                            null
-                        },
-                        modifier = Modifier
-                            .size(tileSize)
-                            .offset(
-                                x = maxWidth / 2 + tileSize * (column - tilePosition.fractionX).toFloat(),
-                                y = maxHeight / 2 + tileSize * (row - tilePosition.fractionY).toFloat(),
-                            ),
-                        contentScale = ContentScale.FillBounds,
-                    )
+                    androidx.compose.runtime.key(zoom, wrappedTileX, tileY) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(tileUrl)
+                                .addHeader("User-Agent", "MiraiLink-Android/1.0 (https://mirailink.xyz; contact@mirailink.xyz)")
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = if (row == 0 && column == 0) {
+                                stringResource(R.string.search_settings_map_preview_label)
+                            } else {
+                                null
+                            },
+                            modifier = Modifier
+                                .size(tileSize)
+                                .offset(
+                                    x = maxWidth / 2 + tileSize * (column - tilePosition.fractionX).toFloat(),
+                                    y = maxHeight / 2 + tileSize * (row - tilePosition.fractionY).toFloat(),
+                                ),
+                            contentScale = ContentScale.FillBounds,
+                        )
+                    }
                 }
             }
         }

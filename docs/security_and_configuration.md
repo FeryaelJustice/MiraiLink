@@ -13,7 +13,7 @@ En la raiz del proyecto `MiraiLink`, el archivo `local.properties` (que no se su
 mirailink.baseUrl=http://192.168.1.137:3000
 
 # Dominios autorizados para descarga de imagenes remotas en Coil (separados por comas)
-mirailink.imageAllowedDomains=mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com
+mirailink.imageAllowedDomains=mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com
 ```
 
 ### ¿Donde tocar para anadir un nuevo dominio de imagenes?

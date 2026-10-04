@@ -48,7 +48,7 @@ android {
     val imageAllowedDomains =
         localProperties.getProperty("mirailink.imageAllowedDomains")?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?: "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com"
+            ?: "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com"
 
     sourceSets {
         getByName("test") {

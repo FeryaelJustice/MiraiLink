@@ -73,7 +73,7 @@ fun SearchPreferencesScreen(
     val context = LocalContext.current
     val savedSuccessMessage = stringResource(R.string.search_settings_saved_success)
     val coroutineScope = rememberCoroutineScope()
-    var isMapVisible by remember { mutableStateOf(false) }
+    var isMapVisible by remember(scope.isRadiusScope()) { mutableStateOf(scope.isRadiusScope()) }
     var isRefreshingLocation by remember { mutableStateOf(false) }
     var showLocationRationale by remember { mutableStateOf(false) }
 
@@ -167,7 +167,7 @@ fun SearchPreferencesScreen(
             },
             scope = scope,
             onScopeChange = { selectedScope ->
-                if (selectedScope.isRadiusScope()) isMapVisible = true
+                isMapVisible = selectedScope.isRadiusScope()
                 viewModel.updateDraftScope(selectedScope)
             },
             targetCountry = targetCountry,
@@ -176,7 +176,6 @@ fun SearchPreferencesScreen(
             isSaving = isSaving,
             onSaveClick = {
                 viewModel.save {
-                    isMapVisible = false
                     showToast(savedSuccessMessage, Toast.LENGTH_SHORT)
                 }
             },

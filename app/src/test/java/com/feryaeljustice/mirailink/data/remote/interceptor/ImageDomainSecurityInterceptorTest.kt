@@ -15,7 +15,7 @@ import java.io.IOException
 
 class ImageDomainSecurityInterceptorTest {
 
-    private val allowedDomains = "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,10.0.2.2,localhost"
+    private val allowedDomains = "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,10.0.2.2,localhost,openstreetmap.org"
     private val interceptor = ImageDomainSecurityInterceptor(allowedDomains)
 
     private fun mockChain(url: String): Interceptor.Chain {
@@ -45,6 +45,14 @@ class ImageDomainSecurityInterceptorTest {
     @Test
     fun `allowed subdomain is permitted`() {
         val chain = mockChain("https://api.mirailink.xyz/assets/img/profiles/test.webp")
+        val response = interceptor.intercept(chain)
+
+        assertEquals(200, response.code)
+    }
+
+    @Test
+    fun `openstreetmap tile subdomain is permitted`() {
+        val chain = mockChain("https://tile.openstreetmap.org/10/500/500.png")
         val response = interceptor.intercept(chain)
 
         assertEquals(200, response.code)

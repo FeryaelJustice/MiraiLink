@@ -15,6 +15,7 @@
         <domain includeSubdomains="true">images.igdb.com</domain>
         <domain includeSubdomains="true">images.unsplash.com</domain>
         <domain includeSubdomains="true">alphacoders.com</domain>
+        <domain includeSubdomains="true">openstreetmap.org</domain>
     </domain-config>
 
     <!-- Entornos locales de desarrollo y emuladores donde se permite HTTP texto claro -->
