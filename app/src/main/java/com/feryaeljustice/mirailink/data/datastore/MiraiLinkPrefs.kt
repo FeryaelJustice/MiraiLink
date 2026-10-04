@@ -32,6 +32,8 @@ class MiraiLinkPrefs(
                 it.copy(themePreference = themePreference)
             }
             MiraiLinkResult.Success(Unit)
+        } catch (cancellation: kotlin.coroutines.cancellation.CancellationException) {
+            throw cancellation
         } catch (e: Exception) {
             MiraiLinkResult.Error(DataError.Local.UNKNOWN)
         }
