@@ -16,12 +16,10 @@ fun GenderSelector(
 ) {
     val genderMaleText = stringResource(R.string.gender_male)
     val genderFemaleText = stringResource(R.string.gender_female)
-    val genderOtherText = stringResource(R.string.gender_other)
     val itemLabel: (Gender) -> String = { g ->
         when (g) {
             Gender.Male -> genderMaleText
             Gender.Female -> genderFemaleText
-            Gender.Other -> genderOtherText
         }
     }
 

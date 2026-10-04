@@ -187,13 +187,15 @@ class DemoExploreRepositoryImpl(
         categoryId: String,
         limit: Int,
         offset: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<List<User>> {
         seeder.seedInitialDataIfEmpty()
         val category = staticCategories.find { it.id == categoryId || it.code == categoryId }
             ?: staticCategories.first()
 
         val pref = database.categoryDao().getPreference(DemoDataSeeder.DEMO_USER_ID, category.id)
-        val radius = pref?.radiusKm ?: 40
+        val radius = radiusKm ?: pref?.radiusKm ?: 40
 
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
         val userLat = demoProfile?.residenceLatitude ?: demoProfile?.currentLatitude
@@ -219,7 +221,12 @@ class DemoExploreRepositoryImpl(
         }.filter { user ->
             val matchesDistance = user.distanceKm == null || user.distanceKm <= radius
             val matchesCategory = matchesCategoryFilter(user, category.code)
-            matchesDistance && matchesCategory
+            val matchesGender = when (targetGender) {
+                com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.FEMALE -> user.gender == "female"
+                com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.MALE -> user.gender == "male"
+                com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.ALL, null -> true
+            }
+            matchesDistance && matchesCategory && matchesGender
         }.drop(offset).take(limit)
 
         return MiraiLinkResult.Success(filteredUsers)
@@ -237,19 +244,23 @@ class DemoExploreRepositoryImpl(
 
     override suspend fun updateCategoryPreferences(
         categoryId: String,
-        radiusKm: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<CategoryPreference> {
+        val currentPref = database.categoryDao().getPreference(DemoDataSeeder.DEMO_USER_ID, categoryId)
+        val finalRadius = radiusKm ?: currentPref?.radiusKm ?: 40
         val entity = DemoCategoryPreferenceEntity(
             userId = DemoDataSeeder.DEMO_USER_ID,
             categoryId = categoryId,
-            radiusKm = radiusKm,
+            radiusKm = finalRadius,
             updatedAt = System.currentTimeMillis(),
         )
         database.categoryDao().insertOrUpdate(entity)
         return MiraiLinkResult.Success(
             CategoryPreference(
                 categoryId = categoryId,
-                radiusKm = radiusKm,
+                radiusKm = finalRadius,
+                targetGender = targetGender,
             ),
         )
     }

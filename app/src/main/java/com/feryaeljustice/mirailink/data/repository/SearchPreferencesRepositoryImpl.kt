@@ -25,6 +25,7 @@ class SearchPreferencesRepositoryImpl(
                     scope = SearchScope.fromWireValue(prefs.searchScope, prefs.searchMatchLiveLocation),
                     targetCountryId = prefs.searchTargetCountryId,
                     isPremiumActive = false,
+                    searchGender = com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.fromWireValue(prefs.searchGender),
                 )
             }
 
@@ -45,6 +46,7 @@ class SearchPreferencesRepositoryImpl(
                     scope = normalized.scope.wireValue,
                     targetCountryId = normalized.targetCountryId,
                     matchLiveLocation = false,
+                    searchGender = normalized.searchGender.wireValue,
                 )) {
                     is MiraiLinkResult.Error -> return remoteResult
                     is MiraiLinkResult.Success -> Unit
@@ -56,6 +58,7 @@ class SearchPreferencesRepositoryImpl(
                     searchScope = normalized.scope.wireValue,
                     searchTargetCountryId = normalized.targetCountryId,
                     searchMatchLiveLocation = false,
+                    searchGender = normalized.searchGender.wireValue,
                 )
             }
             MiraiLinkResult.Success(Unit)

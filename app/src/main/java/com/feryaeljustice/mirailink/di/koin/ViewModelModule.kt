@@ -24,6 +24,7 @@ import com.feryaeljustice.mirailink.ui.screens.settings.feedback.FeedbackViewMod
 import com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure.ConfigureTwoFactorViewModel
 import com.feryaeljustice.mirailink.ui.screens.splash.SplashScreenViewModel
 import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionManageViewModel
+import com.feryaeljustice.mirailink.domain.usecase.users.GetCurrentUserUseCase
 import com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionPaywallViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -206,6 +207,7 @@ val viewModelModule =
                 updateCategoryPreferencesUseCase = get(),
                 likeUserUseCase = get(),
                 dislikeUserUseCase = get(),
+                getCurrentUserUseCase = get<GetCurrentUserUseCase>(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }

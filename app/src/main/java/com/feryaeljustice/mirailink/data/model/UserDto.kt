@@ -63,6 +63,8 @@ data class UserDto(
     val searchTargetCountryId: String? = null,
     @SerialName("search_match_live_location")
     val searchMatchLiveLocation: Boolean = false,
+    @SerialName("search_gender")
+    val searchGender: String? = null,
     @SerialName("profession")
     val profession: String? = null,
     @SerialName("religion_id")

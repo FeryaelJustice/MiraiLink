@@ -32,9 +32,11 @@ data class ExploreHubResponseDto(
 data class CategorySettingsResponseDto(
     @SerialName("categoryId") val categoryId: String,
     @SerialName("radius_km") val radiusKm: Int,
+    @SerialName("target_gender") val targetGender: String? = null,
 )
 
 @Serializable
 data class UpdateCategorySettingsRequestDto(
-    @SerialName("radius_km") val radiusKm: Int,
+    @SerialName("radius_km") val radiusKm: Int? = null,
+    @SerialName("target_gender") val targetGender: String? = null,
 )

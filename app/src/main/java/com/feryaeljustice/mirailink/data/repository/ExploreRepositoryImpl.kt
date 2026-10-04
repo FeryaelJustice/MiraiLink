@@ -35,8 +35,10 @@ class ExploreRepositoryImpl(
         categoryId: String,
         limit: Int,
         offset: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<List<User>> =
-        when (val result = remote.getCategoryFeed(categoryId, limit, offset)) {
+        when (val result = remote.getCategoryFeed(categoryId, limit, offset, radiusKm, targetGender?.wireValue)) {
             is MiraiLinkResult.Success -> {
                 val users = result.data.map { userDto ->
                     val user = userDto.toDomain()
@@ -55,6 +57,9 @@ class ExploreRepositoryImpl(
                     CategoryPreference(
                         categoryId = result.data.categoryId,
                         radiusKm = result.data.radiusKm,
+                        targetGender = result.data.targetGender?.let {
+                            com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.fromWireValue(it)
+                        },
                     )
                 )
             }
@@ -63,14 +68,18 @@ class ExploreRepositoryImpl(
 
     override suspend fun updateCategoryPreferences(
         categoryId: String,
-        radiusKm: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<CategoryPreference> =
-        when (val result = remote.updateCategorySettings(categoryId, radiusKm)) {
+        when (val result = remote.updateCategorySettings(categoryId, radiusKm, targetGender?.wireValue)) {
             is MiraiLinkResult.Success -> {
                 MiraiLinkResult.Success(
                     CategoryPreference(
                         categoryId = result.data.categoryId,
                         radiusKm = result.data.radiusKm,
+                        targetGender = result.data.targetGender?.let {
+                            com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.fromWireValue(it)
+                        },
                     )
                 )
             }

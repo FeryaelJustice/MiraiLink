@@ -214,7 +214,6 @@
     <string name="birthdate">Fecha de nacimiento</string>
     <string name="gender_male">Hombre</string>
     <string name="gender_female">Mujer</string>
-    <string name="gender_other">Otro</string>
     <string name="gender_presentation">Género: %1$s</string>
     <string name="notifications_rationale_title">¡No te pierdas nada!</string>
     <string name="notifications_rationale_text">Para recibir alertas de nuevos mensajes y \'matches\' en MiraiLink, necesitamos tu permiso para enviar notificaciones. ¡No te preocupes, puedes desactivarlas después en ajustes!</string>
@@ -292,6 +291,14 @@
     <string name="search_radius_label">Radio de búsqueda: %1$d km</string>
     <string name="search_match_travelers_title">Buscar viajeros en mi zona</string>
     <string name="search_match_travelers_desc">Por defecto buscamos según la residencia habitual. Al activar esta opción, encontrarás personas que se encuentran físicamente en tu radio ahora mismo aunque residan en otra ciudad o país.</string>
+    <string name="search_gender_title">Género de búsqueda</string>
+    <string name="search_gender_subtitle">Elige qué perfiles deseas descubrir en tus recomendaciones</string>
+    <string name="search_gender_female">Mujeres</string>
+    <string name="search_gender_male">Hombres</string>
+    <string name="search_gender_all">Todos</string>
+    <string name="search_gender_free_locked_disclaimer">Por defecto en el plan gratuito descubres perfiles de todos los géneros. Para filtrar y buscar exclusivamente mujeres u hombres, desbloquéalo con MiraiLink Plus o Premium.</string>
+    <string name="search_gender_category_default">Por defecto (Ajustes generales)</string>
+    <string name="search_gender_locked_badge">Plus</string>
     <string name="search_settings_save">Guardar ajustes</string>
     <string name="search_settings_saved_success">Ajustes de búsqueda guardados correctamente</string>
     <string name="search_premium_badge">Premium (Gratis en beta)</string>
@@ -338,6 +345,8 @@
     <string name="faq_cards_gestures_a">Desliza una tarjeta hacia la derecha para dar Me gusta, o hacia la izquierda para pasar. Además, puedes tocar la tarjeta para abrir la vista completa del perfil y conocer sus pasatiempos, gustos detallados y preguntas destacadas.</string>
     <string name="faq_explore_categories_q">¿Qué es la pestaña Explorar y cómo funcionan los feeds temáticos?</string>
     <string name="faq_explore_categories_a">En Explorar puedes navegar por categorías temáticas concretas (como Cosplay, eSports, Shonen, J-RPG o Anime retro) para descubrir usuarios enfocados exactamente en las mismas aficiones que tú, sin depender solo del orden habitual de cercanía.</string>
+    <string name="faq_gender_filter_q">¿Cómo funciona el filtro de género y por qué está bloqueado en el plan gratuito?</string>
+    <string name="faq_gender_filter_a">Por defecto en el plan gratuito se descubren personas de todos los géneros sin distinción. Si deseas filtrar para buscar específicamente mujeres u hombres en cualquier momento, tanto en el descubrimiento general como en categorías temáticas, puedes desbloquearlo adquiriendo cualquier suscripción de pago (MiraiLink Plus o Premium).</string>
     <string name="faq_no_more_profiles_q">¿Qué ocurre si me quedo sin tarjetas para deslizar?</string>
     <string name="faq_no_more_profiles_a">Si has revisado todos los perfiles de tu zona, puedes ampliar tu radio de búsqueda o rango de edad en los Filtros de búsqueda. También puedes actualizar a MiraiLink Plus o Premium para desbloquear un radio ampliado de hasta 250 km o activar el Modo Pasaporte mundial.</string>
     <string name="faq_matches_and_chat_q">¿Cómo se produce un Match y cuándo puedo empezar a chatear?</string>
@@ -498,6 +507,7 @@
     <string name="subscription_price_total">%1$s en total</string>
     <string name="subscription_paywall_perks_plus_ads">Cero anuncios publicitarios en toda la app</string>
     <string name="subscription_paywall_perks_plus_radius">Radio de búsqueda ampliado hasta 250 km</string>
+    <string name="subscription_paywall_perks_plus_gender">Filtro de género de búsqueda desbloqueado</string>
     <string name="subscription_paywall_perks_plus_likes">Likes diarios ilimitados para conectar</string>
     <string name="subscription_paywall_perks_plus_badge">Insignia Plus exclusiva en tu perfil</string>
     <string name="subscription_paywall_perks_premium_plus_all">Todo lo incluido en MiraiLink Plus</string>

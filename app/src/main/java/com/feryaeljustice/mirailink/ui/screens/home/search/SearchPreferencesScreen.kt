@@ -62,6 +62,8 @@ fun SearchPreferencesScreen(
     val radiusKm by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
     val scope by viewModel.draftScope.collectAsStateWithLifecycle()
     val targetCountry by viewModel.draftTargetCountry.collectAsStateWithLifecycle()
+    val searchGender by viewModel.draftSearchGender.collectAsStateWithLifecycle()
+    val userGender by viewModel.userGender.collectAsStateWithLifecycle()
     val hasUnsavedChanges by viewModel.hasUnsavedChanges.collectAsStateWithLifecycle()
     val isSaving by viewModel.isSavingPreferences.collectAsStateWithLifecycle()
     val isPremium by miraiLinkSession.isPremium.collectAsStateWithLifecycle()
@@ -198,6 +200,9 @@ fun SearchPreferencesScreen(
             isPlus = isPlus,
             isPremium = isPremium,
             onNavigateToPaywall = onNavigateToPaywall,
+            searchGender = searchGender,
+            onSearchGenderChange = viewModel::updateDraftSearchGender,
+            userGender = userGender,
         )
         Spacer(Modifier.height(8.dp))
     }

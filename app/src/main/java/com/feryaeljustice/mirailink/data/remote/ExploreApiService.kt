@@ -19,6 +19,8 @@ interface ExploreApiService {
         @Path("categoryId") categoryId: String,
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0,
+        @Query("radius_km") radiusKm: Int? = null,
+        @Query("target_gender") targetGender: String? = null,
     ): List<UserDto>
 
     @GET("explore/categories/{categoryId}/settings")

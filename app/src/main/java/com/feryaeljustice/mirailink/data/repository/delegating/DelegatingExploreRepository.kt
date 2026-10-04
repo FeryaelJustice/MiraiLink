@@ -23,15 +23,18 @@ class DelegatingExploreRepository(
         categoryId: String,
         limit: Int,
         offset: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<List<User>> =
-        targetRepo().getCategoryFeed(categoryId, limit, offset)
+        targetRepo().getCategoryFeed(categoryId, limit, offset, radiusKm, targetGender)
 
     override suspend fun getCategoryPreferences(categoryId: String): MiraiLinkResult<CategoryPreference> =
         targetRepo().getCategoryPreferences(categoryId)
 
     override suspend fun updateCategoryPreferences(
         categoryId: String,
-        radiusKm: Int,
+        radiusKm: Int?,
+        targetGender: com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender?,
     ): MiraiLinkResult<CategoryPreference> =
-        targetRepo().updateCategoryPreferences(categoryId, radiusKm)
+        targetRepo().updateCategoryPreferences(categoryId, radiusKm, targetGender)
 }

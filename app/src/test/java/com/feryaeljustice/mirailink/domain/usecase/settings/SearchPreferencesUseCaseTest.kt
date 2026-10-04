@@ -65,4 +65,18 @@ class SearchPreferencesUseCaseTest : UnitTest() {
 
         assertTrue(result is MiraiLinkResult.Success)
     }
+
+    @Test
+    fun `saveSearchPreferences with searchGender saves successfully`() = runTest {
+        val prefs = SearchPreferences(
+            radiusKm = 25f,
+            scope = SearchScope.RADIUS_ACTIVE,
+            searchGender = com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.FEMALE,
+        )
+        coEvery { repository.saveSearchPreferences(prefs) } returns MiraiLinkResult.Success(Unit)
+
+        val result = saveSearchPreferencesUseCase(prefs)
+
+        assertTrue(result is MiraiLinkResult.Success)
+    }
 }

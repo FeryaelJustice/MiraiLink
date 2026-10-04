@@ -21,7 +21,7 @@ class FaqRepositoryImplTest {
         val items = repository.getFaqItems()
 
         assertTrue(items.isNotEmpty())
-        assertEquals(24, items.size)
+        assertEquals(25, items.size)
         assertTrue(items.any { it.category == FaqCategory.ABOUT_MIRAILINK })
         assertTrue(items.any { it.category == FaqCategory.CARDS_AND_MATCHING })
         assertTrue(items.any { it.category == FaqCategory.GESTURE_ROULETTE })

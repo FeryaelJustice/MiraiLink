@@ -10,7 +10,6 @@ fun Gender.localizedLabel(): String {
     return when (this) {
         Gender.Male -> stringResource(R.string.gender_male)
         Gender.Female -> stringResource(R.string.gender_female)
-        Gender.Other -> stringResource(R.string.gender_other)
     }
 }
 

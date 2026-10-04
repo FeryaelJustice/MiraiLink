@@ -9,4 +9,5 @@ data class UpdateSearchSettingsRequest(
     @SerialName("search_scope") val searchScope: String,
     @SerialName("search_target_country_id") val searchTargetCountryId: String? = null,
     @SerialName("search_match_live_location") val searchMatchLiveLocation: Boolean = false,
+    @SerialName("search_gender") val searchGender: String? = null,
 )
