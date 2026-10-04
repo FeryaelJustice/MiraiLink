@@ -266,6 +266,8 @@
     <string name="search_target_country_label">Country code (e.g. JP, ES, US)</string>
     <string name="search_invalid_country_code">Enter a 2-letter uppercase ISO country code (e.g. ES, JP)</string>
     <string name="search_settings_map_preview_label">Search map preview</string>
+    <string name="search_settings_map_attribution">© OpenStreetMap contributors</string>
+    <string name="search_settings_map_drag_hint">Drag on map to adjust</string>
     <string name="search_scope_local">Local radius</string>
     <string name="search_scope_radius_residence">Radius from my residence</string>
     <string name="search_scope_radius_active">Radius from my current location</string>
