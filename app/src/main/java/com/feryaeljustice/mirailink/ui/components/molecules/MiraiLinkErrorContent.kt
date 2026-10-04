@@ -151,12 +151,12 @@ fun MiraiLinkErrorSnackbar(
     modifier: Modifier = Modifier,
     error: UiError,
     onAction: () -> Unit,
-    autoDismissSeconds: Int = 5,
+    autoDismissSeconds: Int = 0,
     onDismiss: (() -> Unit)? = null,
 ) {
     var isVisible by remember(error) { mutableStateOf(true) }
 
-    LaunchedEffect(error) {
+    LaunchedEffect(error, autoDismissSeconds) {
         if (autoDismissSeconds > 0) {
             delay(autoDismissSeconds * 1000L)
             isVisible = false

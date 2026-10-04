@@ -119,12 +119,6 @@ fun SettingsScreen(
     val twoFactorSetupCode by twoFactorViewModel.verify2FACode.collectAsStateWithLifecycle()
     val twoFactorDisableCode by twoFactorViewModel.disable2FACode.collectAsStateWithLifecycle()
     val twoFactorError by twoFactorViewModel.errorString.collectAsStateWithLifecycle()
-    val activeError = error ?: twoFactorError
-    val activeAction: () -> Unit = if (error != null) {
-        viewModel::performErrorAction
-    } else {
-        twoFactorViewModel::performErrorAction
-    }
 
     if (showTwoFactorStatusDialog) {
         TwoFactorStatusDialog(
@@ -294,12 +288,26 @@ fun SettingsScreen(
             }
 
         AnimatedVisibility(
-            visible = activeError != null,
+            visible = error != null,
         ) {
-            activeError?.let { currentError ->
+            error?.let { currentError ->
                 MiraiLinkErrorContent(
                     error = currentError,
-                    onAction = activeAction,
+                    onAction = viewModel::performErrorAction,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 6.dp),
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = twoFactorError != null,
+        ) {
+            twoFactorError?.let { current2FAError ->
+                MiraiLinkErrorContent(
+                    error = current2FAError,
+                    onAction = twoFactorViewModel::performErrorAction,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 6.dp),
