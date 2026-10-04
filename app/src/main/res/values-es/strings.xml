@@ -317,6 +317,7 @@
     <string name="faq_category_premium">Modelo Premium</string>
     <string name="faq_category_about_mirailink">Sobre MiraiLink</string>
     <string name="faq_category_cards_and_matching">Búsqueda y Tarjetas</string>
+    <string name="faq_category_gesture_roulette">Ruleta de Gestos</string>
     <string name="faq_category_location_and_privacy">Ubicación y Privacidad</string>
     <string name="faq_category_subscriptions_and_payments">Planes de pago y Facturación</string>
     <string name="faq_category_photos_and_quality">Fotos de perfil y Calidad</string>
@@ -603,4 +604,40 @@
     <string name="username_screen_info_desc">Tu nombre de usuario es %1$s y se encuentra al final de la dirección web de tu perfil. Mantén pulsado o toca el recuadro para copiar la URL completa. Por motivos de seguridad y coherencia en MiraiLink, el nombre de usuario no se puede cambiar una vez registrado.</string>
     <string name="username_screen_copy_button">Copiar enlace</string>
     <string name="username_screen_copied_toast">Enlace copiado al portapapeles</string>
+
+    <!-- Gesture Roulette Minigame -->
+    <string name="gesture_roulette_title">Ruleta de Gestos</string>
+    <string name="gesture_roulette_title_live">Ruleta de Gestos en Vivo</string>
+    <string name="gesture_roulette_subtitle">Desafío de Reacción (15s)</string>
+    <string name="gesture_roulette_btn_content_description">Lanzar minijuego de Ruleta de Gestos</string>
+    <string name="gesture_roulette_camera_permission_required">Se requiere permiso de cámara para participar en el minijuego de gestos faciales.</string>
+    <string name="gesture_roulette_dialog_desc">Minijuego visual de 15s para romper el hielo evaluando gestos faciales con IA local.</string>
+    <string name="gesture_roulette_play_action">🎯 Jugar Desafío (15s)</string>
+    <string name="gesture_roulette_invite_action">📨 Enviar reto al chat</string>
+    <string name="gesture_roulette_instructions_title">¿Cómo funciona la Ruleta?</string>
+    <string name="gesture_roulette_instructions_body">1. Enfoca tu rostro con la cámara frontal.\n2. Tienes 15 segundos para imitar los 4 gestos que aparecen en pantalla.\n3. Tu dispositivo los evalúa al instante mediante IA local (ML Kit), sin enviar vídeo ni imágenes a internet.\n4. Al terminar, recibirás tu porcentaje de chispa y podrás compartir la tarjeta en el chat.</string>
+    <string name="gesture_roulette_instructions_btn">¡Entendido!</string>
+    <string name="gesture_roulette_success_flash">✓ ¡GENIAL!</string>
+    <string name="gesture_roulette_step_counter">Gesto %1$d de %2$d</string>
+    <string name="gesture_roulette_spark">Chispa</string>
+    <string name="gesture_roulette_hits">Aciertos</string>
+    <string name="gesture_roulette_time">Tiempo</string>
+    <string name="gesture_roulette_share_in_chat">💬 Compartir en chat</string>
+    <string name="gesture_roulette_close">Cerrar</string>
+    <string name="gesture_roulette_invite_desc">¡Te han retado a sincronizar 4 gestos faciales y medir su química de match!</string>
+    <string name="gesture_roulette_accept_challenge">¡Aceptar reto!</string>
+    <string name="gesture_roulette_spark_badge">%1$d%% Chispa</string>
+    <string name="gesture_roulette_gestures_count">Gestos: %1$d/%2$d</string>
+    <string name="gesture_roulette_time_count">Tiempo: %1$ss</string>
+    <string name="gesture_roulette_play_too">¡Jugar también!</string>
+    <string name="gesture_roulette_prompt_wink_left">Guiña el ojo izquierdo</string>
+    <string name="gesture_roulette_prompt_big_smile">Sonrisa sorpresa</string>
+    <string name="gesture_roulette_prompt_wink_right">Guiña el ojo derecho</string>
+    <string name="gesture_roulette_prompt_tilt_head">Ladea la cabeza</string>
+
+    <!-- FAQ Gesture Roulette -->
+    <string name="faq_gesture_roulette_q">¿Qué es la Ruleta de Gestos en Vivo y cómo se juega?</string>
+    <string name="faq_gesture_roulette_a">Es un minijuego visual de 15 segundos diseñado para romper el hielo en el chat. Puedes retar a tu match o jugar tú mismo imitando 4 gestos rápidos (guiños, sonrisas o ladeos de cabeza). Al terminar, se genera una tarjeta de compatibilidad divertida para compartir en la conversación.</string>
+    <string name="faq_gesture_roulette_privacy_q">¿La Ruleta de Gestos transmite vídeo o guarda mis fotos?</string>
+    <string name="faq_gesture_roulette_privacy_a">No. El análisis se realiza 100% de forma local en tu dispositivo utilizando la tecnología ML Kit de Google. No se graba, no se almacena ni se transmite ningún vídeo ni fotografía a ningún servidor ni a la otra persona.</string>
 </resources>

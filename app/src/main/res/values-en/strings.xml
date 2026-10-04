@@ -316,6 +316,7 @@
     <string name="faq_category_premium">Premium Model</string>
     <string name="faq_category_about_mirailink">About MiraiLink</string>
     <string name="faq_category_cards_and_matching">Search &amp; Cards</string>
+    <string name="faq_category_gesture_roulette">Gesture Roulette</string>
     <string name="faq_category_location_and_privacy">Location &amp; Privacy</string>
     <string name="faq_category_subscriptions_and_payments">Subscriptions &amp; Billing</string>
     <string name="faq_category_photos_and_quality">Profile Photos &amp; Quality</string>
@@ -603,4 +604,40 @@
     <string name="username_screen_info_desc">Your username is %1$s and is located at the end of your profile URL. Tap or hold the box to copy the full URL. For security and community consistency, usernames cannot be changed once registered.</string>
     <string name="username_screen_copy_button">Copy link</string>
     <string name="username_screen_copied_toast">Link copied to clipboard</string>
+
+    <!-- Gesture Roulette Minigame -->
+    <string name="gesture_roulette_title">Gesture Roulette</string>
+    <string name="gesture_roulette_title_live">Live Gesture Roulette</string>
+    <string name="gesture_roulette_subtitle">Reaction Challenge (15s)</string>
+    <string name="gesture_roulette_btn_content_description">Launch Gesture Roulette minigame</string>
+    <string name="gesture_roulette_camera_permission_required">Camera permission is required to participate in the facial gesture minigame.</string>
+    <string name="gesture_roulette_dialog_desc">15-second visual minigame to break the ice by matching facial gestures with on-device AI.</string>
+    <string name="gesture_roulette_play_action">🎯 Play Challenge (15s)</string>
+    <string name="gesture_roulette_invite_action">📨 Send challenge to chat</string>
+    <string name="gesture_roulette_instructions_title">How does Gesture Roulette work?</string>
+    <string name="gesture_roulette_instructions_body">1. Frame your face with the front camera.\n2. You have 15 seconds to copy the 4 gestures shown on screen.\n3. Your device analyzes gestures instantly with on-device AI (ML Kit), without uploading video or images to the internet.\n4. When you finish, you will get your spark score and can share the card in chat.</string>
+    <string name="gesture_roulette_instructions_btn">Got it!</string>
+    <string name="gesture_roulette_success_flash">✓ AWESOME!</string>
+    <string name="gesture_roulette_step_counter">Gesture %1$d of %2$d</string>
+    <string name="gesture_roulette_spark">Spark</string>
+    <string name="gesture_roulette_hits">Hits</string>
+    <string name="gesture_roulette_time">Time</string>
+    <string name="gesture_roulette_share_in_chat">💬 Share in chat</string>
+    <string name="gesture_roulette_close">Close</string>
+    <string name="gesture_roulette_invite_desc">You\'ve been challenged to synchronize 4 facial gestures and test your match chemistry!</string>
+    <string name="gesture_roulette_accept_challenge">Accept challenge!</string>
+    <string name="gesture_roulette_spark_badge">%1$d%% Spark</string>
+    <string name="gesture_roulette_gestures_count">Gestures: %1$d/%2$d</string>
+    <string name="gesture_roulette_time_count">Time: %1$ss</string>
+    <string name="gesture_roulette_play_too">Play too!</string>
+    <string name="gesture_roulette_prompt_wink_left">Wink left eye</string>
+    <string name="gesture_roulette_prompt_big_smile">Surprise smile</string>
+    <string name="gesture_roulette_prompt_wink_right">Wink right eye</string>
+    <string name="gesture_roulette_prompt_tilt_head">Tilt your head</string>
+
+    <!-- FAQ Gesture Roulette -->
+    <string name="faq_gesture_roulette_q">What is Live Gesture Roulette and how do I play?</string>
+    <string name="faq_gesture_roulette_a">It is a 15-second visual minigame created to break the ice in chat. You can challenge your match or play yourself by matching 4 fast gestures (winks, smiles, or head tilts). Once complete, a fun compatibility card is generated to share in your chat.</string>
+    <string name="faq_gesture_roulette_privacy_q">Does Gesture Roulette broadcast video or save my photos?</string>
+    <string name="faq_gesture_roulette_privacy_a">No. Analysis is performed 100% locally on your device using Google ML Kit. No video or photos are recorded, stored, or transmitted to any server or to the other person.</string>
 </resources>
