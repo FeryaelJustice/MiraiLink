@@ -13,6 +13,6 @@
 - [ ] Resolver lint global antes de release: Credential Manager y literal de facturacion preexistentes.
 - [ ] Validacion visual, sensores y accesibilidad en dispositivo.
 - [ ] Comparacion de rendimiento en dos moviles fisicos.
-- [ ] Preparar PR vinculada a spec, plan y tareas.
+- [x] Preparar PR vinculada a spec, plan y tareas: [borrador #57](https://github.com/FeryaelJustice/MiraiLink/pull/57).
 
 Ver [verification.md](verification.md) para los 492 resultados JVM, 19 instrumentados y limites de la evidencia. La aceptacion fisica y el rendimiento no se consideran completados por una compilacion ni por dobles de sensores.

@@ -4,6 +4,8 @@
 
 Fecha: 2026-10-05. Rama `codex/holo-mirai-parallax`, base `master` en `5fd9b7c`. Se mantiene el módulo Android, Koin, Coil 2 y las versiones existentes; se añade únicamente ML Kit Selfie Segmentation beta6. No hay cambios de contratos ni persistencia del backend.
 
+Entrega de revisión: [PR borrador #57](https://github.com/FeryaelJustice/MiraiLink/pull/57), commit de implementación `d8cb345`. Rama publicada; no integrada ni desplegada. Las tareas físicas pendientes siguen abiertas.
+
 ## Evidencia y alcance
 
 La compilación, las pruebas JVM y la instrumentación con servicios simulados no acreditan calidad visual de retratos reales, sensores físicos, latencia de segmentación ni FPS. No se conectaron móviles físicos durante esta entrega. Los objetivos de rendimiento y la aceptación visual física quedan pendientes; la PR se prepara como borrador, sin integración ni publicación.
