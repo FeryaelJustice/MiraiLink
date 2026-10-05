@@ -2,6 +2,7 @@ package com.feryaeljustice.mirailink.data.remote.interceptor
 
 import android.util.Log
 import com.feryaeljustice.mirailink.data.datastore.SessionManager
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -9,6 +10,7 @@ import org.json.JSONObject
 
 class AuthInterceptor(
     private val sessionManager: SessionManager,
+    private val globalMiraiLinkSessionProvider: (() -> GlobalMiraiLinkSession?)? = null,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = sessionManager.getCurrentTokenSync()
@@ -25,6 +27,15 @@ class AuthInterceptor(
                 }.build()
 
         val response = chain.proceed(request)
+
+        val planHeader = response.header("X-Subscription-Plan")
+        if (planHeader != null) {
+            val normalizedPlan = planHeader.trim().lowercase()
+            val isPremium = normalizedPlan == "premium"
+            val isPlus = normalizedPlan == "plus" || isPremium
+            globalMiraiLinkSessionProvider?.invoke()?.setSubscriptionState(premium = isPremium, plus = isPlus)
+        }
+
         val rawBody = response.body
         val responseContent = rawBody.string()
 

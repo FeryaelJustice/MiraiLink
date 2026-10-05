@@ -27,6 +27,7 @@ class FcmService :
     FirebaseMessagingService(),
     KoinComponent {
     private val saveNotificationFCMUseCase: SaveNotificationFCMUseCase by inject()
+    private val getSubscriptionStatusUseCase: com.feryaeljustice.mirailink.domain.usecase.subscription.GetSubscriptionStatusUseCase by inject()
     private val applicationScope: CoroutineScope by inject()
     private val globalMiraiLinkSession: GlobalMiraiLinkSession by inject()
 
@@ -39,6 +40,14 @@ class FcmService :
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         Log.i("FCM", "Tenemos nuevo mensaje desde el FirebaseMessaginService: $message")
+        val type = message.data["type"]
+        if (type == "subscription_updated") {
+            Log.i("FCM", "Received subscription_updated push event, refreshing subscription status")
+            applicationScope.launch {
+                getSubscriptionStatusUseCase()
+            }
+            return
+        }
         showChatNotification(message = message)
     }
 
