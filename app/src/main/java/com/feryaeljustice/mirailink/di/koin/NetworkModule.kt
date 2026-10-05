@@ -38,7 +38,12 @@ val networkModule =
         single(BaseUrl) { BuildConfig.MIRAILINK_BASE_URL }
         single(BaseApiUrl) { "${get<String>(BaseUrl)}/api/" }
 
-        single { AuthInterceptor(get<SessionManager>(), getOrNull<com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession>()) }
+        single {
+            AuthInterceptor(
+                sessionManager = get<SessionManager>(),
+                globalMiraiLinkSessionProvider = { getOrNull<com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession>() },
+            )
+        }
         single { ImageDomainSecurityInterceptor() }
         single { com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor(get()) }
 

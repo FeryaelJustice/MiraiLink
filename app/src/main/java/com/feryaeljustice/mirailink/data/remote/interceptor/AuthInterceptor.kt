@@ -10,7 +10,7 @@ import org.json.JSONObject
 
 class AuthInterceptor(
     private val sessionManager: SessionManager,
-    private val globalMiraiLinkSession: GlobalMiraiLinkSession? = null,
+    private val globalMiraiLinkSessionProvider: (() -> GlobalMiraiLinkSession?)? = null,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = sessionManager.getCurrentTokenSync()
@@ -33,7 +33,7 @@ class AuthInterceptor(
             val normalizedPlan = planHeader.trim().lowercase()
             val isPremium = normalizedPlan == "premium"
             val isPlus = normalizedPlan == "plus" || isPremium
-            globalMiraiLinkSession?.setSubscriptionState(premium = isPremium, plus = isPlus)
+            globalMiraiLinkSessionProvider?.invoke()?.setSubscriptionState(premium = isPremium, plus = isPlus)
         }
 
         val rawBody = response.body
