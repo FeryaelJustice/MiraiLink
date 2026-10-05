@@ -76,8 +76,8 @@ class MlKitHoloImageProcessor(
                     // Retiene el mutex hasta terminar el trabajo real, aunque desaparezca la tarjeta.
                     val mask = withContext(NonCancellable) { segment(input) }
                     val cropScale = max(widthPx.toFloat() / input.width, heightPx.toFloat() / input.height)
-                    val overscan = 1f + 8f * density / minOf(widthPx, heightPx)
-                    val shift = 6f * density / (cropScale * overscan)
+                    val overscan = 1f + 12f * density / minOf(widthPx, heightPx)
+                    val shift = 9f * density / (cropScale * overscan)
                     val foreground = if (HoloMaskCoverage.supportsDepth(mask,
                             shift * mask.width / input.width, shift * mask.height / input.height)) {
                         createForeground(input, mask)
@@ -100,7 +100,7 @@ class MlKitHoloImageProcessor(
 
     private fun fingerprint(bitmap: Bitmap, width: Int, height: Int, density: Float): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        digest.update("holo-v1:${bitmap.width}:${bitmap.height}:$width:$height:$density".toByteArray())
+        digest.update("holo-v2:${bitmap.width}:${bitmap.height}:$width:$height:$density".toByteArray())
         val row = IntArray(bitmap.width)
         val bytes = ByteBuffer.allocate(bitmap.width * 4)
         for (y in 0 until bitmap.height) {

@@ -50,6 +50,12 @@ Se repitió únicamente `HoloGestureTest#segmentedLayerIsDecorativeAndClearedInB
 - [Fixture clara](evidence/holo_light.png)
 - [Fixture oscura](evidence/holo_dark.png)
 
+## Corrección de intensidad tras integrar #57
+
+El usuario solicita un movimiento más perceptible y moderado. Desde `master` en `4c9ee31` se crea `codex/holo-mirai-visible-motion`: amplitud +50 % (fondo/foto 6 dp, sujeto 3 dp), margen proporcional de 12 dp, escala de sujeto 1,0525 y cobertura recalculada para 9 dp relativos. La clave de derivados cambia a `holo-v2`. El reflejo, suavizado, sensores y reconocedores de gestos conservan sus parámetros.
+
+Verificación de esta corrección: `assembleDebug` y las 492 pruebas JVM pasan. `lintDebug` mantiene los 5 errores y 151 advertencias previamente documentados, sin errores nuevos en Holo. No se repiten las capturas o la instrumentación de la entrega inicial, ni se afirma haber medido esta intensidad en móviles físicos. La valoración visual final corresponde a probar el ajuste en el dispositivo.
+
 ## Aceptación pendiente antes de integrar o publicar
 
 - Revisar retratos, cosplay, cabello fino, gafas, grupos, avatares anime, paisajes y fotos pequeñas en claro/oscuro. Comprobar ausencia de siluetas duplicadas y bordes vacíos, no solo ausencia de anuncios accesibles duplicados.

@@ -80,7 +80,7 @@ fun HoloProfilePhoto(
         else -> HoloRenderMode.SimpleParallax
     }
     val baseScale = if (presentationEnabled && viewport != IntSize.Zero) {
-        1f + 8f * density / minOf(viewport.width, viewport.height)
+        1f + 12f * density / minOf(viewport.width, viewport.height)
     } else 1f
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
@@ -95,8 +95,8 @@ fun HoloProfilePhoto(
             modifier = Modifier.fillMaxSize().graphicsLayer {
                 scaleX = baseScale
                 scaleY = baseScale
-                translationX = if (!active) 0f else -tilt.value.x * 4f * density
-                translationY = if (!active) 0f else -tilt.value.y * 4f * density
+                translationX = if (!active) 0f else -tilt.value.x * 6f * density
+                translationY = if (!active) 0f else -tilt.value.y * 6f * density
             },
         )
         layers?.foreground?.takeIf { mode == HoloRenderMode.SegmentedParallax }?.let { foreground ->
@@ -105,8 +105,8 @@ fun HoloProfilePhoto(
                 modifier = Modifier.fillMaxSize().graphicsLayer {
                     scaleX = baseScale * HoloMaskCoverage.ForegroundScale
                     scaleY = baseScale * HoloMaskCoverage.ForegroundScale
-                    translationX = if (!active) 0f else tilt.value.x * 2f * density
-                    translationY = if (!active) 0f else tilt.value.y * 2f * density
+                    translationX = if (!active) 0f else tilt.value.x * 3f * density
+                    translationY = if (!active) 0f else tilt.value.y * 3f * density
                 })
         }
         if (active) {

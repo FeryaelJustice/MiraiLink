@@ -11,7 +11,7 @@ Fecha: 2026-10-05. Especificacion: [spec.md](spec.md). Tareas: [tasks.md](tasks.
 - Un sensor activo: game rotation vector, rotation vector, gravedad o acelerometro filtrado. Lecturas solicitadas a 50 Hz, postura neutral, suavizado y remapeo de ejes.
 - Activacion con pantalla reanudada y foco; pausa por interaccion, modal, transicion o salida. Respeto a sistema y ahorro de bateria.
 - Foto inmediata, preparacion tras 150 ms estable. Bitmap software maximo 1024 pixeles por lado, SINGLE_IMAGE_MODE. Serializar trabajos reales aunque se cancele el consumidor.
-- Mascara suavizada y misma geometria Crop en ambas capas. Validacion conservadora de cobertura de silueta; alternativa simple si no apta. Fondo hasta 4 dp, sujeto hasta 2 dp opuesto.
+- Mascara suavizada y misma geometria Crop en ambas capas. Validacion conservadora de cobertura de silueta; alternativa simple si no apta. Fondo hasta 6 dp, sujeto hasta 3 dp opuesto (correccion de intensidad solicitada por el usuario tras probar la primera entrega).
 - Cache solo en memoria, hasta 24 MB, clave por contenido/tamano/version; limpieza por memoria y sesion. Sin Room ni API nuevos.
 - graphicsLayer con lecturas diferidas y Canvas para reflejo. Observacion tactil sin consumo, sin cambios en umbrales ni acciones actuales.
 

@@ -30,3 +30,7 @@ Dar profundidad sutil por inclinacion a la foto visible de la tarjeta superior d
 Compilacion y pruebas automatizadas no certifican calidad de recorte, consumo, fluidez o inclinacion fisica. La comprobacion en dos dispositivos requiere tres recorridos comparables de 30 swipes con efecto activo e inactivo: menos de 2 puntos adicionales de jank y menos de 20% de degradacion p95.
 
 No quedan decisiones funcionales pendientes. Limitaciones de hardware o pruebas se documentaran sin marcar verificaciones no realizadas como completas.
+
+## Correccion de intensidad aprobada por el usuario
+
+Tras probar la primera entrega, el usuario solicita un movimiento mas notorio sin exagerarlo. Se aumenta un 50 % la amplitud: fondo/foto completa hasta 6 dp y sujeto hasta 3 dp en sentido contrario. Se ajustan proporcionalmente margen de escala y cobertura, manteniendo pausas, gestos, alternativas y limites de inclinacion existentes. Rama de correccion: `codex/holo-mirai-visible-motion`, desde master con la PR #57 integrada.
