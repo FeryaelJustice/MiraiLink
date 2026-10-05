@@ -28,10 +28,12 @@ class AuthInterceptor(
 
         val response = chain.proceed(request)
 
-        val premiumHeader = response.header("X-Subscription-Premium")?.toBooleanStrictOrNull()
-        val plusHeader = response.header("X-Subscription-Plus")?.toBooleanStrictOrNull()
-        if (premiumHeader != null && plusHeader != null) {
-            globalMiraiLinkSession?.setSubscriptionState(premium = premiumHeader, plus = plusHeader)
+        val planHeader = response.header("X-Subscription-Plan")
+        if (planHeader != null) {
+            val normalizedPlan = planHeader.trim().lowercase()
+            val isPremium = normalizedPlan == "premium"
+            val isPlus = normalizedPlan == "plus" || isPremium
+            globalMiraiLinkSession?.setSubscriptionState(premium = isPremium, plus = isPlus)
         }
 
         val rawBody = response.body
