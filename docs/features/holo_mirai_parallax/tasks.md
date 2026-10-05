@@ -16,3 +16,9 @@
 - [x] Preparar PR vinculada a spec, plan y tareas: [borrador #57](https://github.com/FeryaelJustice/MiraiLink/pull/57).
 
 Ver [verification.md](verification.md) para los 492 resultados JVM, 19 instrumentados y limites de la evidencia. La aceptacion fisica y el rendimiento no se consideran completados por una compilacion ni por dobles de sensores.
+
+## Correccion de intensidad solicitada
+
+- [x] Aumentar amplitud un 50 % y ajustar escala, cobertura y version de derivados.
+- [x] Verificar build y pruebas de la correccion: debug y 492 pruebas JVM correctos.
+- [ ] Publicar una nueva PR desde `codex/holo-mirai-visible-motion`.

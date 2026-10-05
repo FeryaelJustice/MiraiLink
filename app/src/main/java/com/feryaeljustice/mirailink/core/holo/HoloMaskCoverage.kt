@@ -25,7 +25,7 @@ class HoloMask(val width: Int, val height: Int, val confidence: FloatArray) {
 }
 
 object HoloMaskCoverage {
-    const val ForegroundScale = 1.035f
+    const val ForegroundScale = 1.0525f
 
     /** Rechaza mascaras degeneradas y desplazamientos que descubren el sujeto original. */
     fun supportsDepth(mask: HoloMask, maxShiftX: Float, maxShiftY: Float): Boolean {
@@ -38,7 +38,7 @@ object HoloMaskCoverage {
         if (foreground < mask.confidence.size * 0.03f || background < mask.confidence.size * 0.05f) return false
         val cx = (mask.width - 1) / 2f
         val cy = (mask.height - 1) / 2f
-        if (maxShiftX > 8f || maxShiftY > 8f) return false
+        if (maxShiftX > 12f || maxShiftY > 12f) return false
         // Cada interpolacion bilineal queda acotada por sus vecinos. Revisar su minimo
         // cubre el rectangulo continuo y evita miles de interpolaciones por pixel.
         for (y in 0 until mask.height) for (x in 0 until mask.width) {
