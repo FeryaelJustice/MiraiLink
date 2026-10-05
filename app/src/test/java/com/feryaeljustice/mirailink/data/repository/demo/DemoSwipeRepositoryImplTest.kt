@@ -34,6 +34,8 @@ class DemoSwipeRepositoryImplTest {
 
         override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> =
             MiraiLinkResult.Success(Unit)
+
+        override suspend fun syncFromRemote(userDto: com.feryaeljustice.mirailink.data.model.UserDto) {}
     }
 
     @Before

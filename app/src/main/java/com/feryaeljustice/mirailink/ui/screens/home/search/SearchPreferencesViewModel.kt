@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink.ui.screens.home.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender
 import com.feryaeljustice.mirailink.domain.model.settings.SearchPreferences
 import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.usecase.settings.GetSearchPreferencesUseCase
@@ -156,7 +157,7 @@ class SearchPreferencesViewModel(
         _draftTargetCountry.value = country?.trim()?.uppercase()
     }
 
-    fun save(onSuccess: () -> Unit) {
+    fun save(isPlusOrPremium: Boolean = false, onSuccess: () -> Unit) {
         val targetCountry = _draftTargetCountry.value
         if (_draftScope.value == SearchScope.SPECIFIC_COUNTRY &&
             targetCountry.isNullOrBlank()
@@ -164,12 +165,20 @@ class SearchPreferencesViewModel(
             _error.value = UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)
             return
         }
+        val effectiveSearchGender = if (isPlusOrPremium) {
+            _draftSearchGender.value
+        } else {
+            TargetSearchGender.ALL
+        }
+        if (!isPlusOrPremium && _draftSearchGender.value != TargetSearchGender.ALL) {
+            _draftSearchGender.value = TargetSearchGender.ALL
+        }
         val updated = SearchPreferences(
             radiusKm = _draftRadiusKm.value,
             scope = _draftScope.value,
             targetCountryId = targetCountry.takeIf { _draftScope.value == SearchScope.SPECIFIC_COUNTRY },
             isPremiumActive = savedPreferences.value.isPremiumActive,
-            searchGender = _draftSearchGender.value,
+            searchGender = effectiveSearchGender,
         )
         _isSavingPreferences.value = true
         viewModelScope.launch(ioDispatcher) {

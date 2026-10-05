@@ -26,6 +26,7 @@ class UserRepositoryImplTest : UnitTest() {
     private val userRepository: UserRepositoryImpl by inject()
     private val userRemoteDataSource: UserRemoteDataSource by inject()
     private val sessionManager: SessionManager by inject()
+    private val searchPreferencesRepository: com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository by inject()
 
     @get:Rule
     val koinTestRule =
@@ -34,8 +35,9 @@ class UserRepositoryImplTest : UnitTest() {
                 module {
                     single { mockk<UserRemoteDataSource>() }
                     single { mockk<SessionManager>(relaxed = true) }
+                    single { mockk<com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository>(relaxed = true) }
                     single(Qualifiers.BaseUrl) { "http://localhost:8080" }
-                    single { UserRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl)) }
+                    single { UserRepositoryImpl(get(), get(), get(Qualifiers.BaseUrl), get()) }
                 },
             )
         }
@@ -102,6 +104,7 @@ class UserRepositoryImplTest : UnitTest() {
             assertThat(successData.id).isEqualTo(user.id)
             assertThat(successData.username).isEqualTo(user.username)
             assertThat(successData.photos.first().url).endsWith(userPhotoDto.url)
+            io.mockk.coVerify(exactly = 1) { searchPreferencesRepository.syncFromRemote(userDto) }
         }
 
     @Test

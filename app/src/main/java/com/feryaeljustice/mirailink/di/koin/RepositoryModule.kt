@@ -59,7 +59,7 @@ val repositoryModule =
         single<ExploreRepository>(Remote) { ExploreRepositoryImpl(get(), get(BaseUrl)) }
         single<MatchRepository>(Remote) { MatchRepositoryImpl(get(), get(BaseUrl)) }
         single<SwipeRepository>(Remote) { SwipeRepositoryImpl(get(), get(BaseUrl)) }
-        single<UserRepository>(Remote) { UserRepositoryImpl(get(), get(), get(BaseUrl)) }
+        single<UserRepository>(Remote) { UserRepositoryImpl(get(), get(), get(BaseUrl), get()) }
 
         // Repositorios principales que delegan en Remote o Demo según el modo activo
         single<ExploreRepository> {

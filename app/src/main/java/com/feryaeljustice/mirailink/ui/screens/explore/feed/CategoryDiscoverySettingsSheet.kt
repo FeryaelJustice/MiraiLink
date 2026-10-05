@@ -57,8 +57,8 @@ fun CategoryDiscoverySettingsSheet(
     var sliderValue by remember(initialRadiusKm) {
         mutableFloatStateOf(initialRadiusKm.coerceIn(10, 500).toFloat())
     }
-    var selectedGender by remember(initialTargetGender, userGender) {
-        mutableStateOf(initialTargetGender ?: TargetSearchGender.defaultFor(userGender))
+    var selectedGender by remember(initialTargetGender) {
+        mutableStateOf(initialTargetGender)
     }
 
     ModalBottomSheet(
@@ -184,13 +184,25 @@ fun CategoryDiscoverySettingsSheet(
             val effectiveGender = if (isPlusOrPremium) {
                 selectedGender
             } else {
-                TargetSearchGender.defaultFor(userGender)
+                null
             }
 
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                // Por defecto (Ajustes generales)
+                FilterChip(
+                    selected = effectiveGender == null,
+                    onClick = {
+                        selectedGender = null
+                    },
+                    label = {
+                        MiraiLinkText(text = stringResource(R.string.search_gender_category_default))
+                    },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+
                 // Mujeres
                 FilterChip(
                     selected = effectiveGender == TargetSearchGender.FEMALE,
@@ -247,7 +259,11 @@ fun CategoryDiscoverySettingsSheet(
                 FilterChip(
                     selected = effectiveGender == TargetSearchGender.ALL,
                     onClick = {
-                        selectedGender = TargetSearchGender.ALL
+                        if (isPlusOrPremium) {
+                            selectedGender = TargetSearchGender.ALL
+                        } else {
+                            selectedGender = null
+                        }
                     },
                     label = {
                         MiraiLinkText(text = stringResource(R.string.search_gender_all))

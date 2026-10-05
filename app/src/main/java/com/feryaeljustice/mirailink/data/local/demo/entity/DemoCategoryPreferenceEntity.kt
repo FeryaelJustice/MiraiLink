@@ -10,5 +10,6 @@ data class DemoCategoryPreferenceEntity(
     val userId: String,
     val categoryId: String,
     val radiusKm: Int,
+    val targetGender: String? = null,
     val updatedAt: Long = System.currentTimeMillis(),
 )

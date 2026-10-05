@@ -187,7 +187,7 @@ fun SearchPreferencesScreen(
             hasUnsavedChanges = hasUnsavedChanges,
             isSaving = isSaving,
             onSaveClick = {
-                viewModel.save {
+                viewModel.save(isPlusOrPremium = isPlus || isPremium) {
                     showToast(savedSuccessMessage, Toast.LENGTH_SHORT)
                 }
             },

@@ -16,6 +16,7 @@ class UserRepositoryImpl(
     private val remote: UserRemoteDataSource,
     private val sessionManager: SessionManager,
     private val baseUrl: String,
+    private val searchPreferencesRepository: com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository? = null,
 ) : UserRepository {
     override suspend fun autologin(): MiraiLinkResult<String> = remote.autologin()
 
@@ -68,6 +69,7 @@ class UserRepositoryImpl(
         when (val result = remote.getCurrentUser()) {
             is MiraiLinkResult.Success -> {
                 val (userDto, photos) = result.data
+                searchPreferencesRepository?.syncFromRemote(userDto)
                 val domainUserPhotos = photos.map { it.toDomain() }
                 val orderedPhotos = resolvePhotoUrls(baseUrl, domainUserPhotos)
                 val user = userDto.toDomain().copy(photos = orderedPhotos)
