@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface SearchPreferencesRepository {
     fun getSearchPreferences(): Flow<SearchPreferences>
     suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit>
+    suspend fun syncFromRemote(userDto: com.feryaeljustice.mirailink.data.model.UserDto)
 }

@@ -26,7 +26,7 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
         DemoSwipeHistoryEntity::class,
         DemoSwipeUndoEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class MiraiLinkDemoDatabase : RoomDatabase() {

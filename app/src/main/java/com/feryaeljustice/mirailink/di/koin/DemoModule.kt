@@ -51,6 +51,12 @@ val demoModule =
                 timeProvider = get(),
             )
         }
-        single<ExploreRepository>(Demo) { DemoExploreRepositoryImpl(database = get(), seeder = get()) }
+        single<ExploreRepository>(Demo) {
+            DemoExploreRepositoryImpl(
+                database = get(),
+                seeder = get(),
+                searchPreferencesRepository = get<com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository>(),
+            )
+        }
         single<ChatRepository>(Demo) { DemoChatRepositoryImpl(database = get(), scope = get(ApplicationScope)) }
     }

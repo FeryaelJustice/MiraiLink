@@ -11,12 +11,16 @@ import com.feryaeljustice.mirailink.domain.model.explore.ExploreSectionGroup
 import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.ExploreHubData
 import com.feryaeljustice.mirailink.domain.repository.ExploreRepository
+import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 
 class DemoExploreRepositoryImpl(
     private val database: MiraiLinkDemoDatabase,
     private val seeder: DemoDataSeeder,
+    private val searchPreferencesRepository: SearchPreferencesRepository? = null,
 ) : ExploreRepository {
 
     private val staticCategories = listOf(
@@ -196,6 +200,11 @@ class DemoExploreRepositoryImpl(
 
         val pref = database.categoryDao().getPreference(DemoDataSeeder.DEMO_USER_ID, category.id)
         val radius = radiusKm ?: pref?.radiusKm ?: 40
+        val effectiveTargetGender = targetGender
+            ?: pref?.targetGender?.let { com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.fromWireValue(it) }
+            ?: searchPreferencesRepository?.let {
+                it.getSearchPreferences().firstOrNull()?.searchGender
+            }
 
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
         val userLat = demoProfile?.residenceLatitude ?: demoProfile?.currentLatitude
@@ -221,7 +230,7 @@ class DemoExploreRepositoryImpl(
         }.filter { user ->
             val matchesDistance = user.distanceKm == null || user.distanceKm <= radius
             val matchesCategory = matchesCategoryFilter(user, category.code)
-            val matchesGender = when (targetGender) {
+            val matchesGender = when (effectiveTargetGender) {
                 com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.FEMALE -> user.gender == "female"
                 com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.MALE -> user.gender == "male"
                 com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.ALL, null -> true
@@ -238,6 +247,7 @@ class DemoExploreRepositoryImpl(
             CategoryPreference(
                 categoryId = categoryId,
                 radiusKm = pref?.radiusKm ?: 40,
+                targetGender = pref?.targetGender?.let { com.feryaeljustice.mirailink.domain.model.enum.TargetSearchGender.fromWireValue(it) },
             ),
         )
     }
@@ -253,6 +263,7 @@ class DemoExploreRepositoryImpl(
             userId = DemoDataSeeder.DEMO_USER_ID,
             categoryId = categoryId,
             radiusKm = finalRadius,
+            targetGender = targetGender?.wireValue,
             updatedAt = System.currentTimeMillis(),
         )
         database.categoryDao().insertOrUpdate(entity)

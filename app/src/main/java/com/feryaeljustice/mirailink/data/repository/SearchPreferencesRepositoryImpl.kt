@@ -66,4 +66,23 @@ class SearchPreferencesRepositoryImpl(
             MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Local.UNKNOWN)
         }
     }
+
+    override suspend fun syncFromRemote(userDto: com.feryaeljustice.mirailink.data.model.UserDto) {
+        if (userDto.searchGender == null && userDto.searchRadiusKm == null && userDto.searchScope == null) {
+            return
+        }
+        try {
+            dataStore.updateData { current ->
+                current.copy(
+                    searchRadiusKm = userDto.searchRadiusKm?.toFloat() ?: current.searchRadiusKm,
+                    searchScope = userDto.searchScope ?: current.searchScope,
+                    searchTargetCountryId = userDto.searchTargetCountryId ?: current.searchTargetCountryId,
+                    searchMatchLiveLocation = userDto.searchMatchLiveLocation,
+                    searchGender = userDto.searchGender ?: current.searchGender,
+                )
+            }
+        } catch (_: Exception) {
+            // Ignore failure to persist cached preferences from remote
+        }
+    }
 }
