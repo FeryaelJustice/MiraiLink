@@ -25,6 +25,12 @@ BillingClientManager consulta productos/ofertas y comunica eventos a Subscriptio
 
 Mirai Studio usa CameraX y ML Kit para detección facial, métricas de luminancia y decisiones de calidad. Las heurísticas de captura de pantalla no son prueba biométrica ni certificación antifraude. Ver [flujo de Studio](flujos/studio.md).
 
+## Perfil Holo-3D y privacidad de ML Kit
+
+Holo Mirai añade `segmentation-selfie:16.0.0-beta6`, con modelo incluido en la app y `SINGLE_IMAGE_MODE`. Consume bitmaps cargados por el `ImageLoader` actual; no añade endpoints, DTO, tablas ni cargas de fotos al backend. El segmentador trabaja localmente y los recortes derivados se almacenan solo en una caché de memoria de 24 MB, invalidada por presión de memoria y cambios de sesión. El SDK beta no ofrece un tiempo fijo de ejecución ni garantía de calidad para anime, cosplay, cabello fino, grupos o paisajes.
+
+La localización del análisis de fotos no equivale a ausencia total de comunicaciones del SDK: Google documenta métricas de utilización y rendimiento. Revisar esas condiciones junto con Analytics, Crashlytics y la declaración de datos de la app antes de publicar. Fuentes: [segmentación Android](https://developers.google.com/ml-kit/vision/selfie-segmentation/android) y [términos y privacidad](https://developers.google.com/ml-kit/terms), consultadas el 2026-10-05. [Diseño y límites](../features/holo_mirai_parallax/implementation.md) y [evidencia](../features/holo_mirai_parallax/verification.md).
+
 ## Deep links
 
 Hay esquemas HTTPS y `mirailink`. `MainActivity` recibe la URI y la sesión produce el destino consumido en navegación. Revisar path, parámetros y estado de sesión. Un enlace SMTP bien formado no garantiza dominio asociado en Android ni página web disponible.

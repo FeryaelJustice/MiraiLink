@@ -56,6 +56,7 @@ internal fun PublicUserCard(
     modifier: Modifier = Modifier,
     user: UserViewEntry,
     onLongPressOnImage: (String) -> Unit,
+    holoController: com.feryaeljustice.mirailink.ui.holo.HoloRenderController? = null,
 ) {
     val photoCarouselController = remember { PhotoCarouselController() }
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -90,6 +91,7 @@ internal fun PublicUserCard(
             modifier = Modifier.fillMaxSize(),
             immersive = true,
             controller = photoCarouselController,
+            holoController = holoController,
         )
 
         // Bottom gradient for read-only user info and action buttons (preserved)

@@ -115,7 +115,7 @@ fun FaqScreen(
             FilterChip(
                 selected = selectedCategory == null,
                 onClick = { viewModel.selectCategory(null) },
-                label = { MiraiLinkText(text = "Todas") },
+                label = { MiraiLinkText(text = stringResource(R.string.faq_all_categories)) },
                 colors = FilterChipDefaults.filterChipColors(),
             )
             FaqCategory.entries.forEach { category ->

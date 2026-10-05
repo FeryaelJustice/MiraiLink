@@ -169,6 +169,7 @@ val viewModelModule =
                 setThemePreferenceUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
+                holoPreferencesRepository = get(),
             )
         }
         viewModel {

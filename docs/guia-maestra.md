@@ -29,6 +29,8 @@ Los enlaces entre repositorios apuntan a la rama de revisión codex/documentacio
 - [Arquitectura](estudio/arquitectura.md)
 - [Tecnologías](estudio/tecnologias.md)
 - [Funcionalidades y recorridos](estudio/funcionalidades.md)
+- [Perfil Holo-3D: funcionamiento y arquitectura](features/holo_mirai_parallax/implementation.md)
+- [Perfil Holo-3D: verificaciones y límites](features/holo_mirai_parallax/verification.md)
 - [Autenticación y seguridad](estudio/autenticacion-y-seguridad.md)
 - [Configuración y ausencia de valores](estudio/configuracion.md)
 - [Integraciones](estudio/integraciones.md)

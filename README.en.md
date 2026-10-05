@@ -126,6 +126,11 @@ MiraiLink features a dynamic dependency inversion mechanism that allows switchin
 
 ## Core Features
 
+- **Holo-3D Profile (Holo Mirai)**:
+  - Subtle tilt-driven depth on the visible photo of the top card in Home and Explore feeds, with a theme-aware edge reflection.
+  - On-device portrait segmentation with ML Kit, whole-photo or static fallback, and a local Appearance setting. Pauses during interaction, battery saving and disabled system animations.
+  - Preserves swipe actions, photo navigation, fullscreen, undo and heartbeat feedback. [Design and limitations](docs/features/holo_mirai_parallax/implementation.md), [verification evidence and pending checks](docs/features/holo_mirai_parallax/verification.md).
+
 - **Interest-Based Matching Algorithm**:
   - Discovery via smooth swipe gestures: right (Like) and left (Pass).
   - Compatibility matching based on favorite anime titles, manga genres, and video games.

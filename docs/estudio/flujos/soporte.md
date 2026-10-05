@@ -12,6 +12,8 @@ Un mensaje de soporte inválido o error remoto no es envío correcto. Reportar a
 
 ## Fuentes para estudiar
 
+**Perfil Holo-3D** aparece en Apariencia tanto en demo como en sesión online. `HoloPreferencesRepository` conserva un valor local cifrado, reactivo y compatible con preferencias anteriores (`true` por defecto); el ViewModel usa el contrato de errores y reintento existente. FAQ incorpora cinco entradas en `CARDS_AND_MATCHING`. Preguntas, respuestas y categorías son referencias `@StringRes`, resueltas mediante `stringResource` en Compose; los tres juegos de recursos incluyen español e inglés. Ver [Holo Mirai](../../features/holo_mirai_parallax/implementation.md).
+
 - [FeedbackApiService.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/remote/FeedbackApiService.kt)
 - [ReportApiService.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/remote/ReportApiService.kt)
 - [FaqRepositoryImpl.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/repository/FaqRepositoryImpl.kt)

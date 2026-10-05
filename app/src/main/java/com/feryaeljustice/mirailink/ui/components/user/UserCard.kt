@@ -114,8 +114,13 @@ fun UserCard(
     onAddOrUpdatePrompt: ((promptId: String, question: String, answer: String) -> Unit)? = null,
     onRemovePrompt: ((promptId: String) -> Unit)? = null,
     onChangePromptQuestion: ((oldPromptId: String, newPromptId: String, newQuestion: String) -> Unit)? = null,
+    holoController: com.feryaeljustice.mirailink.ui.holo.HoloRenderController? = null,
 ) {
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
+    androidx.compose.runtime.DisposableEffect(holoController, fullscreenImageUrl != null) {
+        holoController?.setCovered(fullscreenImageUrl != null)
+        onDispose { holoController?.setCovered(false) }
+    }
 
     if (fullscreenImageUrl != null) {
         FullscreenImagePreview(
@@ -131,6 +136,7 @@ fun UserCard(
             user = user,
             onLongPressOnImage = setFullscreenImageUrl,
             modifier = modifier,
+            holoController = holoController,
         )
         return
     }

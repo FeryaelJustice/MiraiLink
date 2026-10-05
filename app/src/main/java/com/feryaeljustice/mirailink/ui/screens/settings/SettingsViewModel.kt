@@ -21,6 +21,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.CancellationException
+import com.feryaeljustice.mirailink.domain.error.DataError
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
@@ -34,6 +38,7 @@ class SettingsViewModel(
     private val setThemePreferenceUseCase: SetThemePreferenceUseCase,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
+    private val holoPreferencesRepository: com.feryaeljustice.mirailink.domain.repository.HoloPreferencesRepository,
 ) : RetryableViewModel() {
     private val _logoutSuccess = MutableSharedFlow<Boolean>()
     val logoutSuccess = _logoutSuccess.asSharedFlow()
@@ -52,6 +57,30 @@ class SettingsViewModel(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = ThemePreference.SYSTEM,
             )
+
+    private val holoReadRetry = MutableStateFlow(0)
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val holoProfileEnabled: StateFlow<Boolean> = holoReadRetry.flatMapLatest {
+      holoPreferencesRepository.observeEnabled()
+        .catch { error ->
+            if (error is CancellationException) throw error
+            setRecoveryAction { _error.value = null; holoReadRetry.value++ }
+            _error.value = DataError.Local.UNKNOWN.toUiError()
+            emit(false)
+        }
+    }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun setHoloProfileEnabled(enabled: Boolean) {
+        setRecoveryAction { setHoloProfileEnabled(enabled) }
+        _error.value = null
+        viewModelScope.launch(ioDispatcher) {
+            when (val result = holoPreferencesRepository.setEnabled(enabled)) {
+                is MiraiLinkResult.Success -> Unit
+                is MiraiLinkResult.Error -> withContext(mainDispatcher) { _error.value = result.error.toUiError() }
+            }
+        }
+    }
 
     fun setThemePreference(themePreference: ThemePreference) {
         setRecoveryAction { setThemePreference(themePreference) }

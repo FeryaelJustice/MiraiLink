@@ -29,6 +29,11 @@ class FaqRepositoryImpl : FaqRepository {
         ),
 
         // Cards & Search
+        FaqItem("faq_holo_what", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_what_q, R.string.faq_holo_what_a),
+        FaqItem("faq_holo_disable", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_disable_q, R.string.faq_holo_disable_a),
+        FaqItem("faq_holo_fallback", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_fallback_q, R.string.faq_holo_fallback_a),
+        FaqItem("faq_holo_gestures", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_gestures_q, R.string.faq_holo_gestures_a),
+        FaqItem("faq_holo_privacy", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_privacy_q, R.string.faq_holo_privacy_a),
         FaqItem(
             id = "faq_cards_gestures",
             category = FaqCategory.CARDS_AND_MATCHING,

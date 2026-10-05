@@ -127,6 +127,11 @@ MiraiLink cuenta con un sistema de inversion de dependencias dinamico que permit
 
 ## Funcionalidades Principales
 
+- **Perfil Holo-3D (Holo Mirai)**:
+  - Profundidad sutil por inclinación en la foto visible de la tarjeta superior de Inicio y los feeds de Explorar, con reflejo de borde según el tema.
+  - Segmentación local de retratos con ML Kit; alternativa de foto completa o estática cuando corresponde. Ajuste local en Apariencia, pausa durante interacción, ahorro de batería y animaciones deshabilitadas.
+  - Conserva las acciones de swipe, carrusel, vista ampliada, deshacer y latido háptico. [Diseño y límites](docs/features/holo_mirai_parallax/implementation.md), [evidencia y comprobaciones pendientes](docs/features/holo_mirai_parallax/verification.md).
+
 - **Algoritmo de Matching por Intereses**:
   - Descubrimiento mediante gestos fluidos de swipe: derecha (Like) e izquierda (Pass).
   - Cruce de compatibilidad segun animes favoritos, generos de manga y videojuegos.

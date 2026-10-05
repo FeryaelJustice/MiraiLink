@@ -1,4 +1,19 @@
 <resources>
+    <string name="settings_holo_title">Perfil Holo-3D</string>
+    <string name="settings_holo_subtitle">Profundidad suave al inclinar el móvil en Inicio y Explorar. Respeta el ahorro de batería y las animaciones del sistema.</string>
+    <string name="holo_state_enabled">Activado</string>
+    <string name="holo_state_disabled">Desactivado</string>
+    <string name="faq_all_categories">Todas</string>
+    <string name="faq_holo_what_q">¿Qué es Perfil Holo-3D y dónde aparece?</string>
+    <string name="faq_holo_what_a">Es un toque holográfico Mirai: al inclinar el móvil, la foto visible de la tarjeta superior de Inicio o Explorar se mueve suavemente y refleja luz en el borde. Algunas fotos permiten separar visualmente a la persona del fondo. La información y los botones permanecen estables.</string>
+    <string name="faq_holo_disable_q">¿Cómo desactivo Perfil Holo-3D?</string>
+    <string name="faq_holo_disable_a">Desactiva Perfil Holo-3D en Ajustes. Tu elección se guarda en este dispositivo. El efecto también se detiene cuando activas el ahorro de batería o deshabilitas las animaciones del sistema.</string>
+    <string name="faq_holo_fallback_q">¿Por qué algunas fotos tienen menos profundidad o no se mueven?</string>
+    <string name="faq_holo_fallback_a">La profundidad depende del recorte y de los sensores del móvil. Si no se obtiene un recorte adecuado, la foto completa se mueve suavemente, algo útil también para avatares e ilustraciones. Sin sensores compatibles o con el efecto desactivado, la foto permanece estática. Tu foto original no cambia.</string>
+    <string name="faq_holo_gestures_q">¿Holo-3D cambia los gestos o el latido háptico?</string>
+    <string name="faq_holo_gestures_a">Puedes seguir deslizando para dar Me gusta o descartar, tocar a los lados para cambiar de foto y mantener pulsada la imagen para ampliarla. El efecto se pausa mientras interactúas. El latido háptico y deshacer mantienen su funcionamiento; inclinar el móvil nunca envía un Me gusta.</string>
+    <string name="faq_holo_privacy_q">¿Funciona sin conexión y envía mis fotos para analizarlas?</string>
+    <string name="faq_holo_privacy_a">Funciona sin conexión con fotos ya disponibles en el dispositivo, también en modo demo. El modelo está incluido en la app. La separación se procesa localmente: no se envían fotos ni recortes para este análisis y no se modifican los originales. ML Kit puede recoger métricas de uso y diagnóstico del SDK, descritas en la documentación de privacidad.</string>
     <string name="app_name" translatable="false">MiraiLink</string>
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>

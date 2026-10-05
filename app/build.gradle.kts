@@ -274,6 +274,7 @@ dependencies {
 
     // ML Kit Face Detection
     implementation(libs.mlkit.face.detection)
+    implementation(libs.mlkit.selfie.segmentation)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

@@ -55,6 +55,16 @@ En la pestaña **Inicio (Home)** podrás interactuar con tarjetas de candidatos 
 
 ---
 
+### 2.3.1 Perfil Holo-3D
+
+La foto visible de la tarjeta superior en Inicio y los feeds de Explorar puede reaccionar suavemente a la inclinación del móvil. En retratos compatibles, el sujeto y el fondo natural se desplazan en sentidos opuestos. Un reflejo discreto en el borde acompaña la estética de MiraiLink sin mover los textos ni los controles. Si el recorte no ofrece cobertura suficiente, se mueve la foto completa; sin sensores compatibles, permanece estática.
+
+Se activa por defecto. Para desactivarlo, abre **Ajustes > Apariencia > Perfil Holo-3D**. La preferencia se guarda cifrada en este dispositivo. El movimiento se neutraliza al tocar, deslizar, cambiar la foto o abrirla en grande; la imagen ampliada conserva la foto original. La inclinación no produce votos ni modifica la afinidad. El efecto se detiene en segundo plano, sin foco, con ahorro de batería o animaciones del sistema deshabilitadas.
+
+El análisis usa las fotos ya cargadas y funciona sin conexión si están disponibles en la caché existente. Fotos y recortes se procesan localmente; los derivados solo viven en memoria. Esto no excluye las métricas de uso y diagnóstico del SDK de Google. Las cinco preguntas de **FAQ > Búsqueda y tarjetas** explican el ajuste, alternativas, gestos y privacidad en español e inglés.
+
+Consulta [implementación y privacidad](features/holo_mirai_parallax/implementation.md) y [evidencias y límites](features/holo_mirai_parallax/verification.md). La compilación no acredita calidad de recorte, fluidez ni experiencia de inclinación en un móvil físico.
+
 ### 2.4 Gestión de Matches y Conversaciones Simuladas
 
 En la pestaña **Mensajes (Messages)** encontrarás:
