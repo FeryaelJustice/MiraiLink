@@ -21,4 +21,4 @@ Ver [verification.md](verification.md) para los 492 resultados JVM, 19 instrumen
 
 - [x] Aumentar amplitud un 50 % y ajustar escala, cobertura y version de derivados.
 - [x] Verificar build y pruebas de la correccion: debug y 492 pruebas JVM correctos.
-- [ ] Publicar una nueva PR desde `codex/holo-mirai-visible-motion`.
+- [x] Publicar una nueva PR desde `codex/holo-mirai-visible-motion`: [PR #58](https://github.com/FeryaelJustice/MiraiLink/pull/58).
