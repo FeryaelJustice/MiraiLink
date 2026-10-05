@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_holo_title">Holo-3D profile</string>
+    <string name="settings_holo_subtitle">Gentle depth as you tilt your phone in Home and Explore. Respects battery saver and system animation settings.</string>
+    <string name="holo_state_enabled">Enabled</string>
+    <string name="holo_state_disabled">Disabled</string>
+    <string name="faq_all_categories">All</string>
+    <string name="faq_holo_what_q">What is Holo-3D profile and where does it appear?</string>
+    <string name="faq_holo_what_a">A Mirai holographic touch: tilting your phone gently moves the visible photo in the top card in Home or Explore, with a light reflection along the edge. Some photos allow visual separation of the person and background. Information and buttons stay steady.</string>
+    <string name="faq_holo_disable_q">How do I disable Holo-3D profile?</string>
+    <string name="faq_holo_disable_a">Turn off Holo-3D profile in Settings. Your choice is saved on this device. The effect also stops when battery saver is enabled or system animations are disabled.</string>
+    <string name="faq_holo_fallback_q">Why do some photos have less depth or stay still?</string>
+    <string name="faq_holo_fallback_a">Depth depends on the cutout and your phone sensors. If a suitable cutout is unavailable, the whole photo moves gently, which also suits avatars and illustrations. Without compatible sensors or with the effect disabled, the photo stays still. Your original photo does not change.</string>
+    <string name="faq_holo_gestures_q">Does Holo-3D change gestures or Haptic Heartbeat?</string>
+    <string name="faq_holo_gestures_a">You can still swipe to like or pass, tap either side to change photos, and hold the image to enlarge it. The effect pauses while you interact. Haptic Heartbeat and undo keep their existing behavior; tilting your phone never sends a like.</string>
+    <string name="faq_holo_privacy_q">Does it work offline, and are my photos uploaded for analysis?</string>
+    <string name="faq_holo_privacy_a">It works offline with photos already available on your device, including demo mode. The model is bundled with the app. Separation runs locally: photos and cutouts are not uploaded for this analysis and originals are not modified. ML Kit may collect SDK usage and diagnostic metrics, described in the privacy documentation.</string>
     <!-- Bottom Nav Bar -->
     <string name="nav_home">Home</string>
     <string name="nav_messages">Messages</string>

@@ -108,6 +108,7 @@ fun SettingsScreen(
     val error by viewModel.error.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
     val themePreference by viewModel.themePreference.collectAsStateWithLifecycle()
+    val holoProfileEnabled by viewModel.holoProfileEnabled.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
     val userId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
     val isTwoFactorEnabled by twoFactorViewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
@@ -369,6 +370,10 @@ fun SettingsScreen(
                 },
                 onClick = { showThemeDialog = true },
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            com.feryaeljustice.mirailink.ui.screens.settings.components.HoloProfileSetting(
+                enabled = holoProfileEnabled, onEnabledChange = viewModel::setHoloProfileEnabled,
+            )
         } else {
             SettingsSectionTitle(stringResource(R.string.settings_section_subscription))
             CurrentPlanCard(
@@ -441,6 +446,10 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            com.feryaeljustice.mirailink.ui.screens.settings.components.HoloProfileSetting(
+                enabled = holoProfileEnabled, onEnabledChange = viewModel::setHoloProfileEnabled,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             SettingsSectionTitle(stringResource(R.string.settings_section_account))
             SettingsActionCard(
                 icon = Icons.Default.Favorite,

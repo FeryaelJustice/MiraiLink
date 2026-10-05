@@ -44,6 +44,7 @@ credentials = "1.6.0"
 playBilling = "9.1.0"
 camerax = "1.6.2"
 mlkitFaceDetection = "16.1.7"
+mlkitSelfieSegmentation = "16.0.0-beta6"
 
 # Testing
 junit = "4.13.2"
@@ -179,6 +180,7 @@ androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "
 
 # ML Kit Face Detection (Bundled offline)
 mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "mlkitFaceDetection" }
+mlkit-selfie-segmentation = { module = "com.google.mlkit:segmentation-selfie", version.ref = "mlkitSelfieSegmentation" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }

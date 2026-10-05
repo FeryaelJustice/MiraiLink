@@ -42,6 +42,9 @@ import org.koin.dsl.module
 
 val repositoryModule =
     module {
+        single<com.feryaeljustice.mirailink.domain.repository.HoloPreferencesRepository> {
+            com.feryaeljustice.mirailink.data.repository.HoloPreferencesRepositoryImpl(get())
+        }
         single<AppConfigRepository> { AppConfigRepositoryImpl(get()) }
         single<AiRepository> { AiRepositoryImpl(get()) }
         single<CatalogRepository> { CatalogRepositoryImpl(get()) }

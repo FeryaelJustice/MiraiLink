@@ -13,6 +13,18 @@ import kotlinx.coroutines.flow.map
 class MiraiLinkPrefs(
     private val dataStore: DataStore<AppPrefs>,
 ) {
+    fun getHoloProfileEnabled(): Flow<Boolean> =
+        dataStore.data.map { it.holoProfileEnabled }
+
+    suspend fun setHoloProfileEnabled(enabled: Boolean): MiraiLinkResult<Unit> =
+        try {
+            dataStore.updateData { it.copy(holoProfileEnabled = enabled) }
+            MiraiLinkResult.Success(Unit)
+        } catch (cancellation: kotlin.coroutines.cancellation.CancellationException) {
+            throw cancellation
+        } catch (error: Exception) {
+            MiraiLinkResult.Error(DataError.Local.UNKNOWN)
+        }
     suspend fun markOnboardingCompleted() {
         dataStore.updateData {
             it.copy(onboardingCompleted = true)

@@ -32,6 +32,7 @@ class SettingsViewModelTest : KoinTest {
     private val getThemePreferenceUseCase: com.feryaeljustice.mirailink.domain.usecase.settings.GetThemePreferenceUseCase by inject()
     private val setThemePreferenceUseCase: com.feryaeljustice.mirailink.domain.usecase.settings.SetThemePreferenceUseCase by inject()
     private lateinit var viewModel: SettingsViewModel
+    private val holoPreferences = mockk<com.feryaeljustice.mirailink.domain.repository.HoloPreferencesRepository>()
 
     @get:Rule
     val koinTestRule =
@@ -53,6 +54,7 @@ class SettingsViewModelTest : KoinTest {
 
     @Before
     fun setUp() {
+        every { holoPreferences.observeEnabled() } returns kotlinx.coroutines.flow.flowOf(true)
         viewModel =
             SettingsViewModel(
                 logoutUseCase,
@@ -62,6 +64,7 @@ class SettingsViewModelTest : KoinTest {
                 setThemePreferenceUseCase,
                 mainCoroutineRule.testDispatcher,
                 mainCoroutineRule.testDispatcher,
+                holoPreferences,
             )
     }
 
@@ -79,6 +82,31 @@ class SettingsViewModelTest : KoinTest {
             }
             assert(onFinishCalled)
         }
+
+    @Test fun `holo read failure disables safely and retry recovers`() = runTest {
+        every { holoPreferences.observeEnabled() } returns kotlinx.coroutines.flow.flow { error("controlled read failure") }
+        viewModel.holoProfileEnabled.test {
+            assertEquals(false, awaitItem())
+            mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+            org.junit.Assert.assertNotNull(viewModel.error.value)
+            every { holoPreferences.observeEnabled() } returns kotlinx.coroutines.flow.flowOf(true)
+            viewModel.performErrorAction()
+            assertEquals(true, awaitItem())
+            org.junit.Assert.assertNull(viewModel.error.value)
+        }
+    }
+
+    @Test fun `holo write failure preserves state and retry writes`() = runTest {
+        coEvery { holoPreferences.setEnabled(false) } returns MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Local.UNKNOWN)
+        viewModel.setHoloProfileEnabled(false)
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        org.junit.Assert.assertNotNull(viewModel.error.value)
+        coEvery { holoPreferences.setEnabled(false) } returns MiraiLinkResult.Success(Unit)
+        viewModel.performErrorAction()
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        org.junit.Assert.assertNull(viewModel.error.value)
+        io.mockk.coVerify(exactly = 2) { holoPreferences.setEnabled(false) }
+    }
 
     @Test
     fun `logout failure`() =

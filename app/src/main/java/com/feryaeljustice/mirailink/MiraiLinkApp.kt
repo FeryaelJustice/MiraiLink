@@ -3,6 +3,7 @@ package com.feryaeljustice.mirailink
 import android.app.Application
 import com.feryaeljustice.mirailink.di.koin.aiModule
 import com.feryaeljustice.mirailink.di.koin.appModule
+import com.feryaeljustice.mirailink.di.koin.holoModule
 import com.feryaeljustice.mirailink.di.koin.cryptoModule
 import com.feryaeljustice.mirailink.di.koin.dataModule
 import com.feryaeljustice.mirailink.di.koin.dataStoreModule
@@ -56,6 +57,7 @@ class MiraiLinkApp : Application(), ImageLoaderFactory {
         val allModules: List<Module> =
             listOf(
                 appModule,
+                holoModule,
                 aiModule,
                 cryptoModule,
                 dataModule,

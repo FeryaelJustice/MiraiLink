@@ -12,4 +12,5 @@ data class AppPrefs(
     val searchMatchLiveLocation: Boolean = false,
     val searchGender: String? = null,
     val themePreference: ThemePreference = ThemePreference.SYSTEM,
+    val holoProfileEnabled: Boolean = true,
 )

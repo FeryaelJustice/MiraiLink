@@ -25,6 +25,8 @@ Demo usa sus repositorios locales; un match demo no existe en backend. Ranking, 
 
 ## Fuentes para estudiar
 
+Holo Mirai se limita a la foto visible de la tarjeta superior en `UserSwipeCardStack`, compartida por Inicio y los feeds de Explorar. Los componentes compartidos tienen un controlador opcional, desactivado por defecto fuera de esas pilas. Los reconocedores y umbrales existentes conservan su responsabilidad; el observador Holo no consume eventos y nunca emite votos. La vista ampliada usa el original. Ver [arquitectura y alternativas](../../features/holo_mirai_parallax/implementation.md) y [evidencia](../../features/holo_mirai_parallax/verification.md).
+
 - [SwipeApiService.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/remote/SwipeApiService.kt)
 - [TrustedTimeProvider.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/time/TrustedTimeProvider.kt)
 - [ServerTimeInterceptor.kt](../../../app/src/main/java/com/feryaeljustice/mirailink/data/remote/interceptor/ServerTimeInterceptor.kt)

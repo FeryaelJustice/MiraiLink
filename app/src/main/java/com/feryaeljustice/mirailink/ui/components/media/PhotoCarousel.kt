@@ -61,6 +61,7 @@ fun PhotoCarousel(
     onLongPressOnImage: (String) -> Unit,
     immersive: Boolean = false,
     controller: PhotoCarouselController? = null,
+    holoController: com.feryaeljustice.mirailink.ui.holo.HoloRenderController? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val scope = rememberCoroutineScope()
@@ -124,56 +125,67 @@ fun PhotoCarousel(
                 } else {
                     resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, photoUrl)
                 }
-            AsyncImage(
-                model =
-                    ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(imageModel)
-                        .crossfade(true)
-                        .placeholder(drawableResId = R.drawable.logomirailink)
-                        .error(drawableResId = R.drawable.logomirailink)
-                        .build(),
-                contentDescription =
-                    stringResource(
-                        R.string.content_description_photo_carousel_pager_image,
-                        page + 1,
-                    ),
-                contentScale = if (hasPhotos) ContentScale.Crop else ContentScale.Fit,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .clip(
-                            if (immersive) {
-                                RectangleShape
-                            } else {
-                                RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-                            },
-                        )
-                        .then(
-                            if (controller == null) {
-                                Modifier.pointerInput(photoUrl, images.size) {
-                                    detectTapGestures(
-                                        onTap = { offset ->
-                                            scope.launch {
-                                                val targetPage =
-                                                    if (offset.x < size.width / 2f) {
-                                                        (pagerState.currentPage - 1 + images.size) % images.size
-                                                    } else {
-                                                        (pagerState.currentPage + 1) % images.size
-                                                    }
-                                                pagerState.animateScrollToPage(targetPage)
-                                            }
-                                        },
-                                        onLongPress = {
-                                            if (hasPhotos) currentLongPressHandler(photoUrl)
-                                        },
-                                    )
-                                }
-                            } else {
-                                Modifier
-                            },
+            if (holoController != null && hasPhotos && photoUrl.isNotBlank() &&
+                page == pagerState.settledPage && !pagerState.isScrollInProgress
+            ) {
+                HoloProfilePhoto(
+                    imageModel = imageModel,
+                    contentDescription = stringResource(R.string.content_description_photo_carousel_pager_image, page + 1),
+                    controller = holoController,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                AsyncImage(
+                    model =
+                        ImageRequest
+                            .Builder(LocalContext.current)
+                            .data(imageModel)
+                            .crossfade(true)
+                            .placeholder(drawableResId = R.drawable.logomirailink)
+                            .error(drawableResId = R.drawable.logomirailink)
+                            .build(),
+                    contentDescription =
+                        stringResource(
+                            R.string.content_description_photo_carousel_pager_image,
+                            page + 1,
                         ),
-            )
+                    contentScale = if (hasPhotos) ContentScale.Crop else ContentScale.Fit,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .clip(
+                                if (immersive) {
+                                    RectangleShape
+                                } else {
+                                    RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                                },
+                            )
+                            .then(
+                                if (controller == null) {
+                                    Modifier.pointerInput(photoUrl, images.size) {
+                                        detectTapGestures(
+                                            onTap = { offset ->
+                                                scope.launch {
+                                                    val targetPage =
+                                                        if (offset.x < size.width / 2f) {
+                                                            (pagerState.currentPage - 1 + images.size) % images.size
+                                                        } else {
+                                                            (pagerState.currentPage + 1) % images.size
+                                                        }
+                                                    pagerState.animateScrollToPage(targetPage)
+                                                }
+                                            },
+                                            onLongPress = {
+                                                if (hasPhotos) currentLongPressHandler(photoUrl)
+                                            },
+                                        )
+                                    }
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                )
+            }
         }
 
         PagerIndicator(

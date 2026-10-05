@@ -55,6 +55,9 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.components.haptics.hapticHeartbeatLikeTrigger
 import com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController
+import com.feryaeljustice.mirailink.ui.holo.HoloRenderController
+import com.feryaeljustice.mirailink.ui.holo.BindHoloController
+import com.feryaeljustice.mirailink.ui.holo.observeHoloTouch
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -116,6 +119,7 @@ fun UserSwipeCardStack(
         affinityUseCase = koinInject(),
         getCurrentUserUseCase = koinInject(),
         miraiLinkSession = koinInject(),
+        holoController = koinInject(),
     )
 }
 
@@ -133,6 +137,7 @@ fun UserSwipeCardStack(
     affinityUseCase: CalculateHeartbeatAffinityUseCase,
     getCurrentUserUseCase: GetCurrentUserUseCase,
     miraiLinkSession: GlobalMiraiLinkSession,
+    holoController: HoloRenderController? = null,
 ) {
     if (users.isEmpty()) return
 
@@ -179,6 +184,7 @@ fun UserSwipeCardStack(
         val scope = rememberCoroutineScope()
         val offsetX = remember { Animatable(0f) }
         val offsetY = remember { Animatable(0f) }
+        BindHoloController(holoController, moving = abs(offsetX.value) > 0.5f || abs(offsetY.value) > 0.5f)
         val rotation = (offsetX.value / 60).coerceIn(-40f, 40f)
         val alphaAnim by animateFloatAsState(
             targetValue = 1 - (abs(offsetX.value) / SwipeExitOffsetPx),
@@ -234,7 +240,7 @@ fun UserSwipeCardStack(
             }
         }
 
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(modifier = modifier.fillMaxSize().observeHoloTouch(holoController)) {
             users.getOrNull(1)?.let { nextUser ->
                 UserCard(
                     modifier =
@@ -340,6 +346,7 @@ fun UserSwipeCardStack(
                 user = topUser,
                 onSave = {},
                 isPublicPresentation = true,
+                holoController = holoController,
             )
 
             val likeGestureModifier =

@@ -21,7 +21,11 @@ class FaqRepositoryImplTest {
         val items = repository.getFaqItems()
 
         assertTrue(items.isNotEmpty())
-        assertEquals(25, items.size)
+        assertEquals(30, items.size)
+        val holoItems = items.filter { it.id.startsWith("faq_holo_") }
+        assertEquals(5, holoItems.size)
+        assertTrue(holoItems.all { it.category == FaqCategory.CARDS_AND_MATCHING })
+        assertEquals(items.size, items.map { it.id }.distinct().size)
         assertTrue(items.any { it.category == FaqCategory.ABOUT_MIRAILINK })
         assertTrue(items.any { it.category == FaqCategory.CARDS_AND_MATCHING })
         assertTrue(items.any { it.category == FaqCategory.GESTURE_ROULETTE })
