@@ -120,6 +120,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val getSubscriptionStatusUseCase: com.feryaeljustice.mirailink.domain.usecase.subscription.GetSubscriptionStatusUseCase by inject()
+
+    override fun onResume() {
+        super.onResume()
+        if (globalMiraiLinkSession.currentAuth()) {
+            applicationScope.launch {
+                getSubscriptionStatusUseCase()
+            }
+        }
+    }
+
     private fun firebaseInitialize(context: Context) {
         Firebase.initialize(context)
         if (BuildConfig.DEBUG) {
