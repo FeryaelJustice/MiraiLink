@@ -122,7 +122,7 @@ La app sí abre la política de privacidad externa con `deepLinkPrivacyPolicyUrl
 | `AD_ID` | AdMob |
 | `SYSTEM_ALERT_WINDOW` | Declarado, sin uso localizado |
 | Cámara como feature requerida | Excluye dispositivos sin cámara |
-| FileProvider | Comparte imágenes desde cache con URI temporal |
+| FileProvider | Comparte imágenes desde caché con URI temporal |
 | FcmService | Servicio no exportado para `MESSAGING_EVENT` |
 
 ## Configuración de red

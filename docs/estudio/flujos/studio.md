@@ -10,7 +10,7 @@ CameraX entrega ImageProxy al StudioPhotoAnalyzer. Una guarda evita procesar var
 
 Sin permiso o cámara no hay captura; imagen sin mediaImage se cierra. Si detección falla devuelve face null manteniendo luminancia. Las métricas de postura/calidad son ayudas, no verificación de identidad. El resultado pasa por modelos/usecase/ViewModel de Studio y puede entregar URI a perfil; la subida posterior sigue el contrato de fotos.
 
-La decodificación/optimización debe cerrar recursos y limitar memoria; estudiar BitmapOptimizationUtils. No enviar datos al backend como si éste ejecutara ML Kit.
+La decodificación/optimización debe cerrar recursos y limitar memoria; estudiar BitmapOptimizationUtils. No enviar datos al backend como si éste ejecutará ML Kit.
 
 ## Fuentes para estudiar
 

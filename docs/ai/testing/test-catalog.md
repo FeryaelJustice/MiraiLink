@@ -52,7 +52,7 @@ Cubre ISO UTC, epoch, backend date, DatePicker, edad, inválidos y serializació
 
 ### DataMediaUtilsTest
 
-Cubre creación de URI FileProvider, detección de cache y borrado tolerante mediante Robolectric.
+Cubre creación de URI FileProvider, detección de caché y borrado tolerante mediante Robolectric.
 
 ### AndroidLoggerTest
 
@@ -65,7 +65,7 @@ Cubre creación de URI FileProvider, detección de cache y borrado tolerante med
 - session exposes datastore state changes: replica autenticación, verificación e identidad.
 - session commands delegate to session manager: verifica guardar, verificar y cerrar sesión.
 - bar configuration commands update only requested properties: cubre toda la configuración de barras.
-- refresh profile picture updates successful value and preserves it on error: cubre cache y fallo.
+- refresh profile picture updates successful value and preserves it on error: cubre caché y fallo.
 - user id starts profile picture observation: cubre arranque automático del observador.
 - createSession: crea la sesión con backgroundScope para cancelar collectors de larga vida.
 

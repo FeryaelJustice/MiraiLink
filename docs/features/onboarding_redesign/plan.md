@@ -1,25 +1,25 @@
-# [APROBADO] Plan Tecnico de Arquitectura: Rediseño Inmersivo del Onboarding MiraiLink
+# [APROBADO] Plan Técnico de Arquitectura: Rediseño Inmersivo del Onboarding MiraiLink
 
-- **Especificacion funcional asociada**: `docs/features/onboarding_redesign/spec.md`
+- **Especificación funcional asociada**: `docs/features/onboarding_redesign/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-10-01
-- **Modulo**: `:app` (`com.feryaeljustice.mirailink`)
+- **Módulo**: `:app` (`com.feryaeljustice.mirailink`)
 - **Rama Git**: `feature/onboarding-redesign`
 
 - - -
 
 ## 1. Hechos Verificados en el Proyecto (Sin Alucinaciones)
 
-Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y manifiesto:
+Información verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y manifiesto:
 
 - **Lenguaje & JVM**: Kotlin `2.4.10` / Java 17 toolchain
 - **Compilador & Build Tool**: AGP `9.4.1`, Gradle wrapper, KSP `2.3.8`
 - **SDK Targets**: Min SDK `30`, Compile SDK `37`, Target SDK `37`
-- **Librerias Verificadas en el Classpath**:
+- **Librerías Verificadas en el Classpath**:
   - UI: Jetpack Compose BOM `2026.09.00` con Material 3 (`androidx.compose.material3`)
   - Iconos Material Icons Extended: disponibles para composición vectorial (`androidx.compose.material.icons.rounded.*`)
-  - Animaciones y Graficos: `androidx.compose.animation:animation`, Canvas API (`androidx.compose.ui.graphics.drawscope`), `androidx.compose.foundation.pager.HorizontalPager` y `rememberPagerState`.
-  - Inyeccion de Dependencias: Koin BOM `4.2.2` con `koin-android` y `koin-compose-viewmodel`
+  - Animaciones y Gráficos: `androidx.compose.animation:animation`, Canvas API (`androidx.compose.ui.graphics.drawscope`), `androidx.compose.foundation.pager.HorizontalPager` y `rememberPagerState`.
+  - Inyección de Dependencias: Koin BOM `4.2.2` con `koin-android` y `koin-compose-viewmodel`
   - Persistencia: `MiraiLinkPrefs` con `markOnboardingCompleted()` e `isOnboardingCompleted()`
 - **Eliminación Física de Recursos Obsoletos**:
   - `app/src/main/res/drawable/onboarding_1.webp`
@@ -28,7 +28,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - - -
 
-## 2. Impacto Arquitectonico y Contratos por Capas
+## 2. Impacto Arquitectónico y Contratos por Capas
 
 ### 2.1. Recursos de Cadenas Localizadas (`res/values/strings.xml`, `res/values-es/strings.xml`, `res/values-en/strings.xml`)
 Se actualizarán los strings para separar titular y descripción concisa:

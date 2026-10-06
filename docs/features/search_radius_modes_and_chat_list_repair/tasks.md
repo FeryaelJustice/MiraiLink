@@ -1,39 +1,39 @@
-# [PENDIENTE DE APROBACION] Checklist de Tareas: Modos de Radio y Reparacion de Chats
+# [PENDIENTE DE APROBACIÓN] Checklist de Tareas: Modos de Radio y Reparación de Chats
 
 - **Fecha**: 2026-09-21
-- **Especificacion**: `docs/features/search_radius_modes_and_chat_list_repair/spec.md`
+- **Especificación**: `docs/features/search_radius_modes_and_chat_list_repair/spec.md`
 - **Plan**: `docs/features/search_radius_modes_and_chat_list_repair/plan.md`
-- **Estado**: [PENDIENTE DE APROBACION]
+- **Estado**: [PENDIENTE DE APROBACIÓN]
 
-## Fase 1. Contrato y persistencia de busqueda
+## Fase 1. Contrato y persistencia de búsqueda
 
 - [ ] Definir los alcances `radius_residence` y `radius_active` en Android y eliminar el switch beta de las decisiones nuevas.
-- [ ] Migrar preferencias DataStore existentes desde `radius` y `matchByLiveLocation` sin perder radio, pais ni pasaporte.
+- [ ] Migrar preferencias DataStore existentes desde `radius` y `matchByLiveLocation` sin perder radio, país ni pasaporte.
 - [ ] Actualizar DTO, Retrofit, datasource y repositorio de preferencias.
-- [ ] Actualizar validacion, guardado y respuesta de preferencias en backend.
+- [ ] Actualizar validación, guardado y respuesta de preferencias en backend.
 - [ ] Actualizar OpenAPI para los alcances nuevos.
-- [ ] Escribir pruebas Android de migracion y serializacion de preferencias.
-- [ ] Escribir pruebas Vitest de validacion y guardado de preferencias.
+- [ ] Escribir pruebas Android de migración y serialización de preferencias.
+- [ ] Escribir pruebas Vitest de validación y guardado de preferencias.
 
-## Fase 2. Filtro geografico real y paridad demo
+## Fase 2. Filtro geográfico real y paridad demo
 
 - [ ] Resolver origen y coordenadas de candidato para radio por residencia.
-- [ ] Resolver origen y coordenadas de candidato para radio por ubicacion activa fresca durante 24 horas.
-- [ ] Devolver error tipado recuperable cuando el buscador usa radio activo sin ubicacion valida.
-- [ ] Mantener candidatos sin coordenada aplicable como excepcion sin distancia y con prioridad baja.
+- [ ] Resolver origen y coordenadas de candidato para radio por ubicación activa fresca durante 24 horas.
+- [ ] Devolver error tipado recuperable cuando el buscador usa radio activo sin ubicación válida.
+- [ ] Mantener candidatos sin coordenada aplicable como excepción sin distancia y con prioridad baja.
 - [ ] Aplicar las mismas reglas en `DemoSwipeRepositoryImpl`.
-- [ ] Añadir pruebas geodesicas Palma, Inca y Valencia para 250 y 260 km.
-- [ ] Añadir pruebas de ubicacion activa caducada, residencia ausente y candidato sin coordenadas.
+- [ ] Añadir pruebas geodésicas Palma, Inca y Valencia para 250 y 260 km.
+- [ ] Añadir pruebas de ubicación activa caducada, residencia ausente y candidato sin coordenadas.
 
 ## Fase 3. Preferencias y minimapa
 
 - [ ] Sustituir el switch por cinco chips mutuamente excluyentes y localizar sus etiquetas y estados accesibles.
 - [ ] Mantener el slider habilitado solo en los dos chips de radio.
-- [ ] Pasar al minimapa el centro seleccionado por el ViewModel, sin logica de fuente geografica en Compose.
-- [ ] Implementar conversion de kilometros geodesicos a pixeles Web Mercator.
-- [ ] Elegir zoom y mosaico OSM dinamicos para que el circulo completo quepa con margen entre 10 y 300 km.
-- [ ] Conservar centrado, wrapping horizontal y limite vertical de tiles.
-- [ ] Mostrar estado recuperable cuando falta ubicacion activa y validar retrato y paisaje.
+- [ ] Pasar al minimapa el centro seleccionado por el ViewModel, sin lógica de fuente geográfica en Compose.
+- [ ] Implementar conversión de kilometros geodésicos a píxeles Web Mercator.
+- [ ] Elegir zoom y mosaico OSM dinámicos para que el circulo completo quepa con margen entre 10 y 300 km.
+- [ ] Conservar centrado, wrapping horizontal y límite vertical de tiles.
+- [ ] Mostrar estado recuperable cuando falta ubicación activa y validar retrato y paisaje.
 - [ ] Escribir pruebas de la utilidad de escala y pruebas UI focalizadas de chips, slider y estado de error.
 
 ## Fase 4. Contrato de chats y conversaciones
@@ -47,7 +47,7 @@
 - [ ] Adaptar demo a las nuevas entradas de conversación si existen conversaciones de grupo.
 - [ ] Escribir pruebas backend de respuesta privada y grupo, y pruebas Android de mapper, ViewModel y navegación.
 
-## Fase 5. Integracion y verificacion
+## Fase 5. Integración y verificación
 
 - [ ] Mantener la recarga automática de Home al guardar cualquiera de los cinco chips.
 - [ ] Ejecutar pruebas Android focalizadas de preferencias, mapa, demo y mensajes.
@@ -59,4 +59,4 @@
 
 ## Bloqueo SDMD
 
-No se modificara codigo de produccion hasta recibir aprobacion explicita de este checklist.
+No se modificará código de producción hasta recibir aprobación explícita de este checklist.

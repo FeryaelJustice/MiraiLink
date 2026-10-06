@@ -147,7 +147,7 @@ Koin inicia estos módulos:
 - La clave se genera y conserva en Android Keystore con alias `ml_aes_gcm_v1`.
 - El IV de 12 bytes se antepone al payload cifrado.
 - Hay migraciones desde SharedPreferences y un Preferences DataStore antiguo para sesión.
-- `SessionManager` mantiene caches volátiles para que el interceptor OkHttp pueda leer el token de forma síncrona.
+- `SessionManager` mantiene cachés volátiles para que el interceptor OkHttp pueda leer el token de forma síncrona.
 - Los DataStores principales quedan excluidos de backup y device transfer mediante XML.
 
 ## Concurrencia
@@ -157,7 +157,7 @@ Koin inicia estos módulos:
 - `GlobalMiraiLinkSession` observa la sesión y sondea la foto de perfil con backoff de 10 a 120 segundos.
 - `ChatViewModel` sondea mensajes cada 3 segundos.
 - `MainActivity` mantiene un bucle de Ads cada 5 minutos mientras esté resumed.
-- Los caches síncronos de sesión se actualizan desde un collector de DataStore.
+- Los cachés síncronos de sesión se actualizan desde un collector de DataStore.
 
 ## Límites y deuda arquitectónica
 

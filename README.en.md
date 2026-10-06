@@ -6,7 +6,7 @@
 
 <p style="text-align: center;">
   <strong>The social and dating platform designed for anime, manga, and gaming enthusiasts.</strong><br>
-  <em>Connecting passions through Clean Architecture, Jetpack Compose, local Room database, and real-time communication.</em>
+  <em>Connecting passions through Clean Architecture, Jetpack Compose, a local Room database, and real-time communication.</em>
 </p>
 
 <p style="text-align: center;">
@@ -55,9 +55,9 @@
 
 Built following modern engineering standards across the Android ecosystem:
 - **Reactive and Declarative UI**: 100% Jetpack Compose Material 3 following the Atomic Design pattern (Atoms, Molecules, Organisms).
-- **Google Navigation 3**: Decoupled navigation architecture with strongly-typed routes and serializable state backstacks.
+- **Google Navigation 3**: Decoupled navigation architecture with strongly typed routes and serializable state backstacks.
 - **Clean Architecture**: Strict separation of concerns (Data, Domain, UI layers) with reactive dependency injection using Koin.
-- **Hybrid Operating Dual Mode**: Ability to switch between an online ExpressJS backend with WebSockets and a 100% offline Sandbox backed by Room 2.8 for instant exploration without requiring registration or internet connectivity.
+- **Dual Hybrid Operating Modes**: Ability to switch between an online ExpressJS backend with WebSockets and a 100% offline Sandbox backed by Room 2.8 for instant exploration without requiring registration or internet connectivity.
 - **Spec-Driven Mobile Development (SDMD)**: Built with an explicit safety harness preventing regressions, hallucinations, and unhandled mobile lifecycle states.
 
 > **Available in Production**: You can test MiraiLink directly on your device by downloading it from the [Google Play Store](https://play.google.com/store/apps/details?id=com.feryaeljustice.mirailink).
@@ -73,7 +73,7 @@ All screenshots are taken from real user sessions in the application.
 | 1. Welcome & Demo Mode | 2. Discovery Feed | 3. Messages and Matches | 4. Real-time Chat |
 | :---: | :---: | :---: | :---: |
 | <img src="docs/screenshots/01-auth-screen-demo-button.webp" width="220" alt="Login Screen with Demo Mode" /> | <img src="docs/screenshots/02-home-screen-demo-feed.webp" width="220" alt="Profile Cards Feed" /> | <img src="docs/screenshots/03-messages-screen-demo-matches.webp" width="220" alt="Matches and Conversations" /> | <img src="docs/screenshots/04-chat-screen-demo-conversation.webp" width="220" alt="Interactive Chat" /> |
-| Quick access via credentials or direct entry into **Offline Mode** with no sign up required. | Interactive profile cards with swipe animations, multiple photos, and interest-based affinity. | Top carousel for new connections and an organized inbox of active chat threads. | Bidirectional messaging with typed bubbles, delivery statuses, and emoji picker support. |
+| Quick access via credentials or direct entry into **Offline Mode** with no sign-up required. | Interactive profile cards with swipe animations, multiple photos, and interest-based affinity. | Top carousel for new connections and an organized inbox of active chat threads. | Bidirectional messaging with typed bubbles, delivery statuses, and emoji picker support. |
 
 ### Profile, Editing, and System Settings
 
@@ -86,7 +86,7 @@ All screenshots are taken from real user sessions in the application.
 
 ## Operating Modes: Online and Offline Demo
 
-MiraiLink features a dynamic dependency inversion mechanism that allows switching between two operating modes without altering user experience:
+MiraiLink features a dynamic dependency inversion mechanism that allows switching between two operating modes without altering the user experience:
 
 ```text
                       +-----------------------------+
@@ -128,13 +128,13 @@ MiraiLink features a dynamic dependency inversion mechanism that allows switchin
 
 - **Holo-3D Profile (Holo Mirai)**:
   - Subtle tilt-driven depth on the visible photo of the top card in Home and Explore feeds, with a theme-aware edge reflection.
-  - On-device portrait segmentation with ML Kit, whole-photo or static fallback, and a local Appearance setting. Pauses during interaction, battery saving and disabled system animations.
+  - On-device portrait segmentation with ML Kit, whole-photo or static fallback, and a local Appearance setting. Pauses during interaction, while battery saving is active, and when system animations are disabled.
   - Preserves swipe actions, photo navigation, fullscreen, undo and heartbeat feedback. [Design and limitations](docs/features/holo_mirai_parallax/implementation.md), [verification evidence and pending checks](docs/features/holo_mirai_parallax/verification.md).
 
 - **Interest-Based Matching Algorithm**:
   - Discovery via smooth swipe gestures: right (Like) and left (Pass).
   - Compatibility matching based on favorite anime titles, manga genres, and video games.
-  - Instant mutual match unlocking with celebration dialog.
+  - Instant mutual match unlocking with a celebration dialog.
 
 - **Explore Hub & Thematic Feeds**:
   - Hybrid central hub inspired by Bumble (top horizontal recommendations carousel) and Tinder (two-column thematic grids).
@@ -229,7 +229,7 @@ Centralized in the Gradle Version Catalog (`gradle/libs.versions.toml`):
 | **Android Compiler** | Android Gradle Plugin (AGP) | `9.4.0` | Latest generation build tools |
 | **SDK Targets** | Min SDK 26 / Compile & Target SDK 37 | Android 8.0 to 16 | Broad coverage and latest modern platform APIs |
 | **UI Framework** | Jetpack Compose (Compose BOM) | `2026.08.00` | Declarative rendering with Material 3 |
-| **Navigation** | Navigation 3 (Nav3 Core) | `1.1.7` | Google official decoupled navigation for Compose |
+| **Navigation** | Navigation 3 (Nav3 Core) | `1.1.7` | Google’s official decoupled navigation for Compose |
 | **Dependency Injection** | Koin BOM & Annotations | `4.2.2` | Lightweight, modular, and testable DI without boilerplate |
 | **Local Persistence** | Room Database | `2.8.4` | Typed SQLite with KSP for offline demo sandbox |
 | **Encrypted Storage** | AndroidX Encrypted DataStore | `1.2.1` | Keystore-backed session token security |
@@ -239,7 +239,7 @@ Centralized in the Gradle Version Catalog (`gradle/libs.versions.toml`):
 | **Image Loading** | Coil Compose | `2.7.0` | Async image download, cache, and decoding |
 | **Cloud & Analytics** | Firebase BOM | `34.18.0` | Crashlytics, Analytics, Remote Config, and Messaging |
 | **Ads & Consent** | Google Mobile Ads & UMP | `25.4.0` / `4.0.0` | AdMob monetization with European GDPR consent |
-| **Journey Testing** | Kotzilla | `2.3.5` | Automated E2E user journeys validation |
+| **Journey Testing** | Kotzilla | `2.3.5` | Automated validation of E2E user journeys |
 | **Screenshot Testing**| Android Screenshot Validation API | `0.0.1-alpha16` | Automated visual validation of Compose Previews |
 
 - - -
@@ -266,7 +266,7 @@ MiraiLink incorporates a comprehensive test pyramid to guarantee quality and avo
 # 1. Unit Tests (Use cases, ViewModels, mappers, repositories with KoinTest)
 .\gradlew.bat testDebugUnitTest
 
-# 2. Instrumented Tests (Run on connected device or emulator)
+# 2. Instrumented Tests (Run on a connected device or emulator)
 .\gradlew.bat connectedDebugAndroidTest
 
 # 3. Screenshot Validation Tests (Compose Preview screenshot testing)
@@ -357,17 +357,17 @@ MiraiLink/
    - To connect Firebase services in your own environment, place your `google-services.json` inside `app/`.
    - To sign release builds, configure your `keystore.properties` in the root project folder.
 
-4. **Build and run from terminal**:
+4. **Build and run from the terminal**:
 
    **Windows (PowerShell):**
    ```powershell
-   # Clean and assemble debug APK
+   # Clean and assemble the debug APK
    .\gradlew.bat clean assembleDebug
 
-   # Install on connected device
+   # Install on a connected device
    .\gradlew.bat installDebug
 
-   # Launch app on device
+   # Launch the app on the device
    adb shell am start -n com.feryaeljustice.mirailink/.ui.MainActivity
    ```
 

@@ -8,7 +8,7 @@ Ubicación: docs/estudio/diagramas/. Cada archivo indica su tipo, fuente y signi
 - [actividad-studio](actividad-studio.md)
 - [componentes](componentes.md)
 - [estados](estados.md)
-- [mensajeria](mensajeria.md)
+- [mensajería](mensajeria.md)
 - [modelos](modelos.md)
 
 Las vistas del cliente explican interfaz, estado, almacenamiento local y llamadas. El ER PostgreSQL se encuentra en la guía del backend.

@@ -1,44 +1,44 @@
-# [APROBADO] Plan Tecnico de Arquitectura: Seccion Explorar (Explore Hub), Feeds Tematicos y Ajustes por Categoria
+# [APROBADO] Plan Técnico de Arquitectura: Sección Explorar (Explore Hub), Feeds Temáticos y Ajustes por Categoría
 
-- **Especificacion funcional asociada**: `docs/features/explore_categories_and_discovery/spec.md`
+- **Especificación funcional asociada**: `docs/features/explore_categories_and_discovery/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-09-24
-- **Modulos Afectados**: `:app` (`com.feryaeljustice.mirailink`), `MiraiLink-Backend` (Express 5 + PostgreSQL)
+- **Módulos Afectados**: `:app` (`com.feryaeljustice.mirailink`), `MiraiLink-Backend` (Express 5 + PostgreSQL)
 
 - - -
 
 ## 1. Hechos Verificados en el Proyecto (Sin Alucinaciones)
 
-Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `package.json`:
+Información verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `package.json`:
 
 - **Android Stack**:
   - Lenguaje & JVM: Kotlin `2.4.10` / Java 17
   - Build Tool: AGP `9.4.1`, KSP `2.3.8`
   - SDK Targets: Min SDK `26`, Compile SDK `37`, Target SDK `37`
   - UI: Jetpack Compose BOM `2026.09.00` con Material 3 y adaptive `1.3.0`
-  - Navegacion: Navigation 3 (`androidx.navigation3:navigation3-core:1.1.7`)
-  - Inyeccion de Dependencias: Koin BOM `4.2.2` con `koin-androidx-compose`
+  - Navegación: Navigation 3 (`androidx.navigation3:navigation3-core:1.1.7`)
+  - Inyección de Dependencias: Koin BOM `4.2.2` con `koin-androidx-compose`
   - Persistencia Local: Room `2.8.5` (con KSP) y Encrypted DataStore `1.2.1`
-  - Red & Serializacion: Retrofit `3.0.0`, OkHttp `5.5.0`, Kotlinx Serialization `1.11.0`
+  - Red & Serialización: Retrofit `3.0.0`, OkHttp `5.5.0`, Kotlinx Serialization `1.11.0`
   - Testing: JUnit `4.13.2`, MockK `1.14.11`, Turbine `1.2.1`, Coroutines Test `1.10.2`
 
 - **Backend Stack**:
   - Runtime: Node.js con ES Modules (`"type": "module"`)
   - Framework Web: Express `5.2.1`
   - Base de Datos: PostgreSQL driver `pg` `8.23.0`
-  - Validacion: Zod `4.6.5`
+  - Validación: Zod `4.6.5`
   - Testing: Vitest `5.0.1`, Supertest `7.3.0`
 
-> **Regla estricta**: Prohibido inventar metodos inexistentes o sugerir librerias que no existan en el catalogo de versiones sin aprobacion previa.
+> **Regla estricta**: Prohibido inventar métodos inexistentes o sugerir librerías que no existan en el catálogo de versiones sin aprobación previa.
 
 - - -
 
-## 2. Impacto Arquitectonico y Contratos en Backend (`MiraiLink-Backend`)
+## 2. Impacto Arquitectónico y Contratos en Backend (`MiraiLink-Backend`)
 
 ### 2.1. Base de Datos & Migraciones (`src/database/migrations/`)
 
-- **Migracion `008_explore_categories_and_preferences.sql`**:
-  - Tabla de categorias maestras `explore_categories`:
+- **Migración `008_explore_categories_and_preferences.sql`**:
+  - Tabla de categorías maestras `explore_categories`:
     ```sql
     CREATE TABLE IF NOT EXISTS explore_categories (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -61,7 +61,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
         PRIMARY KEY (category_id, language_id)
     );
     ```
-  - Tabla de preferencias por usuario y categoria `user_category_preferences`:
+  - Tabla de preferencias por usuario y categoría `user_category_preferences`:
     ```sql
     CREATE TABLE IF NOT EXISTS user_category_preferences (
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -73,37 +73,37 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
     );
     CREATE INDEX IF NOT EXISTS idx_user_cat_prefs ON user_category_preferences(user_id, category_id);
     ```
-  - Precarga de categorias y traducciones en `es`, `en`, `ja`:
+  - Precarga de categorías y traducciones en `es`, `en`, `ja`:
     - **Otaku**: `anime_marathon` ("Maraton de Anime"), `cosplay_events` ("Cosplay & Eventos"), `manga_lovers` ("Manga & Lectura").
-    - **Gaming**: `gaming_coop` ("Co-op & Duos"), `esports_competitive` ("Competitivo & E-Sports"), `rpg_fantasy` ("RPG & Fantasia"), `casual_gaming` ("Casual & Chill").
-    - **Conexiones**: `long_term_relationship` ("Relacion estable"), `casual_dating` ("Citas informales"), `new_friends` ("Nuevas amistades").
+    - **Gaming**: `gaming_coop` ("Co-op & Dúos"), `esports_competitive` ("Competitivo & E-Sports"), `rpg_fantasy` ("RPG & Fantasia"), `casual_gaming` ("Casual & Chill").
+    - **Conexiones**: `long_term_relationship` ("Relación estable"), `casual_dating` ("Citas informales"), `new_friends` ("Nuevas amistades").
 
 ### 2.2. Validaciones (`src/validation/explore.schemas.js`)
 
 - `categoryParamsSchema`:
-  - `categoryId`: UUID valido.
+  - `categoryId`: UUID válido.
 - `updateCategorySettingsSchema`:
   - `radius_km`: entero entre 10 y 500.
 
-### 2.3. Servicios y Cache de Contadores (`src/services/explore.service.js`)
+### 2.3. Servicios y Caché de Contadores (`src/services/explore.service.js`)
 
-- Cache en memoria con TTL de 5 minutos:
+- Caché en memoria con TTL de 5 minutos:
   - Estructura: `Map<string, { count: number, expiresAt: number }>`.
   - Clave: `${userId}:${categoryId}` o calculo geo-agregado por coordenadas de residencia/activas.
 - Consulta SQL agregada:
-  - Cruza candidatos cercanos que cumplan la condicion de la categoria (`filter_type` en `user_anime_interests`, `user_game_interests` o `user_relationship_goals`).
+  - Cruza candidatos cercanos que cumplan la condición de la categoría (`filter_type` en `user_anime_interests`, `user_game_interests` o `user_relationship_goals`).
   - Excluye perfiles ya interactuados en `likes` o `dislikes` por el usuario autenticado.
 
 ### 2.4. Controladores y Rutas (`src/controllers/explore.controller.js` y `src/routes/explore.routes.js`)
 
 - `GET /api/explore/categories`:
-  - Recupera las categorias agrupadas por `section_group`, con traduccion localizada segun cabecera `Accept-Language`, e inyecta el contador `active_count` desde la cache/servicio.
+  - Recupera las categorías agrupadas por `section_group`, con traducción localizada según cabecera `Accept-Language`, e inyecta el contador `active_count` desde la cache/servicio.
 - `GET /api/explore/categories/:categoryId/feed`:
-  - Consulta los perfiles candidatos de esa categoria.
-  - Recupera el radio especifico de `user_category_preferences` (fallback a 40 km si no ha sido configurado todavia).
+  - Consulta los perfiles candidatos de esa categoría.
+  - Recupera el radio específico de `user_category_preferences` (fallback a 40 km si no ha sido configurado todavía).
   - Devuelve candidatos en formato `toPublicUsers` con fotos, tags de anime/juegos coincidentes y calculo de distancia.
 - `GET /api/explore/categories/:categoryId/settings`:
-  - Devuelve `{ radius_km: number }` para el usuario y categoria.
+  - Devuelve `{ radius_km: number }` para el usuario y categoría.
 - `PUT /api/explore/categories/:categoryId/settings`:
   - Ejecuta `UPSERT` idempotente:
     ```sql
@@ -115,7 +115,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - - -
 
-## 3. Impacto Arquitectonico y Contratos en Android Client (`:app`)
+## 3. Impacto Arquitectónico y Contratos en Android Client (`:app`)
 
 ### 3.1. Capa de Dominio (`domain/`)
 
@@ -168,7 +168,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 - **API Service & DTOs (`data/remote/ExploreApiService.kt`)**:
   - Modelos serializables Kotlinx: `ExploreCategoryDto`, `CategorySettingsRequest`, `CategorySettingsResponse`.
   - Endpoints Retrofit correspondientes a `/api/explore/*`.
-- **Implementacion Remota (`data/repository/ExploreRepositoryImpl.kt`)**:
+- **Implementación Remota (`data/repository/ExploreRepositoryImpl.kt`)**:
   - Llama a `ExploreApiService`, transforma DTOs a modelos de dominio y mapea URLs de fotos con `resolvePhotoUrls`.
 - **Persistencia Local y Modo Demo (`data/local/demo/`)**:
   - Entidad Room `DemoCategoryPreferenceEntity`:
@@ -187,16 +187,16 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   - DAO `DemoCategoryDao`:
     - `getPreference(userId: String, categoryId: String): DemoCategoryPreferenceEntity?`
     - `insertOrUpdate(entity: DemoCategoryPreferenceEntity)`
-  - Actualizacion de `MiraiLinkDemoDatabase`: incrementar `version = 3`, registrar entidad y DAO.
-- **Implementacion Demo (`data/repository/demo/DemoExploreRepositoryImpl.kt`)**:
-  - Seeder de categorias locales precargadas en memoria / Room.
-  - Filtro dinamico de candidatos locales en memoria segun `filter_type` y distancia calculada con `GeoUtils.calculateDistanceKm`.
+  - Actualización de `MiraiLinkDemoDatabase`: incrementar `version = 3`, registrar entidad y DAO.
+- **Implementación Demo (`data/repository/demo/DemoExploreRepositoryImpl.kt`)**:
+  - Seeder de categorías locales precargadas en memoria / Room.
+  - Filtro dinámico de candidatos locales en memoria según `filter_type` y distancia calculada con `GeoUtils.calculateDistanceKm`.
 - **Repositorio Delegado (`data/repository/delegating/DelegatingExploreRepository.kt`)**:
   - Conmuta transparentemente entre `ExploreRepositoryImpl` y `DemoExploreRepositoryImpl` mediante `DemoModeManager.isDemoActive()`.
 
-### 3.3. Capa de Presentacion (`ui/`)
+### 3.3. Capa de Presentación (`ui/`)
 
-- **Navegacion (`ui/navigation/`)**:
+- **Navegación (`ui/navigation/`)**:
   - En `AppScreen.kt`:
     ```kotlin
     @Serializable
@@ -213,23 +213,23 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   - En `MiraiLinkBottomBar.kt`:
     - Incorporar `BottomNavItem(AppScreen.ExploreScreen, R.drawable.ic_explore, R.string.nav_explore)` como 2º tab.
   - En `NavWrapper.kt`:
-    - Registrar entradas de navegacion para `AppScreen.ExploreScreen` y `AppScreen.CategoryFeedScreen`.
+    - Registrar entradas de navegación para `AppScreen.ExploreScreen` y `AppScreen.CategoryFeedScreen`.
 - **Pantalla de Explorar (`ui/screens/explore/ExploreScreen.kt`)**:
   - Encabezado con carrusel horizontal superior de recomendaciones destacadas (Bumble style).
-  - Bloques tematicos con titulos ("Otaku & Anime", "Videojuegos & Gaming", "Conexiones & Metas") y cuadriculas de 2 columnas con tarjetas de categoria (Tinder style: icono glossy, titulo y contador).
-  - Al pulsar una categoria: `navigator.navigate(AppScreen.CategoryFeedScreen(categoryId, categoryTitle))`.
-- **Pantalla de Feed por Categoria (`ui/screens/explore/feed/CategoryFeedScreen.kt`)**:
-  - Top bar con boton atras (X), titulo de categoria y boton de ajustes (icono spark/filtro).
+  - Bloques temáticos con títulos ("Otaku & Anime", "Videojuegos & Gaming", "Conexiones & Metas") y cuadrículas de 2 columnas con tarjetas de categoría (Tinder style: icono glossy, título y contador).
+  - Al pulsar una categoría: `navigator.navigate(AppScreen.CategoryFeedScreen(categoryId, categoryTitle))`.
+- **Pantalla de Feed por Categoría (`ui/screens/explore/feed/CategoryFeedScreen.kt`)**:
+  - Top bar con botón atrás (X), título de categoría y botón de ajustes (icono spark/filtro).
   - Pila de tarjetas reutilizando `UserSwipeCardStack` para swiping interactivo (like/dislike/undo).
-- **Hoja de Ajustes de Categoria (`ui/screens/explore/feed/CategoryDiscoverySettingsSheet.kt`)**:
+- **Hoja de Ajustes de Categoría (`ui/screens/explore/feed/CategoryDiscoverySettingsSheet.kt`)**:
   - Modal Bottom Sheet con slider de 10 a 500 km.
-  - Leyenda informativa: "Estos ajustes solo se aplican en [Nombre de Categoria]".
-  - Boton "Actualizar ajustes" que ejecuta `updateCategoryPreferences` y refresca el feed.
+  - Leyenda informativa: "Estos ajustes solo se aplican en [Nombre de Categoría]".
+  - Botón "Actualizar ajustes" que ejecuta `updateCategoryPreferences` y refresca el feed.
 - **ViewModels**:
-  - `ExploreViewModel`: expone `ExploreUiState (Loading, Success, Error)` y carga de categorias.
+  - `ExploreViewModel`: expone `ExploreUiState (Loading, Success, Error)` y carga de categorías.
   - `CategoryFeedViewModel`: expone `CategoryFeedUiState` y maneja swipe stack, undo y apertura/guardado de ajustes independientes.
 
-### 3.4. Modulos Koin (`di/koin/`)
+### 3.4. Módulos Koin (`di/koin/`)
 
 - `NetworkModule.kt`: agregar servicio Retrofit `ExploreApiService`.
 - `DemoModule.kt`: registrar `DemoCategoryDao` y `DemoExploreRepositoryImpl` con calificador `Demo`.
@@ -246,22 +246,22 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   - `ExploreViewModelTest`: validar estados con Turbine (`Loading` -> `Success`).
   - `CategoryFeedViewModelTest`: validar swipe left/right, recarga tras cambio de radio y persistencia de ajustes.
 - **Pruebas de Base de Datos en Room (`app/src/androidTest/` o Robolectric)**:
-  - `DemoCategoryDaoTest`: verificar `insertOrUpdate` idempotente ante multiples guardados de radio.
+  - `DemoCategoryDaoTest`: verificar `insertOrUpdate` idempotente ante múltiples guardados de radio.
 - **Pruebas en Backend (`tests/`)**:
   - `explore.test.js` con Vitest y Supertest:
-    - `GET /api/explore/categories`: formato, internacionalizacion de titulos y contadores.
-    - `GET /api/explore/categories/:id/feed`: retorno de perfiles segun radio y categoria.
-    - `PUT /api/explore/categories/:id/settings`: idempotencia de actualizacion y validaciones Zod.
-- **Verificacion de Compilacion**:
+    - `GET /api/explore/categories`: formato, internacionalización de títulos y contadores.
+    - `GET /api/explore/categories/:id/feed`: retorno de perfiles según radio y categoría.
+    - `PUT /api/explore/categories/:id/settings`: idempotencia de actualización y validaciones Zod.
+- **Verificación de Compilación**:
   - `./gradlew assembleDebug` y `./gradlew testDebugUnitTest`.
 
 - - -
 
-## 5. Riesgos Tecnicos y Mitigaciones
+## 5. Riesgos Técnicos y Mitigaciones
 
-- **Riesgo 1**: Sobrecarga en la base de datos de PostgreSQL al calcular en tiempo real los contadores de personas para multiples categorias.
-  - **Mitigacion**: Cache en memoria en `explore.service.js` con TTL de 5 minutos e indices optimizados en PostgreSQL (`idx_user_anime_user`, `idx_user_game_user`, `idx_users_residence_coords`).
-- **Riesgo 2**: Inconsistencia al cambiar de tab en la barra inferior (Bottom Bar) o recreacion de la actividad por rotacion.
-  - **Mitigacion**: Uso de `SavedStateHandle` en `CategoryFeedViewModel` para guardar `categoryId` y `categoryName`, preservando la pila de navegacion nativa de Navigation 3.
-- **Riesgo 3**: Desalineacion de ajustes entre modo online y modo demo offline.
-  - **Mitigacion**: `DelegatingExploreRepository` implementa exactamente la misma interfaz para ambos modos, garantizando paridad completa de comportamiento.
+- **Riesgo 1**: Sobrecarga en la base de datos de PostgreSQL al calcular en tiempo real los contadores de personas para múltiples categorías.
+  - **Mitigación**: Caché en memoria en `explore.service.js` con TTL de 5 minutos e índices optimizados en PostgreSQL (`idx_user_anime_user`, `idx_user_game_user`, `idx_users_residence_coords`).
+- **Riesgo 2**: Inconsistencia al cambiar de tab en la barra inferior (Bottom Bar) o recreación de la actividad por rotación.
+  - **Mitigación**: Uso de `SavedStateHandle` en `CategoryFeedViewModel` para guardar `categoryId` y `categoryName`, preservando la pila de navegación nativa de Navigation 3.
+- **Riesgo 3**: Desalineación de ajustes entre modo online y modo demo offline.
+  - **Mitigación**: `DelegatingExploreRepository` implementa exactamente la misma interfaz para ambos modos, garantizando paridad completa de comportamiento.

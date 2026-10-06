@@ -1,9 +1,9 @@
-# [APROBADO] Plan Tecnico: Residencia Canonica y Preferencias de Busqueda Separadas
+# [APROBADO] Plan Técnico: Residencia Canónica y Preferencias de Búsqueda Separadas
 
-- **Especificacion asociada**: `docs/features/canonical_residence_and_search_preferences/spec.md`
+- **Especificación asociada**: `docs/features/canonical_residence_and_search_preferences/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-09-21
-- **Modulos**: `:app` y `MiraiLink-Backend`
+- **Módulos**: `:app` y `MiraiLink-Backend`
 
 ## 1. Hechos verificados
 

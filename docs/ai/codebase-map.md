@@ -55,7 +55,7 @@ La rama codex/comprehensive-testing añade código sin cambiar el inventario his
 | `build.gradle.kts` | Plugins comunes sin aplicar |
 | `app/build.gradle.kts` | Android, firma, build types, pruebas, dependencias y Kotzilla |
 | `gradle/libs.versions.toml` | Version Catalog completo |
-| `gradle.properties` | AndroidX, configuration cache, KSP2, Kotlin integrado y opciones AGP |
+| `gradle.properties` | AndroidX, configuration caché, KSP2, Kotlin integrado y opciones AGP |
 | `gradle/wrapper/gradle-wrapper.properties` | Gradle 9.6.1 |
 | `gradle/gradle-daemon-jvm.properties` | Toolchain Oracle Java 17 |
 | `app/proguard-rules.pro` | Reglas R8 y ProGuard de release |
