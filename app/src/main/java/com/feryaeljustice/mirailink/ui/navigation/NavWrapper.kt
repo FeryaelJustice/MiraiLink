@@ -220,8 +220,11 @@ fun NavWrapper(
         }
     }
 
+    val affinityCases: com.feryaeljustice.mirailink.domain.usecase.affinity.AffinityUseCases = org.koin.compose.koinInject()
+    LaunchedEffect(isAuthenticated, currentUserId, isDemoMode) { if (isAuthenticated) affinityCases.activity() }
+
     // Deep Link Navigation: mirailink:// and https://
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isAuthenticated, isVerified, currentUserId) {
         miraiLinkSession.pendingDeepLinkUri.collectLatest { data ->
             val scheme = data.scheme
             val host = data.host
@@ -258,6 +261,19 @@ fun NavWrapper(
                             token = token,
                         ),
                     )
+                }
+
+                scheme == "mirailink" && host == "chat" && isAuthenticated && isVerified && segments.isNotEmpty() -> {
+                    miraiLinkSession.clearPendingDeepLink()
+                    navigator.navigate(AppScreen.ChatScreen(segments.first()))
+                }
+                scheme == "mirailink" && host == "affinities" && isAuthenticated && isVerified -> {
+                    miraiLinkSession.clearPendingDeepLink()
+                    navigator.navigate(AppScreen.ReceivedLikesScreen)
+                }
+                scheme == "mirailink" && host == "requests" && isAuthenticated && isVerified -> {
+                    miraiLinkSession.clearPendingDeepLink()
+                    navigator.navigate(AppScreen.ReceivedLikesScreen)
                 }
 
                 // HTTPS deep links
@@ -501,6 +517,7 @@ fun NavWrapper(
                         onNavigateToChat = { userId ->
                             navigator.navigate(AppScreen.ChatScreen(userId))
                         },
+                        onNavigateToUserDetail = { username -> navigator.navigate(AppScreen.UserProfileDetailScreen(username, false)) },
                         onNavigateToAiChat = {
                             navigator.navigate(AppScreen.AiChatScreen)
                         },
@@ -518,6 +535,7 @@ fun NavWrapper(
                                 ),
                             )
                         },
+                        onNavigateToAffinityPaywall = { navigator.navigate(AppScreen.AffinityPaywallScreen) },
                         onNavigateToPaywall = {
                             navigator.navigate(AppScreen.SubscriptionPaywallScreen)
                         },
@@ -610,6 +628,20 @@ fun NavWrapper(
                     )
                 }
 
+                entry<AppScreen.AffinityPaywallScreen> {
+                    if (isDemoMode) {
+                        androidx.compose.foundation.layout.Column {
+                            androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(R.string.affinity_explanation))
+                            androidx.compose.material3.Button(onClick = { miraiLinkSession.setDemoSubscriptionPlan(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.PLUS); navigator.goBack() }) {
+                                androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(R.string.affinity_demo_plus))
+                            }
+                        }
+                    } else {
+                    val paywall: com.feryaeljustice.mirailink.ui.screens.subscription.SubscriptionPaywallViewModel = org.koin.compose.viewmodel.koinViewModel()
+                    LaunchedEffect(paywall) { paywall.selectTier(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.PLUS) }
+                    SubscriptionPaywallScreen(onBackClick = { navigator.goBack() }, viewModel = paywall)
+                    }
+                }
                 entry<AppScreen.SubscriptionPaywallScreen> {
                     SubscriptionPaywallScreen(
                         onBackClick = { navigator.goBack() },
@@ -842,6 +874,7 @@ private fun NavKey.debugRouteName(): String =
         is AppScreen.SettingsScreen -> "settings"
         is AppScreen.ProfileScreen -> "profile"
         is AppScreen.FeedbackScreen -> "feedback"
+        is AppScreen.AffinityPaywallScreen -> "affinity_paywall"
         is AppScreen.SubscriptionPaywallScreen -> "subscription_paywall"
         is AppScreen.SubscriptionManageScreen -> "subscription_manage"
         is AppScreen.UsernameDetailScreen -> "username_detail"

@@ -341,6 +341,13 @@ fun SettingsScreen(
                     .padding(4.dp),
         )*/
         if (isDemoMode) {
+            SettingsSectionTitle(stringResource(R.string.settings_section_subscription))
+            com.feryaeljustice.mirailink.ui.screens.settings.components.DemoSubscriptionSelector(
+                isPremium = isPremium,
+                isPlus = isPlus,
+                onPlanSelected = miraiLinkSession::setDemoSubscriptionPlan,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             SettingsActionCard(
                 icon = Icons.Default.Refresh,
                 title = stringResource(R.string.demo_mode_reset_data),

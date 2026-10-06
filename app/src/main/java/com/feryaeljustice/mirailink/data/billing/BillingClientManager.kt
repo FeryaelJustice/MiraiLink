@@ -3,7 +3,6 @@ package com.feryaeljustice.mirailink.data.billing
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
@@ -14,7 +13,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +33,7 @@ sealed class BillingPurchaseEvent {
 class BillingClientManager(
     context: Context,
     private val scope: CoroutineScope,
+    private val accountId: () -> String? = { null },
 ) : PurchasesUpdatedListener, BillingClientStateListener {
 
     companion object {
@@ -159,7 +158,10 @@ class BillingClientManager(
             .setOfferToken(offerToken)
             .build()
 
+        val account = accountId() ?: return BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.ERROR).build()
+        val accountHash = java.security.MessageDigest.getInstance("SHA-256").digest(account.toByteArray()).joinToString("") { "%02x".format(it) }
         val billingFlowParams = BillingFlowParams.newBuilder()
+            .setObfuscatedAccountId(accountHash)
             .setProductDetailsParamsList(listOf(productDetailsParams))
             .build()
 
@@ -199,25 +201,7 @@ class BillingClientManager(
      */
     suspend fun handlePurchase(purchase: Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            if (!purchase.isAcknowledged) {
-                val acknowledgeParams = AcknowledgePurchaseParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
-                    .build()
-                val result = billingClient.acknowledgePurchase(acknowledgeParams)
-                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    _purchaseEvents.tryEmit(BillingPurchaseEvent.PurchaseSuccess(purchase))
-                } else {
-                    Log.e(TAG, "Failed to acknowledge purchase: ${result.debugMessage}")
-                    _purchaseEvents.tryEmit(
-                        BillingPurchaseEvent.PurchaseFailed(
-                            responseCode = result.responseCode,
-                            debugMessage = result.debugMessage,
-                        )
-                    )
-                }
-            } else {
-                _purchaseEvents.tryEmit(BillingPurchaseEvent.PurchaseSuccess(purchase))
-            }
+            _purchaseEvents.tryEmit(BillingPurchaseEvent.PurchaseSuccess(purchase))
         }
     }
 

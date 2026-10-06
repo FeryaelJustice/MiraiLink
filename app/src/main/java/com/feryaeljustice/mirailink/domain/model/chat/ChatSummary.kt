@@ -25,4 +25,5 @@ data class ChatSummary(
     val unreadCount: Int = 0,
     val destinatary: MinimalUserInfo? = null,
     val name: String? = null,
+    val origin: String = "legacy",
 )

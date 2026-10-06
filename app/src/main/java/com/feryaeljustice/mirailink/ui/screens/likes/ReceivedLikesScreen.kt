@@ -55,6 +55,7 @@ fun ReceivedLikesScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToUserDetail: (String) -> Unit,
     onNavigateToPaywall: () -> Unit = {},
+    onNavigateToAffinityPaywall: () -> Unit = onNavigateToPaywall,
     viewModel: ReceivedLikesViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,49 +79,18 @@ fun ReceivedLikesScreen(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        MiraiLinkText(
-            text = stringResource(R.string.received_likes_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.error != null) {
-            MiraiLinkErrorContent(
-                error = uiState.error!!,
-                onAction = { viewModel.loadLikes() },
-            )
-        } else if (uiState.isPremiumLocked) {
-            PremiumLockedState(onNavigateToPaywall = onNavigateToPaywall)
-        } else if (uiState.likes.isEmpty()) {
-            EmptyLikesState()
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 8.dp),
-            ) {
-                items(uiState.likes, key = { it.likeId }) { item ->
-                    ReceivedLikeItemCard(
-                        item = item,
-                        onClick = { onNavigateToUserDetail(item.username) },
-                        onMatchClick = { viewModel.matchUser(item) },
-                    )
-                }
-            }
+    LazyColumn(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 16.dp)) {
+        item {
+            com.feryaeljustice.mirailink.ui.screens.affinity.AffinitySection(onNavigateToUserDetail, onNavigateToAffinityPaywall)
+        }
+        item { androidx.compose.material3.HorizontalDivider() }
+        item { MiraiLinkText(text = stringResource(R.string.received_likes_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) }
+        when {
+            uiState.isLoading -> item { CircularProgressIndicator() }
+            uiState.error != null -> item { MiraiLinkErrorContent(error = uiState.error!!, onAction = { viewModel.loadLikes() }) }
+            uiState.isPremiumLocked -> item { PremiumLockedState(onNavigateToPaywall = onNavigateToPaywall) }
+            uiState.likes.isEmpty() -> item { EmptyLikesState() }
+            else -> items(uiState.likes, key = { it.likeId }) { item -> ReceivedLikeItemCard(item = item, onClick = { onNavigateToUserDetail(item.username) }, onMatchClick = { viewModel.matchUser(item) }) }
         }
     }
 }

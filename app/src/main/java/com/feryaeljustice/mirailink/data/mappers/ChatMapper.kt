@@ -10,6 +10,7 @@ import com.feryaeljustice.mirailink.domain.util.parseDate
 
 fun ChatSummaryResponse.toDomain() = ChatSummary(
     id = id,
+    origin = origin,
     type = ChatType.fromString(type),
     name = name,
     createdBy = createdBy,
