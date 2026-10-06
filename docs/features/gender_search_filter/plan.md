@@ -1,21 +1,21 @@
-# [APROBADO] Plan Tecnico de Arquitectura: Filtro de Busqueda por Genero y Desbloqueo Premium
+# [APROBADO] Plan Técnico de Arquitectura: Filtro de Búsqueda por Género y Desbloqueo Premium
 
-- **Especificacion funcional asociada**: `docs/features/gender_search_filter/spec.md`
+- **Especificación funcional asociada**: `docs/features/gender_search_filter/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-10-05
-- **Modulos Afectados**: `:app` (`com.feryaeljustice.mirailink`) y backend `MiraiLink-Backend` (`Express 5 + PostgreSQL`)
+- **Módulos Afectados**: `:app` (`com.feryaeljustice.mirailink`) y backend `MiraiLink-Backend` (`Express 5 + PostgreSQL`)
 
 - - -
 
 ## 1. Hechos Verificados en el Proyecto (Sin Alucinaciones)
 
-Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `MiraiLink-Backend/package.json`:
+Información verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `MiraiLink-Backend/package.json`:
 
 - **Android SDK**: Min SDK `26`, Compile SDK `37`, Target SDK `37`
 - **Android Toolchain**: Kotlin `2.4.20`, AGP `9.4.1`, Gradle wrapper, KSP `2.3.12`
-- **Librerias en Classpath**:
+- **Librerías en Classpath**:
   - UI: Compose BOM `2026.09.00` con Material 3
-  - Inyeccion de dependencias: Koin BOM `4.2.2` con Koin Annotations
+  - Inyección de dependencias: Koin BOM `4.2.2` con Koin Annotations
   - Persistencia: Room `2.8.5`, Encrypted DataStore `1.2.1`
   - Red: Retrofit `3.0.0`, OkHttp `5.5.0`
   - Google Play Billing: `billing-ktx:9.1.0`
@@ -23,12 +23,12 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - - -
 
-## 2. Impacto Arquitectonico y Contratos por Capas
+## 2. Impacto Arquitectónico y Contratos por Capas
 
 ### 2.1. Backend (`MiraiLink-Backend`)
 
 #### Base de Datos
-- **Migracion `011_search_gender_filter.sql`**:
+- **Migración `011_search_gender_filter.sql`**:
   ```sql
   BEGIN;
   ALTER TABLE user_search_preferences 
@@ -42,7 +42,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   ```
 
 #### Capa de Servicios y Controladores
-- **Resolucion de Genero Objetivo**:
+- **Resolución de Género Objetivo**:
   ```js
   function resolveTargetGender(userGender, preferenceGender, isPlusOrPremium) {
       if (isPlusOrPremium && preferenceGender) {
@@ -55,9 +55,9 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   ```
 - **Controlador `swipe.controller.js`**:
   - Obtiene `u.gender` del usuario actual y `p.search_gender`.
-  - Verifica si el usuario posee suscripcion activa Plus o Premium.
+  - Verifica si el usuario posee suscripción activa Plus o Premium.
   - Calcula `effectiveTargetGender`.
-  - Incorpora a `candidate_geo` la condicion:
+  - Incorpora a `candidate_geo` la condición:
     ```sql
     AND (
         $genderParam = 'all' OR
@@ -111,24 +111,24 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
   - `UserProfileResponse`: Mapea `search_gender` en `toDomain()`.
   - `CategoryPreferenceDto`: Mapea `target_gender`.
 - **Mapeadores**:
-  - `SearchSettingsMappers.kt`: Conversion entre `TargetSearchGender` y Strings serializados.
+  - `SearchSettingsMappers.kt`: Conversión entre `TargetSearchGender` y Strings serializados.
 - **FAQ**:
-  - `FaqRepositoryImpl`: Agrega item `faq_gender_filter` bajo `CARDS_AND_MATCHING` o `SUBSCRIPTIONS_AND_PAYMENTS`.
+  - `FaqRepositoryImpl`: Agrega ítem `faq_gender_filter` bajo `CARDS_AND_MATCHING` o `SUBSCRIPTIONS_AND_PAYMENTS`.
 
 ---
 
-### 2.4. Capa de Presentacion Android (`ui/`)
+### 2.4. Capa de Presentación Android (`ui/`)
 
 - **`SearchSettingsSection.kt`**:
-  - Incorpora seccion "Genero a buscar" con chips (Mujeres, Hombres, Todos).
-  - Bloqueado en Free mostrando el genero por defecto segun el perfil y badge "Plus". Al hacer click abre el Paywall.
+  - Incorpora sección "Género a buscar" con chips (Mujeres, Hombres, Todos).
+  - Bloqueado en Free mostrando el género por defecto según el perfil y badge "Plus". Al hacer click abre el Paywall.
   - Interactivo en Plus y Premium.
 - **`CategoryDiscoverySettingsSheet.kt`**:
-  - Agrega selector analogo de genero para la categoria.
+  - Agrega selector análogo de género para la categoría.
   - Bloqueo en Free con banner informativo y llamada al Paywall.
   - Interactivo en Plus y Premium.
 - **`SubscriptionPaywallScreen.kt`**:
-  - Muestra "Filtro de genero de busqueda desbloqueado" en la columna de beneficios Plus.
+  - Muestra "Filtro de género de búsqueda desbloqueado" en la columna de beneficios Plus.
 - **Recursos i18n (`res/values/strings.xml`, `values-es`, `values-ja`)**:
   - Claves para labels, descripciones, notas de bloqueo y FAQ.
 
@@ -138,18 +138,18 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - **Backend**:
   - Unit tests en Vitest para `swipe.controller.test.js`, `explore.service.test.js` y `user.controller.test.js`.
-  - Validar status 403 ante manipulacion de payload en Free y status 200 en Plus/Premium.
-  - Validar que los feeds y contadores devueltos correspondan al genero filtrado.
+  - Validar status 403 ante manipulación de payload en Free y status 200 en Plus/Premium.
+  - Validar que los feeds y contadores devueltos correspondan al género filtrado.
 - **Android**:
   - Unit tests en `SearchPreferencesViewModelTest` y `CategoryFeedViewModelTest`.
   - Tests en `FaqRepositoryImplTest`.
-  - Compilacion de validacion con `.\gradlew.bat testDebugUnitTest assembleDebug`.
+  - Compilación de validación con `.\gradlew.bat testDebugUnitTest assembleDebug`.
 
 - - -
 
-## 4. Riesgos Tecnicos y Mitigaciones
+## 4. Riesgos Técnicos y Mitigaciones
 
 - **Riesgo 1**: Incompatibilidad con perfiles existentes que tengan `search_gender = NULL`.
-  - **Mitigacion**: `COALESCE` en SQL y fallback automatico al genero opuesto segun `users.gender`.
-- **Riesgo 2**: Inconsistencia entre el contador `active_count` de categorias y los perfiles reales del feed.
-  - **Mitigacion**: La misma clausula WHERE de genero se inyecta en el conteo de `getExploreSectionsWithCategories` y en `getCategoryFeedUsers`.
+  - **Mitigación**: `COALESCE` en SQL y fallback automático al género opuesto según `users.gender`.
+- **Riesgo 2**: Inconsistencia entre el contador `active_count` de categorías y los perfiles reales del feed.
+  - **Mitigación**: La misma clausula WHERE de género se inyecta en el conteo de `getExploreSectionsWithCategories` y en `getCategoryFeedUsers`.

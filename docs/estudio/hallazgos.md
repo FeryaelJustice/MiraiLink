@@ -7,7 +7,7 @@ Revisión de fuentes: 2026-10-01. Las observaciones estáticas no certifican el 
 
 | Hallazgo | Evidencia | Implicación |
 | --- | --- | --- |
-| Versiones/documentos antiguos | Build min SDK 30, version 3.0.0, catálogo actual | README/contextos antiguos no deben usarse como ficha vigente |
+| Versiones/documentos antiguos | Build min SDK 30, versión 3.0.0, catálogo actual | README/contextos antiguos no deben usarse como ficha vigente |
 | Hilt descrito, Koin real | RepositoryModule y Application | La guía vigente se corrige; no migrar DI |
 | Chat REST con polling | ChatViewModel, getMessages lanza job | No asegurar WebSocket activo, exclusión mutua ni entrega en tiempo real |
 | Grupos incompletos en UI | startGroupMessagesPolling TODO | Endpoints no prueban feature completa |

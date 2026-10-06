@@ -72,7 +72,7 @@ Editar
 data class UserListViewEntity(
     val isLoading: Boolean,
     val filtersSummary: String,
-    val items: List<UserListEntry>
+    val ítems: List<UserListEntry>
 )
 
 data class UserListEntry(

@@ -1,26 +1,26 @@
-# [APROBADO] Plan Tecnico de Arquitectura: Sincronizacion de Catalogo y Tarjetas Visuales de Intereses
+# [APROBADO] Plan Técnico de Arquitectura: Sincronización de Catálogo y Tarjetas Visuales de Intereses
 
-- **Especificacion funcional asociada**: `docs/features/visual_interest_cards_and_catalog_sync/spec.md`
+- **Especificación funcional asociada**: `docs/features/visual_interest_cards_and_catalog_sync/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-09-23
-- **Modulos**: `:app` (`com.feryaeljustice.mirailink`) y `MiraiLink-Backend`
+- **Módulos**: `:app` (`com.feryaeljustice.mirailink`) y `MiraiLink-Backend`
 
 - - -
 
 ## 1. Hechos Verificados en el Proyecto (Sin Alucinaciones)
 
-Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `MiraiLink-Backend/package.json`:
+Información verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.gradle.kts` y `MiraiLink-Backend/package.json`:
 
 - **Android**:
   - **Lenguaje & JVM**: Kotlin `2.4.10` / Java 17
   - **Compilador & Build Tool**: AGP `9.4.1`, Gradle `9.6.1`
   - **SDK Targets**: Min SDK `26`, Compile SDK `37`, Target SDK `37`
   - **UI**: Compose BOM `2026.09.00` con Material 3
-  - **Carga de Imagenes**: Coil `2.7.0` (`io.coil-kt:coil-compose`)
-  - **Inyeccion de Dependencias**: Koin BOM `4.2.2` con `koin-androidx-compose`
+  - **Carga de Imágenes**: Coil `2.7.0` (`io.coil-kt:coil-compose`)
+  - **Inyección de Dependencias**: Koin BOM `4.2.2` con `koin-androidx-compose`
   - **Persistencia Local**: Room Database `2.8.5` (KSP) y Encrypted DataStore `1.2.1`
   - **Red & API**: Retrofit `3.0.0`, OkHttp `5.5.0`
-  - **Serializacion**: Kotlinx Serialization `1.11.0`
+  - **Serialización**: Kotlinx Serialization `1.11.0`
 - **Backend (`MiraiLink-Backend`)**:
   - **Runtime**: Node.js (ES Modules `type: "module"`)
   - **Base de Datos**: PostgreSQL (`pg` pool)
@@ -29,7 +29,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - - -
 
-## 2. Impacto Arquitectonico y Contratos por Capas
+## 2. Impacto Arquitectónico y Contratos por Capas
 
 ### 2.1. Backend (`MiraiLink-Backend`)
 
@@ -98,7 +98,7 @@ Informacion verificada rigurosamente en `gradle/libs.versions.toml`, `app/build.
 
 - - -
 
-## 4. Riesgos Tecnicos y Mitigaciones
+## 4. Riesgos Técnicos y Mitigaciones
 
 - **Riesgo 1: Rate Limiting o Caída de APIs Externas (RAWG / Jikan)**:
   - *Mitigación*: Bloques `try/catch` con reintentos exponenciales en los clientes de sincronización; si la API externa falla, el backend registra el warning y conserva intacto el catálogo existente.

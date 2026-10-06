@@ -15,7 +15,7 @@
 | target SDK | 37 |
 | min SDK | 26 |
 
-La configuración usa built-in Kotlin de AGP, KSP2, configuration cache y la opción experimental de screenshot testing.
+La configuración usa built-in Kotlin de AGP, KSP2, configuration caché y la opción experimental de screenshot testing.
 
 ## Preparación local
 

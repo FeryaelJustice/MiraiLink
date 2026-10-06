@@ -27,7 +27,7 @@ El repositorio contiene solo el cliente Android. No contiene el backend, su base
 | Monetización | AdMob y UMP |
 | SDK | min 26, compile 37, target 37 |
 | Toolchain | Java 17, Kotlin 2.4.10, AGP 9.3.0, Gradle 9.6.1 |
-| Versión de app | 2.3.0, version code 33 |
+| Versión de app | 2.3.0, versión code 33 |
 
 ## Documentos
 

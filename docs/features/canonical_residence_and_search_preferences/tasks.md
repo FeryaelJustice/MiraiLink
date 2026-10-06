@@ -1,4 +1,4 @@
-# Checklist de tareas: Residencia Canonica y Preferencias de Busqueda Separadas
+# Checklist de tareas: Residencia Canónica y Preferencias de Búsqueda Separadas
 
 - **Especificación**: `spec.md`
 - **Plan técnico**: `plan.md`

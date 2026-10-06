@@ -128,7 +128,7 @@ Se diseñó e implementó una suite exhaustiva de tests unitarios que cubren cad
 
 ## 5. Capturas de Pantalla en Dispositivo / Emulador
 
-Las capturas generadas en el emulador Pixel 10 Pro XL han sido procesadas y convertidas al formato optimizado `.webp` en el directorio `docs/screenshots/`:
+Las capturas generadas en el emulador Píxel 10 Pro XL han sido procesadas y convertidas al formato optimizado `.webp` en el directorio `docs/screenshots/`:
 
 | Pantalla | Archivo | Descripción |
 | :--- | :--- | :--- |

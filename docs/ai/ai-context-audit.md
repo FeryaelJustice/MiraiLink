@@ -72,7 +72,7 @@ El README sigue siendo una buena introducción de producto y contiene comandos �
 
 ## Mantenimiento
 
-Actualiza los documentos y el cache cuando cambie cualquiera de estos puntos:
+Actualiza los documentos y el caché cuando cambie cualquiera de estos puntos:
 
 - Plugins, SDK, Kotlin, Gradle o dependencias principales.
 - Módulos o estructura de paquetes.

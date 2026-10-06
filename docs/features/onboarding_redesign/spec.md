@@ -1,9 +1,9 @@
-# [APROBADO] Especificacion Funcional: Rediseño Inmersivo del Onboarding MiraiLink
+# [APROBADO] Especificación Funcional: Rediseño Inmersivo del Onboarding MiraiLink
 
 - **Fecha**: 2026-10-01
 - **Estado**: [APROBADO]
 - **Autor / Responsable**: Pair Programming (Antigravity & User)
-- **Modulo Afectado**: `:app` (`com.feryaeljustice.mirailink`)
+- **Módulo Afectado**: `:app` (`com.feryaeljustice.mirailink`)
 - **Rama Git**: `feature/onboarding-redesign`
 
 - - -
@@ -15,7 +15,7 @@
 
 - - -
 
-## 2. Situacion Actual
+## 2. Situación Actual
 
 - `OnboardingScreen.kt` contiene un `HorizontalPager` de 3 páginas con:
   - Imagen superior del logo (`logomirailink`).
@@ -39,7 +39,7 @@
   - Limpieza y actualización de los strings en `values/strings.xml`, `values-es/strings.xml` y `values-en/strings.xml` para titulares y subtítulos.
 - **Estructura Visual de Onboarding (3 Pasos Temáticos Anime/MiraiLink)**:
   - **Paso 1: Sincronía y Conexión Otaku**:
-    - Composición visual: Ilustración en Compose con orbes de gradiente neon, avatar estilizado flotante, insignia de corazones entrelazados y chispas/destellos tipo anime (*kirakira* ✨).
+    - Composición visual: Ilustración en Compose con orbes de gradiente neón, avatar estilizado flotante, insignia de corazones entrelazados y chispas/destellos tipo anime (*kirakira* ✨).
     - Título: "Encuentra tu Player 2"
     - Subtítulo: Descubre personas afines que comparten tu pasión por el anime, manga y videojuegos con nuestro radar de compatibilidad.
   - **Paso 2: Expresa tu Auténtico Yo (Perfil)**:

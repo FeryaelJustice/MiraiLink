@@ -1,4 +1,4 @@
-# Checklist de tareas: Catalogo localizado de animes y juegos
+# Checklist de tareas: Catálogo localizado de animes y juegos
 
 - [ ] **Fase 1: Migración y semillas de backend**
   - [x] Crear ejecutor incremental `db:migrate` y tabla de control de migraciones.

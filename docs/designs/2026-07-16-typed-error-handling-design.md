@@ -10,7 +10,7 @@ The current flow has these problems:
 - `domain` depends on Android logging, JSON parsing and Retrofit.
 - HTTP status, connectivity, authentication and local storage failures are not distinguishable.
 - Most use cases replace an already classified failure with a new free-form message.
-- Several ViewModels duplicate error conversion, ignore failures or expose `MiraiLinkResult` directly.
+- Several ViewModels duplicate error conversión, ignore failures or expose `MiraiLinkResult` directly.
 - Recovery behavior is inconsistent and visible errors do not always offer an action.
 - Broad `Throwable` catches can consume coroutine cancellation.
 
@@ -259,7 +259,7 @@ Implementation follows test-first development:
 8. Existing datasource, repository and use case tests migrated from string assertions to typed error assertions.
 9. Compose tests for the reusable error component and action callback.
 
-The existing `SplashScreenViewModelTest` constructor mismatch will be corrected separately within the branch so the full unit suite can compile. It is a verified baseline failure and not caused by this design.
+The existing `SplashScreenViewModelTest` function Object() { [native code] } mismatch will be corrected separately within the branch so the full unit suite can compile. It is a verified baseline failure and not caused by this design.
 
 ## Validation
 

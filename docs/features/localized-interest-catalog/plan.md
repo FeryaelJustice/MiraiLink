@@ -1,9 +1,9 @@
-# [APROBADO] Plan Tecnico: Catalogo localizado de animes y juegos
+# [APROBADO] Plan Técnico: Catálogo localizado de animes y juegos
 
-- **Especificacion funcional asociada**: `docs/features/localized-interest-catalog/spec.md`
+- **Especificación funcional asociada**: `docs/features/localized-interest-catalog/spec.md`
 - **Estado**: [APROBADO]
 - **Fecha**: 2026-09-20
-- **Modulos**: Android `:app` y MiraiLink Backend
+- **Módulos**: Android `:app` y MiraiLink Backend
 
 ## 1. Hechos verificados
 

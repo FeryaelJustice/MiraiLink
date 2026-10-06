@@ -1,26 +1,26 @@
-# [APROBADO] Especificacion Funcional: Mirai Studio y HUD Scanner Biometrico
+# [APROBADO] Especificación Funcional: Mirai Studio y HUD Scanner Biométrico
 
 - **Fecha**: 2026-10-01
 - **Estado**: [APROBADO]
 - **Autor / Responsable**: Pair Programming (Antigravity & User)
-- **Modulo Afectado**: `:app` (`com.feryaeljustice.mirailink`)
+- **Módulo Afectado**: `:app` (`com.feryaeljustice.mirailink`)
 
 - - -
 
 ## 1. Problema y Objetivo
 
-- **Problema que resuelve**: Los usuarios de MiraiLink a menudo suben fotos oscuras, sobreexpuestas, excesivamente comprimidas, borrosas o capturas de pantalla de baja calidad tomadas con barras de estado y bordes negros. Esto devalua el aspecto visual del perfil y reduce el interes de otros usuarios. Ademas, los sistemas tradicionales o bien rechazan imagenes sin explicacion o no brindan ninguna guia interactiva al usuario.
-- **Objetivo**: Desarrollar e integrar **Mirai Studio (HUD Scanner)**, una experiencia interactiva futurista con estetica cyberpunk/sci-fi accesible tanto desde Ajustes como integrada en el flujo de seleccion de fotos de perfil (Camara y Galeria). El escaner realiza un analisis 100% local y offline mediante Google ML Kit Face Detection y un motor de metricas de calidad de imagen (luminancia, contraste, resolucion, nitidez y deteccion de capturas de pantalla). Proporciona retroalimentacion grafica en tiempo real mediante un HUD animado en Jetpack Compose, asignando insignias holograficas y recomendaciones no bloqueantes ("Soft Warning"), con soporte inclusivo para retratos humanos, cosplays, fotos de cuerpo entero o avatares de anime.
+- **Problema que resuelve**: Los usuarios de MiraiLink a menudo suben fotos oscuras, sobreexpuestas, excesivamente comprimidas, borrosas o capturas de pantalla de baja calidad tomadas con barras de estado y bordes negros. Esto devalua el aspecto visual del perfil y reduce el interés de otros usuarios. Además, los sistemas tradicionales o bien rechazan imágenes sin explicación o no brindan ninguna guía interactiva al usuario.
+- **Objetivo**: Desarrollar e integrar **Mirai Studio (HUD Scanner)**, una experiencia interactiva futurista con estética cyberpunk/sci-fi accesible tanto desde Ajustes como integrada en el flujo de selección de fotos de perfil (Cámara y Galería). El escaner realiza un análisis 100% local y offline mediante Google ML Kit Face Detection y un motor de métricas de calidad de imagen (luminancia, contraste, resolución, nitidez y detección de capturas de pantalla). Proporciona retroalimentación gráfica en tiempo real mediante un HUD animado en Jetpack Compose, asignando insignias holográficas y recomendaciones no bloqueantes ("Soft Warning"), con soporte inclusivo para retratos humanos, cosplays, fotos de cuerpo entero o avatares de anime.
 
 - - -
 
-## 2. Situacion Actual
+## 2. Situación Actual
 
-- En `ProfileScreen.kt`, al tocar una ranura de `EditablePhotoGrid`, se despliega un dialogo basico ("Actualizar o Borrar") y despues "Galeria o Camara".
-- La seleccion desde Galeria (`ActivityResultContracts.GetContent()`) inserta la imagen de forma directa sin ningun tipo de verificacion de resolucion, iluminacion ni nitidez.
-- La captura de Camara delega en la aplicacion de camara por defecto del sistema mediante `ActivityResultContracts.TakePicture()`, sin preview embebido ni guias de encuadre en tiempo real.
-- En `SettingsScreen.kt` no existe un punto de entrada para probar la camara o explorar la herramienta de calibracion fotografica.
-- En la seccion de Preguntas Frecuentes (`FaqRepositoryImpl.kt`), no se explican los estandares de calidad visual para las fotos de perfil.
+- En `ProfileScreen.kt`, al tocar una ranura de `EditablePhotoGrid`, se despliega un diálogo básico ("Actualizar o Borrar") y después "Galería o Cámara".
+- La selección desde Galería (`ActivityResultContracts.GetContent()`) inserta la imagen de forma directa sin ningún tipo de verificación de resolución, iluminación ni nitidez.
+- La captura de Cámara delega en la aplicación de cámara por defecto del sistema mediante `ActivityResultContracts.TakePicture()`, sin preview embebido ni guías de encuadre en tiempo real.
+- En `SettingsScreen.kt` no existe un punto de entrada para probar la cámara o explorar la herramienta de calibración fotográfica.
+- En la sección de Preguntas Frecuentes (`FaqRepositoryImpl.kt`), no se explican los estándares de calidad visual para las fotos de perfil.
 
 - - -
 
@@ -29,98 +29,98 @@
 ### 3.1. Dentro del Alcance (In Scope)
 
 1. **Punto de Entrada Dual (Modo Dual Completo)**:
-   - **Acceso desde Ajustes (`SettingsScreen`)**: Nueva tarjeta de accion "Mirai Studio (HUD Scanner)" en la seccion Multimedia / Cuenta, que navega a la pantalla completa `AppScreen.MiraiStudioScreen`. Permite al usuario interactuar libremente con la camara en vivo o cargar fotos de la galeria para ver su analisis HUD y, opcionalmente, exportar/guardar la foto en su perfil.
-   - **Acceso desde Edicion de Perfil (`ProfileScreen`)**:
-     - Al pulsar "Camara" en una ranura de foto: Abre el visor en vivo con CameraX y HUD Scanner. Al capturar, muestra el veredicto del analisis antes de confirmar su asignacion a la ranura.
-     - Al pulsar "Galeria": Al elegir una imagen, se despliega la pantalla/modal de inspeccion HUD de Mirai Studio, mostrando el escaneo biometrico/visual y el veredicto antes de confirmarla.
+   - **Acceso desde Ajustes (`SettingsScreen`)**: Nueva tarjeta de acción "Mirai Studio (HUD Scanner)" en la sección Multimedia / Cuenta, que navega a la pantalla completa `AppScreen.MiraiStudioScreen`. Permite al usuario interactuar libremente con la cámara en vivo o cargar fotos de la galería para ver su análisis HUD y, opcionalmente, exportar/guardar la foto en su perfil.
+   - **Acceso desde Edición de Perfil (`ProfileScreen`)**:
+     - Al pulsar "Cámara" en una ranura de foto: Abre el visor en vivo con CameraX y HUD Scanner. Al capturar, muestra el veredicto del análisis antes de confirmar su asignación a la ranura.
+     - Al pulsar "Galería": Al elegir una imagen, se despliega la pantalla/modal de inspección HUD de Mirai Studio, mostrando el escaneo biometrico/visual y el veredicto antes de confirmarla.
 
-2. **Doble Modo de Analisis Inteligente (Rostro vs Ilustracion / Anime / Distancia)**:
-   - **Modo Biometrico de Rostro (si se detecta cara humana o cosplay)**:
-     - Deteccion de puntos faciales con Google ML Kit Face Detection.
-     - Insignias biometricas: "Mirada Directa" (angulos yaw/pitch centrados), "Sonrisa Autentica" (probabilidad de sonrisa), "Encuadre Centrado" (posicion respecto a regla de los tercios) y "Ojos Abiertos".
+2. **Doble Modo de Análisis Inteligente (Rostro vs Ilustración / Anime / Distancia)**:
+   - **Modo Biométrico de Rostro (si se detecta cara humana o cosplay)**:
+     - Detección de puntos faciales con Google ML Kit Face Detection.
+     - Insignias biométricas: "Mirada Directa" (ángulos yaw/pitch centrados), "Sonrisa Auténtica" (probabilidad de sonrisa), "Encuadre Centrado" (posición respecto a regla de los tercios) y "Ojos Abiertos".
    - **Modo Calidad Visual General (si es avatar anime, mascota, paisaje o plano general)**:
      - No penaliza ni rechaza la foto por no contener un rostro humano.
-     - Evalua metricas universales: "Iluminacion Optima", "Alta Nitidez", "Resolucion Apta".
+     - Evalúa métricas universales: "Iluminación Optima", "Alta Nitidez", "Resolución Apta".
 
 3. **Detector de Capturas de Pantalla (Anti-Screenshot Scanner)**:
-   - Analiza si la imagen proviene de una captura de pantalla (deteccion por nombre de archivo con patron `Screenshot_` o `Captura_`, relacion de aspecto extrema identica a la relacion de pantalla del dispositivo con barras negras/grises, o baja densidad efectiva).
-   - Muestra una sugerencia amigable: "Detectamos una posible captura de pantalla. Para un perfil mas atractivo, te recomendamos subir la imagen original recortada sin barras del sistema".
+   - Analiza si la imagen proviene de una captura de pantalla (detección por nombre de archivo con patrón `Screenshot_` o `Captura_`, relación de aspecto extrema idéntica a la relación de pantalla del dispositivo con barras negras/grises, o baja densidad efectiva).
+   - Muestra una sugerencia amigable: "Detectamos una posible captura de pantalla. Para un perfil más atractivo, te recomendamos subir la imagen original recortada sin barras del sistema".
 
-4. **Politica de Calidad "Advertencia Informativa (Soft Warning)"**:
-   - Si la imagen es muy oscura, borrosa o de muy baja resolucion, el HUD resalta las metricas deficientes en color ambar/rojo con recomendaciones concretas de correccion.
+4. **Política de Calidad "Advertencia Informativa (Soft Warning)"**:
+   - Si la imagen es muy oscura, borrosa o de muy baja resolución, el HUD resalta las métricas deficientes en color ambar/rojo con recomendaciones concretas de corrección.
    - **Sin bloqueo estricto**: El usuario siempre tiene la libertad de pulsar "Usar de todos modos" o "Repetir / Elegir otra".
 
-5. **Diseno Grafico e Interfaz HUD de Ciencia Ficcion (Jetpack Compose)**:
-   - Reticula animada de escaneo con laser de barrido continuo (animacion infinita con `rememberInfiniteTransition`).
-   - Lineas de guia de regla de los tercios y esquinas bracket sci-fi (`[` y `]`).
+5. **Diseño Gráfico e Interfaz HUD de Ciencia Ficción (Jetpack Compose)**:
+   - Reticula animada de escaneo con laser de barrido continuo (animación infinita con `rememberInfiniteTransition`).
+   - Líneas de guía de regla de los tercios y esquinas bracket sci-fi (`[` y `]`).
    - Caja delimitadora y puntos de anclaje facial cuando se detecta rostro.
    - Indicadores circulares y medidores de nivel de luminancia en porcentaje.
-   - Tarjetas de insignias holograficas con brillo neon en los colores tematicos de MiraiLink (cyan, violeta y magenta).
+   - Tarjetas de insignias holográficas con brillo neón en los colores temáticos de MiraiLink (cyan, violeta y magenta).
 
-6. **Estandares Documentados y Educacion**:
-   - Categoria en FAQ: `FaqCategory.PHOTOS_AND_STUDIO` ("Fotos y Mirai Studio") con preguntas claras sobre los estandares de calidad recomendados (resolucion, luz, encuadre, nitidez y recorte de capturas de pantalla).
-   - Acceso rapido a estandares con icono/boton "Estandares de calidad" en el modal de seleccion de origen de foto y en el visor de Mirai Studio.
+6. **Estándares Documentados y Educación**:
+   - Categoría en FAQ: `FaqCategory.PHOTOS_AND_STUDIO` ("Fotos y Mirai Studio") con preguntas claras sobre los estándares de calidad recomendados (resolución, luz, encuadre, nitidez y recorte de capturas de pantalla).
+   - Acceso rápido a estándares con icono/boton "Estándares de calidad" en el modal de selección de origen de foto y en el visor de Mirai Studio.
 
 ### 3.2. Fuera del Alcance (Out of Scope)
 
-- Filtros de moderacion NSFW o censura remota en servidores (la herramienta opera de forma local, tecnica y constructiva).
-- Procesamiento en la nube o envio de datos biometricos fuera del dispositivo (100% privado y local con ML Kit).
-- Algoritmos de KYC o verificacion de identidad policial mediante comparacion con documentos de identidad.
+- Filtros de moderación NSFW o censura remota en servidores (la herramienta opera de forma local, técnica y constructiva).
+- Procesamiento en la nube o envío de datos biométricos fuera del dispositivo (100% privado y local con ML Kit).
+- Algoritmos de KYC o verificación de identidad policial mediante comparación con documentos de identidad.
 
 - - -
 
-## 4. Casuisticas y Comportamiento Mobile
+## 4. Casuísticas y Comportamiento Mobile
 
 - **Modo Online vs Modo Offline Demo**:
   - Mirai Studio opera completamente desconectado sin requerir internet. Funciona con el 100% de sus capacidades tanto en modo normal como en el modo offline sandbox con Room.
-- **Ciclo de Vida y Camara (CameraX)**:
+- **Ciclo de Vida y Cámara (CameraX)**:
   - El ciclo de CameraX (`ProcessCameraProvider`) se vincula de forma segura al `LifecycleOwner` de la vista Compose (`AndroidView` con `PreviewView`).
-  - Al pausar la aplicacion (llamada entrante, cambio de app), la camara se desvincula de inmediato liberando el hardware.
-  - Al cambiar de camara (frontal/trasera), la re-vinculacion ocurre de forma fluida sin parpadeos ni fugas de memoria.
-- **Manejo de Permisos en Tiempo de Ejecucion**:
-  - Solicitud de `Manifest.permission.CAMERA` mediante `rememberLauncherForActivityResult`. Si se deniega, se muestra un estado explicativo con boton para abrir la configuracion del sistema o cambiar a modo Galeria.
+  - Al pausar la aplicación (llamada entrante, cambio de app), la cámara se desvincula de inmediato liberando el hardware.
+  - Al cambiar de cámara (frontal/trasera), la re-vinculacion ocurre de forma fluida sin parpadeos ni fugas de memoria.
+- **Manejo de Permisos en Tiempo de Ejecución**:
+  - Solicitud de `Manifest.permission.CAMERA` mediante `rememberLauncherForActivityResult`. Si se deniega, se muestra un estado explicativo con botón para abrir la configuración del sistema o cambiar a modo Galería.
 - **Rendimiento y Estrategia de Fotogramas**:
-  - `ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST` para no acumular fotogramas ni generar retraso (*lag*) en la renderizacion del HUD en dispositivos de gama baja o media.
-- **Ergonomia y Accesibilidad**:
-  - Touch targets de botones principales (capturar, cambiar camara, alternar modo, reintentar, confirmar) superiores a 48 x 48 dp.
-  - Textos descriptivos en `contentDescription` para lectores de pantalla TalkBack en cada insignia y boton.
+  - `ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST` para no acumular fotogramas ni generar retraso (*lag*) en la renderización del HUD en dispositivos de gama baja o media.
+- **Ergonomía y Accesibilidad**:
+  - Touch targets de botones principales (capturar, cambiar cámara, alternar modo, reintentar, confirmar) superiores a 48 x 48 dp.
+  - Textos descriptivos en `contentDescription` para lectores de pantalla TalkBack en cada insignia y botón.
 
 - - -
 
-## 5. Criterios de Aceptacion (Formato Given - When - Then)
+## 5. Criterios de Aceptación (Formato Given - When - Then)
 
-### Criterio 1: Apertura y calibracion en tiempo real con CameraX
-- **Dado que**: El usuario entra a Mirai Studio desde Ajustes o al pulsar Camara en Edicion de Perfil, con permisos concedidos.
-- **Cuando**: Enfoca su rostro o escena en la camara frontal/trasera.
-- **Entonces**: Se muestra la previsualizacion en vivo con el HUD animado (laser, regla de tercios, brackets, porcentaje de luz). Si hay rostro, se calculan las metricas biometricas en tiempo real. Al pulsar el boton de disparo, se captura la imagen en alta resolucion y se congela el panel con el veredicto final.
+### Criterio 1: Apertura y calibración en tiempo real con CameraX
+- **Dado que**: El usuario entra a Mirai Studio desde Ajustes o al pulsar Cámara en Edición de Perfil, con permisos concedidos.
+- **Cuando**: Enfoca su rostro o escena en la cámara frontal/trasera.
+- **Entonces**: Se muestra la previsualización en vivo con el HUD animado (laser, regla de tercios, brackets, porcentaje de luz). Si hay rostro, se calculan las métricas biométricas en tiempo real. Al pulsar el botón de disparo, se captura la imagen en alta resolución y se congela el panel con el veredicto final.
 
-### Criterio 2: Evaluacion de fotos de Galeria (Rostros, Anime, Cosplay o Ilustraciones)
-- **Dado que**: El usuario selecciona una imagen de su galeria (ya sea un selfie, un cosplay o una ilustracion/personaje de anime).
+### Criterio 2: Evaluación de fotos de Galería (Rostros, Anime, Cosplay o Ilustraciones)
+- **Dado que**: El usuario selecciona una imagen de su galería (ya sea un selfie, un cosplay o una ilustracion/personaje de anime).
 - **Cuando**: La imagen es procesada por el motor de calidad de Mirai Studio.
-- **Entonces**: El sistema evalua la luminancia, resolucion y nitidez. Si no hay rostro humano, evalua la calidad visual general sin rechazar la foto. Si detecta caracteristicas de captura de pantalla, anade una recomendacion amigable de recorte.
+- **Entonces**: El sistema evalúa la luminancia, resolución y nitidez. Si no hay rostro humano, evalúa la calidad visual general sin rechazar la foto. Si detecta características de captura de pantalla, añade una recomendación amigable de recorte.
 
 ### Criterio 3: Flujo de Advertencia Suave (Soft Warning)
-- **Dado que**: La foto analizada presenta deficiencias notables (ejemplo: iluminacion inferior al 20% o resolucion muy baja).
-- **Cuando**: Finaliza el analisis y se presenta el informe HUD.
-- **Entonces**: Los indicadores afectados se muestran en color ambar con advertencias descriptivas, pero el boton "Usar de todos modos" permanece habilitado junto al boton "Reintentar / Cambiar foto".
+- **Dado que**: La foto analizada presenta deficiencias notables (ejemplo: iluminación inferior al 20% o resolución muy baja).
+- **Cuando**: Finaliza el análisis y se presenta el informe HUD.
+- **Entonces**: Los indicadores afectados se muestran en color ambar con advertencias descriptivas, pero el botón "Usar de todos modos" permanece habilitado junto al botón "Reintentar / Cambiar foto".
 
-### Criterio 4: Informacion de Estandares y Preguntas Frecuentes
-- **Dado que**: El usuario navega a la seccion de Preguntas Frecuentes o pulsa el enlace informativo en el modal de foto.
-- **Cuando**: Consulta los articulos bajo la categoria "Fotos y Mirai Studio".
-- **Entonces**: Lee de forma transparente que parametros evalua el HUD Scanner (iluminacion equilibrada, nitidez, no capturas con barras del sistema, encuadre adecuado) y como optimizar sus fotos para el perfil.
+### Criterio 4: Información de Estándares y Preguntas Frecuentes
+- **Dado que**: El usuario navega a la sección de Preguntas Frecuentes o pulsa el enlace informativo en el modal de foto.
+- **Cuando**: Consulta los articulos bajo la categoría "Fotos y Mirai Studio".
+- **Entonces**: Lee de forma transparente que parámetros evalúa el HUD Scanner (iluminación equilibrada, nitidez, no capturas con barras del sistema, encuadre adecuado) y como optimizar sus fotos para el perfil.
 
 - - -
 
 ## 6. Decisiones Tomadas y Aprobadas
 
-- **Aprobado**: Nivel de restriccion: Advertencia informativa (Soft Warning). El usuario tiene la ultima palabra.
-- **Aprobado**: Arquitectura de navegacion dual: Pantalla completa en Ajustes (`AppScreen.MiraiStudioScreen`) y modal/flujo interactivo integrado en `ProfileScreen`.
-- **Aprobado**: Soporte inclusivo de contenido: Analisis biometrico completo cuando hay rostro, y analisis de calidad visual universal (luz, nitidez, resolucion y deteccion de captura de pantalla) si es ilustracion anime, cosplay o plano general.
-- **Aprobado**: Estandares documentados en `FaqCategory.PHOTOS_AND_STUDIO` y enlaces de acceso rapido en los modales de seleccion.
+- **Aprobado**: Nivel de restricción: Advertencia informativa (Soft Warning). El usuario tiene la última palabra.
+- **Aprobado**: Arquitectura de navegación dual: Pantalla completa en Ajustes (`AppScreen.MiraiStudioScreen`) y modal/flujo interactivo integrado en `ProfileScreen`.
+- **Aprobado**: Soporte inclusivo de contenido: Análisis biométrico completo cuando hay rostro, y análisis de calidad visual universal (luz, nitidez, resolución y detección de captura de pantalla) si es ilustración anime, cosplay o plano general.
+- **Aprobado**: Estándares documentados en `FaqCategory.PHOTOS_AND_STUDIO` y enlaces de acceso rápido en los modales de selección.
 
-## Correccion solicitada por el usuario - 2026-10-01
+## Corrección solicitada por el usuario - 2026-10-01
 
-- El HUD no ofrece accesos directos a galeria ni preguntas frecuentes, incluidos los de revision y permisos.
-- Al guardarse la captura, el HUD presenta esa foto estatica y libera CameraX antes de analizarla. No depende de que los filtros pasen.
-- La revision muestra el resumen y permite X para descartar y volver a la camara o ✓ para continuar incluso con advertencias.
-- Si el analisis falla, conserva la foto e informa del fallo con las mismas opciones.
+- El HUD no ofrece accesos directos a galería ni preguntas frecuentes, incluidos los de revisión y permisos.
+- Al guardarse la captura, el HUD presenta esa foto estática y libera CameraX antes de analizarla. No depende de que los filtros pasen.
+- La revisión muestra el resumen y permite X para descartar y volver a la cámara o ✓ para continuar incluso con advertencias.
+- Si el análisis falla, conserva la foto e informa del fallo con las mismas opciones.
