@@ -57,6 +57,11 @@ fun HomeScreen(
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
+    val capsuleModeModel: com.feryaeljustice.mirailink.ui.screens.home.search.CapsuleModeViewModel = koinViewModel()
+    val discoveryMode by capsuleModeModel.mode.collectAsStateWithLifecycle()
+    val capsulesAvailable by capsuleModeModel.available.collectAsStateWithLifecycle()
+    val modeBusy by capsuleModeModel.busy.collectAsStateWithLifecycle()
+    val modeError by capsuleModeModel.error.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isDemoMode by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val currentUserId by miraiLinkSession.currentUserId.collectAsStateWithLifecycle()
@@ -81,6 +86,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(isDemoMode, currentUserId) {
+        capsuleModeModel.refresh()
         viewModel.loadUsers()
     }
 
@@ -112,9 +118,14 @@ fun HomeScreen(
                     },
                 ),
     ) {
+        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            com.feryaeljustice.mirailink.ui.components.capsule.DiscoveryModeSelector(discoveryMode, capsulesAvailable, !modeBusy, capsuleModeModel::select)
+            modeError?.let { com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent(error = it, onAction = { capsuleModeModel.refresh() }) }
+        }
         AnimatedContent(
             targetState = state,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().weight(1f),
             transitionSpec = {
                 (fadeIn() + scaleIn(initialScale = 0.92f))
                     .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
@@ -155,7 +166,7 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 MiraiLinkText(
-                                    text = stringResource(R.string.search_no_results_for_preferences),
+                                    text = stringResource(if(discoveryMode == "capsule") R.string.capsule_empty else R.string.search_no_results_for_preferences),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -207,6 +218,7 @@ fun HomeScreen(
                 }
             }
         }
+    }
     }
 }
 

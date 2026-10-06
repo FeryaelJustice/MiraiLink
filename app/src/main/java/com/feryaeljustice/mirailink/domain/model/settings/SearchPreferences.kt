@@ -33,6 +33,7 @@ enum class SearchScope(val wireValue: String) {
 
 @Serializable
 data class SearchPreferences(
+    val discoveryMode: String = "classic",
     val radiusKm: Float = DEFAULT_RADIUS_KM,
     val scope: SearchScope = SearchScope.RADIUS_RESIDENCE,
     val targetCountryId: String? = null,

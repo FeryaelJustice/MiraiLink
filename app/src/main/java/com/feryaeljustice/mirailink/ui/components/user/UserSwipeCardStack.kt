@@ -182,21 +182,26 @@ fun UserSwipeCardStack(
 
     key(topUser.id) {
         val scope = rememberCoroutineScope()
-        val offsetX = remember { Animatable(0f) }
-        val offsetY = remember { Animatable(0f) }
-        BindHoloController(holoController, moving = abs(offsetX.value) > 0.5f || abs(offsetY.value) > 0.5f)
-        val rotation = (offsetX.value / 60).coerceIn(-40f, 40f)
+        val animatedOffsetX = remember { Animatable(0f) }
+        val animatedOffsetY = remember { Animatable(0f) }
+        var dragging by remember { mutableStateOf(false) }
+        var dragX by remember { mutableFloatStateOf(0f) }
+        var dragY by remember { mutableFloatStateOf(0f) }
+        val offsetX = if (dragging) dragX else animatedOffsetX.value
+        val offsetY = if (dragging) dragY else animatedOffsetY.value
+        BindHoloController(holoController, moving = abs(offsetX) > 0.5f || abs(offsetY) > 0.5f)
+        val rotation = (offsetX / 60).coerceIn(-40f, 40f)
         val alphaAnim by animateFloatAsState(
-            targetValue = 1 - (abs(offsetX.value) / SwipeExitOffsetPx),
+            targetValue = 1 - (abs(offsetX) / SwipeExitOffsetPx),
             label = "swipeCardAlpha",
         )
         val activeDirection =
             when {
-                offsetX.value >= SwipeConfirmationThresholdPx -> SwipeDirection.Like
-                offsetX.value <= -SwipeConfirmationThresholdPx -> SwipeDirection.Dislike
+                offsetX >= SwipeConfirmationThresholdPx -> SwipeDirection.Like
+                offsetX <= -SwipeConfirmationThresholdPx -> SwipeDirection.Dislike
                 else -> null
             }
-        val dragDistance = kotlin.math.hypot(offsetX.value, offsetY.value)
+        val dragDistance = kotlin.math.hypot(offsetX, offsetY)
         val dragProgress = (dragDistance / 50f).coerceIn(0f, 1f)
         val cornerRadius = (28 * dragProgress).dp
         val cardShape = RoundedCornerShape(cornerRadius)
@@ -218,9 +223,14 @@ fun UserSwipeCardStack(
                 hapticController.stopHeartbeat()
                 miraiLinkSession.hideHeartbeatOverlay()
             }
+            val startX = if (dragging) dragX else animatedOffsetX.value
+            val startY = if (dragging) dragY else animatedOffsetY.value
             scope.launch {
-                offsetX.animateTo(0f, animationSpec = spring())
-                offsetY.animateTo(0f, animationSpec = spring())
+                animatedOffsetX.snapTo(startX)
+                animatedOffsetY.snapTo(startY)
+                dragging = false
+                animatedOffsetX.animateTo(0f, animationSpec = spring())
+                animatedOffsetY.animateTo(0f, animationSpec = spring())
             }
         }
 
@@ -230,8 +240,13 @@ fun UserSwipeCardStack(
                 holdProgress = 0f
                 miraiLinkSession.hideHeartbeatOverlay()
             }
+            val startX = if (dragging) dragX else animatedOffsetX.value
+            val startY = if (dragging) dragY else animatedOffsetY.value
             scope.launch {
-                offsetX.animateTo(
+                animatedOffsetX.snapTo(startX)
+                animatedOffsetY.snapTo(startY)
+                dragging = false
+                animatedOffsetX.animateTo(
                     targetValue =
                         if (direction == SwipeDirection.Like) SwipeExitOffsetPx else -SwipeExitOffsetPx,
                     animationSpec = spring(),
@@ -259,8 +274,8 @@ fun UserSwipeCardStack(
                 modifier =
                     Modifier
                         .graphicsLayer {
-                            translationX = offsetX.value
-                            translationY = offsetY.value
+                            translationX = offsetX
+                            translationY = offsetY
                             rotationZ = rotation
                             scaleX = cardScale
                             scaleY = cardScale
@@ -279,6 +294,11 @@ fun UserSwipeCardStack(
                         )
                         .pointerInput(topUser.id) {
                             detectDragGestures(
+                                onDragStart = {
+                                    dragX = animatedOffsetX.value
+                                    dragY = animatedOffsetY.value
+                                    dragging = true
+                                },
                                 onDragEnd = {
                                     if (isSwipeHeartbeatActive) {
                                         isSwipeHeartbeatActive = false
@@ -286,11 +306,11 @@ fun UserSwipeCardStack(
                                         miraiLinkSession.hideHeartbeatOverlay()
                                     }
                                     when {
-                                        offsetX.value >= SwipeConfirmationThresholdPx -> {
+                                        dragX >= SwipeConfirmationThresholdPx -> {
                                             hapticController.triggerLikeConfirmation()
                                             completeSwipe(SwipeDirection.Like)
                                         }
-                                        offsetX.value <= -SwipeConfirmationThresholdPx -> {
+                                        dragX <= -SwipeConfirmationThresholdPx -> {
                                             hapticController.stopHeartbeat()
                                             completeSwipe(SwipeDirection.Dislike)
                                         }
@@ -311,12 +331,11 @@ fun UserSwipeCardStack(
                                 },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
-                                    val newX = offsetX.value + dragAmount.x
-                                    val newY = offsetY.value + dragAmount.y
-                                    scope.launch {
-                                        offsetX.snapTo(newX)
-                                        offsetY.snapTo(newY)
-                                    }
+                                    // Accumulate synchronously so fast input cannot lose deltas between frames.
+                                    val newX = dragX + dragAmount.x
+                                    val newY = dragY + dragAmount.y
+                                    dragX = newX
+                                    dragY = newY
 
                                     if (newX >= 60f) {
                                         val progress = (newX / SwipeConfirmationThresholdPx).coerceIn(0f, 1f)

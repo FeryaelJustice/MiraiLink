@@ -80,6 +80,7 @@ val networkModule =
                     addInterceptor { chain ->
                         val request = chain.request().newBuilder()
                             .header("Accept-Language", Locale.getDefault().toLanguageTag())
+                            .header("X-MiraiLink-Capabilities", "crystal-capsule-v1")
                             .build()
                         chain.proceed(request)
                     }
@@ -105,6 +106,7 @@ val networkModule =
         single { get<Retrofit>().create(SwipeApiService::class.java) }
         single { get<Retrofit>().create(ExploreApiService::class.java) }
         single { get<Retrofit>().create(ChatApiService::class.java) }
+        single { get<Retrofit>().create(com.feryaeljustice.mirailink.data.remote.CapsuleApiService::class.java) }
         single { get<Retrofit>().create(MatchApiService::class.java) }
         single { get<Retrofit>().create(CatalogApiService::class.java) }
         single { get<Retrofit>().create(ReportApiService::class.java) }

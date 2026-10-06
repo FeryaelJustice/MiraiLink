@@ -30,7 +30,7 @@ val demoModule =
                         androidContext(),
                         MiraiLinkDemoDatabase::class.java,
                         MiraiLinkDemoDatabase.DATABASE_NAME,
-                    ).fallbackToDestructiveMigration(true).build()
+                    ).addMigrations(MiraiLinkDemoDatabase.MIGRATION_5_6).fallbackToDestructiveMigration(true).build()
         }
 
         single { get<MiraiLinkDemoDatabase>().userDao() }

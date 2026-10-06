@@ -38,6 +38,7 @@ fun MatchCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     userAvatarUrl: String? = TEMPORAL_PLACEHOLDER_PICTURE_URL,
+    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     userIsBoosted: Boolean = false,
     userUsername: String = "",
     userNickname: String = "",
@@ -50,7 +51,8 @@ fun MatchCard(
                 .debounceClickable(onClick = { onClick() }),
     ) {
         Box {
-            AsyncImage(
+            com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    photoPresentation = photoPresentation,
                 model =
                     ImageRequest
                         .Builder(LocalContext.current)

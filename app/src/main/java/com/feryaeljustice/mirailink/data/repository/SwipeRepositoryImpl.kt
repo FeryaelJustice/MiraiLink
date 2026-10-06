@@ -7,11 +7,13 @@ import com.feryaeljustice.mirailink.domain.model.user.User
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrls
+import kotlinx.coroutines.flow.first
 import java.util.UUID
 
 class SwipeRepositoryImpl(
     private val remote: SwipeRemoteDataSource,
     private val baseUrl: String,
+    private val preferences: com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository? = null,
 ) : SwipeRepository {
     override suspend fun getFeed(): MiraiLinkResult<List<User>> =
         when (val result = remote.getFeed()) {
@@ -50,11 +52,11 @@ class SwipeRepositoryImpl(
         }
 
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
-        if (toUserId.isCanonicalUuid()) remote.likeUser(toUserId)
+        if (toUserId.isCanonicalUuid()) remote.likeUser(toUserId, preferences?.getSearchPreferences()?.first()?.discoveryMode ?: "classic")
         else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
 
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
-        if (toUserId.isCanonicalUuid()) remote.dislikeUser(toUserId)
+        if (toUserId.isCanonicalUuid()) remote.dislikeUser(toUserId, preferences?.getSearchPreferences()?.first()?.discoveryMode ?: "classic")
         else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
 
     override suspend fun getUndoQuota(): MiraiLinkResult<com.feryaeljustice.mirailink.domain.model.swipe.UndoQuota> =

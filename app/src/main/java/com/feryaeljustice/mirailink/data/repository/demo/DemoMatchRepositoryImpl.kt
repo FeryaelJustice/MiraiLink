@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository.demo
 
+import com.feryaeljustice.mirailink.data.local.demo.capsulePresentation
+import com.feryaeljustice.mirailink.data.local.demo.startCapsule
+import com.feryaeljustice.mirailink.data.local.demo.cancelCapsule
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
 import com.feryaeljustice.mirailink.domain.model.user.User
@@ -13,7 +16,7 @@ class DemoMatchRepositoryImpl(
     override suspend fun getMatches(): MiraiLinkResult<List<User>> {
         val matches = database.matchDao().getAllMatches()
         val users = matches.mapNotNull { match ->
-            database.userDao().getFeedUserById(match.userId)?.toDomainUser()
+            database.userDao().getFeedUserById(match.userId)?.toDomainUser()?.copy(photoPresentation = database.capsulePresentation(match.userId))
         }
         return MiraiLinkResult.Success(users)
     }
@@ -21,7 +24,7 @@ class DemoMatchRepositoryImpl(
     override suspend fun getUnseenMatches(): MiraiLinkResult<List<User>> {
         val unseenMatches = database.matchDao().getUnseenMatches()
         val users = unseenMatches.mapNotNull { match ->
-            database.userDao().getFeedUserById(match.userId)?.toDomainUser()
+            database.userDao().getFeedUserById(match.userId)?.toDomainUser()?.copy(photoPresentation = database.capsulePresentation(match.userId))
         }
         return MiraiLinkResult.Success(users)
     }

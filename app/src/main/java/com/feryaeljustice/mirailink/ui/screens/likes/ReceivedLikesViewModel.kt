@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ReceivedLikeItemViewEntry(
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     val likeId: String,
     val userId: String,
     val username: String,
@@ -85,6 +86,7 @@ class ReceivedLikesViewModel(
                 is MiraiLinkResult.Success -> {
                     val items = result.data.map { like ->
                         ReceivedLikeItemViewEntry(
+                            photoPresentation = like.user.photoPresentation,
                             likeId = like.likeId,
                             userId = like.user.id,
                             username = like.user.username,

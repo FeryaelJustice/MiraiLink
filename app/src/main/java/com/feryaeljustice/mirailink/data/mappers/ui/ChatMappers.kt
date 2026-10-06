@@ -7,6 +7,7 @@ import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatMessageViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.chat.ChatPreviewViewEntry
 
 fun ChatSummary.toChatPreviewViewEntry(): ChatPreviewViewEntry = ChatPreviewViewEntry(
+    photoPresentation = destinatary?.photoPresentation,
     userId = destinatary?.id,
     chatId = id,
     isGroup = type == com.feryaeljustice.mirailink.domain.enums.ChatType.GROUP,

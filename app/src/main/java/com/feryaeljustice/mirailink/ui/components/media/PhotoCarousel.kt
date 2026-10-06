@@ -59,6 +59,7 @@ fun PhotoCarousel(
     modifier: Modifier = Modifier,
     photoUrls: List<String>,
     onLongPressOnImage: (String) -> Unit,
+    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     immersive: Boolean = false,
     controller: PhotoCarouselController? = null,
     holoController: com.feryaeljustice.mirailink.ui.holo.HoloRenderController? = null,
@@ -113,6 +114,7 @@ fun PhotoCarousel(
     ) {
         HorizontalPager(
             state = pagerState,
+            userScrollEnabled = controller == null,
             key = { images[it] },
             modifier =
                 Modifier
@@ -125,7 +127,7 @@ fun PhotoCarousel(
                 } else {
                     resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, photoUrl)
                 }
-            if (holoController != null && hasPhotos && photoUrl.isNotBlank() &&
+            if (photoPresentation?.veiled != true && holoController != null && hasPhotos && photoUrl.isNotBlank() &&
                 page == pagerState.settledPage && !pagerState.isScrollInProgress
             ) {
                 HoloProfilePhoto(
@@ -135,7 +137,9 @@ fun PhotoCarousel(
                     modifier = Modifier.fillMaxSize(),
                 )
             } else {
-                AsyncImage(
+                com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    showCapsuleLabel = true,
+                    photoPresentation = photoPresentation,
                     model =
                         ImageRequest
                             .Builder(LocalContext.current)
@@ -242,4 +246,3 @@ private fun PhotoCarouselPreview() {
         )
     }
 }
-

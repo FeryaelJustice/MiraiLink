@@ -128,6 +128,11 @@ object NetworkErrorMapper {
     /** Convierte un código backend canónico reconocido en error de autenticación. */
     private fun mapStableCode(code: String): AppError? =
         when (code) {
+            "CAPSULE_UNAVAILABLE" -> com.feryaeljustice.mirailink.domain.error.CapsuleError.UNAVAILABLE
+            "CAPSULE_MODE_CHANGED" -> com.feryaeljustice.mirailink.domain.error.CapsuleError.MODE_CHANGED
+            "CAPSULE_LIKE_MODE_CONFLICT" -> com.feryaeljustice.mirailink.domain.error.CapsuleError.LIKE_MODE_CONFLICT
+            "CAPSULE_STATE_CHANGED" -> com.feryaeljustice.mirailink.domain.error.CapsuleError.STATE_CHANGED
+            "CAPSULE_INVALID_ACTION", "CAPSULE_CANCELLED", "CAPSULE_REVEALED", "CAPSULE_CHAT_REQUIRED" -> com.feryaeljustice.mirailink.domain.error.CapsuleError.INVALID_ACTION
             "INVALID_CREDENTIALS",
             "AUTH_INVALID_CREDENTIALS",
             "INVALID_LOGIN",

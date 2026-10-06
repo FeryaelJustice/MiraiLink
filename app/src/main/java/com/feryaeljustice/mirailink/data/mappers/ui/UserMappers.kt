@@ -8,6 +8,7 @@ import com.feryaeljustice.mirailink.ui.viewentries.user.MinimalUserInfoViewEntry
 import com.feryaeljustice.mirailink.ui.viewentries.user.UserViewEntry
 
 fun User.toUserViewEntry(): UserViewEntry = UserViewEntry(
+    photoPresentation = photoPresentation,
     id = id,
     username = username,
     nickname = nickname,
@@ -61,6 +62,7 @@ fun User.toUserViewEntry(): UserViewEntry = UserViewEntry(
 )
 
 fun User.toMatchUserViewEntry() = MatchUserViewEntry(
+    photoPresentation = photoPresentation,
     id = id,
     username = username,
     nickname = nickname,
@@ -70,6 +72,7 @@ fun User.toMatchUserViewEntry() = MatchUserViewEntry(
 
 fun MinimalUserInfo.toMinimalUserInfoViewEntry(): MinimalUserInfoViewEntry =
     MinimalUserInfoViewEntry(
+        photoPresentation = photoPresentation,
         id = id,
         username = username,
         nickname = nickname,

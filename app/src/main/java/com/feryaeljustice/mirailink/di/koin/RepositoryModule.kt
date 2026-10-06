@@ -38,7 +38,9 @@ import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.repository.TwoFactorRepository
 import com.feryaeljustice.mirailink.domain.repository.UserRepository
 import com.feryaeljustice.mirailink.domain.repository.UsersRepository
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
+import com.feryaeljustice.mirailink.data.repository.CapsuleRepositoryImpl
 
 val repositoryModule =
     module {
@@ -57,11 +59,21 @@ val repositoryModule =
 
         single { ExploreRemoteDataSource(get()) }
 
+        single<com.feryaeljustice.mirailink.domain.repository.CapsuleRepository>(Remote) {
+            CapsuleRepositoryImpl(get(), get(Qualifiers.PrefsDataStore), get(), get(BaseUrl))
+        }
+        single<com.feryaeljustice.mirailink.domain.repository.CapsuleRepository>(Demo) {
+            com.feryaeljustice.mirailink.data.repository.demo.DemoCapsuleRepository(get(), get(Demo), androidContext())
+        }
+        single<com.feryaeljustice.mirailink.domain.repository.CapsuleRepository> {
+            com.feryaeljustice.mirailink.data.repository.delegating.DelegatingCapsuleRepository(get(Remote), get(Demo), get())
+        }
+        factory { com.feryaeljustice.mirailink.domain.usecase.capsule.CapsuleUseCases(get()) }
         // Implementaciones remotas
         single<ChatRepository>(Remote) { ChatRepositoryImpl(get(), get(), get(BaseUrl)) }
         single<ExploreRepository>(Remote) { ExploreRepositoryImpl(get(), get(BaseUrl)) }
         single<MatchRepository>(Remote) { MatchRepositoryImpl(get(), get(BaseUrl)) }
-        single<SwipeRepository>(Remote) { SwipeRepositoryImpl(get(), get(BaseUrl)) }
+        single<SwipeRepository>(Remote) { SwipeRepositoryImpl(get(), get(BaseUrl), get()) }
         single<UserRepository>(Remote) { UserRepositoryImpl(get(), get(), get(BaseUrl), get()) }
 
         // Repositorios principales que delegan en Remote o Demo según el modo activo

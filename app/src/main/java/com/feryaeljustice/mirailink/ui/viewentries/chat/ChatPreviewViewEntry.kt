@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChatPreviewViewEntry(
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     val userId: String? = null,
     val chatId: String = "",
     val isGroup: Boolean = false,

@@ -27,10 +27,11 @@ class DemoSwipeRepositoryImplTest {
     private lateinit var database: MiraiLinkDemoDatabase
     private lateinit var seeder: DemoDataSeeder
     private lateinit var repository: DemoSwipeRepositoryImpl
+    private var discoveryMode = "classic"
 
     private val fakeSearchPreferencesRepository = object : SearchPreferencesRepository {
         override fun getSearchPreferences(): Flow<SearchPreferences> =
-            flowOf(SearchPreferences(radiusKm = 100f))
+            flowOf(SearchPreferences(radiusKm = 100f, discoveryMode = discoveryMode))
 
         override suspend fun saveSearchPreferences(preferences: SearchPreferences): MiraiLinkResult<Unit> =
             MiraiLinkResult.Success(Unit)
@@ -52,6 +53,19 @@ class DemoSwipeRepositoryImplTest {
     @After
     fun tearDown() {
         database.close()
+    }
+
+    @Test
+    fun `capsule discovery excludes old matches and keeps new candidates veiled`() = runTest {
+        seeder.seedInitialDataIfEmpty()
+        val oldMatches = database.matchDao().getAllMatches().map { it.userId }.toSet()
+        assertThat(oldMatches).isNotEmpty()
+        discoveryMode = "capsule"
+        val candidates = (repository.getFeed() as MiraiLinkResult.Success).data
+        assertThat(candidates).isNotEmpty()
+        assertThat(candidates.none { it.id in oldMatches }).isTrue()
+        assertThat(candidates.all { it.photoPresentation?.veiled == true }).isTrue()
+        assertThat(database.matchDao().getAllMatches().map { it.userId }.toSet()).isEqualTo(oldMatches)
     }
 
     @Test

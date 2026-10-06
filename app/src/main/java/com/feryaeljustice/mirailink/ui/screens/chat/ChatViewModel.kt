@@ -34,6 +34,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
 import java.util.UUID
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.encodeToString
 
 @KoinViewModel
 class ChatViewModel(
@@ -47,6 +50,9 @@ class ChatViewModel(
     private val reportUseCase: ReportUseCase,
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
+    private val capsules: com.feryaeljustice.mirailink.domain.usecase.capsule.CapsuleUseCases? = null,
+    private val savedState: androidx.lifecycle.SavedStateHandle = androidx.lifecycle.SavedStateHandle(),
+    private val analytics: com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker? = null,
 ) : RetryableViewModel() {
 
     val chatId: StateFlow<String?>
@@ -64,6 +70,24 @@ class ChatViewModel(
     val error: StateFlow<UiError?>
         field = MutableStateFlow<UiError?>(null)
 
+    val capsule: StateFlow<com.feryaeljustice.mirailink.domain.model.capsule.CrystalCapsule?>
+        field = MutableStateFlow<com.feryaeljustice.mirailink.domain.model.capsule.CrystalCapsule?>(null)
+    private val _unlockEffects = kotlinx.coroutines.flow.MutableSharedFlow<Int>(extraBufferCapacity = 1)
+    val unlockEffects = _unlockEffects.asSharedFlow()
+    val capsuleBusy: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+    val pendingWork: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+    val messageBusy: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+    private var ownerPeer: String? = null
+    fun retryPending() { performErrorAction() }
+    private val fetchMutex = kotlinx.coroutines.sync.Mutex()
+    private val actionMutex = kotlinx.coroutines.sync.Mutex()
+    private var screenActive = false
+    private var baselineLoaded = false
+    private val capsuleJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+    fun setScreenActive(active: Boolean) { screenActive = active; baselineLoaded = false }
     private var pollingJob: Job? = null
 
     companion object {
@@ -140,9 +164,16 @@ class ChatViewModel(
             // Esperamos a que ambas funciones terminen antes de avanzar
             setReceiverSync(receiverId)
             setSenderSync()
+            val identity = sender.value?.id + ":" + receiverId
+            if(savedState.get<String>("pendingOwner") != identity) {
+                savedState.remove<String>("pendingText"); savedState.remove<String>("pendingId"); savedState.remove<String>("capsuleAction")
+            }
+            ownerPeer = identity
+            pendingWork.value = savedState.get<String>("pendingText") != null || savedState.get<String>("capsuleAction") != null
 
             if (sender.value != null && receiver.value != null) {
-                startMessagePolling(receiverId)
+                if (screenActive || capsules == null) startMessagePolling(receiverId)
+                else fetchMessages(receiverId)
             }
         }
     }
@@ -177,14 +208,14 @@ class ChatViewModel(
 
         if (result is MiraiLinkResult.Success) {
             receiver.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
+            capsule.value = capsules?.cached(receiverId)
         } else if (result is MiraiLinkResult.Error) {
             showError(result.error) { initChat(receiverId = receiverId, type = CHATTYPE.PRIVATE) }
         }
     }
 
     /**
-     * Inicia un único job de polling REST por ViewModel y espera tres segundos entre disparos.
-     * getMessages lanza otro job: requests lentas pueden solaparse. No usa SocketService ni una outbox.
+     * Espera cada consulta antes del siguiente intervalo y comparte el mutex con las recargas manuales.
      */
     fun startMessagePolling(userId: String) {
         if (pollingJob?.isActive == true) return
@@ -192,7 +223,7 @@ class ChatViewModel(
         pollingJob =
             viewModelScope.launch {
                 while (true) {
-                    getMessages(userId)
+                    fetchMessages(userId)
                     delay(3000L) // cada 3 segundos
                 }
             }
@@ -208,27 +239,106 @@ class ChatViewModel(
         pollingJob = null
     }
 
-    fun getMessages(userId: String) {
-        viewModelScope.launch {
-            val result =
-                withContext(ioDispatcher) {
-                    getChatMessagesUseCase(userId)
-                }
+    fun getMessages(userId: String) { viewModelScope.launch { fetchMessages(userId) } }
 
-            if (result is MiraiLinkResult.Success) {
-                messages.value = result.data.map { it.toChatMessageViewEntry() }
-                error.value = null
-            } else if (result is MiraiLinkResult.Error) {
-                showError(result.error) { getMessages(userId) }
+    private suspend fun fetchMessages(userId: String) = fetchMutex.withLock {
+        if(capsules != null) {
+            when(val result = withContext(ioDispatcher) { capsules.history(userId) }) {
+                is MiraiLinkResult.Success -> {
+                    messages.value = result.data.messages.map { it.toChatMessageViewEntry() }
+                    val previous = capsule.value
+                    val next = result.data.capsule
+                    capsule.value = next
+                    receiver.value = receiver.value?.copy(photoPresentation = next?.photoPresentation() ?: receiver.value?.photoPresentation)
+                    if(screenActive && baselineLoaded && previous != null && next != null && next.level > previous.level) {
+                        _unlockEffects.tryEmit(next.level)
+                        analytics?.logEvent("capsule_unlock", mapOf("level" to next.level, "completed" to (next.status == "revealed")))
+                    }
+                    if(!baselineLoaded) {
+                        val pendingAction = savedState.get<String>("capsuleAction")
+                        val pendingText = savedState.get<String>("pendingText")
+                        if(pendingAction != null && next != null) setRecoveryAction { executeCapsuleAction(next.id, capsuleJson.decodeFromString(pendingAction)) }
+                        else if(pendingText != null) setRecoveryAction { sendMessage(pendingText) }
+                    }
+                    baselineLoaded = true
+                    error.value = null
+                }
+                is MiraiLinkResult.Error -> showError(result.error) { getMessages(userId) }
+            }
+        } else {
+            when(val result = withContext(ioDispatcher) { getChatMessagesUseCase(userId) }) {
+                is MiraiLinkResult.Success -> { messages.value = result.data.map { it.toChatMessageViewEntry() }; error.value = null }
+                is MiraiLinkResult.Error -> showError(result.error) { getMessages(userId) }
             }
         }
     }
 
+    fun capsuleAction(type: String, category: String? = null, text: String? = null) {
+        val current = capsule.value ?: return
+        val action = com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction(UUID.randomUUID().toString(), current.revision,
+            type, category, current.question?.instanceId, text)
+        if(capsuleBusy.value || pendingWork.value) return
+        savedState["pendingOwner"] = ownerPeer
+        savedState["capsuleAction"] = capsuleJson.encodeToString(action)
+        pendingWork.value = true
+        executeCapsuleAction(current.id, action)
+    }
+
+    private fun executeCapsuleAction(id: String, action: com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction) {
+        viewModelScope.launch { actionMutex.withLock {
+            val useCases = capsules ?: return@withLock
+            capsuleBusy.value = true
+            try {
+                when(val result = withContext(ioDispatcher) { useCases.act(id, action) }) {
+                    is MiraiLinkResult.Success -> {
+                        savedState.remove<String>("capsuleAction")
+                        pendingWork.value = false
+                        analytics?.logEvent("capsule_action", mapOf("action" to action.type, "category" to action.category,
+                            "level" to result.data.level, "status" to result.data.status))
+                        val previous = capsule.value
+                        capsule.value = result.data
+                        receiver.value = receiver.value?.copy(photoPresentation = result.data.photoPresentation())
+                        if(screenActive && baselineLoaded && previous != null && result.data.level > previous.level) _unlockEffects.tryEmit(result.data.level)
+                        // Refresh canonical messages and state together. This also emits a single foreground unlock.
+                        error.value = null
+                        receiver.value?.id?.let { fetchMessages(it) }
+                    }
+                    is MiraiLinkResult.Error -> {
+                        receiver.value?.id?.let { fetchMessages(it) }
+                        if(result.error is com.feryaeljustice.mirailink.domain.error.CapsuleError) {
+                            savedState.remove<String>("capsuleAction"); pendingWork.value = false
+                            showError(result.error) { receiver.value?.id?.let { getMessages(it) } }
+                        } else showError(result.error) { executeCapsuleAction(id, action) }
+                    }
+                }
+            } finally { capsuleBusy.value = false }
+        } }
+    }
+
     /**
-     * Envía REST y añade el mensaje visible solo después de éxito, con un ID local de presentación.
-     * Ese UUID no se transmite como clave idempotente; reintentar tras timeout puede repetir el envío.
+     * Conserva el identificador del envío pendiente y recarga los mensajes confirmados después del éxito.
      */
     fun sendMessage(content: String) {
+        if (capsules != null) {
+            val peer = receiver.value?.id ?: return
+            val pendingText: String? = savedState["pendingText"]
+            val clientId = if(pendingText == content) savedState.get<String>("pendingId") ?: UUID.randomUUID().toString() else UUID.randomUUID().toString()
+            if(messageBusy.value || (pendingWork.value && pendingText != content)) return
+            messageBusy.value = true
+            pendingWork.value = true
+            savedState["pendingOwner"] = ownerPeer
+            savedState["pendingText"] = content
+            savedState["pendingId"] = clientId
+            viewModelScope.launch { actionMutex.withLock {
+                try {
+                when(val result = withContext(ioDispatcher) { capsules.send(peer, content, clientId) }) {
+                    is MiraiLinkResult.Success -> { pendingWork.value = false; savedState.remove<String>("pendingText"); savedState.remove<String>("pendingId"); fetchMessages(peer) }
+                    is MiraiLinkResult.Error -> showError(result.error) { sendMessage(content) }
+                }
+                } finally { messageBusy.value = false }
+            } }
+            return
+        }
         viewModelScope.launch {
             val currSender = sender.value
             val currReceiver = receiver.value
@@ -291,6 +401,8 @@ class ChatViewModel(
     }
 
     fun resetChatState() {
+        capsule.value = null
+        baselineLoaded = false
         chatId.value = null
         messages.value = emptyList()
         sender.value = null

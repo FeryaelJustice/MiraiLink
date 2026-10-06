@@ -12,4 +12,5 @@ data class MinimalUserInfoViewEntry(
     val gender: String = "",
     val birthdate: String = "",
     val profilePhoto: UserPhoto? = null,
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )

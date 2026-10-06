@@ -8,6 +8,7 @@ import com.feryaeljustice.mirailink.domain.model.user.UserPhoto
 
 fun UserDto.toDomain(): User =
     User(
+        photoPresentation = photoPresentation,
         id = id,
         username = username,
         nickname = nickname,
@@ -65,6 +66,7 @@ fun UserDto.toDomain(): User =
 
 fun MinimalUserInfoResponse.toMinimalUserInfo(): MinimalUserInfo =
     MinimalUserInfo(
+        photoPresentation = photoPresentation,
         id = id,
         username = username,
         nickname = nickname,
@@ -73,6 +75,7 @@ fun MinimalUserInfoResponse.toMinimalUserInfo(): MinimalUserInfo =
 
 fun UserDto.toMinimalUserInfo(): MinimalUserInfo =
     MinimalUserInfo(
+        photoPresentation = photoPresentation,
         id = id,
         username = username,
         nickname = nickname,
@@ -84,6 +87,7 @@ fun UserDto.toMinimalUserInfo(): MinimalUserInfo =
 
 fun User.toMinimalUserInfo(): MinimalUserInfo =
     MinimalUserInfo(
+        photoPresentation = photoPresentation,
         id = id,
         username = username,
         nickname = nickname,

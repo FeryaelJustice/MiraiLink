@@ -301,6 +301,7 @@ fun UserProfileDetailScreen(
 
     fullscreenImageUrl?.let { url ->
         FullscreenImagePreview(
+            photoPresentation = uiState.user?.photoPresentation,
             imageUrl = url,
             onDismiss = { fullscreenImageUrl = null },
             closeContentDescription = stringResource(R.string.close),
@@ -348,7 +349,8 @@ private fun UserProfileDetailContent(
                             )
                         }
 
-                AsyncImage(
+                com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    photoPresentation = user.photoPresentation,
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(photoUrl)
                         .crossfade(true)

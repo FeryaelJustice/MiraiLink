@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository.demo
 
+import com.feryaeljustice.mirailink.data.local.demo.capsulePresentation
+import com.feryaeljustice.mirailink.data.local.demo.startCapsule
+import com.feryaeljustice.mirailink.data.local.demo.cancelCapsule
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
@@ -50,6 +53,10 @@ class DemoSwipeRepositoryImpl(
         }
 
         val searchPrefs = searchPreferencesRepository.getSearchPreferences().first()
+        if (searchPrefs.discoveryMode == "capsule") {
+            val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
+            feedUsers = feedUsers.filter { it.id !in matchedIds }
+        }
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
         val useActiveLocation = searchPrefs.scope == SearchScope.RADIUS_ACTIVE
         val userLat = if (useActiveLocation) demoProfile?.currentLatitude else demoProfile?.residenceLatitude
@@ -62,7 +69,7 @@ class DemoSwipeRepositoryImpl(
         }
 
         val usersWithDistance = feedUsers.map { entity ->
-            val user = entity.toDomainUser()
+            val user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, searchPrefs.discoveryMode == "capsule"))
             val targetLat = if (useActiveLocation) user.currentLatitude else user.residenceLatitude
             val targetLon = if (useActiveLocation) user.currentLongitude else user.residenceLongitude
 
@@ -109,7 +116,7 @@ class DemoSwipeRepositoryImpl(
                 com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
                     likeId = "demo_like_${entity.id}",
                     likedAt = "2026-09-23T12:00:00Z",
-                    user = entity.toDomainUser(),
+                    user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, searchPreferencesRepository.getSearchPreferences().first().discoveryMode == "capsule")),
                 )
             }
         return MiraiLinkResult.Success(receivedLikes)
@@ -159,6 +166,7 @@ class DemoSwipeRepositoryImpl(
                 isRead = false,
             )
             database.chatDao().insertMessage(msg)
+            if(searchPreferencesRepository.getSearchPreferences().first().discoveryMode == "capsule") database.startCapsule(toUserId)
         }
 
         return MiraiLinkResult.Success(isMatch)
@@ -244,6 +252,7 @@ class DemoSwipeRepositoryImpl(
 
         database.userDao().unmarkLikedOrDisliked(targetId)
         if (action == "like") {
+            database.cancelCapsule(targetId)
             database.matchDao().deleteMatch(targetId)
             val chatId = "chat_$targetId"
             database.chatDao().deleteChat(chatId)
@@ -254,7 +263,7 @@ class DemoSwipeRepositoryImpl(
         database.userDao().insertUndo(DemoSwipeUndoEntity(undoneAt = now))
 
         val feedUser = database.userDao().getFeedUserById(targetId)
-        val restoredUser = feedUser?.toDomainUser() ?: return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+        val restoredUser = feedUser?.toDomainUser()?.copy(photoPresentation = database.capsulePresentation(targetId)) ?: return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
 
         val updatedUsed = used + 1
         val remaining = maxOf(0, maxUndos - updatedUsed)

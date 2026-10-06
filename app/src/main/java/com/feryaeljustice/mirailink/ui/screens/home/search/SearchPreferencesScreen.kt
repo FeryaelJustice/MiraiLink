@@ -59,6 +59,10 @@ fun SearchPreferencesScreen(
     viewModel: SearchPreferencesViewModel = koinViewModel(),
     miraiLinkSession: com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession = org.koin.compose.koinInject(),
 ) {
+    val mode by viewModel.draftMode.collectAsStateWithLifecycle()
+    val capsuleModeModel: CapsuleModeViewModel = koinViewModel()
+    val capsulesAvailable by capsuleModeModel.available.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { capsuleModeModel.refresh() }
     val radiusKm by viewModel.draftRadiusKm.collectAsStateWithLifecycle()
     val scope by viewModel.draftScope.collectAsStateWithLifecycle()
     val targetCountry by viewModel.draftTargetCountry.collectAsStateWithLifecycle()
@@ -171,6 +175,7 @@ fun SearchPreferencesScreen(
                     .zIndex(99f),
             )
         }
+        com.feryaeljustice.mirailink.ui.components.capsule.DiscoveryModeSelector(mode, capsulesAvailable, !isSaving, viewModel::updateDraftMode)
         SearchSettingsSection(
             radiusKm = radiusKm,
             onRadiusChange = { radius ->

@@ -8,5 +8,6 @@ data class ChatRequest(
     @SerialName("toUserId")
     val toUserId: String,
     @SerialName("text")
-    val text: String
+    val text: String,
+    val clientMessageId: String? = null
 )

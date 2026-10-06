@@ -106,6 +106,24 @@ fun ChatScreen(
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
+    val capsule by viewModel.capsule.collectAsStateWithLifecycle()
+    val pendingWork by viewModel.pendingWork.collectAsStateWithLifecycle()
+    val messageBusy by viewModel.messageBusy.collectAsStateWithLifecycle()
+    val capsuleBusy by viewModel.capsuleBusy.collectAsStateWithLifecycle()
+    val isDemo by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
+    val view = androidx.compose.ui.platform.LocalView.current
+    var unlockPulse by remember { mutableStateOf(0) }
+    androidx.lifecycle.compose.LifecycleResumeEffect(userId) {
+        viewModel.setScreenActive(true)
+        viewModel.startMessagePolling(userId)
+        onPauseOrDispose { viewModel.setScreenActive(false); viewModel.stopMessagePolling() }
+    }
+    LaunchedEffect(viewModel) {
+        viewModel.unlockEffects.collect {
+            unlockPulse++
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
+        }
+    }
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val sender by viewModel.sender.collectAsStateWithLifecycle()
     val receiver by viewModel.receiver.collectAsStateWithLifecycle()
@@ -162,6 +180,7 @@ fun ChatScreen(
 
     if (fullscreenImageUrl != null) {
         FullscreenImagePreview(
+            photoPresentation = receiver?.photoPresentation,
             imageUrl = fullscreenImageUrl,
             onDismiss = { setFullscreenImageUrl(null) },
             closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
@@ -203,8 +222,10 @@ fun ChatScreen(
                 ),
     ) {
         ChatTopBar(
+            unlockPulse = unlockPulse,
             modifier = Modifier,
             // receiverId = receiver?.id,
+            photoPresentation = receiver?.photoPresentation,
             receiverName = receiver?.nicknameElseUsername(),
             receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
             onAvatarClick = {
@@ -226,6 +247,8 @@ fun ChatScreen(
                 onAction = viewModel::performErrorAction,
             )
         }
+        if(pendingWork && !messageBusy && !capsuleBusy) androidx.compose.material3.TextButton(onClick = viewModel::retryPending) { androidx.compose.material3.Text(stringResource(R.string.capsule_retry_pending)) }
+        capsule?.let { com.feryaeljustice.mirailink.ui.components.capsule.CapsulePanel(it, sender?.id, capsuleBusy || pendingWork, isDemo, viewModel::capsuleAction) }
         LazyColumn(
             modifier =
                 Modifier
@@ -339,7 +362,7 @@ fun ChatScreen(
                 keyboardActions =
                     KeyboardActions(
                         onSend = {
-                            if (input.value.text.isNotBlank()) {
+                            if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
                                 viewModel.sendMessage(input.value.text)
                                 input.value = TextFieldValue("")
                             }
@@ -356,7 +379,7 @@ fun ChatScreen(
             Spacer(modifier = Modifier.width(4.dp))
 
             MiraiLinkIconButton(onClick = {
-                if (input.value.text.isNotBlank()) {
+                if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
                     viewModel.sendMessage(input.value.text)
                     input.value = TextFieldValue("")
                 }
@@ -488,4 +511,3 @@ private fun ChatScreenTopBarPreview() {
         onLongPressOnImage = {},
     )
 }
-
