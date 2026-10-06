@@ -44,6 +44,11 @@ import com.feryaeljustice.mirailink.data.repository.CapsuleRepositoryImpl
 
 val repositoryModule =
     module {
+        single<com.feryaeljustice.mirailink.domain.repository.AffinityRepository>(Remote) { com.feryaeljustice.mirailink.data.repository.AffinityRepositoryImpl(get()) }
+        single<com.feryaeljustice.mirailink.domain.repository.AffinityRepository>(Demo) { com.feryaeljustice.mirailink.data.repository.demo.DemoAffinityRepository(get(), get(Qualifiers.PrefsDataStore), get()) }
+        single<com.feryaeljustice.mirailink.domain.repository.AffinityRepository> { com.feryaeljustice.mirailink.data.repository.delegating.DelegatingAffinityRepository(get(Remote), get(Demo), get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.affinity.AffinityUseCases(get()) }
+
         single<com.feryaeljustice.mirailink.domain.repository.HoloPreferencesRepository> {
             com.feryaeljustice.mirailink.data.repository.HoloPreferencesRepositoryImpl(get())
         }

@@ -32,6 +32,8 @@ import org.koin.dsl.module
 
 val viewModelModule =
     module {
+        viewModel { com.feryaeljustice.mirailink.ui.screens.affinity.AffinityViewModel(get(), get(), get(), get()) }
+        viewModel { com.feryaeljustice.mirailink.ui.screens.affinity.AffinityContactViewModel(get()) }
         viewModel {
             val remoteConfigManager: RemoteConfigManager = get()
             val isInChristmasMode = remoteConfigManager.getIsChristmasMode()

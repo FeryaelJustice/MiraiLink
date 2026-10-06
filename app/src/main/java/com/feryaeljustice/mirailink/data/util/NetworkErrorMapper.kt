@@ -156,6 +156,12 @@ object NetworkErrorMapper {
             "LOCATION_REQUIRED" -> LocationError.LOCATION_REQUIRED
             "RESIDENCE_COUNTRY_REQUIRED" -> LocationError.RESIDENCE_COUNTRY_REQUIRED
 
+            "PLUS_REQUIRED", "PREMIUM_REQUIRED" -> com.feryaeljustice.mirailink.domain.error.AffinityError.PLAN_REQUIRED
+            "AFFINITIES_DISABLED", "RECOMMENDATION_EXPIRED", "RECOMMENDATION_UNAVAILABLE", "REQUEST_EXPIRED", "REQUEST_NOT_FOUND", "MATCH_OR_ACCEPTED_REQUEST_REQUIRED" -> com.feryaeljustice.mirailink.domain.error.AffinityError.UNAVAILABLE
+            "AFFINITY_QUOTA_REACHED" -> com.feryaeljustice.mirailink.domain.error.AffinityError.QUOTA
+            "REQUEST_ALREADY_PENDING" -> com.feryaeljustice.mirailink.domain.error.AffinityError.PENDING
+            "CONTACT_BLOCKED" -> com.feryaeljustice.mirailink.domain.error.AffinityError.BLOCKED
+            "PLAY_UNAVAILABLE", "PLAY_NOT_CONFIGURED", "INVALID_PURCHASE", "PURCHASE_ACCOUNT_MISMATCH", "PURCHASE_ALREADY_BOUND" -> com.feryaeljustice.mirailink.domain.error.AffinityError.PLAY
             "DAILY_LIKES_LIMIT_REACHED" -> SubscriptionError.DAILY_LIKES_LIMIT_REACHED
             "DAILY_UNDO_LIMIT_REACHED" -> SubscriptionError.DAILY_UNDO_LIMIT_REACHED
             "PREMIUM_RADIUS_REQUIRED" -> SubscriptionError.PREMIUM_RADIUS_REQUIRED

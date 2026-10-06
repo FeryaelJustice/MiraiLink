@@ -37,6 +37,33 @@ class GlobalMiraiLinkSessionTest {
         }
     private val checkProfilePicture = mockk<CheckProfilePictureUseCase>()
 
+    @Test
+    fun `demo plans include plus in premium and return to free`() = runTest(mainCoroutineRule.scheduler) {
+        val demo = MutableStateFlow(true)
+        val manager = mockk<com.feryaeljustice.mirailink.data.demo.DemoModeManager> {
+            every { isDemoMode } returns demo
+        }
+        val session = GlobalMiraiLinkSession(sessionManager, checkProfilePicture, backgroundScope, manager)
+        session.setDemoSubscriptionPlan(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.PREMIUM)
+        assertThat(session.isPremium.value).isTrue()
+        assertThat(session.isPlus.value).isTrue()
+        session.setDemoSubscriptionPlan(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.PLUS)
+        assertThat(session.isPremium.value).isFalse()
+        assertThat(session.isPlus.value).isTrue()
+        session.setDemoSubscriptionPlan(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.FREE)
+        assertThat(session.isPremium.value).isFalse()
+        assertThat(session.isPlus.value).isFalse()
+    }
+
+    @Test
+    fun `demo plan selector cannot change a real subscription`() = runTest(mainCoroutineRule.scheduler) {
+        val session = createSession()
+        session.setSubscriptionState(premium = true, plus = true)
+        session.setDemoSubscriptionPlan(com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.FREE)
+        assertThat(session.isPremium.value).isTrue()
+        assertThat(session.isPlus.value).isTrue()
+    }
+
     /** Verifies authentication, verification and user identity mirror SessionManager flows. */
     @Test
     fun `session exposes datastore state changes`() = runTest(mainCoroutineRule.scheduler) {

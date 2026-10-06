@@ -101,5 +101,13 @@ private fun AppError.messageResource(): Int =
             com.feryaeljustice.mirailink.domain.error.CapsuleError.STATE_CHANGED -> R.string.capsule_state_changed
             com.feryaeljustice.mirailink.domain.error.CapsuleError.INVALID_ACTION -> R.string.capsule_invalid_action
         }
+        is com.feryaeljustice.mirailink.domain.error.AffinityError -> when (this) {
+            com.feryaeljustice.mirailink.domain.error.AffinityError.PLAN_REQUIRED -> R.string.affinity_plan_required
+            com.feryaeljustice.mirailink.domain.error.AffinityError.UNAVAILABLE -> R.string.affinity_unavailable
+            com.feryaeljustice.mirailink.domain.error.AffinityError.QUOTA -> R.string.affinity_quota
+            com.feryaeljustice.mirailink.domain.error.AffinityError.PENDING -> R.string.affinity_pending_error
+            com.feryaeljustice.mirailink.domain.error.AffinityError.BLOCKED -> R.string.affinity_contact_blocked
+            com.feryaeljustice.mirailink.domain.error.AffinityError.PLAY -> R.string.affinity_play_error
+        }
         UnknownError -> R.string.error_unknown
     }

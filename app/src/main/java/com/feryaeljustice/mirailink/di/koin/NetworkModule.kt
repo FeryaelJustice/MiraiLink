@@ -35,6 +35,7 @@ import java.util.Locale
  */
 val networkModule =
     module {
+        single { get<Retrofit>().create(com.feryaeljustice.mirailink.data.remote.AffinityApiService::class.java) }
         single(BaseUrl) { BuildConfig.MIRAILINK_BASE_URL }
         single(BaseApiUrl) { "${get<String>(BaseUrl)}/api/" }
 

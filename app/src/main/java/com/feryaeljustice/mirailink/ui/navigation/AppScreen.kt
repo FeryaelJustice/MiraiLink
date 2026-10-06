@@ -112,6 +112,10 @@ sealed class AppScreen : NavKey {
     data object SubscriptionPaywallScreen : AppScreen()
 
     @Serializable
+    @SerialName("affinity_paywall")
+    data object AffinityPaywallScreen : AppScreen()
+
+    @Serializable
     @SerialName("subscription_manage")
     data object SubscriptionManageScreen : AppScreen()
 

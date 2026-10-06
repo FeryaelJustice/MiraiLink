@@ -241,6 +241,7 @@ fun ChatScreen(
             },
             onBackClick = onBackClick,
         )
+        com.feryaeljustice.mirailink.ui.screens.affinity.AffinityChatBanner(userId)
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,

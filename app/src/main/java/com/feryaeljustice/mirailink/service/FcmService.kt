@@ -39,7 +39,7 @@ class FcmService :
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.i("FCM", "Tenemos nuevo mensaje desde el FirebaseMessaginService: $message")
+
         val type = message.data["type"]
         if (type == "subscription_updated") {
             Log.i("FCM", "Received subscription_updated push event, refreshing subscription status")
@@ -48,7 +48,17 @@ class FcmService :
             }
             return
         }
-        showChatNotification(message = message)
+        if (type?.startsWith("affinity_") == true) {
+            val body = when (type) {
+                "affinity_like" -> R.string.affinity_notification_like
+                "affinity_request" -> R.string.affinity_notification_request
+                "affinity_accepted" -> R.string.affinity_accepted
+                "affinity_available" -> R.string.affinity_notification_available
+                else -> return
+            }
+            showNotification(message.data["resourceId"] ?: type, getString(R.string.affinity_title), getString(body),
+                destination = if (type == "affinity_like" || type == "affinity_available") "mirailink://affinities" else "mirailink://requests")
+        } else showChatNotification(message = message)
     }
 
     /**
@@ -58,7 +68,7 @@ class FcmService :
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.i("FCM", "Tenemos nuevo token desde el FirebaseMessaginService: $token")
+
         applicationScope.launch {
             // 1) Snapshot inmediato del StateFlow
             val snapshot = globalMiraiLinkSession.currentAuth()
@@ -89,15 +99,16 @@ class FcmService :
     private fun showChatNotification(message: RemoteMessage) {
         val data = message.data
 
-        if (data["type"] == "new_message") {
-            val convId = data["conversationId"]
+        if (data["type"] in setOf("new_message", "chat_message")) {
+            val convId = data["conversationId"] ?: data["chatId"]
             val senderName = data["senderName"]
-            val preview = data["messagePreview"]
+            val preview = data["messagePreview"] ?: data["text"]
 
             showNotification(
                 messageId = convId ?: (message.messageId ?: Random.nextInt(0, 1000).toString()),
                 messageTitle = senderName ?: message.notification?.title,
                 messageBody = preview ?: message.notification?.body,
+                destination = data["fromUserId"]?.let { "mirailink://chat/$it" },
             )
         }
     }
@@ -108,16 +119,18 @@ class FcmService :
         messageBody: String?,
         priority: Int = NotificationCompat.PRIORITY_DEFAULT,
         icon: Int = R.drawable.logomirailink,
+        destination: String? = null,
     ) {
         val notificationManager = getSystemService(NotificationManager::class.java)
 
         val intent =
             Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                data = destination?.let(android.net.Uri::parse)
             }
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(this, messageId.hashCode(), intent, FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val msgId = messageId.toIntOrNull() ?: Random.nextInt(0, 1000)
+        val msgId = messageId.hashCode()
 
         val me = Person.Builder().setName(getString(R.string.you)).build()
         val sender = Person.Builder().setName(messageTitle ?: getString(R.string.contact)).build()
@@ -141,7 +154,7 @@ class FcmService :
 
         createNotificationChannel(
             notificationManager = getSystemService(NotificationManager::class.java),
-            channelId = this.getString(R.string.default_notification_channel_id),
+            channelId = NOTIFICATION_CHANNEL_ID,
             channelName = NOTIFICATION_CHANNEL_NAME,
             channelDescription = NOTIFICATION_CHANNEL_DESCRIPTION,
         )

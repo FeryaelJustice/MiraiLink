@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppPrefs(
+    val demoAffinity: com.feryaeljustice.mirailink.domain.model.affinity.AffinityDemoState = com.feryaeljustice.mirailink.domain.model.affinity.AffinityDemoState(),
     val onboardingCompleted: Boolean = false,
     val searchRadiusKm: Float = 40f,
     val searchScope: String = "radius",

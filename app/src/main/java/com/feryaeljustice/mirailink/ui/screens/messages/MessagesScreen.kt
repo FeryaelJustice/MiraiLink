@@ -63,6 +63,7 @@ fun MessagesScreen(
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToChat: (String) -> Unit,
     onNavigateToAiChat: () -> Unit,
+    onNavigateToUserDetail: (String) -> Unit = {},
     viewModel: MessagesViewModel = koinViewModel(),
 ) {
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass

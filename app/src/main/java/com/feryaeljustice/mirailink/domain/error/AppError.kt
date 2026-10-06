@@ -1,6 +1,8 @@
 package com.feryaeljustice.mirailink.domain.error
 
 /** Stable failure contract that never contains server prose or technical exceptions. */
+enum class AffinityError : AppError { PLAN_REQUIRED, UNAVAILABLE, QUOTA, PENDING, BLOCKED, PLAY }
+
 sealed interface AppError
 
 /** Failure caused by a remote or local data source. */

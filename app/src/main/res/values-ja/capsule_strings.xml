@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Existing Capsule labels retain the Spanish default fallback until the complete app is translated to Japanese. -->
+    <string name="capsule_title">Crystal Capsule</string>
+    <string name="capsule_normal">Normal</string>
+    <string name="capsule_enter">Enter capsule</string>
+    <string name="capsule_intro">Discover shared interests before photos. Keep swiping, then crack the crystal together through conversation and optional missions. Existing capsules keep their progress when you switch modes. Photos are not anonymous or protected against screenshots.</string>
+    <string name="capsule_help">Two bilateral exchanges or one mission answered by both unlock a level. Consecutive messages count as one turn. You can change questions without losing progress. Family and personal topics are chosen explicitly. Pause or leave to keep chatting behind the glass. Resuming and early reveal require both people. Reveal is permanent. Previously seen photos and known links remain accessible.</string>
+    <string name="capsule_level_0">Sealed capsule</string>
+    <string name="capsule_level_1">First spark</string>
+    <string name="capsule_level_2">Resonance</string>
+    <string name="capsule_level_3">Almost crystal</string>
+    <string name="capsule_level_4">Connection revealed</string>
+    <string name="capsule_progress">%1$d / 8 connection points</string>
+    <string name="capsule_missions">Missions</string>
+    <string name="capsule_demo">Demo: this peer is simulated. It accepts reveal and resume and answers missions automatically.</string>
+    <string name="capsule_answer">Your answer</string>
+    <string name="capsule_mission_complete">Mission completed together</string>
+    <string name="capsule_waiting">Waiting for the other person</string>
+    <string name="capsule_choose_category">Choose or change mission category</string>
+    <string name="capsule_anime">Anime</string>
+    <string name="capsule_gaming">Gaming</string>
+    <string name="capsule_hobbies">Hobbies</string>
+    <string name="capsule_everyday">Everyday life</string>
+    <string name="capsule_ideal_date">Ideal date</string>
+    <string name="capsule_projects">Personal projects</string>
+    <string name="capsule_relationships">Relationship goals (personal)</string>
+    <string name="capsule_family">Family (personal)</string>
+    <string name="capsule_pause">Pause capsule</string>
+    <string name="capsule_resume">Agree to resume</string>
+    <string name="capsule_leave">Leave capsule and keep chatting</string>
+    <string name="capsule_request_reveal">Propose early reveal</string>
+    <string name="capsule_cancel_reveal">Cancel reveal proposal</string>
+    <string name="capsule_reveal_offer">The other person proposes revealing both photos permanently.</string>
+    <string name="capsule_accept_reveal">Accept permanent reveal</string>
+    <string name="capsule_decline">Keep the glass</string>
+    <string name="capsule_empty">No capsule candidates with these filters. Select Normal to change mode.</string>
+    <string name="capsule_status_active">Active</string>
+    <string name="capsule_status_paused">Paused</string>
+    <string name="capsule_status_left">Left</string>
+    <string name="capsule_status_cancelled">Match undone</string>
+    <string name="capsule_status_revealed">Revealed</string>
+    <string name="capsule_unavailable">Capsules are unavailable. You can select Normal.</string>
+    <string name="capsule_mode_changed">The discovery mode changed. Reload the cards before swiping.</string>
+    <string name="capsule_mode_conflict">A pending like belongs to another mode. Return to the original mode or undo your like.</string>
+    <string name="capsule_state_changed">The capsule changed. Review its latest state before trying this action again.</string>
+    <string name="capsule_invalid_action">This action no longer applies. Refresh the capsule.</string>
+    <string name="capsule_retry_pending">Retry pending action</string>
+</resources>

@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity() {
         if (globalMiraiLinkSession.currentAuth()) {
             applicationScope.launch {
                 getSubscriptionStatusUseCase()
+                org.koin.core.context.GlobalContext.get().get<com.feryaeljustice.mirailink.domain.usecase.affinity.AffinityUseCases>().activity()
             }
         }
     }

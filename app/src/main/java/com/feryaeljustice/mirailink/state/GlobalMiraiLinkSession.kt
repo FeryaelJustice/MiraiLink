@@ -81,6 +81,14 @@ class GlobalMiraiLinkSession(
         isPlus.value = plus
     }
 
+    fun setDemoSubscriptionPlan(plan: com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType) {
+        if (!isDemoMode.value) return
+        setSubscriptionState(
+            premium = plan == com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.PREMIUM,
+            plus = plan != com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType.FREE,
+        )
+    }
+
     // Force update gate: blocks NavWrapper session navigation only when a forced update is active.
     val forceUpdateBlocking: StateFlow<Boolean>
         field = MutableStateFlow(false)
