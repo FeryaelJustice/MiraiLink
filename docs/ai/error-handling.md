@@ -44,7 +44,7 @@ Retrofit, archivo o DataStore
 | `onError(action)` | Ejecuta un efecto para un error y devuelve el mismo resultado. | Telemetría basada en categorías, nunca en mensajes del servidor. |
 | `asEmptyResult()` | Convierte un éxito de cualquier tipo en `Success(Unit)` y conserva el error. | Operaciones cuyo dato de éxito no tiene valor para el consumidor. |
 
-No existe function Object() { [native code] } de compatibilidad con `String` o `Throwable`. Si aparece un uso nuevo de `MiraiLinkResult.Error("texto")`, el código debe corregirse, no adaptarse.
+No existe constructor de compatibilidad con `String` o `Throwable`. Si aparece un uso nuevo de `MiraiLinkResult.Error("texto")`, el código debe corregirse, no adaptarse.
 
 ## Clasificación de red
 

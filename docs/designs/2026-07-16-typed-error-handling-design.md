@@ -259,7 +259,7 @@ Implementation follows test-first development:
 8. Existing datasource, repository and use case tests migrated from string assertions to typed error assertions.
 9. Compose tests for the reusable error component and action callback.
 
-The existing `SplashScreenViewModelTest` function Object() { [native code] } mismatch will be corrected separately within the branch so the full unit suite can compile. It is a verified baseline failure and not caused by this design.
+The existing `SplashScreenViewModelTest` constructor mismatch will be corrected separately within the branch so the full unit suite can compile. It is a verified baseline failure and not caused by this design.
 
 ## Validation
 
