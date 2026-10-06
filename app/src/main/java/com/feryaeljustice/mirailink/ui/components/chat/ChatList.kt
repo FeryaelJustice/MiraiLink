@@ -44,6 +44,7 @@ fun ChatList(
         } else {
             chats.forEach { chat ->
                 MessageListItem(
+                    photoPresentation = chat.photoPresentation,
                     chatUserId = chat.userId,
                     chatAvatarUrl = chat.avatarUrl,
                     chatUsername = chat.username,

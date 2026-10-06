@@ -86,6 +86,7 @@ internal fun PublicUserCard(
         val publicContentTopPadding = maxHeight * 0.48f
 
         PhotoCarousel(
+            photoPresentation = user.photoPresentation,
             photoUrls = user.photos.map { it.url },
             onLongPressOnImage = onLongPressOnImage,
             modifier = Modifier.fillMaxSize(),

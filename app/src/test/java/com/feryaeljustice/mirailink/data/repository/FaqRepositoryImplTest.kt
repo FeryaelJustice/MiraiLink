@@ -21,7 +21,8 @@ class FaqRepositoryImplTest {
         val items = repository.getFaqItems()
 
         assertTrue(items.isNotEmpty())
-        assertEquals(30, items.size)
+        assertEquals(31, items.size)
+        assertTrue(items.any { it.id == "faq_crystal_capsule" && it.category == FaqCategory.CARDS_AND_MATCHING })
         val holoItems = items.filter { it.id.startsWith("faq_holo_") }
         assertEquals(5, holoItems.size)
         assertTrue(holoItems.all { it.category == FaqCategory.CARDS_AND_MATCHING })

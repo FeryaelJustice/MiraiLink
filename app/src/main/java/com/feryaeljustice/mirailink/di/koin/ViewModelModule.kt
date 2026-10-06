@@ -78,8 +78,12 @@ val viewModelModule =
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }
+        viewModel { com.feryaeljustice.mirailink.ui.screens.home.search.CapsuleModeViewModel(get(), get(), get()) }
         viewModel {
             ChatViewModel(
+                capsules = get(),
+                analytics = get(),
+                savedState = get(),
                 createPrivateChatUseCase = get(),
                 createGroupChatUseCase = get(),
                 getChatMessagesUseCase = get(),

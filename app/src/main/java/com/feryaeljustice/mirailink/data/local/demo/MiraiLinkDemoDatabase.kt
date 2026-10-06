@@ -25,17 +25,24 @@ import com.feryaeljustice.mirailink.data.local.demo.entity.DemoUserProfileEntity
         DemoCategoryPreferenceEntity::class,
         DemoSwipeHistoryEntity::class,
         DemoSwipeUndoEntity::class,
+        com.feryaeljustice.mirailink.data.local.demo.entity.DemoCapsuleEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class MiraiLinkDemoDatabase : RoomDatabase() {
     abstract fun userDao(): DemoUserDao
     abstract fun matchDao(): DemoMatchDao
     abstract fun chatDao(): DemoChatDao
+    abstract fun capsuleDao(): com.feryaeljustice.mirailink.data.local.demo.dao.DemoCapsuleDao
     abstract fun categoryDao(): DemoCategoryDao
 
     companion object {
+        val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS demo_capsules (peerId TEXT NOT NULL PRIMARY KEY, snapshot TEXT NOT NULL, processedIds TEXT NOT NULL, pendingSender TEXT, lastOwnText TEXT, lastPeerText TEXT, actionIds TEXT NOT NULL)")
+            }
+        }
         const val DATABASE_NAME = "mirailink_demo_db"
     }
 }

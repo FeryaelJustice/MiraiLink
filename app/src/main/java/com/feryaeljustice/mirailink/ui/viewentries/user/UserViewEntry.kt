@@ -51,6 +51,7 @@ data class UserViewEntry(
     val spokenLanguageIds: List<String> = emptyList(),
     val spokenLanguages: List<String> = emptyList(),
     val prompts: List<GamerPromptAnswerViewEntry> = emptyList(),
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )
 
 @Serializable

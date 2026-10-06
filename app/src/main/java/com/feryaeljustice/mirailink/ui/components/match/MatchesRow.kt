@@ -46,7 +46,8 @@ fun MatchesRow(
                                 .onVisibilityChanged(callback = {
                                     Log.d("MatchesRow", "Visibility changed: ${user.username}")
                                 }),
-                        userAvatarUrl = user.avatarUrl,
+                        photoPresentation = user.photoPresentation,
+                    userAvatarUrl = user.avatarUrl,
                         userIsBoosted = user.isBoosted,
                         userUsername = user.username,
                         userNickname = user.nickname,

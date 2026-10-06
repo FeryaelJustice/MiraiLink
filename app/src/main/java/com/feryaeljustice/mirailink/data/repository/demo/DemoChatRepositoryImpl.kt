@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository.demo
 
+import com.feryaeljustice.mirailink.data.local.demo.capsulePresentation
+import com.feryaeljustice.mirailink.data.local.demo.startCapsule
+import com.feryaeljustice.mirailink.data.local.demo.cancelCapsule
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoChatEntity
@@ -38,7 +41,7 @@ class DemoChatRepositoryImpl(
         // "Usuario Demo" ni abrir una conversacion sin destinatario real.
         val chatSummaries = chats.mapNotNull { chat ->
             database.userDao().getFeedUserById(chat.otherUserId)?.let { otherUser ->
-                chat.toDomainChatSummary(otherUser.toMinimalUserInfo())
+                chat.toDomainChatSummary(otherUser.toMinimalUserInfo().copy(photoPresentation = database.capsulePresentation(otherUser.id)))
             }
         }
         return MiraiLinkResult.Success(chatSummaries)
@@ -96,13 +99,16 @@ class DemoChatRepositoryImpl(
         return MiraiLinkResult.Success(domainMessages)
     }
 
-    override suspend fun sendMessageTo(userId: String, content: String): MiraiLinkResult<Unit> {
+    override suspend fun sendMessageTo(userId: String, content: String): MiraiLinkResult<Unit> = sendConfirmed(userId, content, UUID.randomUUID().toString())
+
+    suspend fun sendConfirmed(userId: String, content: String, clientId: String): MiraiLinkResult<Unit> {
+        if(database.chatDao().getMessagesBetween(DemoDataSeeder.DEMO_USER_ID, userId).any { it.id == clientId }) return MiraiLinkResult.Success(Unit)
         val chatId = "chat_$userId"
         val now = System.currentTimeMillis()
 
         // 1. Guardar mensaje enviado por el usuario demo
         val myMessage = DemoMessageEntity(
-            id = UUID.randomUUID().toString(),
+            id = clientId,
             chatId = chatId,
             senderId = DemoDataSeeder.DEMO_USER_ID,
             receiverId = userId,

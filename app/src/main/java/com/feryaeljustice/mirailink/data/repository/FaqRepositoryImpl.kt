@@ -28,6 +28,8 @@ class FaqRepositoryImpl : FaqRepository {
             answerRes = R.string.faq_affinity_calculation_a,
         ),
 
+        FaqItem("faq_crystal_capsule", FaqCategory.CARDS_AND_MATCHING, R.string.capsule_title, R.string.capsule_help),
+
         // Cards & Search
         FaqItem("faq_holo_what", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_what_q, R.string.faq_holo_what_a),
         FaqItem("faq_holo_disable", FaqCategory.CARDS_AND_MATCHING, R.string.faq_holo_disable_q, R.string.faq_holo_disable_a),

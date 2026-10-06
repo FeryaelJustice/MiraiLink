@@ -117,13 +117,14 @@ fun UserCard(
     holoController: com.feryaeljustice.mirailink.ui.holo.HoloRenderController? = null,
 ) {
     val (fullscreenImageUrl, setFullscreenImageUrl) = remember { mutableStateOf<String?>(null) }
-    androidx.compose.runtime.DisposableEffect(holoController, fullscreenImageUrl != null) {
-        holoController?.setCovered(fullscreenImageUrl != null)
+    androidx.compose.runtime.DisposableEffect(holoController, fullscreenImageUrl != null, user.photoPresentation?.veiled) {
+        holoController?.setCovered(fullscreenImageUrl != null || user.photoPresentation?.veiled == true)
         onDispose { holoController?.setCovered(false) }
     }
 
     if (fullscreenImageUrl != null) {
         FullscreenImagePreview(
+            photoPresentation = user.photoPresentation,
             imageUrl = fullscreenImageUrl,
             onDismiss = { setFullscreenImageUrl(null) },
             closeContentDescription = stringResource(R.string.content_description_user_card_close_btn),
@@ -568,6 +569,7 @@ fun UserCard(
                     Spacer(modifier = Modifier.height(64.dp))
                 } else {
                     PhotoCarousel(
+                        photoPresentation = user.photoPresentation,
                         photoUrls = user.photos.map { it.url },
                         onLongPressOnImage = { url ->
                             setFullscreenImageUrl(url)

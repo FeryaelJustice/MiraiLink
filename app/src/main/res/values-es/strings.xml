@@ -377,7 +377,7 @@
     <string name="faq_subscription_tiers_q">¿Qué planes de pago existen y qué ventajas ofrece cada uno?</string>
     <string name="faq_subscription_tiers_a">MiraiLink cuenta con tres niveles: Free (búsqueda básica, matches y chat ilimitado con tus conexiones), MiraiLink Plus (elimina anuncios, amplía el radio de búsqueda hasta 250 km, otorga likes ilimitados e insignia Plus) y MiraiLink Premium (incluye todo lo de Plus más Modo Pasaporte mundial sin límite, ver a quién le gustas con match directo e insignia dorada).</string>
     <string name="faq_google_play_billing_q">¿Cómo se realiza el cobro y la renovación?</string>
-    <string name="faq_google_play_billing_a">Todos los pagos se procesan de forma 100% segura mediante Google Play Billing. Puedes elegir opciones semanales, mensuales o trimestrales con renovación automática que puedes gestionar o pausar en cualquier momento.</string>
+    <string name="faq_google_play_billing_a" formatted="false">Todos los pagos se procesan de forma 100% segura mediante Google Play Billing. Puedes elegir opciones semanales, mensuales o trimestrales con renovación automática que puedes gestionar o pausar en cualquier momento.</string>
     <string name="faq_subscription_cancellation_q">¿Cómo puedo cancelar mi suscripción activa?</string>
     <string name="faq_subscription_cancellation_a">Puedes cancelar en cualquier momento desde Google Play Store > Pagos y suscripciones > Suscripciones, o desde el botón Gestionar Suscripción en Ajustes. Conservarás todos los beneficios del plan hasta el último día del ciclo ya abonado.</string>
     <string name="faq_restore_purchases_q">¿Cómo restauro mis compras al cambiar de teléfono?</string>

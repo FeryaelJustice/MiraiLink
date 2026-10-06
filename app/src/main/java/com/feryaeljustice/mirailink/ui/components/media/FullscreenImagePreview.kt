@@ -61,6 +61,7 @@ fun FullscreenImagePreview(
     onDismiss: () -> Unit,
     closeContentDescription: String,
     imageContentDescription: String,
+    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     backgroundAlpha: Float = 0.90f,
     contentScale: ContentScale = ContentScale.Fit,
     contentPadding: Dp = 16.dp,
@@ -207,12 +208,14 @@ fun FullscreenImagePreview(
                             indication = null,
                         ) { /* Consume taps on the photo itself */ },
             ) {
-                AsyncImage(
+                com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    photoPresentation = photoPresentation,
                     model = imageUrl,
                     contentDescription = imageContentDescription,
                     contentScale = contentScale,
                     modifier =
                         Modifier
+                            .then(Modifier.fillMaxSize(.9f))
                             .clip(RoundedCornerShape(20.dp))
                             .onSizeChanged { size ->
                                 contentSize = size
@@ -269,7 +272,7 @@ fun FullscreenImagePreview(
                         .align(Alignment.TopEnd)
                         .windowInsetsPadding(WindowInsets.safeDrawing)
                         .padding(16.dp)
-                        .size(44.dp)
+                        .size(48.dp)
                         .zIndex(100f)
                         .graphicsLayer {
                             alpha = transitionAlpha.value
@@ -301,4 +304,3 @@ private fun FullscreenImagePreviewPreview() {
         )
     }
 }
-

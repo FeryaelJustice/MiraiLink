@@ -94,5 +94,12 @@ private fun AppError.messageResource(): Int =
                 SubscriptionError.PREMIUM_RADIUS_REQUIRED -> R.string.error_premium_radius_required
                 SubscriptionError.PREMIUM_PASSPORT_REQUIRED -> R.string.error_premium_passport_required
             }
+        is com.feryaeljustice.mirailink.domain.error.CapsuleError -> when(this) {
+            com.feryaeljustice.mirailink.domain.error.CapsuleError.UNAVAILABLE -> R.string.capsule_unavailable
+            com.feryaeljustice.mirailink.domain.error.CapsuleError.MODE_CHANGED -> R.string.capsule_mode_changed
+            com.feryaeljustice.mirailink.domain.error.CapsuleError.LIKE_MODE_CONFLICT -> R.string.capsule_mode_conflict
+            com.feryaeljustice.mirailink.domain.error.CapsuleError.STATE_CHANGED -> R.string.capsule_state_changed
+            com.feryaeljustice.mirailink.domain.error.CapsuleError.INVALID_ACTION -> R.string.capsule_invalid_action
+        }
         UnknownError -> R.string.error_unknown
     }

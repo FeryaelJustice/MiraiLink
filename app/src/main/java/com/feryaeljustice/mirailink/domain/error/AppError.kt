@@ -60,5 +60,7 @@ enum class SubscriptionError : AppError {
     PREMIUM_PASSPORT_REQUIRED,
 }
 
+enum class CapsuleError : AppError { UNAVAILABLE, MODE_CHANGED, LIKE_MODE_CONFLICT, STATE_CHANGED, INVALID_ACTION }
+
 /** Last resort used only when no safer stable classification is available. */
 data object UnknownError : AppError

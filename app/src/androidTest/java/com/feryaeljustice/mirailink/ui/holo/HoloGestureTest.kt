@@ -234,10 +234,30 @@ class HoloGestureTest {
         rule.runOnIdle { assertEquals(1, changes) }
     }
 
-    private fun showStack(dark: State<Boolean> = mutableStateOf(false)) {
+    @Test fun capsuleSwipeKeepsHeartbeatAndHoloSuspended() {
+        showStack(veiled = true)
+        rule.onNodeWithTag("holo-stack").performTouchInput {
+            swipe(Offset(width * 0.1f, height * 0.25f), Offset(width * 0.9f, height * 0.25f), 500)
+        }
+        rule.waitUntil(5_000) { likes == 1 }
+        rule.runOnIdle { assertFalse(controller.active.value) }
+        verify { haptics.triggerLikeConfirmation() }
+    }
+
+    @Test fun capsulePhotoTapsAndFullscreenKeepTheGlass() {
+        showStack(veiled = true)
+        rule.onNodeWithTag("holo-stack").performTouchInput { click(Offset(width * 0.8f, height * 0.2f)) }
+        rule.onNodeWithContentDescription(secondPhotoLabel).assertExists()
+        rule.onNodeWithTag("holo-stack").performTouchInput { longClick(Offset(width * 0.5f, height * 0.2f)) }
+        rule.onNodeWithContentDescription(closeLabel).assertIsDisplayed().performClick()
+        rule.runOnIdle { assertFalse(controller.active.value) }
+    }
+
+    private fun showStack(dark: State<Boolean> = mutableStateOf(false), veiled: Boolean = false) {
         val user = UserViewEntry("local-user", "otaku", "Holo", null, null, "Local profile", null, null,
             listOf(UserPhotoViewEntry("local-user", "https://holo.test/1", 0),
-                UserPhotoViewEntry("local-user", "https://holo.test/2", 1)), emptyList(), emptyList())
+                UserPhotoViewEntry("local-user", "https://holo.test/2", 1)), emptyList(), emptyList()).copy(
+                    photoPresentation = if (veiled) com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation("local-capsule") else null)
         val current = mutableStateOf(user)
         val session = testSession()
         val currentUserUseCase = mockk<GetCurrentUserUseCase>()

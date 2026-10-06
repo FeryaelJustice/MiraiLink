@@ -411,3 +411,7 @@ mirailink.baseUrl=http://192.168.1.137:3000
 ```
 
 Gradle la expone como `BuildConfig.MIRAILINK_BASE_URL`. Retrofit, Socket.IO y las imágenes de perfil, incluido `Goku.webp`, reutilizan esa misma URL. Si no se define, el valor por defecto es `http://10.0.2.2:3000`, que apunta al host desde el emulador Android.
+
+## Cápsula de Cristal
+
+Modo voluntario de descubrimiento por afinidad, con fotos veladas y desbloqueo bilateral mediante conversación o misiones. Disponible en Demo; en sesiones reales requiere backend compatible y bandera de disponibilidad. [Spec SDMD](docs/features/crystal_capsule/spec.md), [plan](docs/features/crystal_capsule/plan.md), [tareas](docs/features/crystal_capsule/tasks.md), [evidencia y límites](docs/features/crystal_capsule/evidence.md), [despliegue](docs/features/crystal_capsule/deployment.md).

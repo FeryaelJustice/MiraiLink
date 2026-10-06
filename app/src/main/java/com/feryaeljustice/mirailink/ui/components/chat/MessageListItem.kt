@@ -37,6 +37,7 @@ fun MessageListItem(
     chatAvatarUrl: String = "",
     chatUsername: String = "",
     chatNickname: String = "",
+    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
     chatIsGroup: Boolean = false,
     chatIsBoosted: Boolean = false,
     chatLastMessage: String = "",
@@ -50,7 +51,8 @@ fun MessageListItem(
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AsyncImage(
+        com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    photoPresentation = photoPresentation,
             model = ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
                 .data(chatAvatarUrl.ifBlank { R.drawable.logomirailink })
                 .error(R.drawable.logomirailink)

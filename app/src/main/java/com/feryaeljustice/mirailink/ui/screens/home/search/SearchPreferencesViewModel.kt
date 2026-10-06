@@ -35,6 +35,9 @@ class SearchPreferencesViewModel(
     private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val savedPreferences = MutableStateFlow(SearchPreferences())
+    private val _draftMode = MutableStateFlow("classic")
+    val draftMode = _draftMode.asStateFlow()
+    fun updateDraftMode(mode: String) { _draftMode.value = mode }
     private val _draftRadiusKm = MutableStateFlow(40f)
     val draftRadiusKm = _draftRadiusKm.asStateFlow()
     private val _draftScope = MutableStateFlow(SearchScope.RADIUS_RESIDENCE)
@@ -68,7 +71,7 @@ class SearchPreferencesViewModel(
         saved.radiusKm != radius || saved.scope != scope ||
             saved.targetCountryId != targetCountry ||
             saved.searchGender != searchGender
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+    }.combine(_draftMode) { changed, mode -> changed || savedPreferences.value.discoveryMode != mode }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
         reload()
@@ -83,6 +86,7 @@ class SearchPreferencesViewModel(
         viewModelScope.launch(ioDispatcher) {
             getSearchPreferencesUseCase().collect { preferences ->
                 savedPreferences.value = preferences
+                _draftMode.value = preferences.discoveryMode
                 _draftRadiusKm.value = preferences.radiusKm
                 _draftScope.value = preferences.scope
                 _draftTargetCountry.value = preferences.targetCountryId
@@ -174,6 +178,7 @@ class SearchPreferencesViewModel(
             _draftSearchGender.value = TargetSearchGender.ALL
         }
         val updated = SearchPreferences(
+            discoveryMode = _draftMode.value,
             radiusKm = _draftRadiusKm.value,
             scope = _draftScope.value,
             targetCountryId = targetCountry.takeIf { _draftScope.value == SearchScope.SPECIFIC_COUNTRY },

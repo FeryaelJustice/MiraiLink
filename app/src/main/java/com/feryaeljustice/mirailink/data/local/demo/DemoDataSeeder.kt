@@ -31,6 +31,7 @@ class DemoDataSeeder(
     suspend fun resetDemoData() {
         database.withTransaction {
         // 1. Limpiar todas las tablas demo
+        database.capsuleDao().clear()
         database.userDao().clearUserProfile()
         database.userDao().clearFeedUsers()
         database.matchDao().clearMatches()

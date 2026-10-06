@@ -8,5 +8,6 @@ data class MatchUserViewEntry(
     val username: String,
     val nickname: String,
     val avatarUrl: String,
-    val isBoosted: Boolean = false
+    val isBoosted: Boolean = false,
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )

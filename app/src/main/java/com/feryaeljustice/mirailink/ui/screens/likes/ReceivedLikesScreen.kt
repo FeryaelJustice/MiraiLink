@@ -148,7 +148,8 @@ private fun ReceivedLikeItemCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AsyncImage(
+            com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                photoPresentation = item.photoPresentation,
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(item.avatarUrl)
                     .crossfade(true)

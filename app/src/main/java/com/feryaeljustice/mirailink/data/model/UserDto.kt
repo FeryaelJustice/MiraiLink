@@ -103,4 +103,6 @@ data class UserDto(
     val spokenLanguages: List<com.feryaeljustice.mirailink.data.model.response.catalog.CatalogItemOptionDto> = emptyList(),
     @SerialName("prompts")
     val prompts: List<UserPromptAnswerDto> = emptyList(),
+    @SerialName("discovery_mode") val discoveryMode: String? = null,
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )

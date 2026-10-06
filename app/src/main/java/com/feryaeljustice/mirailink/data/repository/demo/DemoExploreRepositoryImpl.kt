@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.data.repository.demo
 
+import com.feryaeljustice.mirailink.data.local.demo.capsulePresentation
+import com.feryaeljustice.mirailink.data.local.demo.startCapsule
+import com.feryaeljustice.mirailink.data.local.demo.cancelCapsule
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.entity.DemoCategoryPreferenceEntity
@@ -135,7 +138,10 @@ class DemoExploreRepositoryImpl(
         val userLat = demoProfile?.residenceLatitude ?: demoProfile?.currentLatitude
         val userLon = demoProfile?.residenceLongitude ?: demoProfile?.currentLongitude
 
-        val feedUsers = database.userDao().getFeedUsers().map { it.toDomainUser() }
+        val capsuleMode = searchPreferencesRepository?.getSearchPreferences()?.first()?.discoveryMode == "capsule"
+        val matchedIds = if (capsuleMode) database.matchDao().getAllMatches().map { it.userId }.toSet() else emptySet()
+        val feedUsers = database.userDao().getFeedUsers().filter { it.id !in matchedIds }
+            .map { it.toDomainUser().copy(photoPresentation = database.capsulePresentation(it.id, capsuleMode)) }
 
         val resolvedCategories = staticCategories.map { category ->
             val pref = database.categoryDao().getPreference(DemoDataSeeder.DEMO_USER_ID, category.id)
@@ -219,8 +225,10 @@ class DemoExploreRepositoryImpl(
             }
         }
 
-        val filteredUsers = feedEntities.map { entity ->
-            val user = entity.toDomainUser()
+        val capsuleMode = searchPreferencesRepository?.getSearchPreferences()?.first()?.discoveryMode == "capsule"
+        val matchedIds = if (capsuleMode) database.matchDao().getAllMatches().map { it.userId }.toSet() else emptySet()
+        val filteredUsers = feedEntities.filter { it.id !in matchedIds }.map { entity ->
+            val user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, capsuleMode))
             val distance = GeoUtils.calculateDistanceKm(
                 userLat, userLon,
                 user.residenceLatitude ?: user.currentLatitude,

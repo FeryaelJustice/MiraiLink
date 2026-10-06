@@ -9,5 +9,6 @@ data class MinimalUserInfoResponse(
     @SerialName("id") val id: String,
     @SerialName("username") val username: String = "",
     @SerialName("nickname") val nickname: String,
-    @SerialName("avatarUrl") val avatarUrl: String? = null
+    @SerialName("avatarUrl") val avatarUrl: String? = null,
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )

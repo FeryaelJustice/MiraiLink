@@ -42,6 +42,8 @@ fun ChatTopBar(
     onReportClick: () -> Unit,
     onBackClick: () -> Unit,
     onAvatarClick: (() -> Unit)? = null,
+    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
+    unlockPulse: Int = 0,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
 ) {
@@ -82,7 +84,9 @@ fun ChatTopBar(
         }
         //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
         //    with(sharedTransitionScope) {
-        AsyncImage(
+        com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
+                    unlockPulse = unlockPulse,
+                    photoPresentation = photoPresentation,
             model =
                 ImageRequest
                     .Builder(LocalContext.current)
@@ -120,7 +124,7 @@ fun ChatTopBar(
             text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.weight(1f))
         MiraiLinkIconButton(
@@ -146,4 +150,3 @@ private fun ChatTopBarPreview() {
         receiverName = "Sakura",
     )
 }
-

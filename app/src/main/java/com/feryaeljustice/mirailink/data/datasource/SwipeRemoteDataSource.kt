@@ -23,14 +23,14 @@ class SwipeRemoteDataSource(
             api.getReceivedLikes(limit, offset)
         }
 
-    suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
+    suspend fun likeUser(toUserId: String, discoveryMode: String = "classic"): MiraiLinkResult<Boolean> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
-            api.likeUser(SwipeRequest(toUserId)).match
+            api.likeUser(SwipeRequest(toUserId, discoveryMode)).match
         }
 
-    suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
+    suspend fun dislikeUser(toUserId: String, discoveryMode: String = "classic"): MiraiLinkResult<Unit> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
-            api.dislikeUser(SwipeRequest(toUserId))
+            api.dislikeUser(SwipeRequest(toUserId, discoveryMode))
         }
 
     suspend fun getUndoQuota(): MiraiLinkResult<UndoQuotaDto> =

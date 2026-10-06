@@ -4,4 +4,4 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SwipeRequest(@SerialName("toUserId") val toUserId: String)
+data class SwipeRequest(@SerialName("toUserId") val toUserId: String, val discoveryMode: String = "classic")

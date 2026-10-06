@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.koinInject
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -52,8 +54,14 @@ fun MiraiLinkAppRoot(
     // --- SETUP GENERAL Y CONTEXTO ---
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val canRequestNotifications =
-        remember { true } // Before: Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    val session: com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession = koinInject()
+    val demoMode: com.feryaeljustice.mirailink.data.demo.DemoModeManager = koinInject()
+    val isAuthenticated by session.isAuthenticated.collectAsStateWithLifecycle()
+    val isDemoMode by session.isDemoMode.collectAsStateWithLifecycle()
+    // This flag records only whether the system permission prompt was already offered.
+    val permissionPrompts = remember(context) { context.getSharedPreferences("permission_prompts", android.content.Context.MODE_PRIVATE) }
+    val canRequestNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        isAuthenticated && !isDemoMode && !demoMode.isDemoActive()
 
     // ---------------------------------------------------------------------------------------------
     // 🎯 SECCIÓN DE GESTIÓN DE PERMISOS DE NOTIFICACIONES (FCM)
@@ -78,6 +86,8 @@ fun MiraiLinkAppRoot(
     // Lógica para determinar si pedir o explicar el permiso
     val askNotificationPermission: () -> Unit = askNotificationPermission@{
         if (!canRequestNotifications) return@askNotificationPermission
+        if (permissionPrompts.getBoolean("notifications_offered", false)) return@askNotificationPermission
+        permissionPrompts.edit().putBoolean("notifications_offered", true).apply()
         when {
             // 1. Permiso ya concedido
             ContextCompat.checkSelfPermission(
@@ -103,7 +113,7 @@ fun MiraiLinkAppRoot(
     }
 
     // 🚀 Lanzamiento al inicio del componente: Pide el permiso de forma asíncrona
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isAuthenticated, isDemoMode) {
         askNotificationPermission()
     }
 
@@ -111,6 +121,7 @@ fun MiraiLinkAppRoot(
     if (showNotificationRationaleDialog) {
         NotificationRationaleDialog(
             onAccept = {
+                showNotificationRationaleDialog = false
                 // Si el usuario acepta la explicación, lanzamos la petición real
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             },

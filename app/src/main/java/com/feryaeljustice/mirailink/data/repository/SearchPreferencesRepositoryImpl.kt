@@ -17,10 +17,9 @@ class SearchPreferencesRepositoryImpl(
 ) : SearchPreferencesRepository {
 
     override fun getSearchPreferences(): Flow<SearchPreferences> =
-        dataStore.data
-            .catch { emit(AppPrefs()) }
-            .map { prefs ->
+        kotlinx.coroutines.flow.combine(dataStore.data.catch { emit(AppPrefs()) }, demoModeManager?.isDemoMode ?: kotlinx.coroutines.flow.MutableStateFlow(false)) { prefs, isDemo ->
                 SearchPreferences(
+                    discoveryMode = if (isDemo) prefs.demoDiscoveryMode else prefs.discoveryMode,
                     radiusKm = prefs.searchRadiusKm,
                     scope = SearchScope.fromWireValue(prefs.searchScope, prefs.searchMatchLiveLocation),
                     targetCountryId = prefs.searchTargetCountryId,
@@ -47,6 +46,7 @@ class SearchPreferencesRepositoryImpl(
                     targetCountryId = normalized.targetCountryId,
                     matchLiveLocation = false,
                     searchGender = normalized.searchGender.wireValue,
+                    discoveryMode = normalized.discoveryMode,
                 )) {
                     is MiraiLinkResult.Error -> return remoteResult
                     is MiraiLinkResult.Success -> Unit
@@ -54,6 +54,8 @@ class SearchPreferencesRepositoryImpl(
             }
             dataStore.updateData { current ->
                 current.copy(
+                    discoveryMode = if (demoModeManager?.isDemoMode?.value == true) current.discoveryMode else normalized.discoveryMode,
+                    demoDiscoveryMode = if (demoModeManager?.isDemoMode?.value == true) normalized.discoveryMode else current.demoDiscoveryMode,
                     searchRadiusKm = normalized.radiusKm,
                     searchScope = normalized.scope.wireValue,
                     searchTargetCountryId = normalized.targetCountryId,
@@ -68,12 +70,13 @@ class SearchPreferencesRepositoryImpl(
     }
 
     override suspend fun syncFromRemote(userDto: com.feryaeljustice.mirailink.data.model.UserDto) {
-        if (userDto.searchGender == null && userDto.searchRadiusKm == null && userDto.searchScope == null) {
+        if (userDto.searchGender == null && userDto.searchRadiusKm == null && userDto.searchScope == null && userDto.discoveryMode == null) {
             return
         }
         try {
             dataStore.updateData { current ->
                 current.copy(
+                    discoveryMode = userDto.discoveryMode ?: current.discoveryMode,
                     searchRadiusKm = userDto.searchRadiusKm?.toFloat() ?: current.searchRadiusKm,
                     searchScope = userDto.searchScope ?: current.searchScope,
                     searchTargetCountryId = userDto.searchTargetCountryId ?: current.searchTargetCountryId,

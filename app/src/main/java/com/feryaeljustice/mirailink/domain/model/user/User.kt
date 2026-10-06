@@ -53,4 +53,5 @@ data class User(
     val spokenLanguageIds: List<String> = emptyList(),
     val spokenLanguages: List<String> = emptyList(),
     val prompts: List<GamerPromptAnswer> = emptyList(),
+    val photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
 )

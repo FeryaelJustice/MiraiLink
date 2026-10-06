@@ -1,6 +1,9 @@
 package com.feryaeljustice.mirailink.data.repository.demo
 
 import android.net.Uri
+import com.feryaeljustice.mirailink.data.local.demo.capsulePresentation
+import com.feryaeljustice.mirailink.data.local.demo.startCapsule
+import com.feryaeljustice.mirailink.data.local.demo.cancelCapsule
 import com.feryaeljustice.mirailink.data.local.demo.DemoDataSeeder
 import com.feryaeljustice.mirailink.data.local.demo.MiraiLinkDemoDatabase
 import com.feryaeljustice.mirailink.data.local.demo.toDomainUser
@@ -123,7 +126,7 @@ class DemoUserRepositoryImpl(
 
         val feedUser = database.userDao().getFeedUserById(userId)
         return if (feedUser != null) {
-            MiraiLinkResult.Success(feedUser.toDomainUser())
+            MiraiLinkResult.Success(feedUser.toDomainUser().copy(photoPresentation = database.capsulePresentation(feedUser.id)))
         } else {
             getCurrentUser()
         }
@@ -134,7 +137,7 @@ class DemoUserRepositoryImpl(
         val allUsers = database.userDao().getAllFeedUsers()
         val found = allUsers.find { it.username.equals(username, ignoreCase = true) }
         if (found != null) {
-            return MiraiLinkResult.Success(found.toDomainUser())
+            return MiraiLinkResult.Success(found.toDomainUser().copy(photoPresentation = database.capsulePresentation(found.id)))
         }
         val myProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
         if (myProfile != null && (myProfile.username.equals(username, ignoreCase = true) || username.equals("me", ignoreCase = true))) {
