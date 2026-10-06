@@ -11,3 +11,7 @@ Date: 2026-10-06. Branch: codex/discovery-mode-toolbar. Android only.
 - Screenshots were captured and visually inspected: app/build/discovery-toolbar.png, discovery-mode-dialog.png, discovery-capsule.png and discovery-normal-restored.png. These local build artifacts are intentionally excluded from Git.
 
 Limits: this is a focused emulator Demo check. Physical-device acceptance, TalkBack execution, all screen sizes, dark mode, exhaustive gesture regressions and production network failures were not tested. No performance or FPS claim is made. Existing repositories and ViewModels retain server-confirmed preference and error behavior.
+
+PR review follow-up: discovery availability is reset and marked loading synchronously before the modal opens. Capsule stays disabled until the latest request completes, and the ViewModel rejects attempts during loading. An out-of-order earlier response cannot overwrite the latest result. A unit test covers stale-true availability followed by a pending and unavailable response.
+
+Follow-up validation: targeted `CapsuleModeViewModelTest` passes (1 test, 0 failures), and `assembleDebug` succeeds.

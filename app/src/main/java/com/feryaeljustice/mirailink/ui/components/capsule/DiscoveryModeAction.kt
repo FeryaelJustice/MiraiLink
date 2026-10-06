@@ -42,14 +42,12 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DiscoveryModeAction(viewModel: CapsuleModeViewModel = koinViewModel()) {
     val mode by viewModel.mode.collectAsStateWithLifecycle()
     val available by viewModel.available.collectAsStateWithLifecycle()
+    val availabilityLoading by viewModel.availabilityLoading.collectAsStateWithLifecycle()
     val busy by viewModel.busy.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     var open by rememberSaveable { mutableStateOf(false) }
     var pendingMode by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(open) {
-        if (open) viewModel.refresh()
-    }
     LaunchedEffect(mode, busy, pendingMode) {
         if (pendingMode != null && mode == pendingMode && !busy) {
             open = false
@@ -59,6 +57,7 @@ fun DiscoveryModeAction(viewModel: CapsuleModeViewModel = koinViewModel()) {
 
     MiraiLinkIconButton(onClick = {
         pendingMode = null
+        viewModel.refresh()
         open = true
     }) {
         Icon(
@@ -75,7 +74,7 @@ fun DiscoveryModeAction(viewModel: CapsuleModeViewModel = koinViewModel()) {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.selectableGroup()) {
                     listOf("classic" to R.string.capsule_normal, "capsule" to R.string.capsule_title).forEach { (value, label) ->
-                        val optionEnabled = !busy && (value == "classic" || available)
+                        val optionEnabled = !busy && (value == "classic" || (available && !availabilityLoading))
                         Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(selected = mode == value,
                             enabled = optionEnabled, role = Role.RadioButton,
                             onClick = {
@@ -93,8 +92,10 @@ fun DiscoveryModeAction(viewModel: CapsuleModeViewModel = koinViewModel()) {
                     }
                 }
                 Text(stringResource(R.string.capsule_intro), style = MaterialTheme.typography.bodySmall)
-                if (!available) Text(stringResource(R.string.capsule_unavailable), style = MaterialTheme.typography.bodySmall)
-                if (busy) CircularProgressIndicator(Modifier.size(24.dp))
+                if (!availabilityLoading && !available) {
+                    Text(stringResource(R.string.capsule_unavailable), style = MaterialTheme.typography.bodySmall)
+                }
+                if (busy || availabilityLoading) CircularProgressIndicator(Modifier.size(24.dp))
                 error?.let { Text(it.message.asString(), color = MaterialTheme.colorScheme.error) }
             }
         },
