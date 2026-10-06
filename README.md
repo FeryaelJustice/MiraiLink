@@ -222,7 +222,7 @@ La capa de presentación está estructurada siguiendo Atomic Design para favorec
 
 ## Stack Tecnológico
 
-Centralizado rigurosamente mediante Gradle Versión Catalog (`gradle/libs.versions.toml`):
+Centralizado rigurosamente mediante Gradle Version Catalog (`gradle/libs.versions.toml`):
 
 | Categoría | Tecnología / Librería | Versión | Descripción / Uso |
 | :--- | :--- | :--- | :--- |
@@ -327,7 +327,7 @@ MiraiLink/
 │   ├── features/                          # Especificaciones vivas por funcionalidad (Spec-Anchor)
 │   └── screenshots/                       # Galería de imágenes en alta resolución para el README
 ├── gradle/
-│   └── libs.versions.toml                 # Versión Catalog centralizado
+│   └── libs.versions.toml                 # Version Catalog centralizado
 └── build.gradle.kts                       # Script raíz del proyecto
 ```
 

@@ -10,7 +10,7 @@ Este documento describe la adopción formal del estándar **SDMD (Spec-Driven Mo
 Los Modelos de Lenguaje Grande (LLMs) y asistentes de codificación presentan tres riesgos críticos en desarrollo móvil cuando se les solicita código directamente:
 1. **Sesgo del Happy Path**: Suponen conectividad ininterrumpida, respuestas instantaneas del servidor y memoria ilimitada, descuidando estados vacíos, timeouts y pérdida de red.
 2. **Desconexión del Ciclo de Vida Móvil**: Ignoran el ciclo de vida de Android (destrucción de procesos por escasez de memoria mediante Low Memory Killer, rotación de pantalla y restauración de estado).
-3. **Alucinación de Dependencias**: Proponen métodos obsoletos o librerías incompatibles con el Gradle Versión Catalog (`libs.versions.toml`), KSP o la versión configurada de Kotlin.
+3. **Alucinación de Dependencias**: Proponen métodos obsoletos o librerías incompatibles con el Gradle Version Catalog (`libs.versions.toml`), KSP o la versión configurada de Kotlin.
 
 ### 1.2. La Solución: El Arnés de Seguridad (Safety Harness)
 SDMD establece un protocolo estricto: **el código de producción nunca se genera directamente a partir de una idea**.

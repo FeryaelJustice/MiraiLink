@@ -46,7 +46,7 @@ Ahora genera el plan técnico en docs/features/<nombre_feature>/plan.md copiando
 Instrucciones estrictas:
 1. Inspecciona gradle/libs.versions.toml y app/build.gradle.kts para verificar las dependencias reales. No inventes librerías ni versiones.
 2. Define las entidades, DAOs de Room (si aplica al sandbox offline), contratos de repositorio reactivos con Flow, Casos de Uso y ViewModels.
-3. Específica los módulos Koin afectados en di/koin/.
+3. Especifica los módulos Koin afectados en di/koin/.
 4. Disena la estrategia de testing (pruebas unitarias con MockK/Turbine y pruebas instrumentadas de Room).
 5. NO generes código de producción todavía. Espera mi aprobación del plan.
 ```
