@@ -23,6 +23,7 @@ import com.feryaeljustice.mirailink.R
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkImage
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.capsule.DiscoveryModeAction
 
 enum class TopBarLayoutDirection {
     ROW,
@@ -104,6 +105,7 @@ fun MiraiLinkTopBar(
     }, actions = {
         if (enabled) {
             if (showSearchPreferencesIcon) {
+                DiscoveryModeAction()
                 MiraiLinkIconButton(onClick = onNavigateToSearchPreferences) {
                     Icon(
                         painter = androidx.compose.ui.res.painterResource(R.drawable.ic_filter_list),
