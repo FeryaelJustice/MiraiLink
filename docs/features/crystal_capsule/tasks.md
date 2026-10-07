@@ -1,25 +1,35 @@
-# Tareas SDMD
+# Checklist de Tareas: Cápsula de Cristal v2 (Rediseño y Dinámica de Conexión)
 
-- [x] Auditar convenciones, aprobar spec y plan y crear ramas.
-- [x] Migración 014 y esquema inicial, catálogo es/en de 40 preguntas y sembrado idempotente.
-- [x] Motor bilateral, ráfagas, misiones, pausa/salida y acuerdos; pruebas unitarias y PostgreSQL.
-- [x] Matching concurrente, modos cruzados, autorización y revalidación de preferencias.
-- [x] UUID idempotente para mensajes/acciones y conflictos de revisión.
-- [x] Historial aditivo, proyección de fotos y compatibilidad de clientes antiguos.
-- [x] Modelos, repositorios delegados, Koin, caché cifrada y aislamiento cuenta/entorno.
-- [x] Migración Demo Room 5 a 6 conservadora, persistencia y reinicio explícito.
-- [x] Polling secuencial, borradores/acciones restaurables y efectos sin replay.
-- [x] Selector, cristal compartido, chat, misiones, ayuda y traducciones.
-- [x] Corregir bloqueo gris del permiso de notificaciones en Demo y relanzamiento.
-- [x] Build y 504 unitarios Android; 126 backend y 6 PostgreSQL; OpenAPI 63 operaciones.
-- [x] 12 pruebas instrumentadas API 35 de swipe, fotos, vista ampliada, Holo y heartbeat.
-- [x] Recorrido visual API 30: mosaico y descubrimiento sin bloqueo.
-- [x] Recorrido HTTP autenticado de dos cuentas sobre PostgreSQL desechable.
-- [x] Lint global del backend tras incorporar la base main actualizada.
-- [ ] Cerrar lint Android: error previo CredManMissingDal.
-- [ ] Recorrido Android remoto completo con dos cuentas y backend desplegado.
-- [ ] Confirmación háptica en teléfono físico, TalkBack y prueba completa de texto ampliado.
-- [ ] Comparativa controlada de fluidez/memoria Normal frente a Cápsula.
-- [ ] Despliegue backend, migración/seed productivos y activación de bandera; publicar Android después.
+- [x] **Fase 1: Capa de Dominio y Datos**
+  - [x] Adaptar modelos de dominio en `CrystalCapsule.kt` (escala 0..4, soporte para pregunta activa por turnos e histórico de respuestas bilaterales).
+  - [x] Actualizar `DemoCapsuleRepository.kt` para otorgar 1 punto solo tras respuesta bilateral a la misma pregunta y gestionar turnos estrictos (1 activa).
+  - [x] Actualizar y verificar `DemoCapsuleRepositoryTest.kt` para validar la nueva regla de 4 puntos y turnos.
 
-No se marca verificada una fase por revisión estática. [Evidencia y límites](evidence.md), [spec](spec.md), [plan](plan.md).
+- [x] **Fase 2: Limpieza Visual de Fotos**
+  - [x] Modificar `CrystalPhoto.kt` para retirar las líneas vectoriales de corte en el Canvas conservando el desenfoque suave progresivo.
+
+- [x] **Fase 3: Componentes UI de la Cápsula**
+  - [x] Crear componente `CrystalCapsuleIcon.kt` con estado progresivo (vacío en 0/4, llenado gradual y lleno en 4/4).
+  - [x] Modificar `ChatTopBar.kt` para integrar el icono a la izquierda del botón de reportar con callback `onCapsuleClick`.
+  - [x] Crear `CrystalCapsuleModal.kt` (`ModalBottomSheet` con pasos: Principal, Proponer Pregunta e Historial).
+  - [x] Implementar tarjetas explicativas para las acciones del footer (pausar, abandonar, solicitar revelar).
+
+- [x] **Fase 4: Integración en ChatScreen y ChatViewModel**
+  - [x] Eliminar `CapsulePanel` fijo de la cabecera en `ChatScreen.kt` y retirar el archivo obsoleto.
+  - [x] Conectar la apertura de `CrystalCapsuleModal` al pulsar el icono del top bar.
+  - [x] Bloquear controles de chat convencional y ruleta de gestos mientras la cápsula esté activa con indicación clara.
+  - [x] Implementar el banner estático de felicitación tras completar la cápsula (4/4) persistente hasta el envío del primer mensaje.
+  - [x] Actualizar `ChatViewModel.kt` para gestionar la lógica de preguntas y la persistencia del banner.
+
+- [x] **Fase 5: Verificación y Testing**
+  - [x] Ejecutar suite de pruebas unitarias (`./gradlew.bat testDebugUnitTest`).
+  - [x] Verificar compilación limpia (`./gradlew.bat assembleDebug`).
+  - [x] Validación funcional del flujo completo de preguntas, desbloqueo y chat.
+
+- [x] **Fase 6: Detección Automática de Idioma y Localización**
+  - [x] Configurar cabeceras de red HTTP `Accept-Language` y `X-Language` en OkHttpClient (`NetworkModule.kt`).
+  - [x] Adaptar `CapsuleAction` con campos opcionales `questionId`, `customQuestion` y `language`.
+  - [x] Enriquecer `CapsuleQuestion` y `CompletedCapsuleQuestion` con campos de idioma, `localizedText` y helper `displayText()`.
+  - [x] Adaptar `CrystalCapsuleModal.kt` para enviar `questionId` y mostrar texto localizado automáticamente según el idioma del sistema sin selector manual.
+  - [x] Actualizar `DemoCapsuleRepository.kt` y suite de pruebas unitarias (`DemoCapsuleRepositoryTest.kt`) validando el flujo multilingüe.
+

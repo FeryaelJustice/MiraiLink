@@ -79,8 +79,13 @@ val networkModule =
                     addInterceptor(get<AuthInterceptor>())
                     addInterceptor(get<com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor>())
                     addInterceptor { chain ->
+                        val defaultLocale = Locale.getDefault()
+                        val languageTag = defaultLocale.toLanguageTag()
+                        val languageCode = defaultLocale.language
+                        val acceptLanguageHeader = "$languageTag,$languageCode;q=0.9,en;q=0.8"
                         val request = chain.request().newBuilder()
-                            .header("Accept-Language", Locale.getDefault().toLanguageTag())
+                            .header("Accept-Language", acceptLanguageHeader)
+                            .header("X-Language", languageCode)
                             .header("X-MiraiLink-Capabilities", "crystal-capsule-v1")
                             .build()
                         chain.proceed(request)

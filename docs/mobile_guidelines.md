@@ -70,3 +70,12 @@ Este documento define las restricciones físicas de hardware y de sistema operat
 
 - **Evolución y Migraciones de Base de Datos**:
   - Toda modificación en las entidades o tablas de Room (`local/demo`) debe contar con una estrategia de versionado y migración probada mediante tests instrumentados para evitar cierres inesperados (`IllegalStateException`).
+
+## 5. Jetpack Compose Guidelines
+### Convenciones de Diseño de Componentes y Firmas
+- **Regla del Modifier**: Todo `@Composable` que emita UI propia debe exponer un parámetro `modifier: Modifier = Modifier`.
+- **Posición del Modifier**: Debe ser estrictamente el **primer parámetro opcional** de la función Composable:
+  1. Primero: Parámetros obligatorios (datos necesarios, estados obligatorios).
+  2. Segundo (primer opcional): `modifier: Modifier = Modifier`.
+  3. Tercero: Resto de parámetros opcionales con valores por defecto (estilos, configuraciones secundarias).
+  4. Al final: Lambdas de eventos o trailing lambdas de contenido (`content: @Composable () -> Unit`, `onClick: () -> Unit`).

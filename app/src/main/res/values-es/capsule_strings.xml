@@ -4,19 +4,19 @@
     <string name="capsule_normal">Normal</string>
     <string name="capsule_enter">Entrar en Cápsula</string>
     <string name="capsule_intro">Descubre afinidades antes de las fotos. Sigue deslizando y rompe el cristal juntos conversando o con misiones opcionales. Cambiar de modo conserva tus cápsulas existentes. Las fotos no son anónimas ni están protegidas contra capturas.</string>
-    <string name="capsule_help">Dos intercambios bilaterales o una misión respondida por ambos desbloquean un nivel. Una ráfaga cuenta como una intervención. Puedes cambiar preguntas sin perder progreso. Familia y temas personales se eligen expresamente. Pausa o sal para seguir chateando tras el cristal. Reanudar y revelar antes requieren acuerdo de ambos. Revelar es irreversible. Las fotos vistas antes y sus enlaces conocidos siguen accesibles.</string>
+    <string name="capsule_help">Responde preguntas juntos para desvelar las fotos. Cada respuesta bilateral suma 1 punto. Alcanza 4 puntos para desvelar todas las fotos y desbloquear el chat libre.</string>
     <string name="capsule_level_0">Cápsula sellada</string>
     <string name="capsule_level_1">Primera chispa</string>
     <string name="capsule_level_2">Resonancia</string>
     <string name="capsule_level_3">Casi cristal</string>
     <string name="capsule_level_4">Conexión revelada</string>
-    <string name="capsule_progress">%1$d / 8 puntos de conexión</string>
+    <string name="capsule_progress">%1$d / 4 puntos de conexión</string>
     <string name="capsule_missions">Misiones</string>
     <string name="capsule_demo">Demo: el interlocutor es simulado. Acepta revelar y reanudar y responde las misiones automáticamente.</string>
     <string name="capsule_answer">Tu respuesta</string>
     <string name="capsule_mission_complete">Misión completada juntos</string>
     <string name="capsule_waiting">Esperando a la otra persona</string>
-    <string name="capsule_choose_category">Elige o cambia la categoría de misión</string>
+    <string name="capsule_choose_category">Elige una categoría</string>
     <string name="capsule_anime">Anime</string>
     <string name="capsule_gaming">Gaming</string>
     <string name="capsule_hobbies">Hobbies</string>
@@ -26,9 +26,12 @@
     <string name="capsule_relationships">Objetivos de relación (personal)</string>
     <string name="capsule_family">Familia (personal)</string>
     <string name="capsule_pause">Pausar cápsula</string>
+    <string name="capsule_pause_desc">Congela temporalmente la dinámica. Ninguno podrá avanzar hasta que ambos reanuden.</string>
     <string name="capsule_resume">Aceptar reanudación</string>
-    <string name="capsule_leave">Salir de la cápsula y seguir chateando</string>
+    <string name="capsule_leave">Salir de la cápsula</string>
+    <string name="capsule_leave_desc">Abandona la cápsula y cancela este vínculo definitivamente.</string>
     <string name="capsule_request_reveal">Proponer revelación anticipada</string>
+    <string name="capsule_request_reveal_desc">Propón desvelar ambas fotos de inmediato sin esperar a los 4 puntos.</string>
     <string name="capsule_cancel_reveal">Cancelar propuesta de revelación</string>
     <string name="capsule_reveal_offer">La otra persona propone revelar ambas fotos de forma permanente.</string>
     <string name="capsule_accept_reveal">Aceptar revelación permanente</string>
@@ -45,4 +48,22 @@
     <string name="capsule_state_changed">La cápsula ha cambiado. Revisa su estado actual antes de elegir de nuevo esta acción.</string>
     <string name="capsule_invalid_action">Esta acción ya no está disponible. Actualiza la cápsula.</string>
     <string name="capsule_retry_pending">Reintentar acción pendiente</string>
+
+    <!-- Crystal Capsule v2 Strings -->
+    <string name="capsule_btn_history">Preguntas e Historial</string>
+    <string name="capsule_btn_new_question">Proponer Nueva Pregunta</string>
+    <string name="capsule_custom_question">Crear mi propia pregunta</string>
+    <string name="capsule_custom_question_hint">Escribe tu pregunta (máx. 120 caracteres)</string>
+    <string name="capsule_answer_hint">Escribe tu respuesta (máx. 300 caracteres)</string>
+    <string name="capsule_pending_questions">Preguntas Pendientes</string>
+    <string name="capsule_answered_by_both">Respondidas por Ambos</string>
+    <string name="capsule_waiting_peer_answer">Esperando respuesta del compañero</string>
+    <string name="capsule_waiting_turn_warning">Ya hay una pregunta activa en curso. Complétala antes de proponer otra.</string>
+    <string name="capsule_completed_congrats">¡Felicidades! Habéis completado la Cápsula de Cristal.</string>
+    <string name="capsule_completed_chat_banner">Felicidades, has completado el modo. Ahora puedes empezar a hablar con la persona.</string>
+    <string name="capsule_chat_blocked_notice">Chat bloqueado hasta completar la Cápsula. Abre la Cápsula arriba para responder preguntas.</string>
+    <string name="capsule_send_question">Proponer Pregunta</string>
+    <string name="capsule_send_answer">Enviar Respuesta</string>
+    <string name="capsule_your_answer_label">Tu respuesta:</string>
+    <string name="capsule_peer_answer_label">Su respuesta:</string>
 </resources>

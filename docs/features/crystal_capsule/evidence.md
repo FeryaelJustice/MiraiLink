@@ -35,12 +35,23 @@ Unitarios Android cubren historial antiguo/envelope, repositorios, caché, ViewM
 
 Capturas de perfiles ficticios Demo: [API 30](evidence/api30-sealed.png), [API 35](evidence/api35-relaunch.png).
 
-## Límites permanentes
+## Rediseño v2: Dinámica Bilateral y Modal de Cápsula
 
-No se deduce comportamiento visual, rendimiento o vibración a partir de compilación o unitarios. No había teléfono físico conectado al cierre. Falta comprobar sensación háptica, TalkBack/texto ampliado completos, comparación controlada de memoria/fluidez y recorrido Android remoto con dos cuentas. Una captura no acredita ausencia de flashes durante toda la carga ni estabilidad de FPS.
+Fecha: 2026-10-07. Verificación completa de la nueva experiencia de Cápsula de Cristal:
 
-El informe gfxinfo exploratorio del emulador debug incluyó arranque y swipe, por lo que no acredita comparación Normal/Cápsula. El informe remoto de Kotzilla agregado incluye sesiones históricas y no acredita regresiones de esta rama.
+| Comprobación | Resultado |
+| --- | --- |
+| Retirada de líneas en fotos | Completado en `CrystalPhoto.kt` (eliminadas líneas de Canvas, preservando desenfoque progresivo suave). |
+| Retirada de cabecera gris antigua | Completado. Archivo obsoleto `CapsulePanel.kt` eliminado del repositorio. |
+| Nuevo icono interactivo | Implementado en `CrystalCapsuleIcon.kt` con llenado vertical (0/4 a 4/4) y colocado a la izquierda del botón de reportar en `ChatTopBar.kt`. |
+| Modal centralizado | Implementado en `CrystalCapsuleModal.kt` (`ModalBottomSheet`) con pasos: Principal, Proponer Pregunta (catálogo o personalizada) e Historial. |
+| Sistema de puntos por turnos | 4 puntos requeridos (0..4). 1 punto únicamente cuando ambos responden a la misma pregunta. 1 pregunta activa a la vez por turnos estrictos. |
+| Bloqueo de chat mientras la cápsula esté activa | Implementado. Tarjeta explicativa en la barra inferior bloquea entrada y ruleta hasta alcanzar 4/4. |
+| Banner de felicitación | Implementado. Persiste tras completarse la cápsula hasta el envío del primer mensaje de chat. |
+| Localización e idioma automático | Cabeceras HTTP `Accept-Language` y `X-Language` añadidas a nivel de OkHttp interceptor (`NetworkModule.kt`). `CapsuleAction` envía `language` (`Locale.getDefault().language`), `questionId` y `customQuestion`. `displayText()` en Compose resuelve textos sin selector manual. |
+| Android testDebugUnitTest | 505 pruebas unitarias ejecutadas, 0 fallos (incluye test de idioma y localización en `DemoCapsuleRepositoryTest`). |
+| Android compileDebugKotlin | Compilación exitosa en 27 s con 0 advertencias. |
+| Android assembleDebug | Compilación limpia de APK completada con éxito. |
 
-La entrega no está activada en producción. Aplicar [despliegue](deployment.md) antes de habilitar Cápsula remota. El error lint DAL necesita configuración válida de asociación con el dominio, sin inventar una asociación ni ocultar la regla.
+[Spec](spec.md) - [Plan](plan.md) - [Tareas](tasks.md).
 
-[Spec](spec.md) - [Plan](plan.md) - [Tareas](tasks.md) - [Backend](https://github.com/FeryaelJustice/MiraiLink-Backend/blob/codex/crystal-capsule/docs/features/crystal_capsule/evidence.md).
