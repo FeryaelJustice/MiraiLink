@@ -32,19 +32,52 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
     }
     private suspend fun initialize() {
         if (state().initialized) return
-        val candidate = db.userDao().getFeedUsers().firstOrNull()
-        update { it.copy(initialized = true, requests = candidate?.let { u -> listOf(AffinityRequest("demo-incoming", true, "pending", "🎮", expiry(), peer(u))) } ?: emptyList()) }
+        val candidate = db.userDao().getFeedUsers().firstOrNull { it.nickname == "Kenji" }
+            ?: db.userDao().getFeedUsers().firstOrNull()
+        update { current ->
+            val incomingList = candidate?.let { u ->
+                listOf(
+                    AffinityRequest(
+                        id = "demo-incoming",
+                        incoming = true,
+                        state = "pending",
+                        text = "🎮 Vi que compartimos gustos en RPGs, ¿hablamos?",
+                        expiresAt = expiry(),
+                        person = peer(u),
+                    ),
+                )
+            } ?: emptyList()
+            current.copy(
+                initialized = true,
+                requests = (incomingList + current.requests).distinctBy { it.id },
+            )
+        }
     }
     override suspend fun feed(): MiraiLinkResult<AffinityFeed> {
         initialize(); val s = state(); val users = db.userDao().getFeedUsers()
-        val rows = if (s.participating) users.filter { it.id !in s.dismissed && it.id !in s.blocked && s.requests.none { r -> r.person.id == it.id && !r.incoming } }.take(3).map { u ->
+        val matchedIds = db.matchDao().getAllMatches().map { it.userId }.toSet()
+        val requestPeerIds = s.requests.map { it.person.id }.toSet()
+        val affinityLikedPeerIds = db.userDao().getFeedUsers().filter { it.nickname == "Leo" }.map { it.id }.toSet()
+        val normalLikesPeerIds = db.userDao().getFeedUsers().filter { it.nickname in listOf("Ren", "Sakura") }.map { it.id }.toSet()
+
+        val rows = if (s.participating) users.filter {
+            it.id !in s.dismissed &&
+            it.id !in s.blocked &&
+            it.id !in s.liked &&
+            it.id !in requestPeerIds &&
+            it.id !in affinityLikedPeerIds &&
+            it.id !in normalLikesPeerIds &&
+            it.id !in matchedIds
+        }.take(3).map { u ->
             val names = runCatching { (json.parseToJsonElement(u.animesJson).jsonArray + json.parseToJsonElement(u.gamesJson).jsonArray).mapNotNull { it.jsonObject["name"]?.jsonPrimitive?.content }.take(3) }.getOrDefault(emptyList())
             AffinityRecommendation(u.id, expiry(), if (u.id in s.liked) "liked" else "available", names, if (session.isPlus.value) peer(u) else null)
         } else emptyList()
         return MiraiLinkResult.Success(AffinityFeed(true, s.participating, true, rows))
     }
     override suspend fun likes(offset: Int): MiraiLinkResult<AffinityLikes> {
-        initialize(); val s = state(); val candidate = db.userDao().getFeedUsers().lastOrNull { it.id !in s.liked && it.id !in s.blocked }
+        initialize(); val s = state()
+        val candidate = db.userDao().getFeedUsers().firstOrNull { it.nickname == "Leo" && it.id !in s.liked && it.id !in s.blocked }
+            ?: db.userDao().getFeedUsers().lastOrNull { it.id !in s.liked && it.id !in s.blocked }
         return MiraiLinkResult.Success(AffinityLikes(if (candidate != null && offset == 0) listOf(AffinityLike(candidate.id, if (session.isPlus.value) peer(candidate) else null)) else emptyList()))
     }
     override suspend fun requests(offset: Int): MiraiLinkResult<AffinityRequests> {
@@ -57,7 +90,21 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
     override suspend fun dismiss(id: String): MiraiLinkResult<Unit> { update { it.copy(dismissed = it.dismissed + id) }; return MiraiLinkResult.Success(Unit) }
     override suspend fun like(id: String): MiraiLinkResult<AffinityAction> {
         if (!session.isPlus.value) return MiraiLinkResult.Error(DataError.Network.FORBIDDEN)
-        update { it.copy(liked = it.liked + id) }; db.userDao().markLiked(id)
+        val user = db.userDao().getFeedUserById(id) ?: return MiraiLinkResult.Error(DataError.Local.NOT_FOUND)
+        update {
+            it.copy(
+                liked = it.liked + id,
+                requests = it.requests + AffinityRequest(
+                    id = UUID.randomUUID().toString(),
+                    incoming = false,
+                    state = "pending",
+                    text = "",
+                    expiresAt = expiry(),
+                    person = peer(user),
+                ),
+            )
+        }
+        db.userDao().markLiked(id)
         return MiraiLinkResult.Success(AffinityAction())
     }
     override suspend fun returnLike(id: String): MiraiLinkResult<AffinityAction> {
@@ -69,7 +116,8 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         if (!session.isPlus.value) return@withLock MiraiLinkResult.Error(DataError.Network.FORBIDDEN)
         val s = state(); val previous = s.requests.find { it.id == clientId }
         if (previous != null) return@withLock MiraiLinkResult.Success(AffinityAction(previous.id, previous.state))
-        if (s.requests.count { !it.incoming } >= 3 || s.requests.any { !it.incoming && it.person.id == id }) return@withLock MiraiLinkResult.Error(DataError.Network.RATE_LIMITED)
+        val messageRequestsCount = s.requests.count { !it.incoming && it.text.isNotBlank() }
+        if (messageRequestsCount >= 3 || s.requests.any { !it.incoming && it.person.id == id }) return@withLock MiraiLinkResult.Error(DataError.Network.RATE_LIMITED)
         val user = db.userDao().getFeedUserById(id) ?: return@withLock MiraiLinkResult.Error(DataError.Local.NOT_FOUND)
         update { it.copy(requests = it.requests + AffinityRequest(clientId, false, "pending", text, expiry(), peer(user))) }
         MiraiLinkResult.Success(AffinityAction(clientId, "pending"))
@@ -89,4 +137,10 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
     }
     override suspend fun block(peerId: String): MiraiLinkResult<Unit> { update { it.copy(blocked = it.blocked + peerId) }; return MiraiLinkResult.Success(Unit) }
     override suspend fun contact(peerId: String): MiraiLinkResult<AffinityContact> = MiraiLinkResult.Success(AffinityContact(if (state().requests.any { it.person.id == peerId && it.state == "accepted" }) "affinity" else "legacy", db.matchDao().getMatchByUserId(peerId) != null))
+    override suspend fun resetDemo(): MiraiLinkResult<Unit> {
+        val outgoing = state().requests.filter { !it.incoming }
+        update { AffinityDemoState(participating = true, initialized = false, requests = outgoing) }
+        initialize()
+        return MiraiLinkResult.Success(Unit)
+    }
 }

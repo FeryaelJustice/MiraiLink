@@ -132,6 +132,14 @@ fun ChatScreen(
             view.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM)
         }
     }
+    val affinityViewModel: com.feryaeljustice.mirailink.ui.screens.affinity.AffinityContactViewModel = koinViewModel()
+    val affinityContact by affinityViewModel.contact.collectAsStateWithLifecycle()
+    var showAffinityInfoDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId) {
+        affinityViewModel.load(userId)
+    }
+
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val sender by viewModel.sender.collectAsStateWithLifecycle()
     val receiver by viewModel.receiver.collectAsStateWithLifecycle()
@@ -251,8 +259,33 @@ fun ChatScreen(
                 showReportDialog = true
             },
             onBackClick = onBackClick,
+            isAffinityOrigin = affinityContact.origin == "affinity",
+            onAffinityClick = { showAffinityInfoDialog = true },
         )
-        com.feryaeljustice.mirailink.ui.screens.affinity.AffinityChatBanner(userId)
+        if (showAffinityInfoDialog) {
+            AlertDialog(
+                onDismissRequest = { showAffinityInfoDialog = false },
+                title = { androidx.compose.material3.Text(stringResource(R.string.affinity_title)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        androidx.compose.material3.Text(stringResource(R.string.affinity_chat_origin))
+                        if (affinityContact.matched) {
+                            androidx.compose.material3.Text(
+                                stringResource(R.string.affinity_now_matched),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(onClick = { showAffinityInfoDialog = false }) {
+                        androidx.compose.material3.Text(stringResource(android.R.string.ok))
+                    }
+                },
+            )
+        }
+        com.feryaeljustice.mirailink.ui.screens.affinity.AffinityChatBanner(userId, viewModel = affinityViewModel)
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,

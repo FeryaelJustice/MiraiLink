@@ -15,4 +15,5 @@ class AffinityUseCases(private val repository: AffinityRepository) {
     suspend fun respond(id: String, accept: Boolean) = repository.respond(id, accept)
     suspend fun block(peerId: String) = repository.block(peerId)
     suspend fun contact(peerId: String) = repository.contact(peerId)
+    suspend fun resetDemo() = repository.resetDemo()
 }

@@ -668,7 +668,7 @@
     <string name="affinity_title">Afinidades</string>
     <string name="affinity_explanation">Personas con gustos como los tuyos que podrían convertirse en tu próxima pareja o en una gran amistad. Descubre quiénes son con Plus y da el primer paso.</string>
     <string name="affinity_anonymous">Una persona con gustos en común</string>
-    <string name="affinity_empty">Cuando lleves un tiempo sin nuevos likes ni matches, buscaremos afinidades. Completa tu perfil y tus gustos para encontrar personas compatibles.</string>
+    <string name="affinity_empty">Cuando lleves un tiempo sin nuevos likes, buscaremos afinidades. Completa tu perfil y tus gustos para encontrar personas compatibles.</string>
     <string name="affinity_disabled">Tu participación está desactivada.</string>
     <string name="affinity_recommended">Afinidad destacada para ti</string>
     <string name="affinity_unlock">Descubrir con Plus</string>
@@ -709,6 +709,13 @@
     <string name="affinity_message_more">Leer mensaje completo</string>
     <string name="affinity_message_less">Ver menos</string>
     <string name="affinity_requests_sent">Invitaciones enviadas</string>
+    <string name="affinity_method_like">Like</string>
+    <string name="affinity_method_message">Mensaje</string>
+    <string name="affinity_info_title">¿Cómo funciona Afinidades?</string>
+    <string name="affinity_info_desc">Afinidades te recomienda personas con gustos compatibles cuando llevas un tiempo sin recibir nuevos likes. Si envías una invitación y la otra persona la rechaza o caduca a los 7 días, ese perfil desaparecerá de tus sugerencias. Puedes enviar hasta 3 invitaciones por semana.</string>
+    <string name="affinity_chat_origin_badge">Afinidad</string>
+    <string name="affinity_chat_system_hint">Conversación iniciada mediante Afinidades.</string>
+    <string name="affinity_reset_demo">Regenerar sugerencias Demo</string>
     <string name="demo_subscription_title">Plan de prueba</string>
     <string name="demo_subscription_description">Cambia el plan del modo Demo al instante. Sin compras ni cobros.</string>
     <string name="demo_subscription_free">Free: explora la experiencia gratuita.</string>

@@ -49,6 +49,7 @@ val demoModule =
                 seeder = get(),
                 searchPreferencesRepository = get(),
                 timeProvider = get(),
+                prefs = get(Qualifiers.PrefsDataStore),
             )
         }
         single<ExploreRepository>(Demo) {

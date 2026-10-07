@@ -17,4 +17,5 @@ class DelegatingAffinityRepository(private val remote: AffinityRepository, priva
     override suspend fun respond(id: String, accept: Boolean) = current().respond(id, accept)
     override suspend fun block(peerId: String) = current().block(peerId)
     override suspend fun contact(peerId: String) = current().contact(peerId)
+    override suspend fun resetDemo() = current().resetDemo()
 }

@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import java.util.UUID
 
-data class AffinityUiState(val loading: Boolean = false, val busy: Boolean = false, val feed: AffinityFeed = AffinityFeed(), val likes: List<AffinityLike> = emptyList(), val requests: List<AffinityRequest> = emptyList(), val error: UiError? = null, val draft: String = "", val selected: AffinityRecommendation? = null, val canLoadMore: Boolean = false, val reportPeer: String? = null, val reportReason: String = "")
+data class AffinityUiState(val loading: Boolean = false, val busy: Boolean = false, val feed: AffinityFeed = AffinityFeed(), val likes: List<AffinityLike> = emptyList(), val requests: List<AffinityRequest> = emptyList(), val error: UiError? = null, val draft: String = "", val selected: AffinityRecommendation? = null, val canLoadMore: Boolean = false, val reportPeer: String? = null, val reportReason: String = "", val isDemo: Boolean = false, val isPlus: Boolean = false)
 
 class AffinityViewModel(private val cases: AffinityUseCases, private val session: GlobalMiraiLinkSession, private val saved: SavedStateHandle, private val reportUseCase: com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase) : ViewModel() {
     private val mutable = MutableStateFlow(AffinityUiState(draft = saved["affinityDraft"] ?: ""))
@@ -29,19 +29,22 @@ class AffinityViewModel(private val cases: AffinityUseCases, private val session
     private var mutationJob: Job? = null
     init {
         viewModelScope.launch {
-            combine(session.isPlus, session.isDemoMode, session.currentUserId) { plus, demo, user -> Triple(plus, demo, user) }.collect {
-                val key = "${it.second}:${it.third}"
+            combine(session.isPlus, session.isDemoMode, session.currentUserId) { plus, demo, user -> Triple(plus, demo, user) }.collect { (plus, demo, user) ->
+                val key = "$demo:$user"
                 // Await the persisted identity before restoring its draft on process recreation.
-                if (owner == null && it.third == null) return@collect
+                if (owner == null && user == null) return@collect
                 if ((owner ?: saved.get<String>("affinityOwner")) != key) {
                     refreshJob?.cancel(); mutationJob?.cancel(); hiddenPeers.clear(); saved.remove<List<String>>("affinityHiddenPeers"); requestOffset = 0
-                    saved.remove<String>("affinityDraft"); saved.remove<String>("affinityClientId"); saved.remove<String>("affinitySelected"); mutable.value = AffinityUiState()
+                    saved.remove<String>("affinityDraft"); saved.remove<String>("affinityClientId"); saved.remove<String>("affinitySelected"); mutable.value = AffinityUiState(isDemo = demo, isPlus = plus)
+                } else {
+                    mutable.update { it.copy(isDemo = demo, isPlus = plus) }
                 }
                 owner = key; saved["affinityOwner"] = key
-                if (it.third != null) refresh()
+                if (user != null) refresh()
             }
         }
     }
+    fun resetDemo() = action { cases.resetDemo() }
     fun refresh() {
         if (mutable.value.busy) return
         refreshJob?.cancel()

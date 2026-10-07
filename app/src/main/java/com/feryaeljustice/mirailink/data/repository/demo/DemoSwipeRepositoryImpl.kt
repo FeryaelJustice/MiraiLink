@@ -22,6 +22,8 @@ import com.feryaeljustice.mirailink.domain.model.settings.SearchScope
 import com.feryaeljustice.mirailink.domain.repository.SearchPreferencesRepository
 import com.feryaeljustice.mirailink.domain.repository.SwipeRepository
 import com.feryaeljustice.mirailink.domain.util.GeoUtils
+import androidx.datastore.core.DataStore
+import com.feryaeljustice.mirailink.data.model.local.datastore.AppPrefs
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.error.LocationError
 import kotlinx.coroutines.flow.first
@@ -36,6 +38,7 @@ class DemoSwipeRepositoryImpl(
         override fun isTimeTrusted(): Boolean = true
         override fun syncWithServerTime(serverEpochMillis: Long) {}
     },
+    private val prefs: DataStore<AppPrefs>? = null,
 ) : SwipeRepository {
 
     override suspend fun getFeed(): MiraiLinkResult<List<User>> {
@@ -53,9 +56,25 @@ class DemoSwipeRepositoryImpl(
         }
 
         val searchPrefs = searchPreferencesRepository.getSearchPreferences().first()
-        if (searchPrefs.discoveryMode == "capsule") {
-            val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
-            feedUsers = feedUsers.filter { it.id !in matchedIds }
+        val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
+        val affinityState = prefs?.data?.first()?.demoAffinity
+        val affinityPeerIds = if (affinityState != null) {
+            affinityState.requests.map { it.person.id }.toSet() + affinityState.liked
+        } else emptySet()
+        val affinityIncomingLikedIds = database.userDao().getAllFeedUsers()
+            .filter { it.nickname == "Leo" }
+            .map { it.id }
+            .toSet()
+        val normalPendingLikesIds = database.userDao().getAllFeedUsers()
+            .filter { it.nickname in listOf("Ren", "Sakura") }
+            .map { it.id }
+            .toSet()
+
+        feedUsers = feedUsers.filter {
+            it.id !in matchedIds &&
+            it.id !in affinityPeerIds &&
+            it.id !in affinityIncomingLikedIds &&
+            it.id !in normalPendingLikesIds
         }
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
         val useActiveLocation = searchPrefs.scope == SearchScope.RADIUS_ACTIVE
@@ -108,15 +127,28 @@ class DemoSwipeRepositoryImpl(
         seeder.seedInitialDataIfEmpty()
         val allUsers = database.userDao().getAllFeedUsers()
         val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
+        val affinityState = prefs?.data?.first()?.demoAffinity
+        val affinityExcludedIds = if (affinityState != null) {
+            affinityState.requests.map { it.person.id }.toSet() + affinityState.liked
+        } else emptySet()
+        val affinityLikedIds = allUsers.filter { it.nickname == "Leo" }.map { it.id }.toSet()
+
         val receivedLikes = allUsers
-            .filter { !it.isLiked && !it.isDisliked && it.id !in matchedIds }
+            .filter {
+                !it.isLiked &&
+                !it.isDisliked &&
+                it.id !in matchedIds &&
+                it.id !in affinityExcludedIds &&
+                it.id !in affinityLikedIds &&
+                it.nickname in listOf("Ren", "Sakura")
+            }
             .drop(offset)
             .take(limit)
             .map { entity ->
                 com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
                     likeId = "demo_like_${entity.id}",
                     likedAt = "2026-09-23T12:00:00Z",
-                    user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, searchPreferencesRepository.getSearchPreferences().first().discoveryMode == "capsule")),
+                    user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, false)),
                 )
             }
         return MiraiLinkResult.Success(receivedLikes)

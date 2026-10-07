@@ -1,7 +1,9 @@
 package com.feryaeljustice.mirailink.ui.components.topbars
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +12,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -52,6 +57,8 @@ fun ChatTopBar(
     capsule: CrystalCapsule? = null,
     ownUserId: String? = null,
     onCapsuleClick: (() -> Unit)? = null,
+    isAffinityOrigin: Boolean = false,
+    onAffinityClick: (() -> Unit)? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val currentAvatarClickHandler by rememberUpdatedState(newValue = onAvatarClick)
@@ -112,12 +119,44 @@ fun ChatTopBar(
         )
 
         Spacer(modifier = Modifier.width(12.dp))
-        MiraiLinkText(
-            text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            MiraiLinkText(
+                text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (isAffinityOrigin) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.then(
+                        if (onAffinityClick != null) Modifier.clickable { onAffinityClick() } else Modifier,
+                    ),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = stringResource(R.string.affinity_chat_origin_badge),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(11.dp),
+                        )
+                        MiraiLinkText(
+                            text = stringResource(R.string.affinity_chat_origin_badge),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.weight(1f))
 
         // Icono especial de Crystal Capsule a la izquierda de reportar

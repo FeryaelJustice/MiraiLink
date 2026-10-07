@@ -16,4 +16,5 @@ interface AffinityRepository {
     suspend fun respond(id: String, accept: Boolean): MiraiLinkResult<AffinityAction>
     suspend fun block(peerId: String): MiraiLinkResult<Unit>
     suspend fun contact(peerId: String): MiraiLinkResult<AffinityContact>
+    suspend fun resetDemo(): MiraiLinkResult<Unit> = MiraiLinkResult.Success(Unit)
 }

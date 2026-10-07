@@ -54,6 +54,7 @@ fun ReceivedLikesScreen(
     modifier: Modifier = Modifier,
     miraiLinkSession: GlobalMiraiLinkSession,
     onNavigateToUserDetail: (String) -> Unit,
+    onNavigateToAffinityProfileDetail: (String) -> Unit = onNavigateToUserDetail,
     onNavigateToPaywall: () -> Unit = {},
     onNavigateToAffinityPaywall: () -> Unit = onNavigateToPaywall,
     viewModel: ReceivedLikesViewModel = koinViewModel(),
@@ -79,18 +80,41 @@ fun ReceivedLikesScreen(
         }
     }
 
-    LazyColumn(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 16.dp)) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
+    ) {
         item {
-            com.feryaeljustice.mirailink.ui.screens.affinity.AffinitySection(onNavigateToUserDetail, onNavigateToAffinityPaywall)
+            MiraiLinkText(
+                text = stringResource(R.string.received_likes_title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
         }
-        item { androidx.compose.material3.HorizontalDivider() }
-        item { MiraiLinkText(text = stringResource(R.string.received_likes_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) }
         when {
             uiState.isLoading -> item { CircularProgressIndicator() }
             uiState.error != null -> item { MiraiLinkErrorContent(error = uiState.error!!, onAction = { viewModel.loadLikes() }) }
             uiState.isPremiumLocked -> item { PremiumLockedState(onNavigateToPaywall = onNavigateToPaywall) }
             uiState.likes.isEmpty() -> item { EmptyLikesState() }
-            else -> items(uiState.likes, key = { it.likeId }) { item -> ReceivedLikeItemCard(item = item, onClick = { onNavigateToUserDetail(item.username) }, onMatchClick = { viewModel.matchUser(item) }) }
+            else -> items(uiState.likes, key = { it.likeId }) { item ->
+                ReceivedLikeItemCard(
+                    item = item,
+                    onClick = { onNavigateToUserDetail(item.username) },
+                    onMatchClick = { viewModel.matchUser(item) },
+                )
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            androidx.compose.material3.HorizontalDivider()
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        item {
+            com.feryaeljustice.mirailink.ui.screens.affinity.AffinitySection(
+                onDetail = onNavigateToAffinityProfileDetail,
+                onPaywall = onNavigateToAffinityPaywall,
+            )
         }
     }
 }
