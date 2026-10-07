@@ -116,7 +116,8 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         if (!session.isPlus.value) return@withLock MiraiLinkResult.Error(DataError.Network.FORBIDDEN)
         val s = state(); val previous = s.requests.find { it.id == clientId }
         if (previous != null) return@withLock MiraiLinkResult.Success(AffinityAction(previous.id, previous.state))
-        if (s.requests.count { !it.incoming } >= 3 || s.requests.any { !it.incoming && it.person.id == id }) return@withLock MiraiLinkResult.Error(DataError.Network.RATE_LIMITED)
+        val messageRequestsCount = s.requests.count { !it.incoming && it.text.isNotBlank() }
+        if (messageRequestsCount >= 3 || s.requests.any { !it.incoming && it.person.id == id }) return@withLock MiraiLinkResult.Error(DataError.Network.RATE_LIMITED)
         val user = db.userDao().getFeedUserById(id) ?: return@withLock MiraiLinkResult.Error(DataError.Local.NOT_FOUND)
         update { it.copy(requests = it.requests + AffinityRequest(clientId, false, "pending", text, expiry(), peer(user))) }
         MiraiLinkResult.Success(AffinityAction(clientId, "pending"))
