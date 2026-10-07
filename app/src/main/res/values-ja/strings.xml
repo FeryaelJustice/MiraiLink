@@ -668,7 +668,7 @@
     <string name="affinity_title">アフィニティ</string>
     <string name="affinity_explanation">趣味が似ている人が、次の恋人や大切な友人になるかもしれません。Plusで相手を見つけて、最初の一歩を踏み出しましょう。</string>
     <string name="affinity_anonymous">共通の趣味を持つ人</string>
-    <string name="affinity_empty">新しい「いいね」やマッチがない期間が続いたら、おすすめを探します。プロフィールと趣味を入力してください。</string>
+    <string name="affinity_empty">新しい「いいね」がない期間が続いたら、おすすめを探します。プロフィールと趣味を入力してください。</string>
     <string name="affinity_disabled">参加はオフになっています。</string>
     <string name="affinity_recommended">あなたへの注目のアフィニティ</string>
     <string name="affinity_unlock">Plusで見る</string>
@@ -709,6 +709,13 @@
     <string name="affinity_message_more">メッセージをすべて読む</string>
     <string name="affinity_message_less">折りたたむ</string>
     <string name="affinity_requests_sent">送信した招待</string>
+    <string name="affinity_method_like">いいね</string>
+    <string name="affinity_method_message">メッセージ</string>
+    <string name="affinity_info_title">アフィニティの仕組み</string>
+    <string name="affinity_info_desc">新しい「いいね」が届かない期間が続くと、共通の趣味を持つおすすめの相手を紹介します。招待を送信して相手に辞退された場合、または7日後に期限切れになった場合、そのプロフィールはおすすめに表示されなくなります。招待は1週間に最大3回送信できます。</string>
+    <string name="affinity_chat_origin_badge">アフィニティ</string>
+    <string name="affinity_chat_system_hint">アフィニティから開始された会話です。</string>
+    <string name="affinity_reset_demo">デモのおすすめを再生成</string>
     <string name="demo_subscription_title">お試しプラン</string>
     <string name="demo_subscription_description">デモのプランをすぐに切り替えられます。購入や請求はありません。</string>
     <string name="demo_subscription_free">Free: 無料の機能を試せます。</string>

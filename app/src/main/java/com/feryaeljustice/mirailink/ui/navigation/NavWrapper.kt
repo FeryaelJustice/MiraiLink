@@ -535,6 +535,14 @@ fun NavWrapper(
                                 ),
                             )
                         },
+                        onNavigateToAffinityProfileDetail = { username ->
+                            navigator.navigate(
+                                AppScreen.UserProfileDetailScreen(
+                                    username = username,
+                                    canInteract = false,
+                                ),
+                            )
+                        },
                         onNavigateToAffinityPaywall = { navigator.navigate(AppScreen.AffinityPaywallScreen) },
                         onNavigateToPaywall = {
                             navigator.navigate(AppScreen.SubscriptionPaywallScreen)

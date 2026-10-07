@@ -668,7 +668,7 @@
     <string name="affinity_title">Affinities</string>
     <string name="affinity_explanation">People with interests like yours who could become your next partner or a great friend. Discover who they are with Plus and make the first move.</string>
     <string name="affinity_anonymous">Someone with shared interests</string>
-    <string name="affinity_empty">After some time without new likes or matches, we will look for affinities. Complete your profile and interests to find compatible people.</string>
+    <string name="affinity_empty">After some time without new likes, we will look for affinities. Complete your profile and interests to find compatible people.</string>
     <string name="affinity_disabled">Your participation is turned off.</string>
     <string name="affinity_recommended">A featured affinity for you</string>
     <string name="affinity_unlock">Discover with Plus</string>
@@ -709,6 +709,13 @@
     <string name="affinity_message_more">Read full message</string>
     <string name="affinity_message_less">Show less</string>
     <string name="affinity_requests_sent">Sent invitations</string>
+    <string name="affinity_method_like">Like</string>
+    <string name="affinity_method_message">Message</string>
+    <string name="affinity_info_title">How does Affinity work?</string>
+    <string name="affinity_info_desc">Affinity recommends compatible people when you haven\'t received new likes for a while. If you send an invite and the other person declines or it expires after 7 days, that profile will no longer appear in your suggestions. You can send up to 3 invites per week.</string>
+    <string name="affinity_chat_origin_badge">Affinity</string>
+    <string name="affinity_chat_system_hint">Conversation started via Affinity.</string>
+    <string name="affinity_reset_demo">Regenerate Demo Suggestions</string>
     <string name="demo_subscription_title">Test plan</string>
     <string name="demo_subscription_description">Switch your Demo plan instantly. No purchases or charges.</string>
     <string name="demo_subscription_free">Free: explore the free experience.</string>
