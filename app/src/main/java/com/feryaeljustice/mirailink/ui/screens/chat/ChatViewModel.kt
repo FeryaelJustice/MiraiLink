@@ -273,11 +273,30 @@ class ChatViewModel(
         }
     }
 
-    fun capsuleAction(type: String, category: String? = null, text: String? = null) {
+    fun capsuleAction(
+        type: String,
+        category: String? = null,
+        questionId: String? = null,
+        text: String? = null,
+        answer: String? = null,
+        isCustom: Boolean = false,
+    ) {
         val current = capsule.value ?: return
-        val action = com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction(UUID.randomUUID().toString(), current.revision,
-            type, category, current.question?.instanceId, text)
-        if(capsuleBusy.value || pendingWork.value) return
+        val detectedLanguage = java.util.Locale.getDefault().language
+        val action = com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction(
+            actionId = UUID.randomUUID().toString(),
+            expectedRevision = current.revision,
+            type = type,
+            category = category,
+            questionId = questionId,
+            customQuestion = if (isCustom) text else null,
+            missionId = current.question?.instanceId,
+            text = text,
+            answer = answer,
+            isCustom = isCustom,
+            language = detectedLanguage,
+        )
+        if (capsuleBusy.value || pendingWork.value) return
         savedState["pendingOwner"] = ownerPeer
         savedState["capsuleAction"] = capsuleJson.encodeToString(action)
         pendingWork.value = true

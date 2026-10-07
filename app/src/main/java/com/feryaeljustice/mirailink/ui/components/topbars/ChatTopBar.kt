@@ -27,12 +27,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.feryaeljustice.mirailink.R
+import com.feryaeljustice.mirailink.domain.model.capsule.CrystalCapsule
+import com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation
 import com.feryaeljustice.mirailink.domain.util.superCapitalize
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkIconButton
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.components.capsule.CrystalCapsuleIcon
+import com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -42,16 +45,16 @@ fun ChatTopBar(
     onReportClick: () -> Unit,
     onBackClick: () -> Unit,
     onAvatarClick: (() -> Unit)? = null,
-    photoPresentation: com.feryaeljustice.mirailink.domain.model.capsule.PhotoPresentation? = null,
+    photoPresentation: PhotoPresentation? = null,
     unlockPulse: Int = 0,
     receiverName: String? = null,
     receiverUrlPhoto: String? = null,
+    capsule: CrystalCapsule? = null,
+    ownUserId: String? = null,
+    onCapsuleClick: (() -> Unit)? = null,
 ) {
     val currentLongPressHandler by rememberUpdatedState(newValue = onLongPressOnImage)
     val currentAvatarClickHandler by rememberUpdatedState(newValue = onAvatarClick)
-
-    // val sharedTransitionScope = LocalSharedTransitionScope.current
-    // val animatedVisibilityScope = LocalMiraiAnimatedScope.current
 
     Row(
         modifier =
@@ -60,12 +63,7 @@ fun ChatTopBar(
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.surfaceVariant,
-                    RoundedCornerShape(
-                        topStart = 4.dp,
-                        topEnd = 4.dp,
-                        bottomStart = 4.dp,
-                        bottomEnd = 4.dp,
-                    ),
+                    RoundedCornerShape(4.dp),
                 )
                 .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -82,11 +80,10 @@ fun ChatTopBar(
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
-        //if (sharedTransitionScope != null && animatedVisibilityScope != null) {
-        //    with(sharedTransitionScope) {
-        com.feryaeljustice.mirailink.ui.components.media.CrystalPhoto(
-                    unlockPulse = unlockPulse,
-                    photoPresentation = photoPresentation,
+
+        CrystalPhoto(
+            unlockPulse = unlockPulse,
+            photoPresentation = photoPresentation,
             model =
                 ImageRequest
                     .Builder(LocalContext.current)
@@ -111,14 +108,9 @@ fun ChatTopBar(
                                 }
                             },
                         )
-                    }
-            //.sharedElement(
-            //    sharedContentState = rememberSharedContentState(key = "avatar_${receiverId}"),
-            //    animatedVisibilityScope = animatedVisibilityScope
-            //),
+                    },
         )
-        //    }
-        //}
+
         Spacer(modifier = Modifier.width(12.dp))
         MiraiLinkText(
             text = receiverName?.superCapitalize() ?: stringResource(R.string.unknown),
@@ -127,6 +119,23 @@ fun ChatTopBar(
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.weight(1f))
+
+        // Icono especial de Crystal Capsule a la izquierda de reportar
+        if (capsule != null && onCapsuleClick != null) {
+            val hasPendingToAnswer = capsule.question != null &&
+                !capsule.question.completed &&
+                capsule.question.authorId.isNotEmpty() &&
+                capsule.question.authorId != ownUserId
+
+            CrystalCapsuleIcon(
+                progress = capsule.progress,
+                isRevealed = capsule.status == "revealed",
+                hasPendingToAnswer = hasPendingToAnswer,
+                onClick = onCapsuleClick,
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+
         MiraiLinkIconButton(
             onClick = onReportClick,
             colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.error),

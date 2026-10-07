@@ -4,19 +4,19 @@
     <string name="capsule_normal">Normal</string>
     <string name="capsule_enter">Enter capsule</string>
     <string name="capsule_intro">Discover shared interests before photos. Keep swiping, then crack the crystal together through conversation and optional missions. Existing capsules keep their progress when you switch modes. Photos are not anonymous or protected against screenshots.</string>
-    <string name="capsule_help">Two bilateral exchanges or one mission answered by both unlock a level. Consecutive messages count as one turn. You can change questions without losing progress. Family and personal topics are chosen explicitly. Pause or leave to keep chatting behind the glass. Resuming and early reveal require both people. Reveal is permanent. Previously seen photos and known links remain accessible.</string>
+    <string name="capsule_help">Answer questions together to reveal photos. Each bilateral answer adds 1 point. Reach 4 points to reveal all photos and unlock regular chat.</string>
     <string name="capsule_level_0">Sealed capsule</string>
     <string name="capsule_level_1">First spark</string>
     <string name="capsule_level_2">Resonance</string>
     <string name="capsule_level_3">Almost crystal</string>
     <string name="capsule_level_4">Connection revealed</string>
-    <string name="capsule_progress">%1$d / 8 connection points</string>
+    <string name="capsule_progress">%1$d / 4 connection points</string>
     <string name="capsule_missions">Missions</string>
     <string name="capsule_demo">Demo: this peer is simulated. It accepts reveal and resume and answers missions automatically.</string>
     <string name="capsule_answer">Your answer</string>
     <string name="capsule_mission_complete">Mission completed together</string>
     <string name="capsule_waiting">Waiting for the other person</string>
-    <string name="capsule_choose_category">Choose or change mission category</string>
+    <string name="capsule_choose_category">Choose category</string>
     <string name="capsule_anime">Anime</string>
     <string name="capsule_gaming">Gaming</string>
     <string name="capsule_hobbies">Hobbies</string>
@@ -26,9 +26,12 @@
     <string name="capsule_relationships">Relationship goals (personal)</string>
     <string name="capsule_family">Family (personal)</string>
     <string name="capsule_pause">Pause capsule</string>
+    <string name="capsule_pause_desc">Temporarily pause question missions. Both must agree to resume.</string>
     <string name="capsule_resume">Agree to resume</string>
-    <string name="capsule_leave">Leave capsule and keep chatting</string>
+    <string name="capsule_leave">Leave capsule</string>
+    <string name="capsule_leave_desc">Leave the capsule and cancel this connection.</string>
     <string name="capsule_request_reveal">Propose early reveal</string>
+    <string name="capsule_request_reveal_desc">Propose unlocking both photos immediately without waiting for 4 points.</string>
     <string name="capsule_cancel_reveal">Cancel reveal proposal</string>
     <string name="capsule_reveal_offer">The other person proposes revealing both photos permanently.</string>
     <string name="capsule_accept_reveal">Accept permanent reveal</string>
@@ -45,4 +48,22 @@
     <string name="capsule_state_changed">The capsule changed. Review its latest state before trying this action again.</string>
     <string name="capsule_invalid_action">This action no longer applies. Refresh the capsule.</string>
     <string name="capsule_retry_pending">Retry pending action</string>
+
+    <!-- Crystal Capsule v2 Strings -->
+    <string name="capsule_btn_history">Questions &amp; History</string>
+    <string name="capsule_btn_new_question">Propose New Question</string>
+    <string name="capsule_custom_question">Create custom question</string>
+    <string name="capsule_custom_question_hint">Type your custom question (max 120 chars)</string>
+    <string name="capsule_answer_hint">Type your answer (max 300 chars)</string>
+    <string name="capsule_pending_questions">Pending Questions</string>
+    <string name="capsule_answered_by_both">Answered by Both</string>
+    <string name="capsule_waiting_peer_answer">Waiting for peer response</string>
+    <string name="capsule_waiting_turn_warning">There is already an active question. Complete it before asking a new one.</string>
+    <string name="capsule_completed_congrats">Congratulations! You completed the Crystal Capsule.</string>
+    <string name="capsule_completed_chat_banner">Congratulations! You have completed the Crystal Capsule. You can now chat freely.</string>
+    <string name="capsule_chat_blocked_notice">Chat locked until Capsule is completed. Tap the capsule icon above to answer questions.</string>
+    <string name="capsule_send_question">Send question</string>
+    <string name="capsule_send_answer">Send answer</string>
+    <string name="capsule_your_answer_label">Your answer:</string>
+    <string name="capsule_peer_answer_label">Their answer:</string>
 </resources>

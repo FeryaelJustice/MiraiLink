@@ -5,8 +5,10 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +26,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -133,6 +141,7 @@ fun ChatScreen(
 
     var showReportDialog by rememberSaveable { mutableStateOf(false) }
     var selectedReportReason by rememberSaveable { mutableStateOf("") }
+    var showCapsuleModal by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
     var showGestureModal by rememberSaveable { mutableStateOf(false) }
@@ -224,10 +233,12 @@ fun ChatScreen(
         ChatTopBar(
             unlockPulse = unlockPulse,
             modifier = Modifier,
-            // receiverId = receiver?.id,
             photoPresentation = receiver?.photoPresentation,
             receiverName = receiver?.nicknameElseUsername(),
             receiverUrlPhoto = receiver?.profilePhoto?.url.getFormattedUrl(),
+            capsule = capsule,
+            ownUserId = sender?.id,
+            onCapsuleClick = { showCapsuleModal = true },
             onAvatarClick = {
                 receiver?.username?.let { username ->
                     onNavigateToProfileDetail?.invoke(username)
@@ -248,8 +259,17 @@ fun ChatScreen(
                 onAction = viewModel::performErrorAction,
             )
         }
-        if(pendingWork && !messageBusy && !capsuleBusy) androidx.compose.material3.TextButton(onClick = viewModel::retryPending) { androidx.compose.material3.Text(stringResource(R.string.capsule_retry_pending)) }
-        capsule?.let { com.feryaeljustice.mirailink.ui.components.capsule.CapsulePanel(it, sender?.id, capsuleBusy || pendingWork, isDemo, viewModel::capsuleAction) }
+        if (pendingWork && !messageBusy && !capsuleBusy) androidx.compose.material3.TextButton(onClick = viewModel::retryPending) { androidx.compose.material3.Text(stringResource(R.string.capsule_retry_pending)) }
+        if (showCapsuleModal && capsule != null) {
+            com.feryaeljustice.mirailink.ui.components.capsule.CrystalCapsuleModal(
+                state = capsule!!,
+                ownId = sender?.id,
+                busy = capsuleBusy || pendingWork,
+                isDemo = isDemo,
+                onDismiss = { showCapsuleModal = false },
+                onAction = viewModel::capsuleAction,
+            )
+        }
         LazyColumn(
             modifier =
                 Modifier
@@ -258,6 +278,42 @@ fun ChatScreen(
             reverseLayout = true,
             state = scrollState,
         ) {
+            if (capsule?.status == "revealed" && messages.isEmpty()) {
+                item(key = "capsule_completed_banner") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_heart),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(36.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    text = stringResource(R.string.capsule_completed_chat_banner),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             items(
                 items = chatItems,
                 key = { it.id },
@@ -321,74 +377,112 @@ fun ChatScreen(
                 }
             }
         }
-        Row(
-            modifier =
-                Modifier
+        if (capsule != null && capsule?.status != "revealed") {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            MiraiLinkIconButton(
-                onClick = { showGestureActionDialog = true },
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gamepad),
-                    contentDescription = stringResource(R.string.gesture_roulette_btn_content_description),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            MiraiLinkTextField(
-                value = input.value,
-                onValueChange = { input.value = it },
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                label = stringResource(R.string.chat_screen_send_msg),
-                placeholder = {
-                    val txt = sender?.nicknameElseUsername()?.superCapitalize()
-                    txt?.let {
-                        MiraiLinkText(
-                            text =
-                                stringResource(
-                                    R.string.chat_screen_smthg_send_msg,
-                                    it,
-                                ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_visibility_off),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.capsule_chat_blocked_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Button(
+                        onClick = { showCapsuleModal = true },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.capsule_title),
+                            style = MaterialTheme.typography.labelSmall,
                         )
                     }
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions =
-                    KeyboardActions(
-                        onSend = {
-                            if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
-                                viewModel.sendMessage(input.value.text)
-                                input.value = TextFieldValue("")
-                            }
-                        },
-                    ),
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-
-            EmojiPickerButton(
-                textFieldValue = input.value,
-                onTextFieldValueChange = { input.value = it },
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            MiraiLinkIconButton(onClick = {
-                if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
-                    viewModel.sendMessage(input.value.text)
-                    input.value = TextFieldValue("")
                 }
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_send),
-                    contentDescription = stringResource(R.string.send),
+            }
+        } else {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MiraiLinkIconButton(
+                    onClick = { showGestureActionDialog = true },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_gamepad),
+                        contentDescription = stringResource(R.string.gesture_roulette_btn_content_description),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                MiraiLinkTextField(
+                    value = input.value,
+                    onValueChange = { input.value = it },
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    label = stringResource(R.string.chat_screen_send_msg),
+                    placeholder = {
+                        val txt = sender?.nicknameElseUsername()?.superCapitalize()
+                        txt?.let {
+                            MiraiLinkText(
+                                text =
+                                    stringResource(
+                                        R.string.chat_screen_smthg_send_msg,
+                                        it,
+                                    ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions =
+                        KeyboardActions(
+                            onSend = {
+                                if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
+                                    viewModel.sendMessage(input.value.text)
+                                    input.value = TextFieldValue("")
+                                }
+                            },
+                        ),
                 )
+                Spacer(modifier = Modifier.width(4.dp))
+
+                EmojiPickerButton(
+                    textFieldValue = input.value,
+                    onTextFieldValueChange = { input.value = it },
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                MiraiLinkIconButton(onClick = {
+                    if (input.value.text.isNotBlank() && !messageBusy && !pendingWork) {
+                        viewModel.sendMessage(input.value.text)
+                        input.value = TextFieldValue("")
+                    }
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_send),
+                        contentDescription = stringResource(R.string.send),
+                    )
+                }
             }
         }
 

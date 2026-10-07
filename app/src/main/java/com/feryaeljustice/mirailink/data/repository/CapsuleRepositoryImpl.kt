@@ -45,5 +45,9 @@ class CapsuleRepositoryImpl(private val api: CapsuleApiService, private val pref
         }
         return result
     }
-    override suspend fun send(peerId: String, text: String, clientId: String): MiraiLinkResult<Unit> = safeApiCall(NetworkOperation.AUTHENTICATED) { api.send(ChatRequest(peerId, text, clientId)); Unit }
+    override suspend fun send(peerId: String, text: String, clientId: String): MiraiLinkResult<Unit> =
+        when (val result = safeApiCall(NetworkOperation.AUTHENTICATED) { api.send(ChatRequest(peerId, text, clientId)) }) {
+            is MiraiLinkResult.Success -> MiraiLinkResult.Success(Unit)
+            is MiraiLinkResult.Error -> result
+        }
 }
