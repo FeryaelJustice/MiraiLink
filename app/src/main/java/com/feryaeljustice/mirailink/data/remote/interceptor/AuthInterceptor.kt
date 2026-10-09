@@ -14,7 +14,7 @@ class AuthInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = sessionManager.getCurrentTokenSync()
-        Log.d("AuthInterceptor", "Token: $token")
+
 
         val request =
             chain
@@ -28,8 +28,10 @@ class AuthInterceptor(
 
         val response = chain.proceed(request)
 
+        // Ignore session side effects from requests belonging to the previous account or mode.
+        val ownsSession = token == sessionManager.getCurrentTokenSync() && token != "DEMO_TOKEN"
         val planHeader = response.header("X-Subscription-Plan")
-        if (planHeader != null) {
+        if (planHeader != null && ownsSession) {
             val normalizedPlan = planHeader.trim().lowercase()
             val isPremium = normalizedPlan == "premium"
             val isPlus = normalizedPlan == "plus" || isPremium
@@ -43,12 +45,12 @@ class AuthInterceptor(
 
         val shouldLogout = parseJsonBoolean(responseContent, "shouldLogout", defaultValue = false)
 
-        if (!isVerified) {
-            sessionManager.updateVerificationSync(false) // Fire-and-forget
+        if (!isVerified && ownsSession && token != null) {
+            sessionManager.updateVerificationForTokenSync(token, false) // Fire-and-forget
         }
 
-        if (response.code in setOf(401, 404, 502) && shouldLogout && !token.isNullOrBlank()) {
-            sessionManager.clearSessionSync() // Fire-and-forget
+        if (response.code in setOf(401, 404, 502) && shouldLogout && !token.isNullOrBlank() && ownsSession) {
+            sessionManager.clearSessionForTokenSync(token) // Fire-and-forget
         }
 
         // Reconstruir el body para que Retrofit/OkHttp puedan leerlo luego al haber accedido

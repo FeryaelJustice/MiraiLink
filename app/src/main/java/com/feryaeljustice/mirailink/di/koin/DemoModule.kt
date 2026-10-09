@@ -38,7 +38,7 @@ val demoModule =
         single { get<MiraiLinkDemoDatabase>().chatDao() }
         single { get<MiraiLinkDemoDatabase>().categoryDao() }
 
-        single { DemoDataSeeder(database = get()) }
+        single { DemoDataSeeder(database = get(), preferences = get(Qualifiers.PrefsDataStore)) }
         single { DemoModeManager(seeder = get(), sessionManager = get(), scope = get(ApplicationScope)) }
 
         single<UserRepository>(Demo) { DemoUserRepositoryImpl(database = get(), seeder = get()) }

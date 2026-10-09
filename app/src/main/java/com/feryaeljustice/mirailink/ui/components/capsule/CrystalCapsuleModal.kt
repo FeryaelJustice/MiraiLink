@@ -52,10 +52,18 @@ fun CrystalCapsuleModal(
     ownId: String?,
     busy: Boolean,
     isDemo: Boolean,
+    confirmedActionId: String? = null,
     onDismiss: () -> Unit,
-    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> Unit,
+    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> String?,
 ) {
     var currentStep by rememberSaveable { mutableStateOf(CapsuleModalStep.MAIN) }
+    var submittedActionId by rememberSaveable(state.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(confirmedActionId, submittedActionId) {
+        if (submittedActionId != null && confirmedActionId == submittedActionId) {
+            currentStep = CapsuleModalStep.MAIN
+            submittedActionId = null
+        }
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val resources = LocalResources.current
     val isSpanish = LocalConfiguration.current.locales[0].language == "es"
@@ -201,9 +209,7 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onSend = { category, questionId, questionText, answerText, isCustom ->
-                            onAction("question", category, questionId, questionText, answerText, isCustom)
-                            currentStep = CapsuleModalStep.MAIN
-                            onDismiss()
+                            submittedActionId = onAction("question", category, questionId, questionText, answerText, isCustom)
                         },
                     )
                 }
@@ -214,9 +220,7 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onAnswerPending = { answerText ->
-                            onAction("answer", null, null, null, answerText, false)
-                            currentStep = CapsuleModalStep.MAIN
-                            onDismiss()
+                            submittedActionId = onAction("answer", null, null, null, answerText, false)
                         },
                     )
                 }
@@ -235,7 +239,7 @@ private fun CapsuleMainStepView(
     busy: Boolean,
     onNavigateToHistory: () -> Unit,
     onNavigateToNewQuestion: () -> Unit,
-    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> Unit,
+    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> String?,
 ) {
     val isRevealed = state.status == "revealed"
     val hasActiveQuestion = state.question != null && !state.question.completed
@@ -291,7 +295,7 @@ private fun CapsuleMainStepView(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                             Button(onClick = onNavigateToHistory) {
-                                Text("Responder")
+                                Text(stringResource(R.string.capsule_reply))
                             }
                         }
                         state.question?.let { q ->
@@ -376,7 +380,7 @@ private fun CapsuleMainStepView(
         // Footer: Opciones del modo
         if (!isRevealed) {
             Text(
-                text = "Opciones del modo",
+                text = stringResource(R.string.capsule_mode_options),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -393,7 +397,7 @@ private fun CapsuleMainStepView(
                 } else if (state.status in listOf("paused", "left")) {
                     CapsuleActionCard(
                         title = stringResource(R.string.capsule_resume),
-                        description = "Acordar reanudar la dinámica de preguntas.",
+                        description = stringResource(R.string.capsule_resume_desc),
                         icon = painterResource(id = R.drawable.ic_bolt),
                         enabled = !busy && ownId !in state.resumeAccepted,
                         onClick = { onAction("resume", null, null, null, null, false) },
@@ -413,7 +417,7 @@ private fun CapsuleMainStepView(
                     ownId -> {
                         CapsuleActionCard(
                             title = stringResource(R.string.capsule_cancel_reveal),
-                            description = "Cancelar la solicitud de revelado anticipado.",
+                            description = stringResource(R.string.capsule_cancel_reveal_desc),
                             icon = painterResource(id = R.drawable.ic_visibility_off),
                             enabled = !busy,
                             onClick = { onAction("cancel_reveal", null, null, null, null, false) },
@@ -567,7 +571,7 @@ private fun CapsuleNewQuestionStepView(
         }
 
         Text(
-            text = "Preguntas sugeridas",
+            text = stringResource(R.string.capsule_suggested_questions),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
         )
@@ -719,7 +723,6 @@ private fun CapsuleHistoryStepView(
                         Button(
                             onClick = {
                                 val text = pendingAnswerInput.trim()
-                                pendingAnswerInput = ""
                                 onAnswerPending(text)
                             },
                             enabled = pendingAnswerInput.isNotBlank() && !busy,
@@ -767,7 +770,7 @@ private fun CapsuleHistoryStepView(
 
         if (state.completedQuestions.isEmpty()) {
             Text(
-                text = "Aún no habéis completado ninguna pregunta juntos.",
+                text = stringResource(R.string.capsule_history_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

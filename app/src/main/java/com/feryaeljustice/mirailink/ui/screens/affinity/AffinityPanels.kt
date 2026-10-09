@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.foundation.layout.*
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrl
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -39,11 +39,14 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 private fun AffinityAvatar(person: AffinityPerson?, size: androidx.compose.ui.unit.Dp = 44.dp) {
     Surface(Modifier.size(size), shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
-        if (person?.avatarUrl != null) AsyncImage(
-            model = resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, person.avatarUrl), contentDescription = null,
+        if (person != null) AsyncImage(
+            model = person.avatarUrl?.takeIf { it.isNotBlank() }?.let { resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, it) }, contentDescription = null,
+            placeholder = painterResource(R.drawable.logomirailink),
+            fallback = painterResource(R.drawable.logomirailink),
+            error = painterResource(R.drawable.logomirailink),
             contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().clip(CircleShape),
         ) else Box(contentAlignment = Alignment.Center) {
-            Icon(if (person == null) Icons.Default.Lock else Icons.Default.Person, contentDescription = null, modifier = Modifier.size(22.dp))
+            Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(22.dp))
         }
     }
 }
@@ -281,18 +284,20 @@ private fun AffinityRequestsPanel(onDetail: (String) -> Unit, onPaywall: () -> U
                         }
                     }
                     if (isLocked) {
+                        Text(stringResource(R.string.affinity_conversation_invitation), style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = onPaywall, modifier = Modifier.fillMaxWidth()) {
                             Text(stringResource(R.string.affinity_unlock))
                         }
-                    }
-                    Text(request.text, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis)
-                    if (request.text.length > 120 || request.text.count { it == '\n' } > 2) TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
-                        Text(stringResource(if (expanded) R.string.affinity_message_less else R.string.affinity_message_more))
-                    }
-                    Text(stringResource(if (request.incoming) R.string.affinity_incoming else R.string.affinity_pending), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (request.incoming) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { viewModel.respond(request.id, true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_accept)) }
-                        TextButton(onClick = { viewModel.respond(request.id, false) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_reject)) }
+                    } else {
+                        Text(request.text, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis)
+                        if (request.text.length > 120 || request.text.count { it == '\n' } > 2) TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                            Text(stringResource(if (expanded) R.string.affinity_message_less else R.string.affinity_message_more))
+                        }
+                        Text(stringResource(if (request.incoming) R.string.affinity_incoming else R.string.affinity_pending), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (request.incoming) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilledTonalButton(onClick = { viewModel.respond(request.id, true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_accept)) }
+                            TextButton(onClick = { viewModel.respond(request.id, false) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_reject)) }
+                        }
                     }
                 }
             }

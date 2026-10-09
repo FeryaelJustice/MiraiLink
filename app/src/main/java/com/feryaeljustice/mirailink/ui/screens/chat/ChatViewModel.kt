@@ -80,6 +80,8 @@ class ChatViewModel(
         field = MutableStateFlow(false)
     val messageBusy: StateFlow<Boolean>
         field = MutableStateFlow(false)
+    private val _confirmedCapsuleActionId = MutableStateFlow<String?>(null)
+    val confirmedCapsuleActionId: StateFlow<String?> = _confirmedCapsuleActionId
     private var ownerPeer: String? = null
     fun retryPending() { performErrorAction() }
     private val fetchMutex = kotlinx.coroutines.sync.Mutex()
@@ -168,6 +170,7 @@ class ChatViewModel(
             if(savedState.get<String>("pendingOwner") != identity) {
                 savedState.remove<String>("pendingText"); savedState.remove<String>("pendingId"); savedState.remove<String>("capsuleAction")
             }
+            _confirmedCapsuleActionId.value = null
             ownerPeer = identity
             pendingWork.value = savedState.get<String>("pendingText") != null || savedState.get<String>("capsuleAction") != null
 
@@ -280,8 +283,8 @@ class ChatViewModel(
         text: String? = null,
         answer: String? = null,
         isCustom: Boolean = false,
-    ) {
-        val current = capsule.value ?: return
+    ): String? {
+        val current = capsule.value ?: return null
         val detectedLanguage = java.util.Locale.getDefault().language
         val action = com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction(
             actionId = UUID.randomUUID().toString(),
@@ -296,11 +299,12 @@ class ChatViewModel(
             isCustom = isCustom,
             language = detectedLanguage,
         )
-        if (capsuleBusy.value || pendingWork.value) return
+        if (capsuleBusy.value || pendingWork.value) return null
         savedState["pendingOwner"] = ownerPeer
         savedState["capsuleAction"] = capsuleJson.encodeToString(action)
         pendingWork.value = true
         executeCapsuleAction(current.id, action)
+        return action.actionId
     }
 
     private fun executeCapsuleAction(id: String, action: com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction) {
@@ -316,6 +320,7 @@ class ChatViewModel(
                             "level" to result.data.level, "status" to result.data.status))
                         val previous = capsule.value
                         capsule.value = result.data
+                        _confirmedCapsuleActionId.value = action.actionId
                         receiver.value = receiver.value?.copy(photoPresentation = result.data.photoPresentation())
                         if(screenActive && baselineLoaded && previous != null && result.data.level > previous.level) _unlockEffects.tryEmit(result.data.level)
                         // Refresh canonical messages and state together. This also emits a single foreground unlock.

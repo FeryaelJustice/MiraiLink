@@ -57,23 +57,14 @@ class DemoSwipeRepositoryImpl(
 
         val searchPrefs = searchPreferencesRepository.getSearchPreferences().first()
         val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
-        val affinityState = prefs?.data?.first()?.demoAffinity
-        val affinityPeerIds = if (affinityState != null) {
-            affinityState.requests.map { it.person.id }.toSet() + affinityState.liked
-        } else emptySet()
-        val affinityIncomingLikedIds = database.userDao().getAllFeedUsers()
-            .filter { it.nickname == "Leo" }
-            .map { it.id }
-            .toSet()
+        val blockedIds = prefs?.data?.first()?.demoAffinity?.blocked.orEmpty()
         val normalPendingLikesIds = database.userDao().getAllFeedUsers()
             .filter { it.nickname in listOf("Ren", "Sakura") }
             .map { it.id }
             .toSet()
 
         feedUsers = feedUsers.filter {
-            it.id !in matchedIds &&
-            it.id !in affinityPeerIds &&
-            it.id !in affinityIncomingLikedIds &&
+            it.id !in matchedIds && it.id !in blockedIds &&
             it.id !in normalPendingLikesIds
         }
         val demoProfile = database.userDao().getUserProfile(DemoDataSeeder.DEMO_USER_ID)
@@ -127,19 +118,14 @@ class DemoSwipeRepositoryImpl(
         seeder.seedInitialDataIfEmpty()
         val allUsers = database.userDao().getAllFeedUsers()
         val matchedIds = database.matchDao().getAllMatches().map { it.userId }.toSet()
-        val affinityState = prefs?.data?.first()?.demoAffinity
-        val affinityExcludedIds = if (affinityState != null) {
-            affinityState.requests.map { it.person.id }.toSet() + affinityState.liked
-        } else emptySet()
-        val affinityLikedIds = allUsers.filter { it.nickname == "Leo" }.map { it.id }.toSet()
-
+        val blockedIds = prefs?.data?.first()?.demoAffinity?.blocked.orEmpty()
+        val incomingModes = allUsers.filter { it.nickname in listOf("Ren", "Sakura") }
+            .mapIndexed { index, user -> user.id to if (index % 2 == 0) "classic" else "capsule" }.toMap()
         val receivedLikes = allUsers
             .filter {
                 !it.isLiked &&
                 !it.isDisliked &&
-                it.id !in matchedIds &&
-                it.id !in affinityExcludedIds &&
-                it.id !in affinityLikedIds &&
+                it.id !in matchedIds && it.id !in blockedIds &&
                 it.nickname in listOf("Ren", "Sakura")
             }
             .drop(offset)
@@ -148,13 +134,26 @@ class DemoSwipeRepositoryImpl(
                 com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
                     likeId = "demo_like_${entity.id}",
                     likedAt = "2026-09-23T12:00:00Z",
-                    user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, false)),
+                    discoveryMode = incomingModes.getValue(entity.id),
+                    user = entity.toDomainUser().copy(photoPresentation = database.capsulePresentation(entity.id, incomingModes[entity.id] == "capsule")),
                 )
             }
         return MiraiLinkResult.Success(receivedLikes)
     }
 
-    override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> {
+    override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
+        likeUserWithMode(toUserId, searchPreferencesRepository.getSearchPreferences().first().discoveryMode)
+
+    override suspend fun returnReceivedLike(toUserId: String, likeId: String, discoveryMode: String): MiraiLinkResult<Boolean> {
+        val result = getReceivedLikes(Int.MAX_VALUE, 0)
+        val incoming = when (result) {
+            is MiraiLinkResult.Success -> result.data.firstOrNull { it.likeId == likeId && it.user.id == toUserId }
+            is MiraiLinkResult.Error -> return result
+        } ?: return MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+        return likeUserWithMode(toUserId, incoming.discoveryMode, received = true)
+    }
+
+    private suspend fun likeUserWithMode(toUserId: String, discoveryMode: String, received: Boolean = false): MiraiLinkResult<Boolean> {
         val now = timeProvider.currentTimeMillis()
         database.userDao().markLiked(toUserId)
         database.userDao().insertSwipeHistory(
@@ -166,7 +165,7 @@ class DemoSwipeRepositoryImpl(
         )
         val feedUser = database.userDao().getFeedUserById(toUserId)
 
-        val isMatch = feedUser?.willMatch ?: true
+        val isMatch = received || (feedUser?.willMatch ?: true)
         if (isMatch) {
             val match = DemoMatchEntity(
                 userId = toUserId,
@@ -198,7 +197,7 @@ class DemoSwipeRepositoryImpl(
                 isRead = false,
             )
             database.chatDao().insertMessage(msg)
-            if(searchPreferencesRepository.getSearchPreferences().first().discoveryMode == "capsule") database.startCapsule(toUserId)
+            if(discoveryMode == "capsule") database.startCapsule(toUserId)
         }
 
         return MiraiLinkResult.Success(isMatch)

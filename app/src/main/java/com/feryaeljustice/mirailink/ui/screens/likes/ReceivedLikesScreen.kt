@@ -172,6 +172,13 @@ private fun ReceivedLikeItemCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
+                if (item.discoveryMode == "capsule") {
+                    MiraiLinkText(
+                        text = stringResource(R.string.capsule_title),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 MiraiLinkText(
                     text = "@${item.username}",
                     style = MaterialTheme.typography.bodySmall,

@@ -25,6 +25,9 @@ class DelegatingSwipeRepository(
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
         targetRepo().likeUser(toUserId)
 
+    override suspend fun returnReceivedLike(toUserId: String, likeId: String, discoveryMode: String): MiraiLinkResult<Boolean> =
+        targetRepo().returnReceivedLike(toUserId, likeId, discoveryMode)
+
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
         targetRepo().dislikeUser(toUserId)
 

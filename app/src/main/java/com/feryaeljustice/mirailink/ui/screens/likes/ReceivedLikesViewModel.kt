@@ -26,6 +26,7 @@ data class ReceivedLikeItemViewEntry(
     val age: Int?,
     val avatarUrl: String?,
     val likedAt: String,
+    val discoveryMode: String = "classic",
 )
 
 data class ReceivedLikesUiState(
@@ -94,6 +95,7 @@ class ReceivedLikesViewModel(
                             age = calculateAge(like.user.birthdate),
                             avatarUrl = like.user.photos.firstOrNull()?.url,
                             likedAt = like.likedAt,
+                            discoveryMode = like.discoveryMode,
                         )
                     }
                     _uiState.update {
@@ -120,7 +122,7 @@ class ReceivedLikesViewModel(
 
     fun matchUser(item: ReceivedLikeItemViewEntry) {
         viewModelScope.launch {
-            when (val result = likeUserUseCase(toUserId = item.userId)) {
+            when (val result = likeUserUseCase(toUserId = item.userId, receivedLikeId = item.likeId, discoveryMode = item.discoveryMode)) {
                 is MiraiLinkResult.Success -> {
                     // Remove from list
                     _uiState.update { state ->

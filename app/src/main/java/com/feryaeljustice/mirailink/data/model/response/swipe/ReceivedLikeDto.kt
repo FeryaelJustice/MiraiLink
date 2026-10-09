@@ -12,4 +12,5 @@ data class ReceivedLikeDto(
     val likedAt: String,
     @SerialName("user")
     val user: UserDto,
+    val discoveryMode: String = "classic",
 )

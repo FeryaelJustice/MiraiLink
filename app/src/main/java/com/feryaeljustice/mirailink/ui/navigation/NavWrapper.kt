@@ -15,6 +15,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -788,6 +795,25 @@ fun NavWrapper(
                 /**
                  * Navigation 3 root, nav display
                  */
+                val parentViewModelOwner = LocalViewModelStoreOwner.current
+                val sessionViewModelOwner = remember(currentUserId, isDemoMode, parentViewModelOwner) {
+                    val defaults = parentViewModelOwner as HasDefaultViewModelProviderFactory
+                    object : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+                        override val viewModelStore = ViewModelStore()
+                        override val defaultViewModelProviderFactory = defaults.defaultViewModelProviderFactory
+                        override val defaultViewModelCreationExtras: androidx.lifecycle.viewmodel.CreationExtras
+                            get() {
+                                val owner = this
+                                return MutableCreationExtras(defaults.defaultViewModelCreationExtras).apply {
+                                    this[VIEW_MODEL_STORE_OWNER_KEY] = owner
+                                }
+                            }
+                    }
+                }
+                DisposableEffect(sessionViewModelOwner) {
+                    onDispose { sessionViewModelOwner.viewModelStore.clear() }
+                }
+                CompositionLocalProvider(LocalViewModelStoreOwner provides sessionViewModelOwner) {
                 NavDisplay(
                     entries = navigationState.toEntries(entries),
                     onBack = { navigator.goBack() },
@@ -824,6 +850,7 @@ fun NavWrapper(
                     },
                     modifier = Modifier.padding(innerPadding),
                 )
+                }
             }
         }
 
