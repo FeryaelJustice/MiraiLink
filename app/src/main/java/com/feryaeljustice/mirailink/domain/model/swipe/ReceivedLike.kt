@@ -6,4 +6,5 @@ data class ReceivedLike(
     val likeId: String,
     val likedAt: String,
     val user: User,
+    val discoveryMode: String = "classic",
 )

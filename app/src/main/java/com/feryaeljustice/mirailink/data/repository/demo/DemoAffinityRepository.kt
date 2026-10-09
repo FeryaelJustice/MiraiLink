@@ -104,7 +104,6 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
                 ),
             )
         }
-        db.userDao().markLiked(id)
         return MiraiLinkResult.Success(AffinityAction())
     }
     override suspend fun returnLike(id: String): MiraiLinkResult<AffinityAction> {
@@ -128,7 +127,6 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         var chatId: String? = null
         if (accept) db.withTransaction {
             val now = System.currentTimeMillis()
-            db.matchDao().insertMatch(DemoMatchEntity(r.person.id, now))
             chatId = db.chatDao().getChatByUserId(r.person.id)?.id ?: "chat_${r.person.id}"
             db.chatDao().insertOrUpdateChat(DemoChatEntity(chatId!!, r.person.id, r.text, r.person.id, now))
             db.chatDao().insertMessage(DemoMessageEntity("affinity_$id", chatId!!, r.person.id, DemoDataSeeder.DEMO_USER_ID, r.text, now))

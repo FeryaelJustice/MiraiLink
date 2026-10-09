@@ -118,6 +118,7 @@ fun ChatScreen(
     val pendingWork by viewModel.pendingWork.collectAsStateWithLifecycle()
     val messageBusy by viewModel.messageBusy.collectAsStateWithLifecycle()
     val capsuleBusy by viewModel.capsuleBusy.collectAsStateWithLifecycle()
+    val confirmedCapsuleActionId by viewModel.confirmedCapsuleActionId.collectAsStateWithLifecycle()
     val isDemo by miraiLinkSession.isDemoMode.collectAsStateWithLifecycle()
     val view = androidx.compose.ui.platform.LocalView.current
     var unlockPulse by remember { mutableStateOf(0) }
@@ -301,6 +302,7 @@ fun ChatScreen(
                 isDemo = isDemo,
                 onDismiss = { showCapsuleModal = false },
                 onAction = viewModel::capsuleAction,
+                confirmedActionId = confirmedCapsuleActionId,
             )
         }
         LazyColumn(

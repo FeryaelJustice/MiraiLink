@@ -52,15 +52,16 @@ fun CrystalCapsuleModal(
     ownId: String?,
     busy: Boolean,
     isDemo: Boolean,
+    confirmedActionId: String? = null,
     onDismiss: () -> Unit,
-    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> Unit,
+    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> String?,
 ) {
     var currentStep by rememberSaveable { mutableStateOf(CapsuleModalStep.MAIN) }
-    var submittedRevision by remember { mutableStateOf<Int?>(null) }
-    LaunchedEffect(state.revision) {
-        if (submittedRevision?.let { state.revision > it } == true) {
+    var submittedActionId by rememberSaveable(state.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(confirmedActionId, submittedActionId) {
+        if (submittedActionId != null && confirmedActionId == submittedActionId) {
             currentStep = CapsuleModalStep.MAIN
-            submittedRevision = null
+            submittedActionId = null
         }
     }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -208,8 +209,7 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onSend = { category, questionId, questionText, answerText, isCustom ->
-                            submittedRevision = state.revision
-                            onAction("question", category, questionId, questionText, answerText, isCustom)
+                            submittedActionId = onAction("question", category, questionId, questionText, answerText, isCustom)
                         },
                     )
                 }
@@ -220,8 +220,7 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onAnswerPending = { answerText ->
-                            submittedRevision = state.revision
-                            onAction("answer", null, null, null, answerText, false)
+                            submittedActionId = onAction("answer", null, null, null, answerText, false)
                         },
                     )
                 }
@@ -240,7 +239,7 @@ private fun CapsuleMainStepView(
     busy: Boolean,
     onNavigateToHistory: () -> Unit,
     onNavigateToNewQuestion: () -> Unit,
-    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> Unit,
+    onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> String?,
 ) {
     val isRevealed = state.status == "revealed"
     val hasActiveQuestion = state.question != null && !state.question.completed
@@ -724,7 +723,6 @@ private fun CapsuleHistoryStepView(
                         Button(
                             onClick = {
                                 val text = pendingAnswerInput.trim()
-                                pendingAnswerInput = ""
                                 onAnswerPending(text)
                             },
                             enabled = pendingAnswerInput.isNotBlank() && !busy,

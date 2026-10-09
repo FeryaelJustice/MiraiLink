@@ -23,9 +23,9 @@ class SwipeRemoteDataSource(
             api.getReceivedLikes(limit, offset)
         }
 
-    suspend fun likeUser(toUserId: String, discoveryMode: String = "classic"): MiraiLinkResult<Boolean> =
+    suspend fun likeUser(toUserId: String, discoveryMode: String = "classic", receivedLikeId: String? = null): MiraiLinkResult<Boolean> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
-            api.likeUser(SwipeRequest(toUserId, discoveryMode)).match
+            api.likeUser(SwipeRequest(toUserId, discoveryMode, receivedLikeId)).match
         }
 
     suspend fun dislikeUser(toUserId: String, discoveryMode: String = "classic"): MiraiLinkResult<Unit> =

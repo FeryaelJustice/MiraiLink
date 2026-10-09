@@ -43,6 +43,7 @@ class SwipeRepositoryImpl(
                     com.feryaeljustice.mirailink.domain.model.swipe.ReceivedLike(
                         likeId = dto.likeId,
                         likedAt = dto.likedAt,
+                        discoveryMode = dto.discoveryMode,
                         user = user.copy(photos = orderedPhotos),
                     )
                 }
@@ -53,6 +54,10 @@ class SwipeRepositoryImpl(
 
     override suspend fun likeUser(toUserId: String): MiraiLinkResult<Boolean> =
         if (toUserId.isCanonicalUuid()) remote.likeUser(toUserId, preferences?.getSearchPreferences()?.first()?.discoveryMode ?: "classic")
+        else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
+
+    override suspend fun returnReceivedLike(toUserId: String, likeId: String, discoveryMode: String): MiraiLinkResult<Boolean> =
+        if (toUserId.isCanonicalUuid() && likeId.isCanonicalUuid()) remote.likeUser(toUserId, discoveryMode, likeId)
         else MiraiLinkResult.Error(ValidationError.INVALID_INPUT)
 
     override suspend fun dislikeUser(toUserId: String): MiraiLinkResult<Unit> =
