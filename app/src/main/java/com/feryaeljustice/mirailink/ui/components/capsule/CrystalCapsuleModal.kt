@@ -188,6 +188,7 @@ fun CrystalCapsuleModal(
                     CapsuleMainStepView(
                         state = state,
                         ownId = ownId,
+                        isSpanish = isSpanish,
                         busy = busy,
                         onNavigateToHistory = { currentStep = CapsuleModalStep.HISTORY },
                         onNavigateToNewQuestion = { currentStep = CapsuleModalStep.NEW_QUESTION },
@@ -201,6 +202,7 @@ fun CrystalCapsuleModal(
                         busy = busy,
                         onSend = { category, questionId, questionText, answerText, isCustom ->
                             onAction("question", category, questionId, questionText, answerText, isCustom)
+                            currentStep = CapsuleModalStep.MAIN
                             onDismiss()
                         },
                     )
@@ -213,6 +215,8 @@ fun CrystalCapsuleModal(
                         busy = busy,
                         onAnswerPending = { answerText ->
                             onAction("answer", null, null, null, answerText, false)
+                            currentStep = CapsuleModalStep.MAIN
+                            onDismiss()
                         },
                     )
                 }
@@ -227,6 +231,7 @@ fun CrystalCapsuleModal(
 private fun CapsuleMainStepView(
     state: CrystalCapsule,
     ownId: String?,
+    isSpanish: Boolean,
     busy: Boolean,
     onNavigateToHistory: () -> Unit,
     onNavigateToNewQuestion: () -> Unit,
@@ -267,27 +272,34 @@ private fun CapsuleMainStepView(
             if (isWaitingForMe) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
                             Text(
-                                text = "¡Tienes una pregunta pendiente!",
+                                text = stringResource(R.string.capsule_pending_questions),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
                             )
-                            Text(
-                                text = "Respóndela para sumar un punto y avanzar.",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
+                            Button(onClick = onNavigateToHistory) {
+                                Text("Responder")
+                            }
                         }
-                        Button(onClick = onNavigateToHistory) {
-                            Text("Responder")
+                        state.question?.let { q ->
+                            Text(
+                                text = q.displayText(isSpanish),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                            )
                         }
                     }
                 }
@@ -297,12 +309,31 @@ private fun CapsuleMainStepView(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.capsule_waiting_peer_answer),
-                        style = MaterialTheme.typography.bodyMedium,
+                    Column(
                         modifier = Modifier.padding(14.dp),
-                        textAlign = TextAlign.Center,
-                    )
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.capsule_waiting_peer_answer),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        state.question?.let { q ->
+                            Text(
+                                text = q.displayText(isSpanish),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            q.authorAnswer?.let { ans ->
+                                Text(
+                                    text = "${stringResource(R.string.capsule_your_answer_label)} $ans",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -686,7 +717,11 @@ private fun CapsuleHistoryStepView(
                             minLines = 2,
                         )
                         Button(
-                            onClick = { onAnswerPending(pendingAnswerInput.trim()) },
+                            onClick = {
+                                val text = pendingAnswerInput.trim()
+                                pendingAnswerInput = ""
+                                onAnswerPending(text)
+                            },
                             enabled = pendingAnswerInput.isNotBlank() && !busy,
                             modifier = Modifier.align(Alignment.End),
                         ) {
@@ -755,27 +790,35 @@ private fun CapsuleHistoryStepView(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                             )
-                            Surface(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(
-                                    text = "${stringResource(R.string.capsule_your_answer_label)} ${completed.authorAnswer}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(8.dp),
-                                )
+                            val isMeAuthor = !completed.authorId.isNullOrBlank() && completed.authorId == ownId
+                            val myAnswer = if (isMeAuthor) completed.authorAnswer else completed.peerAnswer
+                            val theirAnswer = if (isMeAuthor) completed.peerAnswer else completed.authorAnswer
+
+                            if (myAnswer.isNotBlank()) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(
+                                        text = "${stringResource(R.string.capsule_your_answer_label)} $myAnswer",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(8.dp),
+                                    )
+                                }
                             }
-                            Surface(
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(
-                                    text = "${stringResource(R.string.capsule_peer_answer_label)} ${completed.peerAnswer}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(8.dp),
-                                )
+                            if (theirAnswer.isNotBlank()) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(
+                                        text = "${stringResource(R.string.capsule_peer_answer_label)} $theirAnswer",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(8.dp),
+                                    )
+                                }
                             }
                         }
                     }
