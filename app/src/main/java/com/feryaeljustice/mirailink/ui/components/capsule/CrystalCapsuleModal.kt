@@ -56,6 +56,13 @@ fun CrystalCapsuleModal(
     onAction: (type: String, category: String?, questionId: String?, text: String?, answer: String?, isCustom: Boolean) -> Unit,
 ) {
     var currentStep by rememberSaveable { mutableStateOf(CapsuleModalStep.MAIN) }
+    var submittedRevision by remember { mutableStateOf<Int?>(null) }
+    LaunchedEffect(state.revision) {
+        if (submittedRevision?.let { state.revision > it } == true) {
+            currentStep = CapsuleModalStep.MAIN
+            submittedRevision = null
+        }
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val resources = LocalResources.current
     val isSpanish = LocalConfiguration.current.locales[0].language == "es"
@@ -201,9 +208,8 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onSend = { category, questionId, questionText, answerText, isCustom ->
+                            submittedRevision = state.revision
                             onAction("question", category, questionId, questionText, answerText, isCustom)
-                            currentStep = CapsuleModalStep.MAIN
-                            onDismiss()
                         },
                     )
                 }
@@ -214,9 +220,8 @@ fun CrystalCapsuleModal(
                         isSpanish = isSpanish,
                         busy = busy,
                         onAnswerPending = { answerText ->
+                            submittedRevision = state.revision
                             onAction("answer", null, null, null, answerText, false)
-                            currentStep = CapsuleModalStep.MAIN
-                            onDismiss()
                         },
                     )
                 }
@@ -291,7 +296,7 @@ private fun CapsuleMainStepView(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                             Button(onClick = onNavigateToHistory) {
-                                Text("Responder")
+                                Text(stringResource(R.string.capsule_reply))
                             }
                         }
                         state.question?.let { q ->
@@ -376,7 +381,7 @@ private fun CapsuleMainStepView(
         // Footer: Opciones del modo
         if (!isRevealed) {
             Text(
-                text = "Opciones del modo",
+                text = stringResource(R.string.capsule_mode_options),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -393,7 +398,7 @@ private fun CapsuleMainStepView(
                 } else if (state.status in listOf("paused", "left")) {
                     CapsuleActionCard(
                         title = stringResource(R.string.capsule_resume),
-                        description = "Acordar reanudar la dinámica de preguntas.",
+                        description = stringResource(R.string.capsule_resume_desc),
                         icon = painterResource(id = R.drawable.ic_bolt),
                         enabled = !busy && ownId !in state.resumeAccepted,
                         onClick = { onAction("resume", null, null, null, null, false) },
@@ -413,7 +418,7 @@ private fun CapsuleMainStepView(
                     ownId -> {
                         CapsuleActionCard(
                             title = stringResource(R.string.capsule_cancel_reveal),
-                            description = "Cancelar la solicitud de revelado anticipado.",
+                            description = stringResource(R.string.capsule_cancel_reveal_desc),
                             icon = painterResource(id = R.drawable.ic_visibility_off),
                             enabled = !busy,
                             onClick = { onAction("cancel_reveal", null, null, null, null, false) },
@@ -567,7 +572,7 @@ private fun CapsuleNewQuestionStepView(
         }
 
         Text(
-            text = "Preguntas sugeridas",
+            text = stringResource(R.string.capsule_suggested_questions),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
         )
@@ -767,7 +772,7 @@ private fun CapsuleHistoryStepView(
 
         if (state.completedQuestions.isEmpty()) {
             Text(
-                text = "Aún no habéis completado ninguna pregunta juntos.",
+                text = stringResource(R.string.capsule_history_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

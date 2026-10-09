@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -23,10 +24,10 @@ class DemoModeManager(
         // El modo demo debe sobrevivir a un relanzamiento solo cuando la sesion
         // persistida contiene el token demo. Evita tratarla como sesion real.
         scope.launch {
-            sessionManager.tokenFlow.collect { token ->
+            sessionManager.tokenFlow.distinctUntilChanged().collect { token ->
                 if (token == "DEMO_TOKEN") {
                     _isDemoMode.value = true
-                } else if (!_isDemoMode.value) {
+                } else if (!token.isNullOrBlank()) {
                     _isDemoMode.value = false
                 }
             }
@@ -42,6 +43,7 @@ class DemoModeManager(
     fun enableDemoMode(onComplete: (() -> Unit)? = null): Job {
         _isDemoMode.value = true
         return scope.launch {
+            sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID, verified = true)
             seeder.seedInitialDataIfEmpty()
             onComplete?.invoke()
         }

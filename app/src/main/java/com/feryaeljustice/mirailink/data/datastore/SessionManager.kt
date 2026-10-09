@@ -75,6 +75,23 @@ class SessionManager(
         scope.launch { saveIsVerified(verified) }
     }
 
+    fun updateVerificationForTokenSync(token: String, verified: Boolean) {
+        scope.launch {
+            dataStore.updateData { if (it.token == token) it.copy(verified = verified) else it }
+        }
+    }
+
+    fun clearSessionForTokenSync(token: String) {
+        scope.launch {
+            var cleared = false
+            dataStore.updateData {
+                cleared = it.token == token
+                if (cleared) Session() else it
+            }
+            if (cleared) _onLogout.emit(Unit)
+        }
+    }
+
     fun clearSessionSync() {
         scope.launch { clearSession() }
     }

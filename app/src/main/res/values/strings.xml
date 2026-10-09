@@ -726,4 +726,10 @@
     <string name="demo_subscription_free_label">Free</string>
     <string name="demo_subscription_plus_label">Plus</string>
     <string name="demo_subscription_premium_label">Premium</string>
+    <string name="capsule_reply">Reply</string>
+    <string name="capsule_mode_options">Mode options</string>
+    <string name="capsule_resume_desc">Agree to resume exchanging questions.</string>
+    <string name="capsule_cancel_reveal_desc">Cancel the early reveal request.</string>
+    <string name="capsule_suggested_questions">Suggested questions</string>
+    <string name="capsule_history_empty">You have not completed any questions together yet.</string>
 </resources>

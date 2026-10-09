@@ -193,9 +193,9 @@ class GlobalMiraiLinkSession(
     }
 
     fun clearSession() = appScope.launch {
-        demoModeManager?.disableDemoMode()
         setSubscriptionState(premium = false, plus = false)
         sessionManager.clearSession()
+        demoModeManager?.disableDemoMode()
     }
 
     fun saveSession(
@@ -210,15 +210,13 @@ class GlobalMiraiLinkSession(
     fun enterDemoMode(onComplete: (() -> Unit)? = null) {
         demoModeManager?.enableDemoMode {
             appScope.launch {
-                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID)
-                sessionManager.saveIsVerified(true)
+                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID, verified = true)
                 hasProfilePicture.value = true
                 onComplete?.invoke()
             }
         } ?: run {
             appScope.launch {
-                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID)
-                sessionManager.saveIsVerified(true)
+                sessionManager.saveSession("DEMO_TOKEN", DemoDataSeeder.DEMO_USER_ID, verified = true)
                 hasProfilePicture.value = true
                 onComplete?.invoke()
             }

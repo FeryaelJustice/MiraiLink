@@ -15,6 +15,7 @@ import java.util.UUID
 
 class DemoDataSeeder(
     private val database: MiraiLinkDemoDatabase,
+    private val preferences: androidx.datastore.core.DataStore<com.feryaeljustice.mirailink.data.model.local.datastore.AppPrefs>? = null,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
     companion object {
@@ -29,6 +30,7 @@ class DemoDataSeeder(
     }
 
     suspend fun resetDemoData() {
+        preferences?.updateData { it.copy(demoAffinity = com.feryaeljustice.mirailink.domain.model.affinity.AffinityDemoState(participating = true)) }
         database.withTransaction {
         // 1. Limpiar todas las tablas demo
         database.capsuleDao().clear()

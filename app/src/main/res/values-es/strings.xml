@@ -724,4 +724,10 @@
     <string name="demo_subscription_free_label">Free</string>
     <string name="demo_subscription_plus_label">Plus</string>
     <string name="demo_subscription_premium_label">Premium</string>
+    <string name="capsule_reply">Responder</string>
+    <string name="capsule_mode_options">Opciones del modo</string>
+    <string name="capsule_resume_desc">Acordar reanudar la dinámica de preguntas.</string>
+    <string name="capsule_cancel_reveal_desc">Cancelar la solicitud de revelado anticipado.</string>
+    <string name="capsule_suggested_questions">Preguntas sugeridas</string>
+    <string name="capsule_history_empty">Aún no habéis completado ninguna pregunta juntos.</string>
 </resources>

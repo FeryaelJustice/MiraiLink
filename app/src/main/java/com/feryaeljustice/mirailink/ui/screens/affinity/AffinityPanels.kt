@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.foundation.layout.*
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.domain.util.resolvePhotoUrl
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -39,11 +39,14 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 private fun AffinityAvatar(person: AffinityPerson?, size: androidx.compose.ui.unit.Dp = 44.dp) {
     Surface(Modifier.size(size), shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
-        if (person?.avatarUrl != null) AsyncImage(
-            model = resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, person.avatarUrl), contentDescription = null,
+        if (person != null) AsyncImage(
+            model = person.avatarUrl?.takeIf { it.isNotBlank() }?.let { resolvePhotoUrl(BuildConfig.MIRAILINK_BASE_URL, it) }, contentDescription = null,
+            placeholder = painterResource(R.drawable.logomirailink),
+            fallback = painterResource(R.drawable.logomirailink),
+            error = painterResource(R.drawable.logomirailink),
             contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().clip(CircleShape),
         ) else Box(contentAlignment = Alignment.Center) {
-            Icon(if (person == null) Icons.Default.Lock else Icons.Default.Person, contentDescription = null, modifier = Modifier.size(22.dp))
+            Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(22.dp))
         }
     }
 }

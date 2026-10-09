@@ -77,7 +77,7 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
     override suspend fun likes(offset: Int): MiraiLinkResult<AffinityLikes> {
         initialize(); val s = state()
         val candidate = db.userDao().getFeedUsers().firstOrNull { it.nickname == "Leo" && it.id !in s.liked && it.id !in s.blocked }
-            ?: db.userDao().getFeedUsers().lastOrNull { it.id !in s.liked && it.id !in s.blocked }
+
         return MiraiLinkResult.Success(AffinityLikes(if (candidate != null && offset == 0) listOf(AffinityLike(candidate.id, if (session.isPlus.value) peer(candidate) else null)) else emptyList()))
     }
     override suspend fun requests(offset: Int): MiraiLinkResult<AffinityRequests> {
@@ -127,7 +127,9 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         if (r.state != "pending") return@withLock MiraiLinkResult.Success(AffinityAction(id, r.state, r.chatId))
         var chatId: String? = null
         if (accept) db.withTransaction {
-            val now = System.currentTimeMillis(); chatId = db.chatDao().getChatByUserId(r.person.id)?.id ?: "chat_${r.person.id}"
+            val now = System.currentTimeMillis()
+            db.matchDao().insertMatch(DemoMatchEntity(r.person.id, now))
+            chatId = db.chatDao().getChatByUserId(r.person.id)?.id ?: "chat_${r.person.id}"
             db.chatDao().insertOrUpdateChat(DemoChatEntity(chatId!!, r.person.id, r.text, r.person.id, now))
             db.chatDao().insertMessage(DemoMessageEntity("affinity_$id", chatId!!, r.person.id, DemoDataSeeder.DEMO_USER_ID, r.text, now))
         }
@@ -136,7 +138,7 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         MiraiLinkResult.Success(AffinityAction(id, next, chatId))
     }
     override suspend fun block(peerId: String): MiraiLinkResult<Unit> { update { it.copy(blocked = it.blocked + peerId) }; return MiraiLinkResult.Success(Unit) }
-    override suspend fun contact(peerId: String): MiraiLinkResult<AffinityContact> = MiraiLinkResult.Success(AffinityContact(if (state().requests.any { it.person.id == peerId && it.state == "accepted" }) "affinity" else "legacy", db.matchDao().getMatchByUserId(peerId) != null))
+    override suspend fun contact(peerId: String): MiraiLinkResult<AffinityContact> = MiraiLinkResult.Success(AffinityContact(if (peerId in state().liked || state().requests.any { it.person.id == peerId && it.state == "accepted" }) "affinity" else "legacy", db.matchDao().getMatchByUserId(peerId) != null))
     override suspend fun resetDemo(): MiraiLinkResult<Unit> {
         val outgoing = state().requests.filter { !it.incoming }
         update { AffinityDemoState(participating = true, initialized = false, requests = outgoing) }
