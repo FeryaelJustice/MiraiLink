@@ -683,19 +683,19 @@
     <string name="affinity_send">Enviar solicitud</string>
     <string name="affinity_requests_title">Invitaciones a conversar</string>
     <string name="affinity_chat_origin">Conversación iniciada por Afinidades</string>
-    <string name="affinity_incoming">Puedes aceptar y responder gratis. Aceptar no crea un match.</string>
+    <string name="affinity_incoming">Con Plus puedes aceptar o rechazar esta invitación. Aceptar abre el chat sin crear un match.</string>
     <string name="affinity_pending">Solicitud enviada. Esperando aceptación.</string>
     <string name="affinity_accepted">Invitación aceptada</string>
     <string name="affinity_rejected">Invitación rechazada</string>
     <string name="affinity_expired">Invitación caducada</string>
-    <string name="affinity_accept">Aceptar gratis</string>
+    <string name="affinity_accept">Aceptar</string>
     <string name="affinity_reject">Rechazar</string>
     <string name="affinity_open_chat">Abrir conversación</string>
     <string name="affinity_block">Bloquear</string>
     <string name="affinity_more">Cargar más</string>
     <string name="affinity_now_matched">Ahora también tenéis un match.</string>
     <string name="affinity_notification_like">Alguien te ha dado un like desde Afinidades. Descubre quién con Plus o Premium.</string>
-    <string name="affinity_notification_request">Tienes una nueva solicitud. Puedes aceptarla y responder gratis.</string>
+    <string name="affinity_notification_request">Tienes una invitación a conversar. Descubre quién y responde con Plus.</string>
     <string name="affinity_notification_available">Hay personas con gustos como los tuyos.</string>
     <string name="affinity_plan_required">Esta acción requiere Plus o Premium.</string>
     <string name="affinity_unavailable">Esta afinidad o solicitud ya no está disponible. Actualiza para ver las opciones actuales.</string>
@@ -730,4 +730,5 @@
     <string name="capsule_cancel_reveal_desc">Cancelar la solicitud de revelado anticipado.</string>
     <string name="capsule_suggested_questions">Preguntas sugeridas</string>
     <string name="capsule_history_empty">Aún no habéis completado ninguna pregunta juntos.</string>
+    <string name="affinity_conversation_invitation">Invitación a conversar. Descubre quién te ha escrito y responde con Plus.</string>
 </resources>

@@ -284,18 +284,20 @@ private fun AffinityRequestsPanel(onDetail: (String) -> Unit, onPaywall: () -> U
                         }
                     }
                     if (isLocked) {
+                        Text(stringResource(R.string.affinity_conversation_invitation), style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = onPaywall, modifier = Modifier.fillMaxWidth()) {
                             Text(stringResource(R.string.affinity_unlock))
                         }
-                    }
-                    Text(request.text, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis)
-                    if (request.text.length > 120 || request.text.count { it == '\n' } > 2) TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
-                        Text(stringResource(if (expanded) R.string.affinity_message_less else R.string.affinity_message_more))
-                    }
-                    Text(stringResource(if (request.incoming) R.string.affinity_incoming else R.string.affinity_pending), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (request.incoming) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(onClick = { viewModel.respond(request.id, true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_accept)) }
-                        TextButton(onClick = { viewModel.respond(request.id, false) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_reject)) }
+                    } else {
+                        Text(request.text, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis)
+                        if (request.text.length > 120 || request.text.count { it == '\n' } > 2) TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                            Text(stringResource(if (expanded) R.string.affinity_message_less else R.string.affinity_message_more))
+                        }
+                        Text(stringResource(if (request.incoming) R.string.affinity_incoming else R.string.affinity_pending), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (request.incoming) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilledTonalButton(onClick = { viewModel.respond(request.id, true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_accept)) }
+                            TextButton(onClick = { viewModel.respond(request.id, false) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.affinity_reject)) }
+                        }
                     }
                 }
             }

@@ -683,19 +683,19 @@
     <string name="affinity_send">Send request</string>
     <string name="affinity_requests_title">Conversation invitations</string>
     <string name="affinity_chat_origin">Conversation started through Affinities</string>
-    <string name="affinity_incoming">Accept and reply for free. Accepting does not create a match.</string>
+    <string name="affinity_incoming">With Plus you can accept or decline this invitation. Accepting opens the chat without creating a match.</string>
     <string name="affinity_pending">Request sent. Waiting for acceptance.</string>
     <string name="affinity_accepted">Invitation accepted</string>
     <string name="affinity_rejected">Invitation declined</string>
     <string name="affinity_expired">Invitation expired</string>
-    <string name="affinity_accept">Accept for free</string>
+    <string name="affinity_accept">Accept</string>
     <string name="affinity_reject">Decline</string>
     <string name="affinity_open_chat">Open conversation</string>
     <string name="affinity_block">Block</string>
     <string name="affinity_more">Load more</string>
     <string name="affinity_now_matched">You have now also matched.</string>
     <string name="affinity_notification_like">Someone liked you through Affinities. See who with Plus or Premium.</string>
-    <string name="affinity_notification_request">You have a new request. Accept and reply for free.</string>
+    <string name="affinity_notification_request">You have an invitation to chat. Discover who and respond with Plus.</string>
     <string name="affinity_notification_available">There are people who share your interests.</string>
     <string name="affinity_plan_required">This action requires Plus or Premium.</string>
     <string name="affinity_unavailable">This affinity or request is no longer available. Refresh to see current options.</string>
@@ -749,4 +749,5 @@
     <string name="capsule_your_answer_label">Your answer:</string>
     <string name="capsule_peer_answer_label">Their answer:</string>
     <string name="capsule_history_empty">You have not completed any questions together yet.</string>
+    <string name="affinity_conversation_invitation">Invitation to chat. Discover who wrote to you and respond with Plus.</string>
 </resources>

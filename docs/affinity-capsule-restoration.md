@@ -15,3 +15,5 @@ Backend: reset-interactions incluye todas las interacciones; test-all reconstruy
 Aceptar una invitacion de conversacion en Demo crea solo el chat de Afinidades. El like de Afinidades no marca el voto normal de Room. Discovery mantiene esos perfiles visibles salvo match, bloqueo o voto/like de Discovery. Likes recibidos muestra classic y capsule y devuelve el like usando su identificador y modo original; la demo usa las mismas cuentas existentes.
 
 Backend requiere la migracion 020 para guardar intereses de Afinidades y likes de Discovery independientes de la misma pareja. No se ha aplicado la migracion ni probado el flujo en dispositivo.
+
+Invitaciones de conversacion entrantes: sin Plus se muestra solo el aviso de invitacion y el acceso a Plus, sin mensaje ni acciones aceptar/rechazar. Con Plus se puede consultar y responder. Guards en ViewModel, repositorio Demo y rutas backend; los textos/notificaciones ya no prometen aceptacion gratis.

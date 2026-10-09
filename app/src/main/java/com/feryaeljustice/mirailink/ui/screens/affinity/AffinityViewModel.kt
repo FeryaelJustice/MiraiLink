@@ -91,6 +91,7 @@ class AffinityViewModel(private val cases: AffinityUseCases, private val session
     fun dismiss(id: String) = action { cases.dismiss(id) }
     fun participate(enabled: Boolean) = action { cases.participate(enabled) }
     fun respond(id: String, accept: Boolean) = action {
+        if (!mutable.value.isPlus) return@action MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.FORBIDDEN)
         val result = cases.respond(id, accept)
         if (result is MiraiLinkResult.Success) mutable.update { it.copy(requests = it.requests.filterNot { r -> r.id == id }) }
         result

@@ -683,19 +683,19 @@
     <string name="affinity_send">申請を送る</string>
     <string name="affinity_requests_title">会話への招待</string>
     <string name="affinity_chat_origin">おすすめから始まった会話</string>
-    <string name="affinity_incoming">無料で承認して返信できます。承認してもマッチにはなりません。</string>
+    <string name="affinity_incoming">Plusで招待を承認または拒否できます。承認するとマッチせずにチャットが開きます。</string>
     <string name="affinity_pending">申請済み。承認待ちです。</string>
     <string name="affinity_accepted">招待が承認されました</string>
     <string name="affinity_rejected">招待は断られました</string>
     <string name="affinity_expired">招待の期限が切れました</string>
-    <string name="affinity_accept">無料で承認</string>
+    <string name="affinity_accept">承認する</string>
     <string name="affinity_reject">断る</string>
     <string name="affinity_open_chat">会話を開く</string>
     <string name="affinity_block">ブロック</string>
     <string name="affinity_more">さらに表示</string>
     <string name="affinity_now_matched">現在はマッチもしています。</string>
     <string name="affinity_notification_like">おすすめからいいねが届きました。PlusまたはPremiumで相手を確認できます。</string>
-    <string name="affinity_notification_request">新しい申請が届きました。無料で承認して返信できます。</string>
+    <string name="affinity_notification_request">会話への招待が届きました。Plusで送信者を確認し、返答できます。</string>
     <string name="affinity_notification_available">共通の趣味を持つ人がいます。</string>
     <string name="affinity_plan_required">この操作にはPlusまたはPremiumが必要です。</string>
     <string name="affinity_unavailable">このおすすめや申請は利用できなくなりました。更新してください。</string>
@@ -749,4 +749,5 @@
     <string name="capsule_your_answer_label">あなたの回答：</string>
     <string name="capsule_peer_answer_label">相手の回答：</string>
     <string name="capsule_history_empty">まだ一緒に回答を完了した質問はありません。</string>
+    <string name="affinity_conversation_invitation">会話への招待が届いています。Plusで送信者を確認し、返答できます。</string>
 </resources>

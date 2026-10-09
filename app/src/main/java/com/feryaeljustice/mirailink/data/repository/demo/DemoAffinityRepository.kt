@@ -122,6 +122,7 @@ class DemoAffinityRepository(private val db: MiraiLinkDemoDatabase, private val 
         MiraiLinkResult.Success(AffinityAction(clientId, "pending"))
     }
     override suspend fun respond(id: String, accept: Boolean): MiraiLinkResult<AffinityAction> = mutex.withLock {
+        if (!session.isPlus.value) return@withLock MiraiLinkResult.Error(DataError.Network.FORBIDDEN)
         val r = state().requests.find { it.id == id && it.incoming } ?: return@withLock MiraiLinkResult.Error(DataError.Local.NOT_FOUND)
         if (r.state != "pending") return@withLock MiraiLinkResult.Success(AffinityAction(id, r.state, r.chatId))
         var chatId: String? = null
