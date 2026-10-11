@@ -2,13 +2,16 @@ package com.feryaeljustice.mirailink.ui.screens.likes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
 import com.feryaeljustice.mirailink.domain.usecase.swipe.GetReceivedLikesUseCase
 import com.feryaeljustice.mirailink.domain.usecase.swipe.LikeUserUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.domain.util.calculateAge
+import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import com.feryaeljustice.mirailink.ui.error.UiError
 import com.feryaeljustice.mirailink.ui.error.toUiError
-import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +48,8 @@ class ReceivedLikesViewModel(
     private val getReceivedLikesUseCase: GetReceivedLikesUseCase,
     private val likeUserUseCase: LikeUserUseCase,
     private val globalMiraiLinkSession: GlobalMiraiLinkSession,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -65,6 +70,12 @@ class ReceivedLikesViewModel(
                 if (isPrem) {
                     loadLikes()
                 } else {
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.LikesEvent.ReceivedLikesViewed(
+                            totalCount = 0,
+                            blurredCount = 0,
+                        ),
+                    )
                     _uiState.update { it.copy(isLoading = false, isRefreshing = false, likes = emptyList()) }
                 }
             }
@@ -98,6 +109,12 @@ class ReceivedLikesViewModel(
                             discoveryMode = like.discoveryMode,
                         )
                     }
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.LikesEvent.ReceivedLikesViewed(
+                            totalCount = items.size,
+                            blurredCount = 0,
+                        ),
+                    )
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -108,6 +125,11 @@ class ReceivedLikesViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Get received likes error: ${result.error}"),
+                        reason = "Received likes fetch failed",
+                        screen = "received_likes",
+                    )
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -121,6 +143,9 @@ class ReceivedLikesViewModel(
     }
 
     fun matchUser(item: ReceivedLikeItemViewEntry) {
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.LikesEvent.ReceivedLikeMatched(targetUserId = item.userId),
+        )
         viewModelScope.launch {
             when (val result = likeUserUseCase(toUserId = item.userId, receivedLikeId = item.likeId, discoveryMode = item.discoveryMode)) {
                 is MiraiLinkResult.Success -> {
@@ -133,6 +158,12 @@ class ReceivedLikesViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Match received like error: ${result.error}"),
+                        reason = "Match user failed",
+                        screen = "received_likes",
+                        metadata = mapOf("target_user_id" to item.userId),
+                    )
                     _uiState.update { it.copy(error = result.error.toUiError()) }
                 }
             }

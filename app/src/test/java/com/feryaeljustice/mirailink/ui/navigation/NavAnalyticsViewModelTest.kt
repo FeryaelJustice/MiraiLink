@@ -18,7 +18,11 @@ class NavAnalyticsViewModelTest {
 
         // Then
         verify(exactly = 1) {
-            analytics.logEvent("screen_view", mapOf("screen_name" to "home"))
+            analytics.logEvent(
+                match<com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.NavigationEvent.ScreenView> {
+                    it.screenName == "home" && it.eventName == "screen_view"
+                },
+            )
         }
     }
 
@@ -31,8 +35,9 @@ class NavAnalyticsViewModelTest {
         // Then
         verify(exactly = 1) {
             analytics.logEvent(
-                "deeplink_opened",
-                mapOf("uri" to "mirailink://profile/42"),
+                match<com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.NavigationEvent.DeepLinkOpened> {
+                    it.uri == "mirailink://profile/42" && it.eventName == "deeplink_opened"
+                },
             )
         }
     }

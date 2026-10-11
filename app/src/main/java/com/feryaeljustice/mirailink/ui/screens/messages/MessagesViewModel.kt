@@ -3,6 +3,9 @@ package com.feryaeljustice.mirailink.ui.screens.messages
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.data.mappers.ui.toChatPreviewViewEntry
 import com.feryaeljustice.mirailink.data.mappers.ui.toMatchUserViewEntry
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
 import com.feryaeljustice.mirailink.domain.usecase.chat.ChatUseCases
 import com.feryaeljustice.mirailink.domain.usecase.match.GetMatchesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -24,6 +27,8 @@ class MessagesViewModel(
     private val getMatchesUseCase: GetMatchesUseCase,
     private val chatUseCases: ChatUseCases,
     private val ioDispatcher: CoroutineDispatcher,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : RetryableViewModel() {
     sealed class MessagesUiState {
         object Idle : MessagesUiState()
@@ -80,6 +85,11 @@ class MessagesViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Get matches error: ${result.error}"),
+                        reason = "Get matches failed",
+                        screen = "messages",
+                    )
                     setRecoveryAction(::loadMatches)
                     state.value = MessagesUiState.Error(result.error.toUiError())
                 }
@@ -103,11 +113,19 @@ class MessagesViewModel(
                             chat.toChatPreviewViewEntry()
                         }
                     _openChats = chatsResult.toMutableList()
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.ChatEvent.ChatListOpened(activeChatsCount = chatsResult.size),
+                    )
                     state.value =
                         MessagesUiState.Success(matches = _matches, openChats = chatsResult)
                 }
 
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Get chats error: ${result.error}"),
+                        reason = "Get chats failed",
+                        screen = "messages",
+                    )
                     setRecoveryAction(::loadChats)
                     state.value = MessagesUiState.Error(result.error.toUiError())
                 }

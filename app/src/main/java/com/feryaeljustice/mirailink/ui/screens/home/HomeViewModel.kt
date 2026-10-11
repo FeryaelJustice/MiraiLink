@@ -35,6 +35,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
 
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
+
 @KoinViewModel
 class HomeViewModel(
     private val getFeedUseCase: GetFeedUseCase,
@@ -46,6 +50,8 @@ class HomeViewModel(
     private val getUndoQuotaUseCase: GetUndoQuotaUseCase,
     private val undoSwipeUseCase: UndoSwipeUseCase,
     private val ioDispatcher: CoroutineDispatcher,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : RetryableViewModel() {
     sealed class HomeUiState {
         object Idle : HomeUiState()
@@ -145,6 +151,14 @@ class HomeViewModel(
             if (result is MiraiLinkResult.Success) {
                 _userQueue.clear()
                 _userQueue.addAll(result.data.map { it.toUserViewEntry() })
+                result.data.firstOrNull()?.let { firstUser ->
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.DiscoveryEvent.CardViewed(
+                            targetUserId = firstUser.id,
+                            position = 0,
+                        ),
+                    )
+                }
                 updateUiState()
             } else if (result is MiraiLinkResult.Error) {
                 val preferences = getSearchPreferencesUseCase().first()
@@ -156,6 +170,11 @@ class HomeViewModel(
                     _userQueue.clear()
                     updateUiState()
                 } else {
+                    crashReporter?.recordException(
+                        throwable = Exception("Feed load error: ${result.error}"),
+                        reason = "Feed load failed",
+                        screen = "home",
+                    )
                     setRecoveryAction(::loadUsers)
                     state.value = HomeUiState.Error(result.error.toUiError())
                 }
@@ -175,6 +194,12 @@ class HomeViewModel(
 
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
+                action = "like",
+                targetUserId = current.id,
+            ),
+        )
 
         viewModelScope.launch {
             when (val result = withContext(ioDispatcher) { likeUser(current.id) }) {
@@ -193,6 +218,9 @@ class HomeViewModel(
                 }
                 is MiraiLinkResult.Error -> {
                     if (result.error == SubscriptionError.DAILY_LIKES_LIMIT_REACHED) {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.DiscoveryEvent.DailyLimitReached(limitType = "likes"),
+                        )
                         _events.tryEmit(HomeEvent.NavigateToPaywall)
                     }
                     setRecoveryAction(::swipeRight)
@@ -204,6 +232,12 @@ class HomeViewModel(
 
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
+                action = "pass",
+                targetUserId = current.id,
+            ),
+        )
 
         viewModelScope.launch {
             when (val result = withContext(ioDispatcher) { dislikeUser(current.id) }) {
@@ -267,6 +301,9 @@ class HomeViewModel(
 
         val currentQuota = _undoQuota.value
         if (currentQuota != null && currentQuota.remainingUndos <= 0) {
+            analytics?.logEvent(
+                MiraiAnalyticsEvent.DiscoveryEvent.DailyLimitReached(limitType = "undos"),
+            )
             _events.tryEmit(HomeEvent.NavigateToPaywall)
             return false
         }
@@ -285,6 +322,9 @@ class HomeViewModel(
                 }
                 is MiraiLinkResult.Error -> {
                     if (result.error == SubscriptionError.DAILY_UNDO_LIMIT_REACHED) {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.DiscoveryEvent.DailyLimitReached(limitType = "undos"),
+                        )
                         _events.tryEmit(HomeEvent.NavigateToPaywall)
                     }
                     setRecoveryAction(::undoSwipe)

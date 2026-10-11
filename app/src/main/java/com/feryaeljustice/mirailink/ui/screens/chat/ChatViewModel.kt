@@ -53,6 +53,7 @@ class ChatViewModel(
     private val capsules: com.feryaeljustice.mirailink.domain.usecase.capsule.CapsuleUseCases? = null,
     private val savedState: androidx.lifecycle.SavedStateHandle = androidx.lifecycle.SavedStateHandle(),
     private val analytics: com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker? = null,
+    private val crashReporter: com.feryaeljustice.mirailink.domain.telemetry.CrashReporter? = null,
 ) : RetryableViewModel() {
 
     val chatId: StateFlow<String?>
@@ -255,7 +256,12 @@ class ChatViewModel(
                     receiver.value = receiver.value?.copy(photoPresentation = next?.photoPresentation() ?: receiver.value?.photoPresentation)
                     if(screenActive && baselineLoaded && previous != null && next != null && next.level > previous.level) {
                         _unlockEffects.tryEmit(next.level)
-                        analytics?.logEvent("capsule_unlock", mapOf("level" to next.level, "completed" to (next.status == "revealed")))
+                        analytics?.logEvent(
+                            com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.ChatEvent.CapsuleUnlocked(
+                                level = next.level,
+                                topic = "level_${next.level}",
+                            ),
+                        )
                     }
                     if(!baselineLoaded) {
                         val pendingAction = savedState.get<String>("capsuleAction")
@@ -384,10 +390,20 @@ class ChatViewModel(
                 }
 
             if (result is MiraiLinkResult.Success) {
+                analytics?.logEvent(
+                    com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.ChatEvent.MessageSent(
+                        messageType = "text",
+                    ),
+                )
                 messages.update { it.plus(newMessage) }
                 error.value = null
                 logger.d("ChatViewModel", "Message sent successfully")
             } else if (result is MiraiLinkResult.Error) {
+                crashReporter?.recordException(
+                    throwable = Exception("Send message error: ${result.error}"),
+                    reason = "Send message failed",
+                    screen = "chat",
+                )
                 showError(result.error) { sendMessage(content) }
             }
         }

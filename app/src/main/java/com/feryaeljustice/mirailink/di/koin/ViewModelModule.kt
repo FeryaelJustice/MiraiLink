@@ -85,6 +85,7 @@ val viewModelModule =
             ChatViewModel(
                 capsules = get(),
                 analytics = get(),
+                crashReporter = get(),
                 savedState = get(),
                 createPrivateChatUseCase = get(),
                 createGroupChatUseCase = get(),
@@ -115,6 +116,8 @@ val viewModelModule =
                 getUndoQuotaUseCase = get(),
                 undoSwipeUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -122,6 +125,8 @@ val viewModelModule =
                 getMatchesUseCase = get(),
                 chatUseCases = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -129,6 +134,8 @@ val viewModelModule =
                 getReceivedLikesUseCase = get(),
                 likeUserUseCase = get(),
                 globalMiraiLinkSession = get(),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -154,6 +161,8 @@ val viewModelModule =
                 getProfileOptionsUseCase = get(),
                 logger = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -176,6 +185,8 @@ val viewModelModule =
                 ioDispatcher = get(qualifier = IoDispatcher),
                 mainDispatcher = get(qualifier = MainDispatcher),
                 holoPreferencesRepository = get(),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -203,6 +214,8 @@ val viewModelModule =
             ExploreViewModel(
                 getExploreSectionsUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel { (categoryId: String, categoryName: String) ->
@@ -216,6 +229,8 @@ val viewModelModule =
                 dislikeUserUseCase = get(),
                 getCurrentUserUseCase = get<GetCurrentUserUseCase>(),
                 ioDispatcher = get(qualifier = IoDispatcher),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
@@ -223,12 +238,16 @@ val viewModelModule =
                 launchBillingFlowUseCase = get(),
                 restorePurchasesUseCase = get(),
                 subscriptionRepository = get(),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
             SubscriptionManageViewModel(
                 getSubscriptionStatusUseCase = get(),
                 cancelSubscriptionIntentUseCase = get(),
+                analytics = get(),
+                crashReporter = get(),
             )
         }
         viewModel {
