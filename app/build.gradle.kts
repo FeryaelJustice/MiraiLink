@@ -64,7 +64,7 @@ android {
 
         minSdk = 30
         targetSdk = 37
-        versionCode = 34
+        versionCode = 35
         versionName = "3.0.0"
 
         buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
