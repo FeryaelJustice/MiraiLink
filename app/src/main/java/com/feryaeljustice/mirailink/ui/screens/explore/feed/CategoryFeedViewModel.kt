@@ -27,6 +27,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.KoinViewModel
 
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
+
 @KoinViewModel
 class CategoryFeedViewModel(
     val categoryId: String,
@@ -38,6 +42,8 @@ class CategoryFeedViewModel(
     private val dislikeUserUseCase: DislikeUserUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase? = null,
     private val ioDispatcher: CoroutineDispatcher,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : RetryableViewModel() {
 
     sealed interface CategoryFeedEvent {
@@ -81,6 +87,12 @@ class CategoryFeedViewModel(
     internal var lastUndoTime: Long = 0L
 
     init {
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.ExploreEvent.CategorySelected(
+                categoryId = categoryId,
+                categoryName = categoryName,
+            ),
+        )
         loadPreferences()
         loadUserGender()
         loadFeed()
@@ -130,6 +142,12 @@ class CategoryFeedViewModel(
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Load category feed error: ${result.error}"),
+                        reason = "Category feed failed",
+                        screen = "category_feed",
+                        metadata = mapOf("category_id" to categoryId),
+                    )
                     setRecoveryAction(::loadFeed)
                     _state.value = CategoryFeedUiState.Error(result.error.toUiError())
                 }
@@ -142,6 +160,12 @@ class CategoryFeedViewModel(
         newTargetGender: TargetSearchGender? = _targetGender.value,
         onComplete: () -> Unit = {},
     ) {
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.ExploreEvent.FilterApplied(
+                distanceKm = newRadiusKm,
+                gender = newTargetGender?.name,
+            ),
+        )
         viewModelScope.launch {
             _isSavingPreferences.value = true
             when (val result = withContext(ioDispatcher) {
@@ -168,6 +192,12 @@ class CategoryFeedViewModel(
 
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
+                action = "like",
+                targetUserId = current.id,
+            ),
+        )
         viewModelScope.launch {
             when (val result = withContext(ioDispatcher) { likeUserUseCase(current.id) }) {
                 is MiraiLinkResult.Success -> {
@@ -177,6 +207,9 @@ class CategoryFeedViewModel(
                 }
                 is MiraiLinkResult.Error -> {
                     if (result.error == SubscriptionError.DAILY_LIKES_LIMIT_REACHED) {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.DiscoveryEvent.DailyLimitReached(limitType = "likes"),
+                        )
                         _events.tryEmit(CategoryFeedEvent.NavigateToPaywall)
                     }
                     setRecoveryAction(::swipeRight)
@@ -188,6 +221,12 @@ class CategoryFeedViewModel(
 
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
+                action = "pass",
+                targetUserId = current.id,
+            ),
+        )
         viewModelScope.launch {
             when (val result = withContext(ioDispatcher) { dislikeUserUseCase(current.id) }) {
                 is MiraiLinkResult.Success -> {

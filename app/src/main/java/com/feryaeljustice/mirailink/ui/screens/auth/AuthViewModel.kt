@@ -455,14 +455,22 @@ class AuthViewModel(
 
     fun onLoginSuccess(userId: String) {
         analytics.value.setUserId(userId)
-        analytics.value.logEvent("login_success")
+        crash.value.setUserId(userId)
+        analytics.value.logEvent(
+            com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.AuthEvent.LoginSuccess(),
+        )
     }
 
     fun onLoginError(error: AppError) {
-        crash.value.recordNonFatal(
-            IllegalStateException("Authentication failed: ${error::class.simpleName}"),
+        val errorReason = error::class.simpleName ?: "unknown"
+        crash.value.recordException(
+            throwable = IllegalStateException("Authentication failed: $errorReason"),
+            reason = "Authentication failed: $errorReason",
+            screen = "auth",
         )
-        analytics.value.logEvent("login_error")
+        analytics.value.logEvent(
+            com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.AuthEvent.LoginFailed(reason = errorReason),
+        )
     }
 
     // Función principal para validar los campos, ahora sin conocer el Context.

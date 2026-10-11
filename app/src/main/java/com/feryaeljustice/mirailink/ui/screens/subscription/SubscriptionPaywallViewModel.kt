@@ -10,6 +10,9 @@ import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionDurati
 import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionOfferOption
 import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType
 import com.feryaeljustice.mirailink.domain.repository.SubscriptionRepository
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
 import com.feryaeljustice.mirailink.domain.usecase.subscription.LaunchBillingFlowUseCase
 import com.feryaeljustice.mirailink.domain.usecase.subscription.RestorePurchasesUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -43,12 +46,18 @@ class SubscriptionPaywallViewModel(
     private val launchBillingFlowUseCase: LaunchBillingFlowUseCase,
     private val restorePurchasesUseCase: RestorePurchasesUseCase,
     private val subscriptionRepository: SubscriptionRepository,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SubscriptionPaywallUiState())
     val uiState: StateFlow<SubscriptionPaywallUiState> = _uiState.asStateFlow()
 
     init {
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.SubscriptionEvent.PaywallViewed(triggerSource = "paywall_screen"),
+        )
+
         viewModelScope.launch {
             subscriptionRepository.availableOffers.collect { offers ->
                 _uiState.update { current ->
@@ -72,10 +81,44 @@ class SubscriptionPaywallViewModel(
 
         viewModelScope.launch {
             subscriptionRepository.purchaseEvents.collect { event ->
+                val state = _uiState.value
                 when (event) {
-                    is BillingPurchaseEvent.PurchaseSuccess,
-                    is BillingPurchaseEvent.PurchaseCanceled,
+                    is BillingPurchaseEvent.PurchaseSuccess -> {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.SubscriptionEvent.PurchaseSuccess(
+                                tier = state.selectedTier.name,
+                                duration = state.selectedDuration.name,
+                            ),
+                        )
+                        _uiState.update { it.copy(isPurchasing = false) }
+                    }
+                    is BillingPurchaseEvent.PurchaseCanceled -> {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.SubscriptionEvent.PurchaseCancelled(
+                                tier = state.selectedTier.name,
+                                duration = state.selectedDuration.name,
+                            ),
+                        )
+                        _uiState.update { it.copy(isPurchasing = false) }
+                    }
                     is BillingPurchaseEvent.PurchaseFailed -> {
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.SubscriptionEvent.PurchaseFailed(
+                                tier = state.selectedTier.name,
+                                duration = state.selectedDuration.name,
+                                errorMessage = event.debugMessage,
+                            ),
+                        )
+                        crashReporter?.recordException(
+                            throwable = Exception("Billing purchase failed: ${event.debugMessage}"),
+                            reason = "Billing purchase failed [${event.responseCode}]",
+                            screen = "subscription_paywall",
+                            metadata = mapOf(
+                                "tier" to state.selectedTier.name,
+                                "duration" to state.selectedDuration.name,
+                                "response_code" to event.responseCode,
+                            ),
+                        )
                         _uiState.update { it.copy(isPurchasing = false) }
                     }
                 }
@@ -88,6 +131,13 @@ class SubscriptionPaywallViewModel(
         _uiState.update { current ->
             val newOffers = current.availableOffers[tier] ?: emptyList()
             val newPrice = newOffers.firstOrNull { it.duration == current.selectedDuration }?.formattedPrice
+            analytics?.logEvent(
+                MiraiAnalyticsEvent.SubscriptionEvent.PlanSelected(
+                    tier = tier.name,
+                    duration = current.selectedDuration.name,
+                    price = newPrice,
+                ),
+            )
             current.copy(
                 selectedTier = tier,
                 formattedPrice = newPrice,
@@ -98,6 +148,13 @@ class SubscriptionPaywallViewModel(
     fun selectDuration(duration: SubscriptionDuration) {
         _uiState.update { current ->
             val offer = current.availableOffers[current.selectedTier]?.firstOrNull { it.duration == duration }
+            analytics?.logEvent(
+                MiraiAnalyticsEvent.SubscriptionEvent.PlanSelected(
+                    tier = current.selectedTier.name,
+                    duration = duration.name,
+                    price = offer?.formattedPrice,
+                ),
+            )
             current.copy(
                 selectedDuration = duration,
                 formattedPrice = offer?.formattedPrice ?: current.formattedPrice,
@@ -124,12 +181,33 @@ class SubscriptionPaywallViewModel(
             }
         }
 
+        analytics?.logEvent(
+            MiraiAnalyticsEvent.SubscriptionEvent.CheckoutInitiated(
+                tier = state.selectedTier.name,
+                duration = state.selectedDuration.name,
+                price = offer?.formattedPrice,
+            ),
+        )
+
         _uiState.update { it.copy(isPurchasing = true, error = null) }
         when (val result = launchBillingFlowUseCase(activity, productId, basePlanId)) {
             is MiraiLinkResult.Success -> {
                 // Billing flow initiated, wait for purchaseEvents
             }
             is MiraiLinkResult.Error -> {
+                analytics?.logEvent(
+                    MiraiAnalyticsEvent.SubscriptionEvent.PurchaseFailed(
+                        tier = state.selectedTier.name,
+                        duration = state.selectedDuration.name,
+                        errorMessage = result.error.toString(),
+                    ),
+                )
+                crashReporter?.recordException(
+                    throwable = Exception("Launch billing flow error: ${result.error}"),
+                    reason = "Launch billing flow error",
+                    screen = "subscription_paywall",
+                    metadata = mapOf("tier" to state.selectedTier.name, "duration" to state.selectedDuration.name),
+                )
                 _uiState.update {
                     it.copy(
                         isPurchasing = false,
@@ -142,10 +220,17 @@ class SubscriptionPaywallViewModel(
 
     fun restorePurchases() {
         viewModelScope.launch {
+            analytics?.logEvent(MiraiAnalyticsEvent.SubscriptionEvent.RestorePurchasesClicked)
             _uiState.update { it.copy(isRestoring = true, error = null) }
             when (val result = restorePurchasesUseCase()) {
                 is MiraiLinkResult.Success -> {
                     val hasActiveSub = result.data.isPremium || result.data.isPlus
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.SubscriptionEvent.RestorePurchasesResult(
+                            success = true,
+                            restoredCount = if (hasActiveSub) 1 else 0,
+                        ),
+                    )
                     _uiState.update {
                         it.copy(
                             isRestoring = false,
@@ -159,6 +244,17 @@ class SubscriptionPaywallViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
+                    analytics?.logEvent(
+                        MiraiAnalyticsEvent.SubscriptionEvent.RestorePurchasesResult(
+                            success = false,
+                            restoredCount = 0,
+                        ),
+                    )
+                    crashReporter?.recordException(
+                        throwable = Exception("Restore purchases error: ${result.error}"),
+                        reason = "Restore purchases error",
+                        screen = "subscription_paywall",
+                    )
                     _uiState.update {
                         it.copy(
                             isRestoring = false,

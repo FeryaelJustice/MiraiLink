@@ -2,6 +2,8 @@ package com.feryaeljustice.mirailink.ui.screens.explore
 
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.repository.ExploreHubData
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.usecase.explore.GetExploreSectionsUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
@@ -19,6 +21,8 @@ import org.koin.core.annotation.KoinViewModel
 class ExploreViewModel(
     private val getExploreSectionsUseCase: GetExploreSectionsUseCase,
     private val ioDispatcher: CoroutineDispatcher,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : RetryableViewModel() {
 
     sealed class ExploreUiState {
@@ -43,6 +47,11 @@ class ExploreViewModel(
                     _state.value = ExploreUiState.Success(result.data)
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Explore hub error: ${result.error}"),
+                        reason = "Explore hub failed",
+                        screen = "explore",
+                    )
                     setRecoveryAction(::loadExploreHub)
                     _state.value = ExploreUiState.Error(result.error.toUiError())
                 }

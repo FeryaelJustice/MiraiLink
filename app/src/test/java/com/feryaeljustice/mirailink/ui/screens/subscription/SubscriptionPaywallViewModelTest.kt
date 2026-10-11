@@ -172,4 +172,33 @@ class SubscriptionPaywallViewModelTest {
         assertFalse(viewModel.uiState.value.isSuccess)
         assertEquals(R.string.subscription_restore_empty_message, viewModel.uiState.value.messageResId)
     }
+
+    @Test
+    fun `viewModel logs paywall viewed and plan selected events`() = runTest {
+        val analytics = mockk<com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker>(relaxed = true)
+        val vm = SubscriptionPaywallViewModel(
+            launchBillingFlowUseCase = launchBillingFlowUseCase,
+            restorePurchasesUseCase = restorePurchasesUseCase,
+            subscriptionRepository = subscriptionRepository,
+            analytics = analytics,
+        )
+
+        io.mockk.verify(exactly = 1) {
+            analytics.logEvent(
+                match<com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent> {
+                    it.eventName == "paywall_viewed"
+                },
+            )
+        }
+
+        vm.selectTier(SubscriptionPlanType.PLUS)
+        io.mockk.verify(exactly = 1) {
+            analytics.logEvent(
+                match<com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent> {
+                    it.eventName == "paywall_plan_selected" && it.params["tier"] == "PLUS"
+                },
+            )
+        }
+    }
 }
+

@@ -43,6 +43,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.KoinViewModel
 
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+import com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent
+
 @KoinViewModel
 class ProfileViewModel(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
@@ -53,6 +57,8 @@ class ProfileViewModel(
     private val getProfileOptionsUseCase: GetProfileOptionsUseCase,
     private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : RetryableViewModel() {
     sealed class ProfileUiState {
         object Idle : ProfileUiState()
@@ -103,6 +109,9 @@ class ProfileViewModel(
     }
 
     fun setIsInEditMode(isEdit: Boolean) {
+        if (isEdit) {
+            analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileEditStarted)
+        }
         editState.update { it.copy(isEditing = isEdit) }
     }
 
@@ -111,6 +120,8 @@ class ProfileViewModel(
         editState.update { state ->
             when (intent) {
                 is EditProfileIntent.Initialize -> {
+                    analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileViewed(isSelf = true))
+                    analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileEditStarted)
                     val user = intent.user
                     val sortedPhotos = user.photos.sortedBy { it.position }
                     val photos = MutableList(4) { PhotoSlotViewEntry(position = it) }
@@ -239,10 +250,17 @@ class ProfileViewModel(
                             }
 
                         if (result is MiraiLinkResult.Success) {
+                            analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileEditSaved(success = true))
                             getCurrentUser()
                             _editProfUiEvent.emit(EditProfileUiEvent.ProfileSavedSuccessfully)
                             editState.update { it.copy(isEditing = false, error = null) }
                         } else if (result is MiraiLinkResult.Error) {
+                            analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileEditSaved(success = false))
+                            crashReporter?.recordException(
+                                throwable = Exception("Save profile error: ${result.error}"),
+                                reason = "Profile update failed",
+                                screen = "profile_edit",
+                            )
                             editState.update { it.copy(error = result.error.toUiError()) }
                         }
                     }
@@ -251,6 +269,7 @@ class ProfileViewModel(
                 }
 
                 is EditProfileIntent.UpdateTextField -> {
+                    analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfileFieldUpdated(intent.field.name))
                     when (intent.field) {
                         TextFieldType.NICKNAME -> state.copy(nickname = intent.value)
                         TextFieldType.BIO -> state.copy(bio = intent.value)
@@ -372,6 +391,11 @@ class ProfileViewModel(
                         val temp = photos[intent.from]
                         photos[intent.from] = photos[intent.to].copy(position = intent.from)
                         photos[intent.to] = temp.copy(position = intent.to)
+                        analytics?.logEvent(
+                            MiraiAnalyticsEvent.ProfileEvent.ProfilePhotosReordered(
+                                photosCount = photos.count { it.url != null || it.uri != null },
+                            ),
+                        )
                         state.copy(photos = photos)
                     } else {
                         state
@@ -415,6 +439,7 @@ class ProfileViewModel(
                 }
 
                 is EditProfileIntent.UpdatePhoto -> {
+                    analytics?.logEvent(MiraiAnalyticsEvent.ProfileEvent.ProfilePhotoAdded(source = "upload"))
                     val currentPhotos = state.photos
                     val isReplacing = intent.position in currentPhotos.indices &&
                         (currentPhotos[intent.position].url != null || currentPhotos[intent.position].uri != null)

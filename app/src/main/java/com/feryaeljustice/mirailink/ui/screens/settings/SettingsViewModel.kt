@@ -39,6 +39,8 @@ class SettingsViewModel(
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
     private val holoPreferencesRepository: com.feryaeljustice.mirailink.domain.repository.HoloPreferencesRepository,
+    private val analytics: com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker? = null,
+    private val crashReporter: com.feryaeljustice.mirailink.domain.telemetry.CrashReporter? = null,
 ) : RetryableViewModel() {
     private val _logoutSuccess = MutableSharedFlow<Boolean>()
     val logoutSuccess = _logoutSuccess.asSharedFlow()
@@ -85,6 +87,11 @@ class SettingsViewModel(
     fun setThemePreference(themePreference: ThemePreference) {
         setRecoveryAction { setThemePreference(themePreference) }
         _error.value = null
+        analytics?.logEvent(
+            com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.SettingsEvent.ThemeChanged(
+                theme = themePreference.name,
+            ),
+        )
         viewModelScope.launch(ioDispatcher) {
             when (val result = setThemePreferenceUseCase(themePreference)) {
                 is MiraiLinkResult.Success -> Unit
@@ -115,6 +122,9 @@ class SettingsViewModel(
     fun logout(onFinish: () -> Unit) {
         setRecoveryAction { logout(onFinish) }
         _error.value = null
+        analytics?.logEvent(com.feryaeljustice.mirailink.domain.telemetry.MiraiAnalyticsEvent.AuthEvent.Logout)
+        analytics?.setUserId(null)
+        crashReporter?.setUserId(null)
         viewModelScope.launch(ioDispatcher) {
             when (val result = logoutUseCase()) {
                 is MiraiLinkResult.Success -> withContext(mainDispatcher) {

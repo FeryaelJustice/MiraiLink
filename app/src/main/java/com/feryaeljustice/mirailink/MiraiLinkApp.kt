@@ -32,9 +32,13 @@ import com.feryaeljustice.mirailink.di.koin.Qualifiers.ImageOkHttpClient
 import okhttp3.OkHttpClient
 import org.koin.android.ext.android.inject
 
+import com.feryaeljustice.mirailink.data.telemetry.MiraiUncaughtExceptionHandler
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
+
 class MiraiLinkApp : Application(), ImageLoaderFactory {
 
     private val imageOkHttpClient: OkHttpClient by inject(ImageOkHttpClient)
+    private val crashReporter: CrashReporter by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -43,6 +47,7 @@ class MiraiLinkApp : Application(), ImageLoaderFactory {
             androidLogger(Level.DEBUG)
             analytics()
         }
+        MiraiUncaughtExceptionHandler.install(crashReporter)
     }
 
     override fun newImageLoader(): ImageLoader {

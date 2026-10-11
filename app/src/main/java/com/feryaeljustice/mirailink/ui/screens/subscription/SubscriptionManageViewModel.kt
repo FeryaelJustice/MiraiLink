@@ -3,6 +3,8 @@ package com.feryaeljustice.mirailink.ui.screens.subscription
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanInfo
+import com.feryaeljustice.mirailink.domain.telemetry.AnalyticsTracker
+import com.feryaeljustice.mirailink.domain.telemetry.CrashReporter
 import com.feryaeljustice.mirailink.domain.usecase.subscription.CancelSubscriptionIntentUseCase
 import com.feryaeljustice.mirailink.domain.usecase.subscription.GetSubscriptionStatusUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
@@ -25,6 +27,8 @@ data class SubscriptionManageUiState(
 class SubscriptionManageViewModel(
     private val getSubscriptionStatusUseCase: GetSubscriptionStatusUseCase,
     private val cancelSubscriptionIntentUseCase: CancelSubscriptionIntentUseCase,
+    private val analytics: AnalyticsTracker? = null,
+    private val crashReporter: CrashReporter? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SubscriptionManageUiState())
@@ -34,6 +38,13 @@ class SubscriptionManageViewModel(
         viewModelScope.launch {
             getSubscriptionStatusUseCase.subscriptionInfo.collect { info ->
                 _uiState.update { it.copy(subscriptionInfo = info) }
+                val tier = when {
+                    info.isPremium -> "premium"
+                    info.isPlus -> "plus"
+                    else -> "free"
+                }
+                analytics?.setUserProperty("subscription_tier", tier)
+                crashReporter?.setCustomKey("subscription_tier", tier)
             }
         }
         refreshStatus()
@@ -52,6 +63,11 @@ class SubscriptionManageViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Refresh subscription status error: ${result.error}"),
+                        reason = "Refresh subscription status error",
+                        screen = "subscription_manage",
+                    )
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -76,6 +92,11 @@ class SubscriptionManageViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
+                    crashReporter?.recordException(
+                        throwable = Exception("Cancel subscription intent error: ${result.error}"),
+                        reason = "Cancel subscription intent error",
+                        screen = "subscription_manage",
+                    )
                     _uiState.update {
                         it.copy(
                             isCanceling = false,
