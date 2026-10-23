@@ -11,6 +11,7 @@ import com.feryaeljustice.mirailink.data.remote.SubscriptionApiService
 import com.feryaeljustice.mirailink.data.util.NetworkOperation
 import com.feryaeljustice.mirailink.data.util.safeApiCall
 import com.feryaeljustice.mirailink.domain.error.DataError
+import com.feryaeljustice.mirailink.domain.error.SubscriptionError
 import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanInfo
 import com.feryaeljustice.mirailink.domain.model.subscription.SubscriptionPlanType
 import com.feryaeljustice.mirailink.domain.repository.SubscriptionRepository
@@ -18,12 +19,20 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 import com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession
 
@@ -38,10 +47,13 @@ class SubscriptionRepositoryImpl(
     private val session: GlobalMiraiLinkSession? = null,
 ) : SubscriptionRepository {
 
+    private val restoreMutex = Mutex()
+
     private val _subscriptionInfo = MutableStateFlow(SubscriptionPlanInfo())
     override val subscriptionInfo: StateFlow<SubscriptionPlanInfo> = _subscriptionInfo.asStateFlow()
 
-    override val purchaseEvents: Flow<BillingPurchaseEvent> = billingClientManager.purchaseEvents
+    private val _purchaseEvents = MutableSharedFlow<BillingPurchaseEvent>(extraBufferCapacity = 5)
+    override val purchaseEvents: Flow<BillingPurchaseEvent> = _purchaseEvents.asSharedFlow()
 
     override val formattedPrice: StateFlow<String?> = billingClientManager.productDetails
         .map { details ->
@@ -65,15 +77,45 @@ class SubscriptionRepositoryImpl(
             .stateIn(scope, SharingStarted.Eagerly, mapOffers(emptyMap()))
 
     init {
+        // Play retains purchased tokens across process death. Retry server delivery without
+        // persisting payment tokens locally, and stop recovery when the account changes.
+        if (session != null) {
+            scope.launch {
+                combine(
+                    billingClientManager.isConnected,
+                    session.currentUserId,
+                    session.isAuthenticated,
+                    session.isDemoMode,
+                ) { connected, userId, authenticated, demo ->
+                    userId?.takeIf { connected && authenticated && !demo }
+                }.collectLatest { userId ->
+                    if (userId != null) {
+                        while (isActive) {
+                            val result = restorePurchases()
+                            delay(if (result is MiraiLinkResult.Error) 60_000L else 3_600_000L)
+                        }
+                    }
+                }
+            }
+        }
         scope.launch {
             billingClientManager.purchaseEvents.collect { event ->
                 if (event is BillingPurchaseEvent.PurchaseSuccess) {
-                    verifyPurchase(
+                    val result = verifyPurchase(
                         purchaseToken = event.purchase.purchaseToken,
                         productId = event.purchase.products.firstOrNull() ?: BillingClientManager.PREMIUM_SUBSCRIPTION_PRODUCT_ID,
                         basePlanId = BillingClientManager.BASE_PLAN_MONTHLY,
                         orderId = event.purchase.orderId,
                     )
+                    // Google accepting payment is not sufficient to grant server entitlements.
+                    when (result) {
+                        is MiraiLinkResult.Success -> _purchaseEvents.emit(event)
+                        is MiraiLinkResult.Error -> _purchaseEvents.emit(
+                            BillingPurchaseEvent.VerificationFailed(result.error),
+                        )
+                    }
+                } else {
+                    _purchaseEvents.emit(event)
                 }
             }
         }
@@ -100,10 +142,10 @@ class SubscriptionRepositoryImpl(
         basePlanId: String,
     ): MiraiLinkResult<Unit> {
         val billingResult = billingClientManager.launchBillingFlow(activity, productId, basePlanId)
-        return if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-            MiraiLinkResult.Success(Unit)
-        } else {
-            MiraiLinkResult.Error(DataError.Network.SERVICE_UNAVAILABLE)
+        return when (billingResult.responseCode) {
+            BillingClient.BillingResponseCode.OK -> MiraiLinkResult.Success(Unit)
+            BillingClient.BillingResponseCode.ITEM_UNAVAILABLE -> MiraiLinkResult.Error(SubscriptionError.PLAN_UNAVAILABLE)
+            else -> MiraiLinkResult.Error(DataError.Network.SERVICE_UNAVAILABLE)
         }
     }
 
@@ -133,27 +175,33 @@ class SubscriptionRepositoryImpl(
         }
     }
 
-    override suspend fun restorePurchases(): MiraiLinkResult<SubscriptionPlanInfo> {
+    override suspend fun restorePurchases(): MiraiLinkResult<SubscriptionPlanInfo> = restoreMutex.withLock {
         val purchases = billingClientManager.queryActivePurchases()
-        val latestActive = purchases.firstOrNull {
+        val active = purchases.filter {
             it.products.contains(BillingClientManager.PREMIUM_SUBSCRIPTION_PRODUCT_ID) ||
                 it.products.contains(BillingClientManager.PLUS_SUBSCRIPTION_PRODUCT_ID)
         }
 
-        return if (latestActive != null) {
-            val prodId = latestActive.products.firstOrNull {
+        var failure: MiraiLinkResult.Error? = null
+        var verified: MiraiLinkResult.Success<SubscriptionPlanInfo>? = null
+        for (purchase in active) {
+            val prodId = purchase.products.first {
                 it == BillingClientManager.PREMIUM_SUBSCRIPTION_PRODUCT_ID || it == BillingClientManager.PLUS_SUBSCRIPTION_PRODUCT_ID
-            } ?: BillingClientManager.PREMIUM_SUBSCRIPTION_PRODUCT_ID
+            }
 
-            verifyPurchase(
-                purchaseToken = latestActive.purchaseToken,
+            val result = verifyPurchase(
+                purchaseToken = purchase.purchaseToken,
                 productId = prodId,
                 basePlanId = BillingClientManager.BASE_PLAN_MONTHLY,
-                orderId = latestActive.orderId,
+                orderId = purchase.orderId,
             )
-        } else {
-            fetchSubscriptionStatus()
+            when (result) {
+                is MiraiLinkResult.Error -> failure = result
+                is MiraiLinkResult.Success -> verified = result
+            }
         }
+        // The server resolves replacements and returns the authoritative final tier.
+        failure ?: verified ?: fetchSubscriptionStatus()
     }
 
     override suspend fun requestCancelIntent(): MiraiLinkResult<String> {

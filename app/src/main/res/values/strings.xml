@@ -258,6 +258,7 @@
     <string name="error_payload_too_large">El contenido es demasiado grande para enviarlo. Elige uno más pequeño y vuelve a intentarlo.</string>
     <string name="error_server">El servicio ha tenido un problema. Reintenta dentro de unos instantes.</string>
     <string name="error_service_unavailable">El servicio no está disponible temporalmente. Reintenta más tarde.</string>
+    <string name="error_subscription_plan_unavailable">El plan seleccionado no está disponible en Google Play. Elige otro plan o inténtalo más tarde.</string>
     <string name="error_serialization">No hemos podido interpretar la respuesta. Actualiza y vuelve a intentarlo.</string>
     <string name="error_network_unknown">No hemos podido completar la operación. Reintenta en unos instantes.</string>
     <string name="error_local_not_found">La información guardada ya no está disponible. Actualiza y vuelve a intentarlo.</string>
