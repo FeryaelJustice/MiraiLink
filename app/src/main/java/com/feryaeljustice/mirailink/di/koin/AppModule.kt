@@ -18,7 +18,14 @@ val appModule =
         // Remote Config Manager
         single<RemoteConfigManager> { RemoteConfigManagerImpl() }
         single { com.feryaeljustice.mirailink.data.manager.AdMobManager(androidContext()) }
-        single { com.feryaeljustice.mirailink.data.billing.BillingClientManager(androidContext(), get(ApplicationScope), { get<com.feryaeljustice.mirailink.state.GlobalMiraiLinkSession>().currentUserId.value }) }
+        single {
+            com.feryaeljustice.mirailink.data.billing.BillingClientManager(
+                context = androidContext(),
+                scope = get(ApplicationScope),
+                accountId = { get<GlobalMiraiLinkSession>().currentUserId.value },
+                crashReporter = getOrNull(),
+            )
+        }
         single<com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatController> {
             com.feryaeljustice.mirailink.ui.haptics.HapticHeartbeatControllerImpl(androidContext())
         }

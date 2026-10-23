@@ -141,6 +141,21 @@ class SubscriptionPaywallViewModelTest {
     }
 
     @Test
+    fun `verification failure stops progress and shows error without granting access`() = runTest {
+        advanceUntilIdle()
+        val activity: Activity = mockk(relaxed = true)
+        every { launchBillingFlowUseCase(activity, any(), any()) } returns MiraiLinkResult.Success(Unit)
+        viewModel.startPurchase(activity)
+
+        purchaseEventsFlow.emit(BillingPurchaseEvent.VerificationFailed(DataError.Network.SERVICE_UNAVAILABLE))
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isPurchasing)
+        assertFalse(viewModel.uiState.value.isSuccess)
+        assertNotNull(viewModel.uiState.value.error)
+    }
+
+    @Test
     fun `restorePurchases success with active subscription sets isSuccess true`() = runTest {
         val activeInfo = SubscriptionPlanInfo(
             planType = SubscriptionPlanType.PREMIUM,

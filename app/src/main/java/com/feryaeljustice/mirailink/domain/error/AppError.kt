@@ -56,6 +56,7 @@ enum class LocationError : AppError {
 }
 
 enum class SubscriptionError : AppError {
+    PLAN_UNAVAILABLE,
     DAILY_LIKES_LIMIT_REACHED,
     DAILY_UNDO_LIMIT_REACHED,
     PREMIUM_RADIUS_REQUIRED,

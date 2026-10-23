@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.feryaeljustice.mirailink.BuildConfig
 import com.feryaeljustice.mirailink.data.manager.AdMobManager
 import com.feryaeljustice.mirailink.di.koin.Qualifiers.ApplicationScope
@@ -31,10 +32,13 @@ import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.getKoin
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -79,6 +83,25 @@ class MainActivity : ComponentActivity() {
         // Google Ads (AdMob)
         initializeAds()
 
+        lifecycleScope.launch {
+            // Initialize the repository even before login so it can observe Play reconnections.
+            val restore = getKoin().get<com.feryaeljustice.mirailink.domain.usecase.subscription.RestorePurchasesUseCase>()
+            val billing = getKoin().get<com.feryaeljustice.mirailink.data.billing.BillingClientManager>()
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                combine(
+                    globalMiraiLinkSession.currentUserId,
+                    globalMiraiLinkSession.isAuthenticated,
+                    globalMiraiLinkSession.isDemoMode,
+                ) { userId, authenticated, demo -> userId?.takeIf { authenticated && !demo } }
+                    .collectLatest { userId ->
+                        if (userId != null) {
+                            billing.startConnection()
+                            restore()
+                        }
+                    }
+            }
+        }
+
         // Deep links
         intent?.data?.let { globalMiraiLinkSession.handleDeepLink(it) }
 
@@ -122,13 +145,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val getSubscriptionStatusUseCase: com.feryaeljustice.mirailink.domain.usecase.subscription.GetSubscriptionStatusUseCase by inject()
-
     override fun onResume() {
         super.onResume()
         if (globalMiraiLinkSession.currentAuth()) {
             applicationScope.launch {
-                getSubscriptionStatusUseCase()
                 org.koin.core.context.GlobalContext.get().get<com.feryaeljustice.mirailink.domain.usecase.affinity.AffinityUseCases>().activity()
             }
         }

@@ -83,6 +83,17 @@ class SubscriptionPaywallViewModel(
             subscriptionRepository.purchaseEvents.collect { event ->
                 val state = _uiState.value
                 when (event) {
+                    is BillingPurchaseEvent.VerificationFailed -> {
+                        crashReporter?.recordException(
+                            throwable = IllegalStateException("Subscription verification failed: ${event.error}"),
+                            reason = "Subscription verification failed after Play purchase",
+                            screen = "subscription_paywall",
+                            metadata = mapOf("tier" to state.selectedTier.name, "duration" to state.selectedDuration.name),
+                        )
+                        _uiState.update {
+                            it.copy(isPurchasing = false, error = event.error.toUiError())
+                        }
+                    }
                     is BillingPurchaseEvent.PurchaseSuccess -> {
                         analytics?.logEvent(
                             MiraiAnalyticsEvent.SubscriptionEvent.PurchaseSuccess(

@@ -93,6 +93,7 @@ private fun AppError.messageResource(): Int =
                 SubscriptionError.DAILY_UNDO_LIMIT_REACHED -> R.string.error_daily_undo_limit_reached
                 SubscriptionError.PREMIUM_RADIUS_REQUIRED -> R.string.error_premium_radius_required
                 SubscriptionError.PREMIUM_PASSPORT_REQUIRED -> R.string.error_premium_passport_required
+                SubscriptionError.PLAN_UNAVAILABLE -> R.string.error_subscription_plan_unavailable
             }
         is com.feryaeljustice.mirailink.domain.error.CapsuleError -> when(this) {
             com.feryaeljustice.mirailink.domain.error.CapsuleError.UNAVAILABLE -> R.string.capsule_unavailable
