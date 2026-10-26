@@ -38,7 +38,7 @@ class ProfilePictureViewModel(
                     uploadSucceeded.value = true
                     error.value = null
                 }
-                is MiraiLinkResult.Error -> error.value = result.error.toUiError()
+                is MiraiLinkResult.Error -> error.value = errorFor(result.error) { uploadImage(uri) }
             }
         }
     }

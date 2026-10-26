@@ -103,7 +103,7 @@ class ProfileViewModel(
                     }
 
                     is MiraiLinkResult.Error ->
-                        ProfileUiState.Error(result.error.toUiError())
+                        ProfileUiState.Error(errorFor(result.error) { getCurrentUser() })
                 }
         }
     }
@@ -261,7 +261,7 @@ class ProfileViewModel(
                                 reason = "Profile update failed",
                                 screen = "profile_edit",
                             )
-                            editState.update { it.copy(error = result.error.toUiError()) }
+                            editState.update { it.copy(error = errorFor(result.error) { onIntent(EditProfileIntent.Save) }) }
                         }
                     }
 
@@ -414,7 +414,7 @@ class ProfileViewModel(
                                 }
 
                             if (result is MiraiLinkResult.Error) {
-                                editState.update { it.copy(error = result.error.toUiError()) }
+                                editState.update { it.copy(error = errorFor(result.error) { onIntent(intent) }) }
                                 return@launch
                             }
                         }
@@ -587,7 +587,7 @@ class ProfileViewModel(
                     when (animesResult) {
                         is MiraiLinkResult.Success -> animesResult.data.map { it.toAnimeViewEntry() }
                         is MiraiLinkResult.Error -> {
-                            editState.update { it.copy(error = animesResult.error.toUiError()) }
+                            editState.update { it.copy(error = errorFor(animesResult.error) { loadCatalogIfNeeded() }) }
                             return@launch
                         }
                     }
@@ -597,7 +597,7 @@ class ProfileViewModel(
                     when (gamesResult) {
                         is MiraiLinkResult.Success -> gamesResult.data.map { it.toGameViewEntry() }
                         is MiraiLinkResult.Error -> {
-                            editState.update { it.copy(error = gamesResult.error.toUiError()) }
+                            editState.update { it.copy(error = errorFor(gamesResult.error) { loadCatalogIfNeeded() }) }
                             return@launch
                         }
                     }
@@ -611,6 +611,8 @@ class ProfileViewModel(
                 val optionsResult = withContext(ioDispatcher) { getProfileOptionsUseCase() }
                 if (optionsResult is MiraiLinkResult.Success) {
                     editState.update { it.copy(profileOptions = optionsResult.data) }
+                } else if (optionsResult is MiraiLinkResult.Error) {
+                    editState.update { it.copy(error = errorFor(optionsResult.error) { loadCatalogIfNeeded() }) }
                 }
             }
         }

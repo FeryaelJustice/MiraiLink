@@ -204,7 +204,7 @@ fun ConfigureTwoFactorScreen(
             errorMsg?.let { error ->
                 MiraiLinkErrorContent(
                     error = error,
-                    onAction = viewModel::performErrorAction,
+                    onAction = viewModel.recoveryFor(error),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)

@@ -94,7 +94,7 @@ fun ReceivedLikesScreen(
         }
         when {
             uiState.isLoading -> item { CircularProgressIndicator() }
-            uiState.error != null -> item { MiraiLinkErrorContent(error = uiState.error!!, onAction = { viewModel.loadLikes() }) }
+            uiState.error != null -> item { MiraiLinkErrorContent(error = uiState.error!!, onAction = viewModel.recoveryFor(uiState.error!!)) }
             uiState.isPremiumLocked -> item { PremiumLockedState(onNavigateToPaywall = onNavigateToPaywall) }
             uiState.likes.isEmpty() -> item { EmptyLikesState() }
             else -> items(uiState.likes, key = { it.likeId }) { item ->

@@ -132,7 +132,7 @@ class HomeViewModel(
             if (result is MiraiLinkResult.Success) {
                 _currentUser.value = result.data.toUserViewEntry()
             } else if (result is MiraiLinkResult.Error) {
-                setRecoveryAction(::reload)
+                setRecoveryAction(::loadCurrentUser)
                 state.value = HomeUiState.Error(result.error.toUiError())
             }
         }
@@ -194,6 +194,10 @@ class HomeViewModel(
 
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
+        swipeRight(current)
+    }
+
+    private fun swipeRight(current: UserViewEntry) {
         analytics?.logEvent(
             MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
                 action = "like",
@@ -205,7 +209,7 @@ class HomeViewModel(
             when (val result = withContext(ioDispatcher) { likeUser(current.id) }) {
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
-                    safeRemoveFirst()
+                    removeTarget(current.id)
                     _undoQuota.value?.let { currentQuota ->
                         if (!currentQuota.hasUndoableSwipe) {
                             _undoQuota.value = currentQuota.copy(
@@ -223,7 +227,7 @@ class HomeViewModel(
                         )
                         _events.tryEmit(HomeEvent.NavigateToPaywall)
                     }
-                    setRecoveryAction(::swipeRight)
+                    setRecoveryAction { swipeRight(current) }
                     state.value = HomeUiState.Error(result.error.toUiError())
                 }
             }
@@ -232,6 +236,10 @@ class HomeViewModel(
 
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
+        swipeLeft(current)
+    }
+
+    private fun swipeLeft(current: UserViewEntry) {
         analytics?.logEvent(
             MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
                 action = "pass",
@@ -243,7 +251,7 @@ class HomeViewModel(
             when (val result = withContext(ioDispatcher) { dislikeUser(current.id) }) {
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
-                    safeRemoveFirst()
+                    removeTarget(current.id)
                     _undoQuota.value?.let { currentQuota ->
                         if (!currentQuota.hasUndoableSwipe) {
                             _undoQuota.value = currentQuota.copy(
@@ -255,17 +263,15 @@ class HomeViewModel(
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
-                    setRecoveryAction(::swipeLeft)
+                    setRecoveryAction { swipeLeft(current) }
                     state.value = HomeUiState.Error(result.error.toUiError())
                 }
             }
         }
     }
 
-    private fun safeRemoveFirst() {
-        if (_userQueue.isNotEmpty()) {
-            _userQueue.removeAt(0)
-        }
+    private fun removeTarget(id: String) {
+        _userQueue.removeAll { it.id == id }
     }
 
     private fun saveToHistory(user: UserViewEntry) {

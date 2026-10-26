@@ -53,9 +53,36 @@ class RetryableViewModelTest {
         assertThat(calls).isEqualTo(0)
     }
 
+
+    @Test
+    fun equalErrorsFromDifferentOperationsRetainDifferentRecoveries() {
+        val vm = TestRetryableViewModel()
+        var register = 0
+        var login = 0
+        val first = vm.fail { register++ }
+        val second = vm.fail { login++ }
+        assertThat(first).isEqualTo(second)
+        vm.register { error("An unrelated operation must not replace these recoveries") }
+        vm.recoveryFor(first)()
+        vm.recoveryFor(second)()
+        assertThat(register).isEqualTo(1)
+        assertThat(login).isEqualTo(1)
+    }
+
+    @Test
+    fun clearingRemovesRecoveriesForPreviouslyDisplayedErrors() {
+        val vm = TestRetryableViewModel()
+        var calls = 0
+        val error = vm.fail { calls++ }
+        vm.clearForTest()
+        vm.recoveryFor(error)()
+        assertThat(calls).isEqualTo(0)
+    }
+
     /** Exposes protected lifecycle APIs only to this unit test. */
     private class TestRetryableViewModel : RetryableViewModel() {
         fun register(action: () -> Unit) = setRecoveryAction(action)
+        fun fail(action: () -> Unit) = errorFor(com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT, action)
 
         fun clearForTest() = onCleared()
     }

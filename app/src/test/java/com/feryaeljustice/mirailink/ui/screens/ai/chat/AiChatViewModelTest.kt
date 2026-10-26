@@ -79,6 +79,7 @@ class AiChatViewModelTest {
         // Then
         assertThat(viewModel.uiState.value).isEqualTo(AiChatUiState.Success("Recovered"))
         coVerify(exactly = 2) { generateContentUseCase("Retry me") }
+        assertThat(viewModel.messages.value.count { it.isUser && it.text == "Retry me" }).isEqualTo(1)
     }
 
     /** Creates the system under test with the shared deterministic dispatcher. */

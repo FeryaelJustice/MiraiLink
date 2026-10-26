@@ -59,7 +59,6 @@ import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
 import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkTextButton
 import com.feryaeljustice.mirailink.ui.components.molecules.MiraiLinkErrorContent
 import com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorPutCodeOrRecoveryCDialog
-import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthEvent
 import com.feryaeljustice.mirailink.ui.screens.auth.AuthViewModel.AuthUiState
 import com.feryaeljustice.mirailink.ui.screens.auth.verification.VerificationDialog
 import com.feryaeljustice.mirailink.domain.model.enum.Gender
@@ -144,29 +143,6 @@ fun AuthScreen(
                 username = savedEmailOrUsername
             }
             password = savedPassword
-        }
-    }
-
-    // Consume eventos one-shot del ViewModel (p.ej. cambiar a login tras un error de registro)
-    LaunchedEffect(viewModel.events) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is AuthEvent.SwitchToLoginAndRetry -> {
-                    email = event.email
-                    username = event.username
-                    password = event.password
-                    isLogin = true
-                    viewModel.resetScreenVMState()
-                    viewModel.login(
-                        email = event.email,
-                        username = event.username,
-                        password = event.password,
-                        onSaveSession = { userId, token ->
-                            miraiLinkSession.saveSession(token, userId, verified = true)
-                        },
-                    )
-                }
-            }
         }
     }
 
@@ -607,7 +583,7 @@ fun AuthScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 MiraiLinkErrorContent(
                     error = (state as AuthUiState.Error).error,
-                    onAction = viewModel::performErrorAction,
+                    onAction = viewModel.recoveryFor((state as AuthUiState.Error).error),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

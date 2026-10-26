@@ -1,26 +1,57 @@
 package com.feryaeljustice.mirailink.ui.error
 
 import androidx.lifecycle.ViewModel
+import com.feryaeljustice.mirailink.domain.error.AppError
+import java.lang.ref.WeakReference
+import com.feryaeljustice.mirailink.ui.error.toUiError as mapUiError
 
-/**
- * Mantiene el callback de recuperación del [UiError] visible.
- * El callback permanece fuera del estado UI inmutable y se limpia con el ciclo de vida.
- */
+/** Recovery belongs to the displayed error, not the last operation started. */
 abstract class RetryableViewModel : ViewModel() {
+    private data class Recovery(val error: WeakReference<UiError>, val action: () -> Unit)
+    private val recoveries = mutableListOf<Recovery>()
     private var recoveryAction: (() -> Unit)? = null
 
-    /** Registra la operación concreta de reintento o recuperación del error actual. */
     protected fun setRecoveryAction(action: () -> Unit) {
-        recoveryAction = action
+        synchronized(recoveries) { recoveryAction = action }
     }
 
-    /** Ejecuta la recuperación elegida por el ViewModel al activar la acción. */
+    protected fun errorFor(error: AppError, action: () -> Unit): UiError =
+        rememberError(error.mapUiError(), action)
+
+    protected fun rememberError(error: UiError, action: () -> Unit): UiError {
+        synchronized(recoveries) {
+            recoveries.removeAll { it.error.get() == null }
+            recoveries.add(Recovery(WeakReference(error), action))
+            recoveryAction = action
+        }
+        return error
+    }
+
+    /** Binds existing synchronous failure handlers to their exact emitted error. */
+    protected fun AppError.toUiError(): UiError {
+        val error = mapUiError()
+        val action = synchronized(recoveries) { recoveryAction }
+        return if (action != null) rememberError(error, action) else error
+    }
+
+    fun recoveryFor(error: UiError): () -> Unit = { performErrorAction(error) }
+
+    fun performErrorAction(error: UiError) {
+        val action = synchronized(recoveries) {
+            recoveries.firstOrNull { it.error.get() === error }?.action
+        }
+        action?.invoke()
+    }
+
+    /** Compatibility entry point for explicit pending-operation actions and tests. */
     fun performErrorAction() {
-        recoveryAction?.invoke()
+        synchronized(recoveries) { recoveryAction }?.invoke()
     }
 
-    /** Drops any captured parameters or callbacks when this ViewModel is destroyed. */
     override fun onCleared() {
-        recoveryAction = null
+        synchronized(recoveries) {
+            recoveryAction = null
+            recoveries.clear()
+        }
     }
 }

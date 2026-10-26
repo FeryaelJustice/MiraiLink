@@ -168,7 +168,7 @@ fun SearchPreferencesScreen(
         error?.let {
             MiraiLinkErrorContent(
                 error = it,
-                onAction = viewModel::reload,
+                onAction = viewModel.recoveryFor(it),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 8.dp)

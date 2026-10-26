@@ -119,4 +119,21 @@ class VerificationViewModelTest : KoinTest {
             assert(!onFinishCalled)
             assert(viewModel.state.value.error == UnknownError.toUiError())
         }
+
+    @Test
+    fun resendErrorKeepsItsOperationWhenBackgroundStatusCheckRuns() = runTest {
+        coEvery { requestVerificationCodeUseCase("user", "email") } returns MiraiLinkResult.Error(
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT,
+        )
+        coEvery { checkIsVerifiedUseCase() } returns MiraiLinkResult.Success(false)
+        viewModel.requestCode("user")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        val error = viewModel.state.value.error!!
+        viewModel.checkUserIsVerified {}
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.recoveryFor(error)()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        io.mockk.coVerify(exactly = 2) { requestVerificationCodeUseCase("user", "email") }
+        io.mockk.coVerify(exactly = 1) { checkIsVerifiedUseCase() }
+    }
 }

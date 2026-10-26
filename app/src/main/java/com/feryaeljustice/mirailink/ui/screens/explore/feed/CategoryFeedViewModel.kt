@@ -192,6 +192,10 @@ class CategoryFeedViewModel(
 
     fun swipeRight() {
         val current = _userQueue.firstOrNull() ?: return
+        swipeRight(current)
+    }
+
+    private fun swipeRight(current: UserViewEntry) {
         analytics?.logEvent(
             MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
                 action = "like",
@@ -202,7 +206,7 @@ class CategoryFeedViewModel(
             when (val result = withContext(ioDispatcher) { likeUserUseCase(current.id) }) {
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
-                    safeRemoveFirst()
+                    removeTarget(current.id)
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
@@ -212,7 +216,7 @@ class CategoryFeedViewModel(
                         )
                         _events.tryEmit(CategoryFeedEvent.NavigateToPaywall)
                     }
-                    setRecoveryAction(::swipeRight)
+                    setRecoveryAction { swipeRight(current) }
                     _state.value = CategoryFeedUiState.Error(result.error.toUiError())
                 }
             }
@@ -221,6 +225,10 @@ class CategoryFeedViewModel(
 
     fun swipeLeft() {
         val current = _userQueue.firstOrNull() ?: return
+        swipeLeft(current)
+    }
+
+    private fun swipeLeft(current: UserViewEntry) {
         analytics?.logEvent(
             MiraiAnalyticsEvent.DiscoveryEvent.CardSwiped(
                 action = "pass",
@@ -231,21 +239,19 @@ class CategoryFeedViewModel(
             when (val result = withContext(ioDispatcher) { dislikeUserUseCase(current.id) }) {
                 is MiraiLinkResult.Success -> {
                     saveToHistory(current)
-                    safeRemoveFirst()
+                    removeTarget(current.id)
                     updateUiState()
                 }
                 is MiraiLinkResult.Error -> {
-                    setRecoveryAction(::swipeLeft)
+                    setRecoveryAction { swipeLeft(current) }
                     _state.value = CategoryFeedUiState.Error(result.error.toUiError())
                 }
             }
         }
     }
 
-    private fun safeRemoveFirst() {
-        if (_userQueue.isNotEmpty()) {
-            _userQueue.removeAt(0)
-        }
+    private fun removeTarget(id: String) {
+        _userQueue.removeAll { it.id == id }
     }
 
     private fun saveToHistory(user: UserViewEntry) {

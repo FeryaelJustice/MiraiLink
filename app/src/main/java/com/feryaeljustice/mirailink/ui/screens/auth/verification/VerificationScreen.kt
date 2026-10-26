@@ -154,7 +154,7 @@ fun VerificationScreen(
                     }
                 } else {
                     Spacer(modifier = Modifier.height(12.dp))
-                    MiraiLinkErrorContent(error = uiState.error!!, onAction = viewModel::performErrorAction)
+                    MiraiLinkErrorContent(error = uiState.error!!, onAction = viewModel.recoveryFor(uiState.error!!))
                 }
             }
         }

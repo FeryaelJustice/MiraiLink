@@ -78,7 +78,7 @@ class VerificationViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    state.update { it.copy(error = result.error.toUiError()) }
+                    state.update { it.copy(error = errorFor(result.error) { checkUserIsVerified(onFinished) }) }
                 }
             }
         }
@@ -97,7 +97,7 @@ class VerificationViewModel(
                     state.update { it.copy(step = 2, error = null) }
                 }
 
-                is MiraiLinkResult.Error -> state.update { it.copy(error = result.error.toUiError()) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = errorFor(result.error) { requestCode(userId) }) }
             }
         }
 
@@ -118,7 +118,7 @@ class VerificationViewModel(
             }
 
             is MiraiLinkResult.Error -> {
-                state.update { it.copy(error = result.error.toUiError()) }
+                state.update { it.copy(error = errorFor(result.error) { confirmCode(userId, onFinish) }) }
             }
         }
     }

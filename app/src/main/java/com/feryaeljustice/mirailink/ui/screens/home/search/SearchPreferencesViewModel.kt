@@ -33,7 +33,7 @@ class SearchPreferencesViewModel(
     private val sendLocationPingUseCase: SendLocationPingUseCase,
     private val ioDispatcher: CoroutineDispatcher,
     private val mainDispatcher: CoroutineDispatcher,
-) : ViewModel() {
+) : com.feryaeljustice.mirailink.ui.error.RetryableViewModel() {
     private val savedPreferences = MutableStateFlow(SearchPreferences())
     private val _draftMode = MutableStateFlow("classic")
     val draftMode = _draftMode.asStateFlow()
@@ -166,7 +166,7 @@ class SearchPreferencesViewModel(
         if (_draftScope.value == SearchScope.SPECIFIC_COUNTRY &&
             targetCountry.isNullOrBlank()
         ) {
-            _error.value = UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)
+            _error.value = rememberError(UiError(UiText.Resource(R.string.search_invalid_country_code), UiText.Resource(R.string.accept), ErrorRecovery.REVIEW_INPUT)) { _error.value = null }
             return
         }
         val effectiveSearchGender = if (isPlusOrPremium) {
@@ -195,7 +195,7 @@ class SearchPreferencesViewModel(
                 }
                 is MiraiLinkResult.Error -> withContext(mainDispatcher) {
                     _isSavingPreferences.value = false
-                    _error.value = result.error.toUiError()
+                    _error.value = errorFor(result.error) { save(isPlusOrPremium, onSuccess) }
                 }
             }
         }

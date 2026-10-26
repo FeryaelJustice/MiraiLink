@@ -104,4 +104,20 @@ class SearchPreferencesViewModelTest {
             saveSearchPreferencesUseCase(match { it.searchGender == TargetSearchGender.FEMALE })
         }
     }
+
+    @Test
+    fun retryingSaveRepeatsSaveWithoutReloadingDraft() = runTest {
+        advanceUntilIdle()
+        viewModel.updateDraftRadius(85f)
+        coEvery { saveSearchPreferencesUseCase(any()) } returns MiraiLinkResult.Error(
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT,
+        )
+        viewModel.save(false) {}
+        advanceUntilIdle()
+        val error = viewModel.error.value!!
+        viewModel.recoveryFor(error)()
+        advanceUntilIdle()
+        coVerify(exactly = 2) { saveSearchPreferencesUseCase(match { it.radiusKm == 85f }) }
+        assertEquals(85f, viewModel.draftRadiusKm.value)
+    }
 }

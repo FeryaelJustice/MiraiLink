@@ -209,7 +209,7 @@ fun RecoverPasswordScreen(
 
                 uiState.error?.let { error ->
                     Spacer(modifier = Modifier.height(12.dp))
-                    MiraiLinkErrorContent(error = error, onAction = viewModel::performErrorAction)
+                    MiraiLinkErrorContent(error = error, onAction = viewModel.recoveryFor(error))
                 }
             }
         }

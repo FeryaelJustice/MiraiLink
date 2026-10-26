@@ -200,7 +200,7 @@ class ChatViewModel(
         if (result is MiraiLinkResult.Success) {
             sender.value = result.data.toMinimalUserInfo().toMinimalUserInfoViewEntry()
         } else if (result is MiraiLinkResult.Error) {
-            error.value = result.error.toUiError()
+            error.value = errorFor(result.error) { viewModelScope.launch { setSenderSync() } }
         }
     }
 

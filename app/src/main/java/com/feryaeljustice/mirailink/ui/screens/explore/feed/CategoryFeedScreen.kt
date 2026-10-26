@@ -156,7 +156,7 @@ fun CategoryFeedScreen(
                         Box(modifier = Modifier.fillMaxSize()) {
                             MiraiLinkErrorSnackbar(
                                 error = currentState.error,
-                                onAction = viewModel::performErrorAction,
+                                onAction = viewModel.recoveryFor(currentState.error),
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .padding(horizontal = 16.dp, vertical = 24.dp),

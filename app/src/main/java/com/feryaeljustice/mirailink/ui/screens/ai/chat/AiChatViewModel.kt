@@ -27,15 +27,20 @@ class AiChatViewModel(
 
     /**
      * Añade el texto visible antes de pedir una respuesta a Firebase AI y conserva el prompt
-     * como acción de reintento. El error deja el mensaje en pantalla; reintentar vuelve a añadirlo.
+     * como accion de reintento. Reintentar solicita la respuesta sin duplicar el mensaje visible.
      * La lista vive en este ViewModel y no se envía como historial al datasource.
      */
     fun sendMessage(prompt: String) {
         if (prompt.isBlank() || uiState.value is AiChatUiState.Loading) return
         setRecoveryAction { sendMessage(prompt) }
         _messages.value = _messages.value + AiChatMessage(text = prompt.trim(), isUser = true)
+        requestReply(prompt)
+    }
+
+    private fun requestReply(prompt: String) {
+        if (uiState.value is AiChatUiState.Loading) return
+        uiState.value = AiChatUiState.Loading
         viewModelScope.launch {
-            uiState.value = AiChatUiState.Loading
             val result =
                 withContext(ioDispatcher) {
                     generateContentUseCase(prompt = prompt)
@@ -48,7 +53,7 @@ class AiChatViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    uiState.value = AiChatUiState.Error(result.error.toUiError())
+                    uiState.value = AiChatUiState.Error(errorFor(result.error) { requestReply(prompt) })
                 }
             }
         }

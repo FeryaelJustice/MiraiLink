@@ -16,7 +16,7 @@ import java.util.UUID
 
 data class AffinityUiState(val loading: Boolean = false, val busy: Boolean = false, val feed: AffinityFeed = AffinityFeed(), val likes: List<AffinityLike> = emptyList(), val requests: List<AffinityRequest> = emptyList(), val error: UiError? = null, val draft: String = "", val selected: AffinityRecommendation? = null, val canLoadMore: Boolean = false, val reportPeer: String? = null, val reportReason: String = "", val isDemo: Boolean = false, val isPlus: Boolean = false)
 
-class AffinityViewModel(private val cases: AffinityUseCases, private val session: GlobalMiraiLinkSession, private val saved: SavedStateHandle, private val reportUseCase: com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase) : ViewModel() {
+class AffinityViewModel(private val cases: AffinityUseCases, private val session: GlobalMiraiLinkSession, private val saved: SavedStateHandle, private val reportUseCase: com.feryaeljustice.mirailink.domain.usecase.report.ReportUseCase) : com.feryaeljustice.mirailink.ui.error.RetryableViewModel() {
     private val mutable = MutableStateFlow(AffinityUiState(draft = saved["affinityDraft"] ?: ""))
     val state = mutable.asStateFlow()
     private var owner: String? = null
@@ -61,7 +61,7 @@ class AffinityViewModel(private val cases: AffinityUseCases, private val session
             likes = (likes as? MiraiLinkResult.Success)?.data?.items ?: current.likes,
             requests = (requests as? MiraiLinkResult.Success)?.data?.items?.let(::visibleRequests) ?: current.requests,
             canLoadMore = (requests as? MiraiLinkResult.Success)?.data?.items?.size == 20,
-            error = listOf(feed, likes, requests).filterIsInstance<MiraiLinkResult.Error>().firstOrNull()?.error?.toUiError(),
+            error = listOf(feed, likes, requests).filterIsInstance<MiraiLinkResult.Error>().firstOrNull()?.error?.let { errorFor(it) { refresh() } },
         ) }
         val id: String? = saved["affinitySelected"]
         if (id != null) mutable.update { it.copy(selected = it.feed.items.find { row -> row.id == id }) }
@@ -122,7 +122,7 @@ class AffinityViewModel(private val cases: AffinityUseCases, private val session
             val captured = owner
             val result = work()
             if (captured == owner) mutable.update {
-                it.copy(busy = false, error = if (result is MiraiLinkResult.Error) result.error.toUiError() else it.error)
+                it.copy(busy = false, error = if (result is MiraiLinkResult.Error) errorFor(result.error) { mutate(work) } else it.error)
             }
         }
     }

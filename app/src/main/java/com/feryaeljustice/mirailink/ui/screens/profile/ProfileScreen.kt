@@ -533,7 +533,7 @@ fun ProfileScreen(
                 is ProfileUiState.Error -> {
                     MiraiLinkErrorContent(
                         error = currentState.error,
-                        onAction = viewModel::performErrorAction,
+                        onAction = viewModel.recoveryFor(currentState.error),
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -554,7 +554,7 @@ fun ProfileScreen(
         editState.error?.let { error ->
             MiraiLinkErrorSnackbar(
                 error = error,
-                onAction = viewModel::performErrorAction,
+                onAction = viewModel.recoveryFor(error),
             )
         }
 

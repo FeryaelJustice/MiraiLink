@@ -309,7 +309,7 @@ fun SettingsScreen(
             error?.let { currentError ->
                 MiraiLinkErrorContent(
                     error = currentError,
-                    onAction = viewModel::performErrorAction,
+                    onAction = viewModel.recoveryFor(currentError),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 6.dp),
@@ -323,7 +323,7 @@ fun SettingsScreen(
             twoFactorError?.let { current2FAError ->
                 MiraiLinkErrorContent(
                     error = current2FAError,
-                    onAction = twoFactorViewModel::performErrorAction,
+                    onAction = twoFactorViewModel.recoveryFor(current2FAError),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 6.dp),
