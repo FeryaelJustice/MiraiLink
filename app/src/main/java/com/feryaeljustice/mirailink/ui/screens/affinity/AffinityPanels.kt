@@ -142,7 +142,7 @@ fun AffinitySection(onDetail: (String) -> Unit, onPaywall: () -> Unit, viewModel
             }
         }
         if (state.canLoadMore) TextButton(onClick = viewModel::moreRequests, enabled = !state.busy) { Text(stringResource(R.string.affinity_more)) }
-        state.error?.let { MiraiLinkErrorContent(error = it, onAction = viewModel::refresh) }
+        state.error?.let { MiraiLinkErrorContent(error = it, onAction = viewModel.recoveryFor(it)) }
         if (state.loading || state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
     }
     if (showFaqDialog) {
@@ -172,7 +172,7 @@ fun AffinitySection(onDetail: (String) -> Unit, onPaywall: () -> Unit, viewModel
                 Text(selected.person?.nickname.orEmpty())
                 Text(stringResource(R.string.affinity_invitation_warning))
                 OutlinedTextField(state.draft, viewModel::editDraft, enabled = !state.busy, label = { Text(stringResource(R.string.affinity_first_message)) }, modifier = Modifier.fillMaxWidth(), minLines = 3)
-                state.error?.let { MiraiLinkErrorContent(error = it, onAction = viewModel::send) }
+                state.error?.let { MiraiLinkErrorContent(error = it, onAction = viewModel.recoveryFor(it)) }
             } },
             confirmButton = { TextButton(onClick = viewModel::send, enabled = !state.busy && state.draft.isNotBlank() && state.draft.length <= 4000) { Text(stringResource(R.string.affinity_send)) } },
             dismissButton = { TextButton(onClick = { viewModel.select(null) }, enabled = !state.busy) { Text(stringResource(R.string.cancel)) } },

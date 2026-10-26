@@ -50,7 +50,7 @@ class ReceivedLikesViewModel(
     private val globalMiraiLinkSession: GlobalMiraiLinkSession,
     private val analytics: AnalyticsTracker? = null,
     private val crashReporter: CrashReporter? = null,
-) : ViewModel() {
+) : com.feryaeljustice.mirailink.ui.error.RetryableViewModel() {
 
     private val _uiState = MutableStateFlow(
         ReceivedLikesUiState(
@@ -134,7 +134,7 @@ class ReceivedLikesViewModel(
                         it.copy(
                             isLoading = false,
                             isRefreshing = false,
-                            error = result.error.toUiError(),
+                            error = errorFor(result.error) { loadLikes() },
                         )
                     }
                 }
@@ -164,7 +164,7 @@ class ReceivedLikesViewModel(
                         screen = "received_likes",
                         metadata = mapOf("target_user_id" to item.userId),
                     )
-                    _uiState.update { it.copy(error = result.error.toUiError()) }
+                    _uiState.update { it.copy(error = errorFor(result.error) { matchUser(item) }) }
                 }
             }
         }

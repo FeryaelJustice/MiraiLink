@@ -117,7 +117,7 @@ fun FeedbackScreen(
                     uiState.error?.let { error ->
                         MiraiLinkErrorContent(
                             error = error,
-                            onAction = viewModel::performErrorAction,
+                            onAction = viewModel.recoveryFor(error),
                         )
                     }
                     val feedbackText = stringResource(R.string.feedback)

@@ -294,4 +294,21 @@ class HomeViewModelTest : KoinTest {
             assert(paywallEmitted)
             job.cancel()
         }
+
+    @Test
+    fun retryLikeRetainsOriginalTargetAfterFeedReload() = runTest {
+        coEvery { likeUserUseCase.invoke("1") } returns MiraiLinkResult.Error(
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT,
+        )
+        viewModel.swipeRight()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        val error = (viewModel.state.value as HomeViewModel.HomeUiState.Error).error
+        coEvery { getFeedUseCase.invoke() } returns MiraiLinkResult.Success(listOf(user2))
+        viewModel.loadUsers()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.recoveryFor(error)()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        coVerify(exactly = 2) { likeUserUseCase.invoke("1") }
+        coVerify(exactly = 0) { likeUserUseCase.invoke("2") }
+    }
 }

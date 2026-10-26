@@ -47,7 +47,7 @@ class FeedbackViewModel(
 
                 is MiraiLinkResult.Error -> {
                     uiState.update {
-                        it.copy(loading = false, error = result.error.toUiError())
+                        it.copy(loading = false, error = errorFor(result.error) { sendFeedback(onFinish) })
                     }
                 }
             }

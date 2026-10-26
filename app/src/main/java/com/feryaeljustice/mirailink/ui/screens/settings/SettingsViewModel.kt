@@ -79,7 +79,7 @@ class SettingsViewModel(
         viewModelScope.launch(ioDispatcher) {
             when (val result = holoPreferencesRepository.setEnabled(enabled)) {
                 is MiraiLinkResult.Success -> Unit
-                is MiraiLinkResult.Error -> withContext(mainDispatcher) { _error.value = result.error.toUiError() }
+                is MiraiLinkResult.Error -> withContext(mainDispatcher) { _error.value = errorFor(result.error) { setHoloProfileEnabled(enabled) } }
             }
         }
     }
@@ -96,7 +96,7 @@ class SettingsViewModel(
             when (val result = setThemePreferenceUseCase(themePreference)) {
                 is MiraiLinkResult.Success -> Unit
                 is MiraiLinkResult.Error -> withContext(mainDispatcher) {
-                    _error.value = result.error.toUiError()
+                    _error.value = errorFor(result.error) { setThemePreference(themePreference) }
                 }
             }
         }
@@ -133,7 +133,7 @@ class SettingsViewModel(
                 }
                 is MiraiLinkResult.Error -> withContext(mainDispatcher) {
                     _logoutSuccess.emit(false)
-                    _error.value = result.error.toUiError()
+                    _error.value = errorFor(result.error) { logout(onFinish) }
                 }
             }
         }
@@ -150,7 +150,7 @@ class SettingsViewModel(
                 }
                 is MiraiLinkResult.Error -> withContext(mainDispatcher) {
                     _deleteSuccess.emit(false)
-                    _error.value = result.error.toUiError()
+                    _error.value = errorFor(result.error) { deleteAccount(onFinish) }
                 }
             }
         }

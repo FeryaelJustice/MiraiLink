@@ -84,7 +84,7 @@ class RecoverPasswordViewModel(
 
             when (result) {
                 is MiraiLinkResult.Success -> state.update { it.copy(step = 2) }
-                is MiraiLinkResult.Error -> state.update { it.copy(error = result.error.toUiError()) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = errorFor(result.error) { requestReset() }) }
             }
         }
 
@@ -117,7 +117,7 @@ class RecoverPasswordViewModel(
                     onConfirmed()
                 }
 
-                is MiraiLinkResult.Error -> state.update { it.copy(error = result.error.toUiError()) }
+                is MiraiLinkResult.Error -> state.update { it.copy(error = errorFor(result.error) { confirmReset(onConfirmed) }) }
             }
         }
 

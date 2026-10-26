@@ -85,4 +85,23 @@ class ReceivedLikesViewModelTest {
         assertEquals(1, viewModel.uiState.value.likes.size)
         assertEquals("alice", viewModel.uiState.value.likes[0].username)
     }
+
+    @Test
+    fun failedMatchRetriesMatchRatherThanRefreshingList() = runTest {
+        isPremiumFlow.value = true
+        coEvery { getReceivedLikesUseCase() } returns MiraiLinkResult.Success(emptyList())
+        coEvery { likeUserUseCase(toUserId = "peer", receivedLikeId = "like", discoveryMode = "classic") } returns MiraiLinkResult.Error(
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT,
+        )
+        val vm = ReceivedLikesViewModel(getReceivedLikesUseCase, likeUserUseCase, session)
+        advanceUntilIdle()
+        val item = ReceivedLikeItemViewEntry(likeId = "like", userId = "peer", username = "peer", nickname = "Peer", age = 25, avatarUrl = null, likedAt = "")
+        vm.matchUser(item)
+        advanceUntilIdle()
+        val error = vm.uiState.value.error!!
+        vm.recoveryFor(error)()
+        advanceUntilIdle()
+        io.mockk.coVerify(exactly = 2) { likeUserUseCase(toUserId = "peer", receivedLikeId = "like", discoveryMode = "classic") }
+        io.mockk.coVerify(exactly = 1) { getReceivedLikesUseCase() }
+    }
 }

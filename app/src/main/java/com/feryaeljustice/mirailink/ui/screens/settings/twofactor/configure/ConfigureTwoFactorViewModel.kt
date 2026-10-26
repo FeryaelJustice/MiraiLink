@@ -99,7 +99,7 @@ class ConfigureTwoFactorViewModel(
                         emailCodeSent.value = true
                         errorString.value = null
                     }
-                    is MiraiLinkResult.Error -> errorString.value = result.error.toUiError()
+                    is MiraiLinkResult.Error -> errorString.value = errorFor(result.error) { requestEmailCode(action) }
                 }
             } finally {
                 if (version == emailRequestVersion) isSendingEmailCode.value = false
@@ -149,7 +149,7 @@ class ConfigureTwoFactorViewModel(
 
                 is MiraiLinkResult.Error -> {
                     isStartingSetup.value = false
-                    errorString.value = result.error.toUiError()
+                    errorString.value = errorFor(result.error) { launchSetupTwoFactorDialog() }
                 }
             }
         }
@@ -182,7 +182,7 @@ class ConfigureTwoFactorViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    errorString.value = result.error.toUiError()
+                    errorString.value = errorFor(result.error) { confirmSetupTwoFactor(userID) }
                     isConfigure2FALoading.value = false
                 }
             }
@@ -209,7 +209,7 @@ class ConfigureTwoFactorViewModel(
                 }
 
                 is MiraiLinkResult.Error -> {
-                    errorString.value = result.error.toUiError()
+                    errorString.value = errorFor(result.error) { confirmDisableTwoFactor(userID) }
                     isDisable2FALoading.value = false
                 }
             }
@@ -236,7 +236,7 @@ class ConfigureTwoFactorViewModel(
             is MiraiLinkResult.Error -> {
                 isTwoFactorEnabled.value = false
                 setRecoveryAction { onlyCheckTwoFacStatusWithIO(userID) }
-                errorString.value = res.error.toUiError()
+                errorString.value = errorFor(res.error) { onlyCheckTwoFacStatusWithIO(userID) }
                 isCheckingStatus.value = false
             }
         }

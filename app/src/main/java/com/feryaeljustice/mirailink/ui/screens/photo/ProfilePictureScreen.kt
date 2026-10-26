@@ -131,7 +131,7 @@ fun ProfilePictureScreen(
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,
-                onAction = viewModel::performErrorAction,
+                onAction = viewModel.recoveryFor(currentError),
             )
         }
     }

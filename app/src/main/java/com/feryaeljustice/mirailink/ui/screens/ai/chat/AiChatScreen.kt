@@ -172,7 +172,7 @@ fun AiChatScreen(
         if (uiState is AiChatUiState.Error) {
             MiraiLinkErrorContent(
                 error = (uiState as AiChatUiState.Error).error,
-                onAction = viewModel::performErrorAction,
+                onAction = viewModel.recoveryFor((uiState as AiChatUiState.Error).error),
             )
         }
 

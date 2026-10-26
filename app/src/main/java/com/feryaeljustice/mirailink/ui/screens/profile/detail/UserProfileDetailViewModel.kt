@@ -34,7 +34,7 @@ class UserProfileDetailViewModel(
     private val getUserProfileByUsernameUseCase: GetUserProfileByUsernameUseCase,
     private val likeUserUseCase: LikeUserUseCase,
     private val dislikeUserUseCase: DislikeUserUseCase,
-) : ViewModel() {
+) : com.feryaeljustice.mirailink.ui.error.RetryableViewModel() {
 
     private val _uiState = MutableStateFlow(UserProfileDetailUiState(isLoading = true))
     val uiState: StateFlow<UserProfileDetailUiState> = _uiState.asStateFlow()
@@ -59,7 +59,7 @@ class UserProfileDetailViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            error = result.error.toUiError(),
+                            error = errorFor(result.error) { loadProfile(username) },
                         )
                     }
                 }
@@ -69,6 +69,10 @@ class UserProfileDetailViewModel(
 
     fun likeUser() {
         val user = _uiState.value.user ?: return
+        likeUser(user)
+    }
+
+    private fun likeUser(user: UserViewEntry) {
         viewModelScope.launch {
             when (val result = likeUserUseCase(toUserId = user.id)) {
                 is MiraiLinkResult.Success -> {
@@ -78,7 +82,7 @@ class UserProfileDetailViewModel(
                     }
                 }
                 is MiraiLinkResult.Error -> {
-                    _uiState.update { it.copy(error = result.error.toUiError()) }
+                    _uiState.update { it.copy(error = errorFor(result.error) { likeUser(user) }) }
                 }
             }
         }
@@ -86,6 +90,10 @@ class UserProfileDetailViewModel(
 
     fun dislikeUser() {
         val user = _uiState.value.user ?: return
+        dislikeUser(user)
+    }
+
+    private fun dislikeUser(user: UserViewEntry) {
         viewModelScope.launch {
             when (val result = dislikeUserUseCase(toUserId = user.id)) {
                 is MiraiLinkResult.Success -> {
@@ -93,7 +101,7 @@ class UserProfileDetailViewModel(
                     _events.send(UserProfileDetailUiEvent.Disliked)
                 }
                 is MiraiLinkResult.Error -> {
-                    _uiState.update { it.copy(error = result.error.toUiError()) }
+                    _uiState.update { it.copy(error = errorFor(result.error) { dislikeUser(user) }) }
                 }
             }
         }

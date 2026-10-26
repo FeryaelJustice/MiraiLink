@@ -254,7 +254,7 @@ fun UserProfileDetailScreen(
             } else if (uiState.error != null) {
                 MiraiLinkErrorContent(
                     error = uiState.error!!,
-                    onAction = { viewModel.loadProfile(username) },
+                    onAction = viewModel.recoveryFor(uiState.error!!),
                 )
             } else if (uiState.user != null) {
                 UserProfileDetailContent(

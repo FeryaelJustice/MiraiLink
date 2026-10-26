@@ -182,7 +182,7 @@ fun MessagesScreen(
                     is MessagesViewModel.MessagesUiState.Error -> {
                         MiraiLinkErrorContent(
                             error = currentState.error,
-                            onAction = viewModel::performErrorAction,
+                            onAction = viewModel.recoveryFor(currentState.error),
                             modifier = Modifier.fillMaxSize(),
                         )
                     }

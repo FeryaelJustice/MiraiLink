@@ -369,4 +369,35 @@ class AuthViewModelTest : KoinTest {
 
             assert(!valid)
         }
+
+    @Test
+    fun retryingRegistrationTimeoutRepeatsRegistrationWithoutLogin() = runTest {
+        coEvery { registerUseCase("tester", "test@example.com", "strong-password", "male", "2000-01-01") } returns
+            MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT)
+        viewModel.register("tester", "test@example.com", "strong-password", "male", "2000-01-01") { _, _ -> }
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        val error = (viewModel.state.value as AuthViewModel.AuthUiState.Error).error
+        viewModel.recoveryFor(error).invoke()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        coVerify(exactly = 2) { registerUseCase("tester", "test@example.com", "strong-password", "male", "2000-01-01") }
+        coVerify(exactly = 0) { loginUseCase(any(), any(), any()) }
+    }
+
+    @Test
+    fun oldRegistrationErrorIsNotReboundByALaterLoginFailure() = runTest {
+        coEvery { registerUseCase(any(), any(), any(), any(), any()) } returns
+            MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT)
+        coEvery { loginUseCase(any(), any(), any()) } returns
+            MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.TIMEOUT)
+        viewModel.register("tester", "test@example.com", "strong-password", "male", "2000-01-01") { _, _ -> }
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        val error = (viewModel.state.value as AuthViewModel.AuthUiState.Error).error
+        val retry = viewModel.recoveryFor(error)
+        viewModel.login("other@example.com", "", "another-password") { _, _ -> }
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        retry()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        coVerify(exactly = 2) { registerUseCase("tester", "test@example.com", "strong-password", "male", "2000-01-01") }
+        coVerify(exactly = 1) { loginUseCase("other@example.com", "", "another-password") }
+    }
 }

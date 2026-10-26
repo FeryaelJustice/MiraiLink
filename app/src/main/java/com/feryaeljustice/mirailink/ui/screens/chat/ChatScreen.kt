@@ -290,7 +290,7 @@ fun ChatScreen(
         error?.let { currentError ->
             MiraiLinkErrorContent(
                 error = currentError,
-                onAction = viewModel::performErrorAction,
+                onAction = viewModel.recoveryFor(currentError),
             )
         }
         if (pendingWork && !messageBusy && !capsuleBusy) androidx.compose.material3.TextButton(onClick = viewModel::retryPending) { androidx.compose.material3.Text(stringResource(R.string.capsule_retry_pending)) }

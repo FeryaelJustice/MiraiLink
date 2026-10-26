@@ -80,19 +80,6 @@ class AuthViewModel(
         object PasswordsDoNotMatch : AuthFieldError()
     }
 
-    /** Eventos one-shot que la UI consume exactamente una vez. */
-    sealed class AuthEvent {
-        /** Pide a la UI que cambie a modo login y reintente con las credenciales proporcionadas. */
-        data class SwitchToLoginAndRetry(
-            val email: String,
-            val username: String,
-            val password: String,
-        ) : AuthEvent()
-    }
-
-    private val _events = MutableSharedFlow<AuthEvent>(extraBufferCapacity = 1)
-    val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
-
     private var credentialRetrievedFromProvider: Pair<String, String>? = null
     private var credentialPendingSave: Pair<String, String>? = null
 
@@ -196,8 +183,7 @@ class AuthViewModel(
                 is MiraiLinkResult.Error -> {
                     withContext(mainDispatcher) {
                         credentialPendingSave = null
-                        configureRecovery(result.error)
-                        state.value = AuthUiState.Error(result.error.toUiError())
+                        state.value = AuthUiState.Error(authFailure(result.error) { login(email, username, password, onSaveSession) })
                     }
                     onLoginError(result.error)
                 }
@@ -213,13 +199,7 @@ class AuthViewModel(
         birthdate: String,
         onSaveSession: (String, String) -> Unit,
     ) {
-        // Si el registro falla y el usuario pulsa la accion de recuperacion, la UI
-        // cambiara a modo login con los mismos datos para que pueda intentar iniciar sesion.
-        setRecoveryAction {
-            viewModelScope.launch(mainDispatcher) {
-                _events.emit(AuthEvent.SwitchToLoginAndRetry(email, username, password))
-            }
-        }
+        setRecoveryAction { register(username, email, password, gender, birthdate, onSaveSession) }
         viewModelScope.launch(ioDispatcher) {
             withContext(mainDispatcher) {
                 state.value = AuthUiState.Loading
@@ -260,8 +240,7 @@ class AuthViewModel(
                 is MiraiLinkResult.Error -> {
                     withContext(mainDispatcher) {
                         credentialPendingSave = null
-                        configureRecovery(result.error)
-                        state.value = AuthUiState.Error(result.error.toUiError())
+                        state.value = AuthUiState.Error(authFailure(result.error) { register(username, email, password, gender, birthdate, onSaveSession) })
                     }
                     onLoginError(result.error)
                 }
@@ -401,9 +380,8 @@ class AuthViewModel(
             ) {
                 is MiraiLinkResult.Error -> {
                     withContext(mainDispatcher) {
-                        configureRecovery(twoFactorLoginVerify.error)
                         twoFactorLastStepDialogIsLoading.value = false
-                        state.value = AuthUiState.Error(twoFactorLoginVerify.error.toUiError())
+                        state.value = AuthUiState.Error(authFailure(twoFactorLoginVerify.error) { confirmTwoFactorDiag(onSaveTheSession) })
                     }
                 }
 
@@ -432,16 +410,16 @@ class AuthViewModel(
         }
     }
 
-    private fun configureRecovery(error: AppError) {
-        when (error) {
+    private fun authFailure(error: AppError, retry: () -> Unit): UiError {
+        val action = when (error) {
             AuthError.INVALID_CREDENTIALS,
             AuthError.SESSION_EXPIRED,
             AuthError.VERIFICATION_REQUIRED,
             AuthError.INVALID_TWO_FACTOR_CODE,
-            AuthError.INVALID_VERIFICATION_CODE,
-            -> setRecoveryAction(::resetScreenVMState)
-            else -> Unit
+            AuthError.INVALID_VERIFICATION_CODE -> ::resetScreenVMState
+            else -> retry
         }
+        return errorFor(error, action)
     }
 
     fun resetTwoFaDiag() {
