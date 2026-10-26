@@ -4,17 +4,17 @@ import com.feryaeljustice.mirailink.data.model.response.generic.ApiErrorResponse
 import com.feryaeljustice.mirailink.domain.error.AppError
 import com.feryaeljustice.mirailink.domain.error.AuthError
 import com.feryaeljustice.mirailink.domain.error.DataError
-import com.feryaeljustice.mirailink.domain.error.UnknownError
 import com.feryaeljustice.mirailink.domain.error.LocationError
 import com.feryaeljustice.mirailink.domain.error.SubscriptionError
+import com.feryaeljustice.mirailink.domain.error.UnknownError
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import retrofit2.HttpException
 import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.Locale
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import retrofit2.HttpException
 
 /** Convierte fallos de transporte y códigos backend aprobados en valores estables [AppError]. */
 object NetworkErrorMapper {
@@ -103,16 +103,10 @@ object NetworkErrorMapper {
         if (stableCode != null) return stableCode
 
         val normalizedMessage = payload.message?.trim()?.lowercase(Locale.ROOT)
-        return when {
-            operation == NetworkOperation.LOGIN &&
-                normalizedMessage in invalidCredentialMessages -> AuthError.INVALID_CREDENTIALS
-
-            operation == NetworkOperation.VERIFICATION &&
-                normalizedMessage in invalidVerificationMessages -> AuthError.INVALID_VERIFICATION_CODE
-
-            operation == NetworkOperation.TWO_FACTOR &&
-                normalizedMessage in invalidTwoFactorMessages -> AuthError.INVALID_TWO_FACTOR_CODE
-
+        return when (operation) {
+            NetworkOperation.LOGIN if normalizedMessage in invalidCredentialMessages -> AuthError.INVALID_CREDENTIALS
+            NetworkOperation.VERIFICATION if normalizedMessage in invalidVerificationMessages -> AuthError.INVALID_VERIFICATION_CODE
+            NetworkOperation.TWO_FACTOR if normalizedMessage in invalidTwoFactorMessages -> AuthError.INVALID_TWO_FACTOR_CODE
             else -> null
         }
     }
