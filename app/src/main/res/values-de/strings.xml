@@ -691,4 +691,8 @@
         <item>Fake-Konto</item>
         <item>Sonstiges</item>
     </string-array>
+    <string name="two_factor_email_instructions">Gib den E-Mail-Code ein, um diese Sicherheitsänderung zu bestätigen.</string>
+    <string name="two_factor_email_sent">Code gesendet. Er läuft in 5 Minuten ab.</string>
+    <string name="two_factor_email_code">E-Mail-Code</string>
+    <string name="two_factor_email_resend">Neuen Code senden</string>
 </resources>

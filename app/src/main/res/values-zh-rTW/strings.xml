@@ -691,4 +691,8 @@
         <item>假帳號</item>
         <item>其他</item>
     </string-array>
+    <string name="two_factor_email_instructions">輸入郵件中的驗證碼以確認此安全設定變更。</string>
+    <string name="two_factor_email_sent">驗證碼已寄出，5分鐘後失效。</string>
+    <string name="two_factor_email_code">郵件驗證碼</string>
+    <string name="two_factor_email_resend">傳送新驗證碼</string>
 </resources>

@@ -57,7 +57,7 @@ fun VerificationScreen(
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userId, token) {
         miraiLinkSession.hideBars()
         miraiLinkSession.disableBars()
         viewModel.init(userId, token)

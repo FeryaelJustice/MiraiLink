@@ -58,7 +58,7 @@ val repositoryModule =
         single<FeedbackRepository> { FeedbackRepositoryImpl(get()) }
         single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
         single<ReportRepository> { ReportRepositoryImpl(get()) }
-        single<TwoFactorRepository> { TwoFactorRepositoryImpl(get()) }
+        single<TwoFactorRepository> { TwoFactorRepositoryImpl(get(), get()) }
         single<UsersRepository> { UsersRepositoryImpl(get(), get(BaseUrl)) }
         single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get(ApplicationScope), get()) }
 

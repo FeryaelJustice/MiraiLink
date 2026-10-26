@@ -691,4 +691,8 @@
         <item>Поддельный аккаунт</item>
         <item>Другое</item>
     </string-array>
+    <string name="two_factor_email_instructions">Введите код из письма, чтобы подтвердить изменение настроек безопасности.</string>
+    <string name="two_factor_email_sent">Код отправлен. Он действителен 5 минут.</string>
+    <string name="two_factor_email_code">Код из письма</string>
+    <string name="two_factor_email_resend">Отправить другой код</string>
 </resources>

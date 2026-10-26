@@ -691,4 +691,8 @@
         <item>Faux compte</item>
         <item>Autre</item>
     </string-array>
+    <string name="two_factor_email_instructions">Saisis le code reçu par e-mail pour confirmer ce changement de sécurité.</string>
+    <string name="two_factor_email_sent">Code envoyé. Il expire dans 5 minutes.</string>
+    <string name="two_factor_email_code">Code reçu par e-mail</string>
+    <string name="two_factor_email_resend">Envoyer un autre code</string>
 </resources>

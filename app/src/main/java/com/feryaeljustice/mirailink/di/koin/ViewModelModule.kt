@@ -207,6 +207,7 @@ val viewModelModule =
                 verifyTwoFactorUseCase = get(),
                 getTwoFactorStatusUseCase = get(),
                 disableTwoFactorUseCase = get(),
+                requestTwoFactorEmailUseCase = get(),
                 ioDispatcher = get(qualifier = IoDispatcher),
             )
         }

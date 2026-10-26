@@ -8,6 +8,6 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 class VerifyTwoFactorUseCase(
     private val repo: TwoFactorRepository,
 ) {
-    suspend operator fun invoke(code: String): MiraiLinkResult<Unit> =
-        repo.verify2FA(code = code)
+    suspend operator fun invoke(code: String, emailCode: String): MiraiLinkResult<Unit> =
+        repo.verify2FA(code = code, emailCode = emailCode)
 }

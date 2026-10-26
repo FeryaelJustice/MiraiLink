@@ -16,23 +16,24 @@ class TwoFactorRemoteDataSource(
             api.getTwoFactorStatus(mapOf("userId" to userID)).enabled
         }
 
+    suspend fun requestEmailCode(action: String): MiraiLinkResult<Unit> =
+        safeApiUnitResponse(NetworkOperation.TWO_FACTOR) {
+            api.requestTwoFactorEmail(mapOf("action" to action))
+        }
+
     suspend fun setup2FA(): MiraiLinkResult<TwoFactorSetupResponse> =
         safeApiCall(NetworkOperation.AUTHENTICATED) {
             api.setupTwoFactor()
         }
 
-    suspend fun verify2FA(code: String): MiraiLinkResult<Unit> =
+    suspend fun verify2FA(code: String, emailCode: String): MiraiLinkResult<Unit> =
         safeApiUnitResponse(NetworkOperation.TWO_FACTOR) {
-            api.verifyTwoFactor(mapOf("token" to code))
+            api.verifyTwoFactor(mapOf("token" to code, "emailCode" to emailCode))
         }
 
     suspend fun disable2FA(codeOrRecoveryCode: String = ""): MiraiLinkResult<Unit> =
         safeApiUnitResponse(NetworkOperation.TWO_FACTOR) {
-            if (codeOrRecoveryCode.isNotBlank()) {
-                api.disableTwoFactor(mapOf("code" to codeOrRecoveryCode))
-            } else {
-                api.disableTwoFactor(emptyMap())
-            }
+            api.disableTwoFactor(mapOf("emailCode" to codeOrRecoveryCode))
         }
 
     suspend fun loginVerifyTwoFactorLastStep(

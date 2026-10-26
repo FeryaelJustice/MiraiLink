@@ -691,4 +691,8 @@
         <item>가짜 계정</item>
         <item>기타</item>
     </string-array>
+    <string name="two_factor_email_instructions">보안 변경을 확인하려면 이메일 코드를 입력하세요.</string>
+    <string name="two_factor_email_sent">코드를 보냈습니다. 5분 후 만료됩니다.</string>
+    <string name="two_factor_email_code">이메일 코드</string>
+    <string name="two_factor_email_resend">다른 코드 보내기</string>
 </resources>

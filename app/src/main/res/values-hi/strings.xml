@@ -691,4 +691,8 @@
         <item>नकली खाता</item>
         <item>अन्य</item>
     </string-array>
+    <string name="two_factor_email_instructions">इस सुरक्षा बदलाव की पुष्टि के लिए ईमेल का कोड दर्ज करें।</string>
+    <string name="two_factor_email_sent">कोड भेज दिया गया। यह 5 मिनट में समाप्त हो जाएगा।</string>
+    <string name="two_factor_email_code">ईमेल का कोड</string>
+    <string name="two_factor_email_resend">दूसरा कोड भेजें</string>
 </resources>

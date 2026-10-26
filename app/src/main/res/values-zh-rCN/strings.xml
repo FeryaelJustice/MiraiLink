@@ -691,4 +691,8 @@
         <item>虚假账号</item>
         <item>其他</item>
     </string-array>
+    <string name="two_factor_email_instructions">输入邮件中的验证码以确认此安全设置更改。</string>
+    <string name="two_factor_email_sent">验证码已发送，5分钟后失效。</string>
+    <string name="two_factor_email_code">邮件验证码</string>
+    <string name="two_factor_email_resend">发送新验证码</string>
 </resources>

@@ -75,10 +75,10 @@ class TwoFactorRepositoryImplTest : UnitTest() {
         runTest {
             // Given
             val code = "123456"
-            coEvery { remoteDataSource.verify2FA(code) } returns MiraiLinkResult.Success(Unit)
+            coEvery { remoteDataSource.verify2FA(code, "654321") } returns MiraiLinkResult.Success(Unit)
 
             // When
-            val result = twoFactorRepository.verify2FA(code)
+            val result = twoFactorRepository.verify2FA(code, "654321")
 
             // Then
             assertThat(result).isInstanceOf(MiraiLinkResult.Success::class.java)

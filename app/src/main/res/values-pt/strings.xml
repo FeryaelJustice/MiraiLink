@@ -691,4 +691,8 @@
         <item>Conta falsa</item>
         <item>Outro</item>
     </string-array>
+    <string name="two_factor_email_instructions">Introduz o código do email para confirmar esta alteração de segurança.</string>
+    <string name="two_factor_email_sent">Código enviado. Expira em 5 minutos.</string>
+    <string name="two_factor_email_code">Código do email</string>
+    <string name="two_factor_email_resend">Enviar outro código</string>
 </resources>

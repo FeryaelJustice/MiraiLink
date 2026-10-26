@@ -71,6 +71,7 @@ val useCaseModule =
         factory { LoginVerifyTwoFactorLastStepUseCase(get()) }
         factory { SetupTwoFactorUseCase(get()) }
         factory { VerifyTwoFactorUseCase(get()) }
+        factory { com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.RequestTwoFactorEmailUseCase(get()) }
 
         // Catalog
         factory { GetAnimesUseCase(get()) }

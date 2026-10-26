@@ -143,7 +143,7 @@ class GlobalMiraiLinkSession(
      * El evento conserva replay hasta consumirse; recibir una URI no autentica ni verifica al usuario.
      */
     fun handleDeepLink(uri: android.net.Uri?) {
-        if (uri != null) {
+        if (uri != null && com.feryaeljustice.mirailink.domain.util.AppLinkPolicy.accepts(uri)) {
             _pendingDeepLinkUri.tryEmit(uri)
         }
     }

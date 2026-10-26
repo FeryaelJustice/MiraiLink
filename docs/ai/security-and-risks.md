@@ -1,3 +1,5 @@
+> Actualizacion 2026-10-26: los enlaces se procesan en MainActivity y NavWrapper; Render y las confirmaciones 2FA por correo se documentan en ../render-app-links.md. Las observaciones historicas sobre ausencia de enrutamiento no describen el codigo actual.
+
 > **Referencia vigente (2026-10-01):** [Guía maestra](../guia-maestra.md). Este documento conserva observaciones de una revisión anterior; versiones, recuentos y hallazgos históricos deben contrastarse con la guía y el código actual.
 
 # Seguridad, riesgos y deuda técnica
