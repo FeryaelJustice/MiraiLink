@@ -76,6 +76,9 @@ fun TwoFactorSetupDialog(
                 modifier = Modifier.then(Modifier.verticalScroll(rememberScrollState())).imePadding(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (isLoading || isSendingEmailCode) {
+                    com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                } else {
                 TwoFactorEmailCodeFields(
                     code = emailCode, sent = emailCodeSent, loading = isSendingEmailCode || isLoading,
                     onCodeChange = onEmailCodeChange, onRequest = onRequestEmailCode, error = emailError,
@@ -136,10 +139,7 @@ fun TwoFactorSetupDialog(
                         )
                     }
                 }
-                if (isLoading) {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+
                 }
             }
         },

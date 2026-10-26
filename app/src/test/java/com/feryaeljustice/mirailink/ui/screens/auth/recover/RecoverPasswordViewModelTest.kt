@@ -126,4 +126,21 @@ class RecoverPasswordViewModelTest : KoinTest {
             assert(!onConfirmedCalled)
             assert(viewModel.state.value.error == UnknownError.toUiError())
         }
+
+    @Test
+    fun resetRequestShowsLoadingAndRejectsDuplicates() = runTest {
+        val result = kotlinx.coroutines.CompletableDeferred<MiraiLinkResult<Unit>>()
+        coEvery { requestPasswordResetUseCase("test@test.com") } coAnswers { result.await() }
+        viewModel.onEmailChanged("test@test.com")
+        viewModel.requestReset()
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        assert(viewModel.state.value.isLoading)
+        viewModel.requestReset()
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        io.mockk.coVerify(exactly = 1) { requestPasswordResetUseCase("test@test.com") }
+        result.complete(MiraiLinkResult.Error(UnknownError))
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        assert(!viewModel.state.value.isLoading)
+        assert(viewModel.state.value.error != null)
+    }
 }

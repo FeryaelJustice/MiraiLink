@@ -137,12 +137,16 @@ fun ConfigureTwoFactorScreen(
             title = stringResource(R.string.two_factor_disable_confirm_title),
             messageContent = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState()).imePadding()) {
+                    if (isSendingEmailCode || isDisabling) {
+                        com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                    } else {
                     com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorEmailCodeFields(
                         code = emailCode, sent = emailCodeSent, loading = isSendingEmailCode || isDisabling,
                         onCodeChange = viewModel::onEmailCodeChanged,
                         onRequest = { viewModel.requestEmailCode("disable") },
                         error = errorMsg?.let { it.asString() },
                     )
+                    }
                 }
             },
             confirmButtonContent = {

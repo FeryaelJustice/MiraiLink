@@ -136,4 +136,28 @@ class VerificationViewModelTest : KoinTest {
         io.mockk.coVerify(exactly = 2) { requestVerificationCodeUseCase("user", "email") }
         io.mockk.coVerify(exactly = 1) { checkIsVerifiedUseCase() }
     }
+
+    @Test
+    fun requestShowsLoadingAndOnlyReportsSentAfterSuccess() = runTest {
+        val result = kotlinx.coroutines.CompletableDeferred<MiraiLinkResult<Unit>>()
+        coEvery { requestVerificationCodeUseCase("user", "email") } coAnswers { result.await() }
+        var sent = 0
+        viewModel.requestCode("user") { sent++ }
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        assert(viewModel.state.value.isLoading)
+        viewModel.requestCode("user") { sent++ }
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        io.mockk.coVerify(exactly = 1) { requestVerificationCodeUseCase("user", "email") }
+        assert(sent == 0)
+        result.complete(MiraiLinkResult.Error(UnknownError))
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        assert(!viewModel.state.value.isLoading)
+        assert(viewModel.state.value.error != null)
+        assert(sent == 0)
+        coEvery { requestVerificationCodeUseCase("user", "email") } returns MiraiLinkResult.Success(Unit)
+        viewModel.recoveryFor(viewModel.state.value.error!!)()
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        assert(sent == 1)
+        assert(!viewModel.state.value.isLoading)
+    }
 }

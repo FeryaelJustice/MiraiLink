@@ -448,6 +448,13 @@ fun ChatScreen(
                     }
                 }
             }
+        } else if (messageBusy) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                androidx.compose.material3.CircularProgressIndicator()
+            }
         } else {
             Row(
                 modifier =
