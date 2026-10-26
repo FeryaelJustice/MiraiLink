@@ -750,4 +750,8 @@
     <string name="capsule_peer_answer_label">Their answer:</string>
     <string name="capsule_history_empty">You have not completed any questions together yet.</string>
     <string name="affinity_conversation_invitation">Invitation to chat. Discover who wrote to you and respond with Plus.</string>
+    <string name="two_factor_email_instructions">Enter the email code to confirm this security change.</string>
+    <string name="two_factor_email_sent">Code sent. It expires in 5 minutes.</string>
+    <string name="two_factor_email_code">Email code</string>
+    <string name="two_factor_email_resend">Send another code</string>
 </resources>

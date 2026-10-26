@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.ui.screens.settings.twofactor.configure
 
+import com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkText
+import com.feryaeljustice.mirailink.ui.error.asString
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,6 +70,10 @@ fun ConfigureTwoFactorScreen(
 
     val isTwoFactorEnabled by viewModel.isTwoFactorEnabled.collectAsStateWithLifecycle()
 
+    val emailCode by viewModel.emailCode.collectAsStateWithLifecycle()
+    val emailCodeSent by viewModel.emailCodeSent.collectAsStateWithLifecycle()
+    val isSendingEmailCode by viewModel.isSendingEmailCode.collectAsStateWithLifecycle()
+    val isDisabling by viewModel.isDisable2FALoading.collectAsStateWithLifecycle()
     val showSetupDialog by viewModel.showSetupDialog.collectAsStateWithLifecycle()
     val showStatusDialog by viewModel.showStatusDialog.collectAsStateWithLifecycle()
     val isCheckingStatus by viewModel.isCheckingStatus.collectAsStateWithLifecycle()
@@ -94,6 +101,12 @@ fun ConfigureTwoFactorScreen(
 
     if (showSetupDialog) {
         TwoFactorSetupDialog(
+            emailCode = emailCode,
+            emailCodeSent = emailCodeSent,
+            isSendingEmailCode = isSendingEmailCode,
+            onEmailCodeChange = viewModel::onEmailCodeChanged,
+            onRequestEmailCode = { viewModel.requestEmailCode("enable") },
+            emailError = errorMsg?.let { it.asString() },
             otpUrl = otpUrl,
             base32 = base32,
             recoveryCodes = recoveryCodes,
@@ -122,7 +135,22 @@ fun ConfigureTwoFactorScreen(
     if (showDisableTwoFactorDialog) {
         MiraiLinkDialog(
             title = stringResource(R.string.two_factor_disable_confirm_title),
-            message = stringResource(R.string.two_factor_disable_confirm_message),
+            messageContent = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()).imePadding()) {
+                    com.feryaeljustice.mirailink.ui.components.twofactor.TwoFactorEmailCodeFields(
+                        code = emailCode, sent = emailCodeSent, loading = isSendingEmailCode || isDisabling,
+                        onCodeChange = viewModel::onEmailCodeChanged,
+                        onRequest = { viewModel.requestEmailCode("disable") },
+                        error = errorMsg?.let { it.asString() },
+                    )
+                }
+            },
+            confirmButtonContent = {
+                com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton(
+                    onClick = { viewModel.confirmDisableTwoFactor(userID.value) },
+                    enabled = emailCodeSent && emailCode.length == 6 && !isSendingEmailCode && !isDisabling,
+                ) { MiraiLinkText(text = stringResource(R.string.disable_two_factor)) }
+            },
             acceptText = stringResource(R.string.disable_two_factor),
             cancelText = stringResource(R.string.cancel),
             showCancelButton = true,

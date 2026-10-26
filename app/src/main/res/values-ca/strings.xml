@@ -691,4 +691,8 @@
         <item>Compte fals</item>
         <item>Altres</item>
     </string-array>
+    <string name="two_factor_email_instructions">Introdueix el codi del correu per confirmar aquest canvi de seguretat.</string>
+    <string name="two_factor_email_sent">Codi enviat. Caduca en 5 minuts.</string>
+    <string name="two_factor_email_code">Codi del correu</string>
+    <string name="two_factor_email_resend">Envia un altre codi</string>
 </resources>

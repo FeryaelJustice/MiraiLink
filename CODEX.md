@@ -1,3 +1,5 @@
+> Actualizacion 2026-10-26: los enlaces se procesan en MainActivity y NavWrapper; Render y las confirmaciones 2FA por correo se documentan en docs/render-app-links.md. Las observaciones historicas sobre ausencia de enrutamiento no describen el codigo actual.
+
 # Codex context for MiraiLink
 
 Este archivo es el punto de entrada específico para Codex. El contexto técnico común a cualquier asistente está en [`docs/ai/README.md`](docs/ai/README.md).

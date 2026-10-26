@@ -29,6 +29,8 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
     private val getTwoFactorStatusUseCase: GetTwoFactorStatusUseCase by inject()
     private val disableTwoFactorUseCase: DisableTwoFactorUseCase by inject()
 
+    private val requestEmail = mockk<com.feryaeljustice.mirailink.domain.usecase.auth.two_factor.RequestTwoFactorEmailUseCase>()
+
     private lateinit var viewModel: ConfigureTwoFactorViewModel
 
     @get:Rule
@@ -46,6 +48,7 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
 
     @Before
     fun setUp() {
+        coEvery { requestEmail.invoke(any()) } returns MiraiLinkResult.Success(Unit)
         viewModel =
             ConfigureTwoFactorViewModel(
                 setupTwoFactorUseCase,
@@ -53,6 +56,7 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
                 getTwoFactorStatusUseCase,
                 disableTwoFactorUseCase,
                 mainCoroutineRule.testDispatcher,
+                requestEmail,
             )
     }
 
@@ -74,12 +78,15 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
         runTest {
             val userId = "userId"
             val code = "123456"
-            coEvery { verifyTwoFactorUseCase.invoke(code) } returns MiraiLinkResult.Success(Unit)
+            coEvery { verifyTwoFactorUseCase.invoke(code, "654321") } returns MiraiLinkResult.Success(Unit)
             coEvery { getTwoFactorStatusUseCase.invoke(userId) } returns
                 MiraiLinkResult.Success(
                     true,
                 )
 
+            viewModel.requestEmailCode("enable")
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.onEmailCodeChanged("654321")
             viewModel.onSetupTwoFactorCodeChanged(code)
             viewModel.confirmSetupTwoFactor(userId)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
@@ -99,11 +106,50 @@ class ConfigureTwoFactorViewModelTest : KoinTest {
                     false,
                 )
 
-            viewModel.onDisableTwoFactorCodeChanged(code)
+            viewModel.requestEmailCode("disable")
+            mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+            viewModel.onEmailCodeChanged(code)
             viewModel.confirmDisableTwoFactor(userId)
             mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
 
             assert(!viewModel.showDisableTwoFactorDialog.value)
             assert(!viewModel.isTwoFactorEnabled.value)
         }
+
+    @Test
+    fun rejectsActivationWithoutDeliveredEmailCode() = runTest {
+        viewModel.onSetupTwoFactorCodeChanged("123456")
+        viewModel.onEmailCodeChanged("654321")
+        viewModel.confirmSetupTwoFactor("user")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        io.mockk.coVerify(exactly = 0) { verifyTwoFactorUseCase.invoke(any(), any()) }
+    }
+
+    @Test
+    fun failedEmailDeliveryLeavesConfirmationDisabled() = runTest {
+        coEvery { requestEmail.invoke("disable") } returns MiraiLinkResult.Error(
+            com.feryaeljustice.mirailink.domain.error.DataError.Network.SERVICE_UNAVAILABLE,
+        )
+        viewModel.requestEmailCode("disable")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        org.junit.Assert.assertFalse(viewModel.emailCodeSent.value)
+        org.junit.Assert.assertFalse(viewModel.isSendingEmailCode.value)
+        org.junit.Assert.assertNotNull(viewModel.errorString.value)
+        viewModel.confirmDisableTwoFactor("user")
+        io.mockk.coVerify(exactly = 0) { disableTwoFactorUseCase.invoke(any()) }
+    }
+
+    @Test
+    fun resendAndCancelDiscardOldCode() = runTest {
+        viewModel.requestEmailCode("enable")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEmailCodeChanged("654321")
+        viewModel.requestEmailCode("enable")
+        org.junit.Assert.assertEquals("", viewModel.emailCode.value)
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.onEmailCodeChanged("654321")
+        viewModel.dismissSetupTwoFactorDialog()
+        org.junit.Assert.assertEquals("", viewModel.emailCode.value)
+        org.junit.Assert.assertFalse(viewModel.emailCodeSent.value)
+    }
 }

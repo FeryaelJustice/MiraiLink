@@ -85,14 +85,14 @@ class TwoFactorRemoteDataSourceTest : UnitTest() {
         runTest {
             // Given
             val code = "123456"
-            coEvery { twoFactorApiService.verifyTwoFactor(mapOf("token" to code)) } returns Response.success(Unit)
+            coEvery { twoFactorApiService.verifyTwoFactor(mapOf("token" to code, "emailCode" to "654321")) } returns Response.success(Unit)
 
             // When
-            val result = twoFactorRemoteDataSource.verify2FA(code)
+            val result = twoFactorRemoteDataSource.verify2FA(code, "654321")
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)
-            coVerify { twoFactorApiService.verifyTwoFactor(mapOf("token" to code)) }
+            coVerify { twoFactorApiService.verifyTwoFactor(mapOf("token" to code, "emailCode" to "654321")) }
         }
 
     @Test
@@ -100,14 +100,14 @@ class TwoFactorRemoteDataSourceTest : UnitTest() {
         runTest {
             // Given
             val code = "123456"
-            coEvery { twoFactorApiService.disableTwoFactor(mapOf("code" to code)) } returns Response.success(Unit)
+            coEvery { twoFactorApiService.disableTwoFactor(mapOf("emailCode" to code)) } returns Response.success(Unit)
 
             // When
             val result = twoFactorRemoteDataSource.disable2FA(code)
 
             // Then
             assertTrue(result is MiraiLinkResult.Success)
-            coVerify { twoFactorApiService.disableTwoFactor(mapOf("code" to code)) }
+            coVerify { twoFactorApiService.disableTwoFactor(mapOf("emailCode" to code)) }
         }
 
     @Test
@@ -133,4 +133,12 @@ class TwoFactorRemoteDataSourceTest : UnitTest() {
             assertEquals(response, (result as MiraiLinkResult.Success).data)
             coVerify { twoFactorApiService.loginVerifyTwoFactorLastStep(mapOf("challengeToken" to challengeToken, "code" to code)) }
         }
+
+    @Test
+    fun requestEmailCodeUsesAuthenticatedActionEndpoint() = runTest {
+        coEvery { twoFactorApiService.requestTwoFactorEmail(mapOf("action" to "enable")) } returns Response.success(Unit)
+        val result = twoFactorRemoteDataSource.requestEmailCode("enable")
+        assertTrue(result is MiraiLinkResult.Success)
+        coVerify { twoFactorApiService.requestTwoFactorEmail(mapOf("action" to "enable")) }
+    }
 }

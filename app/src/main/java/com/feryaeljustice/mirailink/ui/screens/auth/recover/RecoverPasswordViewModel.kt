@@ -49,6 +49,8 @@ class RecoverPasswordViewModel(
         state.update {
             it.copy(
                 token = token.ifBlank { it.token },
+                newPassword = if (token != it.token) "" else it.newPassword,
+                confirmPassword = if (token != it.token) "" else it.confirmPassword,
                 email = initialEmail?.takeIf { e -> e.isNotBlank() } ?: it.email,
                 step = if (token.isNotBlank()) 2 else it.step,
             )

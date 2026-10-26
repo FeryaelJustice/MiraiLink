@@ -731,4 +731,8 @@
     <string name="capsule_suggested_questions">Preguntas sugeridas</string>
     <string name="capsule_history_empty">Aún no habéis completado ninguna pregunta juntos.</string>
     <string name="affinity_conversation_invitation">Invitación a conversar. Descubre quién te ha escrito y responde con Plus.</string>
+    <string name="two_factor_email_instructions">Introduce el código del correo para confirmar este cambio de seguridad.</string>
+    <string name="two_factor_email_sent">Código enviado. Caduca en 5 minutos.</string>
+    <string name="two_factor_email_code">Código del correo</string>
+    <string name="two_factor_email_resend">Enviar otro código</string>
 </resources>

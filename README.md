@@ -1,3 +1,5 @@
+> **Enlaces de seguridad:** [Configuracion de Render, firma de Play y pruebas](docs/render-app-links.md).
+
 > **Estudio técnico del proyecto:** [Guía maestra en español](docs/guia-maestra.md), con documentos por tema, diagramas, configuración, casos de error y revisión conectada con el otro repositorio.
 
 <p style="text-align: center;">

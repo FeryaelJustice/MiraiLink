@@ -39,10 +39,10 @@ class VerifyTwoFactorUseCaseTest {
     fun `when repository verifies 2FA successfully, return success`() = runTest {
         // Given
         val code = "123456"
-        coEvery { repository.verify2FA(code) } returns MiraiLinkResult.Success(Unit)
+        coEvery { repository.verify2FA(code, "654321") } returns MiraiLinkResult.Success(Unit)
 
         // When
-        val result = verifyTwoFactorUseCase(code)
+        val result = verifyTwoFactorUseCase(code, "654321")
 
         // Then
         assertTrue(result is MiraiLinkResult.Success<*>)
@@ -53,10 +53,10 @@ class VerifyTwoFactorUseCaseTest {
         // Given
         val code = "123456"
         val errorResult = MiraiLinkResult.Error(UnknownError)
-        coEvery { repository.verify2FA(code) } returns errorResult
+        coEvery { repository.verify2FA(code, "654321") } returns errorResult
 
         // When
-        val result = verifyTwoFactorUseCase(code)
+        val result = verifyTwoFactorUseCase(code, "654321")
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)
@@ -68,10 +68,10 @@ class VerifyTwoFactorUseCaseTest {
         // Given
         val code = "123456"
         val exception = RuntimeException("Network error")
-        coEvery { repository.verify2FA(code) } throws exception
+        coEvery { repository.verify2FA(code, "654321") } throws exception
 
         // When
-        val result = verifyTwoFactorUseCase(code)
+        val result = verifyTwoFactorUseCase(code, "654321")
 
         // Then
         assertTrue(result is MiraiLinkResult.Error)

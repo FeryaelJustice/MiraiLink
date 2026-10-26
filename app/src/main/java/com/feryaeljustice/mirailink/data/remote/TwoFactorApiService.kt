@@ -11,6 +11,9 @@ interface TwoFactorApiService {
     @POST("auth/2fa/status")
     suspend fun getTwoFactorStatus(@Body body: Map<String, String>): TwoFactorStatusResponse
 
+    @POST("auth/2fa/email/request")
+    suspend fun requestTwoFactorEmail(@Body body: Map<String, String>): Response<Unit>
+
     @POST("auth/2fa/setup")
     suspend fun setupTwoFactor(): TwoFactorSetupResponse
 

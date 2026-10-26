@@ -9,11 +9,14 @@ import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 
 class TwoFactorRepositoryImpl(
     private val remote: TwoFactorRemoteDataSource,
+    private val demoModeManager: com.feryaeljustice.mirailink.data.demo.DemoModeManager? = null,
 ) : TwoFactorRepository {
-    override suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> = remote.get2FAStatus(userID)
+    private fun demoError() = MiraiLinkResult.Error(com.feryaeljustice.mirailink.domain.error.DataError.Network.FORBIDDEN)
+
+    override suspend fun get2FAStatus(userID: String): MiraiLinkResult<Boolean> = if (demoModeManager?.isDemoActive() == true) MiraiLinkResult.Success(false) else remote.get2FAStatus(userID)
 
     override suspend fun setup2FA(): MiraiLinkResult<TwoFactorAuthInfo> =
-        when (val result = remote.setup2FA()) {
+        when (val result = if (demoModeManager?.isDemoActive() == true) demoError() else remote.setup2FA()) {
             is MiraiLinkResult.Success -> {
                 val setup2FA = result.data
                 val twoFactorInfo = setup2FA.toTwoFactorAuthInfo()
@@ -23,10 +26,12 @@ class TwoFactorRepositoryImpl(
             is MiraiLinkResult.Error -> result
         }
 
-    override suspend fun verify2FA(code: String): MiraiLinkResult<Unit> = remote.verify2FA(code)
+    override suspend fun verify2FA(code: String, emailCode: String): MiraiLinkResult<Unit> = if (demoModeManager?.isDemoActive() == true) demoError() else remote.verify2FA(code, emailCode)
+
+    override suspend fun requestEmailCode(action: String): MiraiLinkResult<Unit> = if (demoModeManager?.isDemoActive() == true) demoError() else remote.requestEmailCode(action)
 
     override suspend fun disable2FA(codeOrRecoveryCode: String): MiraiLinkResult<Unit> =
-        remote.disable2FA(codeOrRecoveryCode)
+        if (demoModeManager?.isDemoActive() == true) demoError() else remote.disable2FA(codeOrRecoveryCode)
 
     override suspend fun loginVerifyTwoFactorLastStep(
         challengeToken: String,

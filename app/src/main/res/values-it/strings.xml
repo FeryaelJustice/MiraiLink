@@ -691,4 +691,8 @@
         <item>Account falso</item>
         <item>Altro</item>
     </string-array>
+    <string name="two_factor_email_instructions">Inserisci il codice ricevuto via email per confermare questa modifica di sicurezza.</string>
+    <string name="two_factor_email_sent">Codice inviato. Scade tra 5 minuti.</string>
+    <string name="two_factor_email_code">Codice email</string>
+    <string name="two_factor_email_resend">Invia un altro codice</string>
 </resources>

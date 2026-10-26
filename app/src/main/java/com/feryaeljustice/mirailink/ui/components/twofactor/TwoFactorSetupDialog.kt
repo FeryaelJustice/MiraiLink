@@ -1,5 +1,8 @@
 package com.feryaeljustice.mirailink.ui.components.twofactor
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.imePadding
 import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,6 +45,12 @@ fun TwoFactorSetupDialog(
     onCodeChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    emailCode: String = "",
+    emailCodeSent: Boolean = false,
+    isSendingEmailCode: Boolean = false,
+    onEmailCodeChange: (String) -> Unit = {},
+    onRequestEmailCode: () -> Unit = {},
+    emailError: String? = null,
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
@@ -56,10 +65,21 @@ fun TwoFactorSetupDialog(
         acceptText = stringResource(R.string.verify),
         cancelText = stringResource(R.string.cancel),
         title = stringResource(R.string.setup_two_factor),
+        confirmButtonContent = {
+            com.feryaeljustice.mirailink.ui.components.atoms.MiraiLinkButton(
+                onClick = onConfirm,
+                enabled = !isLoading && !isSendingEmailCode && emailCodeSent && emailCode.length == 6 && code.matches(Regex("[0-9]{6}")),
+            ) { MiraiLinkText(text = stringResource(R.string.verify)) }
+        },
         messageContent = {
             Column(
+                modifier = Modifier.then(Modifier.verticalScroll(rememberScrollState())).imePadding(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                TwoFactorEmailCodeFields(
+                    code = emailCode, sent = emailCodeSent, loading = isSendingEmailCode || isLoading,
+                    onCodeChange = onEmailCodeChange, onRequest = onRequestEmailCode, error = emailError,
+                )
                 otpUrl?.let {
                     QrCodeImage(
                         modifier = Modifier.align(Alignment.CenterHorizontally),

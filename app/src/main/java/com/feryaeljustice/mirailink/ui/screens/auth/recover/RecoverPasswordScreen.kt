@@ -55,7 +55,7 @@ fun RecoverPasswordScreen(
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val deviceConfiguration = DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(email, token) {
         // La recuperacion sigue fuera de la sesion: mantiene ocultas ambas barras.
         miraiLinkSession.showHideTopBar(false)
         miraiLinkSession.showHideBottomBar(false)

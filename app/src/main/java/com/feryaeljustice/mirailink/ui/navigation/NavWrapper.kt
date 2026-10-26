@@ -185,6 +185,11 @@ fun NavWrapper(
         // Do not navigate while a forced update gate is active
         if (forceUpdateBlocking) return@LaunchedEffect
 
+        val securityChild = navigator.state.backStacks[ScreensSubgraphs.Auth]?.lastOrNull()
+        if (navigationState.topLevelRoute == ScreensSubgraphs.Auth &&
+            (securityChild is AppScreen.RecoverPasswordScreen ||
+                (securityChild is AppScreen.VerificationScreen && securityChild.token.isNotBlank()))) return@LaunchedEffect
+
         if (isAuthenticated && !isVerified) {
             val userId = currentUserId ?: return@LaunchedEffect
             val currentChild = navigator.state.backStacks[ScreensSubgraphs.Auth]?.lastOrNull()
