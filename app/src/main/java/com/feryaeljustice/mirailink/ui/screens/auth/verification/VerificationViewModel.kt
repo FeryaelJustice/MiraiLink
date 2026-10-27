@@ -7,9 +7,9 @@ import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCode
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
 import com.feryaeljustice.mirailink.ui.error.RetryableViewModel
 import com.feryaeljustice.mirailink.ui.error.UiError
-import com.feryaeljustice.mirailink.ui.error.toUiError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,8 +37,18 @@ class VerificationViewModel(
         field = MutableStateFlow<VerificationState>(VerificationState())
 
     private var cooldownJob: Job? = null
+    private var activeUserId: String? = null
+
+    fun prepareForUser(userId: String) {
+        if (activeUserId == userId) return
+        viewModelScope.coroutineContext.cancelChildren()
+        clearRecoveries()
+        resetState()
+        activeUserId = userId
+    }
 
     fun init(userId: String, initialToken: String = "") {
+        prepareForUser(userId)
         state.update {
             it.copy(
                 step = 2,

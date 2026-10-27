@@ -48,10 +48,14 @@ abstract class RetryableViewModel : ViewModel() {
         synchronized(recoveries) { recoveryAction }?.invoke()
     }
 
-    override fun onCleared() {
+    protected fun clearRecoveries() {
         synchronized(recoveries) {
             recoveryAction = null
             recoveries.clear()
         }
+    }
+
+    override fun onCleared() {
+        clearRecoveries()
     }
 }

@@ -5,9 +5,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -45,12 +42,8 @@ fun MiraiLinkDialog(
     confirmButtonContent: @Composable (() -> Unit)? = null,
     dismissButtonContent: @Composable (() -> Unit)? = null,
 ) {
-    val showConfirmButton by remember {
-        derivedStateOf { showAcceptButton && onAccept != null }
-    }
-    val showDismissButton by remember {
-        derivedStateOf { showCancelButton && onCancel != null }
-    }
+    val showConfirmButton = showAcceptButton && onAccept != null
+    val showDismissButton = showCancelButton && onCancel != null
     AlertDialog(
         onDismissRequest = onDismiss ?: {},
         properties = properties,
