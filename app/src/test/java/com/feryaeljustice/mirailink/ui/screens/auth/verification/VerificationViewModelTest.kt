@@ -1,11 +1,11 @@
 package com.feryaeljustice.mirailink.ui.screens.auth.verification
 
 import com.feryaeljustice.mirailink.domain.error.UnknownError
-import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.domain.usecase.auth.CheckIsVerifiedUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.ConfirmVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.usecase.users.RequestVerificationCodeUseCase
 import com.feryaeljustice.mirailink.domain.util.MiraiLinkResult
+import com.feryaeljustice.mirailink.ui.error.toUiError
 import com.feryaeljustice.mirailink.util.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -51,6 +51,43 @@ class VerificationViewModelTest : KoinTest {
                 confirmVerificationCodeUseCase,
                 mainCoroutineRule.testDispatcher,
             )
+    }
+
+    @Test
+    fun switchingAccountClearsErrorAndOldRecovery() = runTest {
+        coEvery { requestVerificationCodeUseCase("A", "email") } returns MiraiLinkResult.Error(UnknownError)
+        coEvery { requestVerificationCodeUseCase("B", "email") } returns MiraiLinkResult.Success(Unit)
+        viewModel.prepareForUser("A")
+        viewModel.requestCode("A")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        val oldRecovery = viewModel.recoveryFor(viewModel.state.value.error!!)
+
+        viewModel.prepareForUser("B")
+        org.junit.Assert.assertEquals(VerificationViewModel.VerificationState(), viewModel.state.value)
+        oldRecovery()
+        viewModel.requestCode("B")
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+
+        io.mockk.coVerify(exactly = 1) { requestVerificationCodeUseCase("A", "email") }
+        io.mockk.coVerify(exactly = 1) { requestVerificationCodeUseCase("B", "email") }
+    }
+
+    @Test
+    fun sameAccountPreservesPendingRequestButSwitchingAccountCancelsIt() = runTest {
+        val pending = kotlinx.coroutines.CompletableDeferred<MiraiLinkResult<Unit>>()
+        coEvery { requestVerificationCodeUseCase("A", "email") } coAnswers { pending.await() }
+        var sent = false
+        viewModel.prepareForUser("A")
+        viewModel.requestCode("A") { sent = true }
+        mainCoroutineRule.testDispatcher.scheduler.runCurrent()
+        viewModel.prepareForUser("A")
+        org.junit.Assert.assertTrue(viewModel.state.value.isLoading)
+
+        viewModel.prepareForUser("B")
+        pending.complete(MiraiLinkResult.Success(Unit))
+        mainCoroutineRule.testDispatcher.scheduler.advanceUntilIdle()
+        org.junit.Assert.assertFalse(sent)
+        org.junit.Assert.assertEquals(VerificationViewModel.VerificationState(), viewModel.state.value)
     }
 
     @Test

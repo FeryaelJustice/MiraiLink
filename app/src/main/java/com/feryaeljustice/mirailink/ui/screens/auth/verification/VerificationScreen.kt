@@ -175,6 +175,9 @@ fun VerificationDialog(
     viewModel: VerificationViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(userId, viewModel) {
+        viewModel.prepareForUser(userId)
+    }
     AlertDialog(
         onDismissRequest = { if (!uiState.isLoading) onClose() },
         modifier = modifier,

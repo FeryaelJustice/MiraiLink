@@ -111,6 +111,22 @@ credenciales de firma.
 
 ## Validacion realizada
 
+### Estado de los dialogos de autenticacion
+
+`VerificationDialog` prepara el estado para su `userId`. Al cambiar de cuenta,
+se cancelan las operaciones pendientes y el cooldown, y se eliminan el token,
+el error y sus acciones de recuperacion. La misma cuenta conserva el estado
+durante una recreacion. `VerificationScreen.init` aplica el mismo aislamiento.
+
+`MiraiLinkDialog` calcula la visibilidad de confirmar y cancelar en cada
+recomposicion. Si el dialogo 2FA se crea durante una carga, confirmar vuelve
+a aparecer cuando termina la peticion y el callback deja de ser nulo.
+
+Las regresiones se cubren en `VerificationViewModelTest` y
+`MiraiLinkDialogTest`. La segunda es una prueba Compose instrumentada y
+requiere dispositivo y dependencias AndroidTest compatibles. No cambian los
+contratos del backend ni se requiere enviar correos para estas pruebas.
+
 Consultar el informe verification.md junto a spec.md, plan.md y tasks.md en
 docs/features/render_app_links. Las pruebas locales no acreditan entrega SMTP
 ni asociacion del dominio desplegado. No se envio correo a personas reales,
