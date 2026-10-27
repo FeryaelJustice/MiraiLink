@@ -1,4 +1,7 @@
 <resources>
+    <string name="debug_link_copy">Copy</string>
+    <string name="debug_link_copied">Link copied</string>
+    <string name="debug_mail_not_delivered">Debug link - email not sent</string>
     <string name="settings_holo_title">Perfil Holo-3D</string>
     <string name="settings_holo_subtitle">Profundidad suave al inclinar el móvil en Inicio y Explorar. Respeta el ahorro de batería y las animaciones del sistema.</string>
     <string name="holo_state_enabled">Activado</string>

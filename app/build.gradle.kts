@@ -101,6 +101,8 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             isDebuggable = true
+            val debugSecurityKey = localProperties.getProperty("mirailink.debugSecurityKey")?.trim().orEmpty()
+            buildConfigField("String", "DEBUG_SECURITY_KEY", "\"${debugSecurityKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
             buildConfigField(
                 "String",
                 "ADMOB_INTERSTITIAL_AD_UNIT_ID",
@@ -116,6 +118,7 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
+            buildConfigField("String", "DEBUG_SECURITY_KEY", "\"\"")
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
