@@ -79,6 +79,7 @@ val networkModule =
                         )
                     }
                     addInterceptor(com.feryaeljustice.mirailink.data.remote.interceptor.DebugSecurityLinkInterceptor())
+                    addNetworkInterceptor(com.feryaeljustice.mirailink.data.remote.interceptor.DebugSecurityRedirectGuard())
                     addInterceptor(get<AuthInterceptor>())
                     addInterceptor(get<com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor>())
                     addInterceptor { chain ->

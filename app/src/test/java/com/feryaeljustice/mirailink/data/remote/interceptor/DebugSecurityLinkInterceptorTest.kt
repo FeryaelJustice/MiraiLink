@@ -54,6 +54,25 @@ class DebugSecurityLinkInterceptorTest {
         assertNull(kotlinx.coroutines.withTimeoutOrNull(10) { DebugSecurityLinks.events.first() })
     }
 
+    @Test
+    fun redirectGuardRemovesKeyOutsideTheConfiguredOriginAndRoutes() {
+        for ((url, expected) in listOf(
+            "https://example.com/api/auth/register" to key,
+            "https://other.example/api/auth/register" to null,
+            "https://example.com/other" to null,
+            "http://example.com/api/auth/register" to null,
+            "https://example.com:444/api/auth/register" to null,
+        )) {
+            val request = Request.Builder().url(url).header("X-MiraiLink-Debug-Key", key).build()
+            val chain = mockk<Interceptor.Chain>()
+            val sent = slot<Request>()
+            every { chain.request() } returns request
+            every { chain.proceed(capture(sent)) } answers { response(sent.captured, 200, "{}") }
+            DebugSecurityRedirectGuard("https://example.com").intercept(chain)
+            assertEquals(expected, sent.captured.header("X-MiraiLink-Debug-Key"))
+        }
+    }
+
     private fun response(request: Request, code: Int, body: String): Response = Response.Builder()
         .request(request).protocol(Protocol.HTTP_1_1).code(code).message("test")
         .body(body.toResponseBody("application/json".toMediaType())).build()
