@@ -32,7 +32,7 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
     MiraiLinkDialog(
         modifier = modifier,
         onDismiss = null,
-        onAccept = onConfirm,
+        onAccept = if (isLoading) null else onConfirm,
         onCancel = onDismiss,
         acceptText = stringResource(R.string.accept),
         cancelText = stringResource(R.string.cancel),
@@ -41,6 +41,9 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (isLoading) {
+                    com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                } else {
                 MiraiLinkText(
                     text = stringResource(R.string.enter_code_from_app_or_use_recovery_code),
                     color = MaterialTheme.colorScheme.onSurface,
@@ -59,10 +62,7 @@ fun TwoFactorPutCodeOrRecoveryCDialog(
                     enabled = !isLoading,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                if (isLoading) {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+
                 }
             }
         },

@@ -175,6 +175,9 @@ fun SearchPreferencesScreen(
                     .zIndex(99f),
             )
         }
+        if (isSaving) {
+            com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+        } else {
         com.feryaeljustice.mirailink.ui.components.capsule.DiscoveryModeSelector(mode, capsulesAvailable, !isSaving, viewModel::updateDraftMode)
         SearchSettingsSection(
             radiusKm = radiusKm,
@@ -209,6 +212,8 @@ fun SearchPreferencesScreen(
             onSearchGenderChange = viewModel::updateDraftSearchGender,
             userGender = userGender,
         )
+
+        }
         Spacer(Modifier.height(8.dp))
     }
 }

@@ -72,10 +72,14 @@ val networkModule =
                     if (BuildConfig.DEBUG) {
                         addInterceptor(
                             HttpLoggingInterceptor().apply {
-                                level = HttpLoggingInterceptor.Level.BODY
+                                level = HttpLoggingInterceptor.Level.HEADERS
+                                redactHeader("Authorization")
+                                redactHeader("X-MiraiLink-Debug-Key")
                             },
                         )
                     }
+                    addInterceptor(com.feryaeljustice.mirailink.data.remote.interceptor.DebugSecurityLinkInterceptor())
+                    addNetworkInterceptor(com.feryaeljustice.mirailink.data.remote.interceptor.DebugSecurityRedirectGuard())
                     addInterceptor(get<AuthInterceptor>())
                     addInterceptor(get<com.feryaeljustice.mirailink.data.remote.interceptor.ServerTimeInterceptor>())
                     addInterceptor { chain ->

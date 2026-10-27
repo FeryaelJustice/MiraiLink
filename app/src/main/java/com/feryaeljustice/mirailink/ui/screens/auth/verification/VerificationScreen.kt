@@ -131,6 +131,9 @@ fun VerificationScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                if (uiState.isLoading) {
+                    com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                } else {
                 MiraiLinkOutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.token,
@@ -156,6 +159,7 @@ fun VerificationScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     MiraiLinkErrorContent(error = uiState.error!!, onAction = viewModel.recoveryFor(uiState.error!!))
                 }
+                }
             }
         }
     }
@@ -170,35 +174,37 @@ fun VerificationDialog(
     onClose: () -> Unit,
     viewModel: VerificationViewModel = koinViewModel(),
 ) {
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     AlertDialog(
-        onDismissRequest = onClose,
+        onDismissRequest = { if (!uiState.isLoading) onClose() },
         modifier = modifier,
         title = { MiraiLinkText(text = stringResource(R.string.error_verification_required)) },
         text = {
-            MiraiLinkText(
-                text = stringResource(R.string.account_unverified_dialog_message),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        },
-        confirmButton = {
-            MiraiLinkButton(
-                onClick = {
-                    viewModel.requestCode(userId)
-                    onConfirmSendEmail()
-                },
-            ) {
-                MiraiLinkText(
-                    text = stringResource(R.string.send_verification_email),
-                    color = MaterialTheme.colorScheme.onPrimary,
+            when {
+                uiState.isLoading -> com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                uiState.error != null -> MiraiLinkErrorContent(
+                    error = uiState.error!!,
+                    onAction = viewModel.recoveryFor(uiState.error!!),
+                )
+                else -> MiraiLinkText(
+                    text = stringResource(R.string.account_unverified_dialog_message),
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         },
+        confirmButton = {
+            if (!uiState.isLoading && uiState.error == null) {
+                MiraiLinkButton(onClick = { viewModel.requestCode(userId, onSent = onConfirmSendEmail) }) {
+                    MiraiLinkText(text = stringResource(R.string.send_verification_email), color = MaterialTheme.colorScheme.onPrimary)
+                }
+            }
+        },
         dismissButton = {
-            TextButton(onClick = onClose) {
+            TextButton(onClick = onClose, enabled = !uiState.isLoading) {
                 MiraiLinkText(text = stringResource(R.string.close))
             }
         },
-        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
+        properties = DialogProperties(dismissOnBackPress = !uiState.isLoading, dismissOnClickOutside = !uiState.isLoading),
     )
 }
 

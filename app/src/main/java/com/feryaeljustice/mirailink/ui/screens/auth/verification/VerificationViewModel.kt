@@ -29,6 +29,7 @@ class VerificationViewModel(
         val step: Int = 1,
         val token: String = "",
         val cooldownSeconds: Int = 0,
+        val isLoading: Boolean = false,
         val error: UiError? = null,
     )
 
@@ -61,65 +62,59 @@ class VerificationViewModel(
         state.update { it.copy(token = token, error = null) }
     }
 
-    fun checkUserIsVerified(onFinished: (isVerified: Boolean) -> Unit): Job =
-        viewModelScope.launch {
-            setRecoveryAction { checkUserIsVerified(onFinished) }
-            val result =
-                withContext(ioDispatcher) {
-                    checkIsVerifiedUseCase()
-                }
-
-            when (result) {
+    fun checkUserIsVerified(onFinished: (isVerified: Boolean) -> Unit): Job = viewModelScope.launch {
+        if (state.value.isLoading) return@launch
+        state.update { it.copy(isLoading = true, error = null) }
+        try {
+            when (val result = withContext(ioDispatcher) { checkIsVerifiedUseCase() }) {
                 is MiraiLinkResult.Success -> {
                     onFinished(result.data)
-                    if (result.data) {
-                        resetState()
-                    }
+                    if (result.data) resetState()
                 }
-
-                is MiraiLinkResult.Error -> {
-                    state.update { it.copy(error = errorFor(result.error) { checkUserIsVerified(onFinished) }) }
+                is MiraiLinkResult.Error -> state.update {
+                    it.copy(error = errorFor(result.error) { checkUserIsVerified(onFinished) })
                 }
             }
+        } finally {
+            state.update { it.copy(isLoading = false) }
         }
+    }
 
-    fun requestCode(userId: String): Job =
-        viewModelScope.launch {
-            setRecoveryAction { requestCode(userId) }
-            val result =
-                withContext(ioDispatcher) {
-                    requestCodeUseCase(userId, "email")
-                }
-
-            when (result) {
+    fun requestCode(userId: String, onSent: () -> Unit = {}): Job = viewModelScope.launch {
+        if (state.value.isLoading) return@launch
+        state.update { it.copy(isLoading = true, error = null) }
+        try {
+            when (val result = withContext(ioDispatcher) { requestCodeUseCase(userId, "email") }) {
                 is MiraiLinkResult.Success -> {
                     startCooldown(60)
                     state.update { it.copy(step = 2, error = null) }
+                    onSent()
                 }
-
-                is MiraiLinkResult.Error -> state.update { it.copy(error = errorFor(result.error) { requestCode(userId) }) }
+                is MiraiLinkResult.Error -> state.update {
+                    it.copy(error = errorFor(result.error) { requestCode(userId, onSent) })
+                }
             }
+        } finally {
+            state.update { it.copy(isLoading = false) }
         }
+    }
 
-    fun confirmCode(
-        userId: String,
-        onFinish: () -> Unit,
-    ): Job = viewModelScope.launch {
-        setRecoveryAction { confirmCode(userId, onFinish) }
-        val result =
-            withContext(ioDispatcher) {
-                confirmCodeUseCase(userId, state.value.token, "email")
+    fun confirmCode(userId: String, onFinish: () -> Unit): Job = viewModelScope.launch {
+        if (state.value.isLoading) return@launch
+        val code = state.value.token
+        state.update { it.copy(isLoading = true, error = null) }
+        try {
+            when (val result = withContext(ioDispatcher) { confirmCodeUseCase(userId, code, "email") }) {
+                is MiraiLinkResult.Success -> {
+                    resetState()
+                    onFinish()
+                }
+                is MiraiLinkResult.Error -> state.update {
+                    it.copy(error = errorFor(result.error) { confirmCode(userId, onFinish) })
+                }
             }
-
-        when (result) {
-            is MiraiLinkResult.Success -> {
-                resetState()
-                onFinish()
-            }
-
-            is MiraiLinkResult.Error -> {
-                state.update { it.copy(error = errorFor(result.error) { confirmCode(userId, onFinish) }) }
-            }
+        } finally {
+            state.update { it.copy(isLoading = false) }
         }
     }
 

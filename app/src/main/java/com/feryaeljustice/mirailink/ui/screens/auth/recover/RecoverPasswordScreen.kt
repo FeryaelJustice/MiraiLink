@@ -132,6 +132,9 @@ fun RecoverPasswordScreen(
             ),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                if (uiState.isLoading) {
+                    com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+                } else {
                 when (uiState.step) {
                     1 -> {
                         MiraiLinkOutlinedTextField(
@@ -210,6 +213,7 @@ fun RecoverPasswordScreen(
                 uiState.error?.let { error ->
                     Spacer(modifier = Modifier.height(12.dp))
                     MiraiLinkErrorContent(error = error, onAction = viewModel.recoveryFor(error))
+                }
                 }
             }
         }

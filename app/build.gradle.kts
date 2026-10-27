@@ -48,7 +48,7 @@ android {
     val imageAllowedDomains =
         localProperties.getProperty("mirailink.imageAllowedDomains")?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?: "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com"
+            ?: "mirailink.xyz,cloudinary.com,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com"
 
     sourceSets {
         getByName("test") {
@@ -64,8 +64,8 @@ android {
 
         minSdk = 30
         targetSdk = 37
-        versionCode = 36
-        versionName = "3.1.0"
+        versionCode = 37
+        versionName = "3.2.0"
 
         buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
         buildConfigField("String", "IMAGE_ALLOWED_DOMAINS", "\"${imageAllowedDomains.replace("\"", "\\\"")}\"")
@@ -101,6 +101,8 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             isDebuggable = true
+            val debugSecurityKey = localProperties.getProperty("mirailink.debugSecurityKey")?.trim().orEmpty()
+            buildConfigField("String", "DEBUG_SECURITY_KEY", "\"${debugSecurityKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
             buildConfigField(
                 "String",
                 "ADMOB_INTERSTITIAL_AD_UNIT_ID",
@@ -116,6 +118,7 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
+            buildConfigField("String", "DEBUG_SECURITY_KEY", "\"\"")
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

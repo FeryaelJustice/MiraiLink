@@ -13,7 +13,7 @@ En la raíz del proyecto `MiraiLink`, el archivo `local.properties` (que no se s
 mirailink.baseUrl=http://192.168.1.137:3000
 
 # Dominios autorizados para descarga de imágenes remotas en Coil (separados por comas)
-mirailink.imageAllowedDomains=mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com
+mirailink.imageAllowedDomains=mirailink.xyz,cloudinary.com,cdn.myanimelist.net,media.rawg.io,images.igdb.com,images.unsplash.com,alphacoders.com,openstreetmap.org,10.0.2.2,10.0.3.2,localhost,127.0.0.1,192.168.1.137,trycloudflare.com
 ```
 
 ### ¿Donde tocar para añadir un nuevo dominio de imágenes?
@@ -21,6 +21,8 @@ Si el backend o la app necesitan mostrar imágenes de un nuevo proveedor CDN (po
 1. Abre `local.properties`.
 2. Añade el dominio a la lista en `mirailink.imageAllowedDomains`, separado por comas (ej. `,mi-servidor.com`).
 3. Recompila la aplicación. `app/build.gradle.kts` inyecta automáticamente este valor en `BuildConfig.IMAGE_ALLOWED_DOMAINS`.
+
+Cloudinary está incluido en la lista predeterminada mediante `cloudinary.com`, que también autoriza `res.cloudinary.com` y sus subdominios. Si ya tienes una lista en `local.properties`, añade `cloudinary.com` también allí: la configuración local reemplaza la predeterminada.
 
 ---
 
@@ -43,6 +45,7 @@ Ubicado en:
 
 - **HTTPS Estricto por Defecto**:
   `<base-config cleartextTrafficPermitted="false">`: Toda conexión externa de la aplicación debe ser cifrada vía HTTPS.
+  Los dominios HTTPS con certificados del sistema, incluido Cloudinary, heredan esta configuración sin necesitar una entrada propia en el XML. La lista de dominios autorizados para Coil se aplica por separado en el interceptor.
 - **Excepciones para Desarrollo Local**:
   `<domain-config cleartextTrafficPermitted="true">`:
   - `localhost`

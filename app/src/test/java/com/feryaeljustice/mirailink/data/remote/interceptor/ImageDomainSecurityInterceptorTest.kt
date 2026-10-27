@@ -18,6 +18,30 @@ class ImageDomainSecurityInterceptorTest {
     private val allowedDomains = "mirailink.xyz,cdn.myanimelist.net,media.rawg.io,images.igdb.com,10.0.2.2,localhost,openstreetmap.org"
     private val interceptor = ImageDomainSecurityInterceptor(allowedDomains)
 
+    @Test
+    fun `configured image client permits Cloudinary delivery URLs`() {
+        val configuredInterceptor = ImageDomainSecurityInterceptor()
+        listOf("cloudinary.com", "res.cloudinary.com").forEach { host ->
+            val response = configuredInterceptor.intercept(
+                mockChain("https://$host/demo/image/upload/sample.jpg"),
+            )
+            assertEquals(200, response.code)
+        }
+    }
+
+    @Test
+    fun `configured image client rejects Cloudinary lookalike hosts`() {
+        val configuredInterceptor = ImageDomainSecurityInterceptor()
+        listOf("res.cloudinary.com.evil.example", "fakecloudinary.com").forEach { host ->
+            try {
+                configuredInterceptor.intercept(mockChain("https://$host/sample.jpg"))
+                fail("Expected IOException for unauthorized domain")
+            } catch (e: IOException) {
+                assertTrue(e.message?.contains("Dominio de imagen no autorizado") == true)
+            }
+        }
+    }
+
     private fun mockChain(url: String): Interceptor.Chain {
         val request = Request.Builder().url(url).build()
         val response = Response.Builder()

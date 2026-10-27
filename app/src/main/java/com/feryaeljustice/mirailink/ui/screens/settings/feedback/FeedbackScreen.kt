@@ -74,42 +74,22 @@ fun FeedbackScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    AnimatedContent(
-        targetState = uiState.loading,
-        modifier =
-            modifier
-                .fillMaxSize()
-                .then(
-                    if (deviceConfiguration.requiresDisplayCutoutPadding()) {
-                        Modifier.windowInsetsPadding(WindowInsets.displayCutout)
-                    } else {
-                        Modifier
-                    },
-                ),
-        transitionSpec = {
-            (fadeIn() + scaleIn(initialScale = 0.92f))
-                .togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
-        },
-        label = "FeedbackLoadingTransition",
-    ) { loading ->
-        if (loading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 12.dp)
-                            .padding(bottom = 8.dp)
-                            .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    FeedbackHeader(onBackClick = actualBackClick)
-                    Spacer(modifier = Modifier.height(16.dp))
+    Box(
+        modifier = modifier.fillMaxSize().then(
+            if (deviceConfiguration.requiresDisplayCutoutPadding()) Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+            else Modifier,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp).padding(bottom = 8.dp).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            FeedbackHeader(onBackClick = actualBackClick)
+            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.loading) {
+                com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+            } else {
                     FeedbackPromptCard(
                         onPromptClick = viewModel::updateFeedback,
                     )
@@ -164,7 +144,6 @@ fun FeedbackScreen(
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
-                }
             }
         }
     }

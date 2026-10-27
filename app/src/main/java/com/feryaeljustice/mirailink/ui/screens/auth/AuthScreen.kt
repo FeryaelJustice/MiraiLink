@@ -181,9 +181,9 @@ fun AuthScreen(
         )
     }
 
-    // El spinner de carga reemplaza todo el formulario con AnimatedContent
+    // La cabecera permanece visible mientras se procesa el formulario.
     MiraiLinkScreenContent(
-        isLoading = state is AuthUiState.Loading,
+        isLoading = false,
         modifier =
             modifier
                 .fillMaxSize()
@@ -265,6 +265,7 @@ fun AuthScreen(
                     FilterChip(
                         modifier = Modifier.weight(1f),
                         selected = isLogin,
+                        enabled = state !is AuthUiState.Loading,
                         onClick = {
                             if (!isLogin) {
                                 isLogin = true
@@ -279,6 +280,7 @@ fun AuthScreen(
                     FilterChip(
                         modifier = Modifier.weight(1f),
                         selected = !isLogin,
+                        enabled = state !is AuthUiState.Loading,
                         onClick = {
                             if (isLogin) {
                                 isLogin = false
@@ -295,6 +297,9 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            if (state is AuthUiState.Loading) {
+                com.feryaeljustice.mirailink.ui.components.molecules.FormLoadingIndicator()
+            } else {
             MiraiLinkOutlinedTextField(
                 modifier =
                     Modifier
@@ -586,6 +591,7 @@ fun AuthScreen(
                     onAction = viewModel.recoveryFor((state as AuthUiState.Error).error),
                     modifier = Modifier.fillMaxWidth(),
                 )
+            }
             }
         }
     }

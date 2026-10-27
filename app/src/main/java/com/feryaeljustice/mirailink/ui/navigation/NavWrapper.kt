@@ -874,6 +874,8 @@ fun NavWrapper(
             )
         }
 
+        com.feryaeljustice.mirailink.ui.components.molecules.DebugSecurityLinkNotice()
+
         // Gate de actualización obligatoria: se muestra por encima de la jerarquía de la app
         // and cannot be bypassed or dismissed.
         if (isMandatoryUpdateActive) {

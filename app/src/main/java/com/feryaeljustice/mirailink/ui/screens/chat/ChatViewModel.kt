@@ -84,7 +84,19 @@ class ChatViewModel(
     private val _confirmedCapsuleActionId = MutableStateFlow<String?>(null)
     val confirmedCapsuleActionId: StateFlow<String?> = _confirmedCapsuleActionId
     private var ownerPeer: String? = null
-    fun retryPending() { performErrorAction() }
+    fun retryPending() {
+        if (savedState.get<String>("pendingOwner") != ownerPeer) return
+        val pendingAction = savedState.get<String>("capsuleAction")
+        if (pendingAction != null) {
+            val current = capsule.value ?: return
+            val action = runCatching {
+                capsuleJson.decodeFromString<com.feryaeljustice.mirailink.domain.model.capsule.CapsuleAction>(pendingAction)
+            }.getOrNull() ?: return
+            executeCapsuleAction(current.id, action)
+        } else {
+            savedState.get<String>("pendingText")?.let { sendMessage(it) }
+        }
+    }
     private val fetchMutex = kotlinx.coroutines.sync.Mutex()
     private val actionMutex = kotlinx.coroutines.sync.Mutex()
     private var screenActive = false
