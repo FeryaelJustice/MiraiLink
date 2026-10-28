@@ -64,8 +64,8 @@ android {
 
         minSdk = 30
         targetSdk = 37
-        versionCode = 37
-        versionName = "3.2.0"
+        versionCode = 38
+        versionName = "3.3.0"
 
         buildConfigField("String", "MIRAILINK_BASE_URL", "\"${miraiLinkBaseUrl.replace("\"", "\\\"")}\"")
         buildConfigField("String", "IMAGE_ALLOWED_DOMAINS", "\"${imageAllowedDomains.replace("\"", "\\\"")}\"")
