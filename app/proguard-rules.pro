@@ -58,3 +58,11 @@
 -keep class * extends androidx.lifecycle.ViewModel { *; }
 
 -dontwarn okhttp3.internal.Util
+# Retrofit reads these response models reflectively in release. R8 otherwise
+# removes them when callers discard the parsed body.
+-keep class com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse { *; }
+-keep class com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse$Companion { *; }
+-keep class com.feryaeljustice.mirailink.data.model.response.generic.BasicResponse$$serializer { *; }
+-keep class com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse { *; }
+-keep class com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse$Companion { *; }
+-keep class com.feryaeljustice.mirailink.data.model.response.auth.LogoutResponse$$serializer { *; }
